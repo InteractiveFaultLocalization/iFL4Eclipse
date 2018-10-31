@@ -11,14 +11,13 @@
       <command
             categoryId="org.eclipse.sed.ifl.commands.category"
             name="Start iFL session"
-            id="org.eclipse.sed.ifl.commands.startCommand"
-            tooltip="Start interactive Fault Localization session.">
+            id="org.eclipse.sed.ifl.commands.startCommand">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.eclipse.sed.ifl.handlers.IFLHandler"
+            class="org.eclipse.sed.ifl.gui.handlers.IFLHandler"
             commandId="org.eclipse.sed.ifl.commands.startCommand">
       </handler>
    </extension>
@@ -65,13 +64,13 @@
       <page
             id="org.eclipse.sed.ifl.preferences.IFLPreferencePage"
             name="iFL Preferences"
-            class="org.eclipse.sed.ifl.preferences.IFLPreferencePage">
+            class="org.eclipse.sed.ifl.gui.preferences.IFLPreferencePage">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="org.eclipse.sed.ifl.preferences.PreferenceInitializer">
+            class="org.eclipse.sed.ifl.gui.preferences.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
@@ -84,7 +83,7 @@
             id="org.eclipse.sed.ifl.views.IFLMainView"
             name="Interactive Fault Localization"
             icon="icons/ico16.png"
-            class="org.eclipse.sed.ifl.views.IFLMainView"
+            class="org.eclipse.sed.ifl.gui.views.IFLMainView"
             category="org.eclipse.sed.ifl"
             inject="true">
       </view>

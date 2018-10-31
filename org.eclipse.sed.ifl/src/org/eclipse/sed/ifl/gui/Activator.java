@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl;
+package org.eclipse.sed.ifl.gui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
