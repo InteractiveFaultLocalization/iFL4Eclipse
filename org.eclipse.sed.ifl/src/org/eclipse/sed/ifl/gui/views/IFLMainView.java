@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.views;
+package org.eclipse.sed.ifl.gui.views;
 
 
 import org.eclipse.swt.widgets.Composite;

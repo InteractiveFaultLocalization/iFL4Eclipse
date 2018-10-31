@@ -1,0 +1,12 @@
+package org.eclipse.sed.ifl.model.user.interaction;
+
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.identification.IUser;
+
+public interface IUserFeedback {
+	public IUser getUser();
+	
+	public Option getChoise();
+	
+	public Iterable<IMethodDescription> getSubjects();
+}

@@ -1,12 +1,12 @@
-package org.eclipse.sed.ifl.handlers;
+package org.eclipse.sed.ifl.gui.handlers;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.sed.ifl.gui.views.IFLMainView;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.sed.ifl.views.IFLMainView;
 
 public class IFLHandler extends AbstractHandler {
 
