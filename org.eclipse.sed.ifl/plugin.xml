@@ -11,8 +11,7 @@
       <command
             categoryId="org.eclipse.sed.ifl.commands.category"
             name="Start iFL session"
-            id="org.eclipse.sed.ifl.commands.startCommand"
-            tooltip="Start interactive Fault Localization session.">
+            id="org.eclipse.sed.ifl.commands.startCommand">
       </command>
    </extension>
    <extension
