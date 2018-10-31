@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.util.event;
 
+@FunctionalInterface
 public interface IListener<TEvent> {
-	void Invoke(TEvent event);
+	void invoke(TEvent event);
 }
