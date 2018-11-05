@@ -9,6 +9,8 @@ import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.IListenerCollection;
 import org.eclipse.sed.ifl.util.event.IListenerInvoker;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 
 public abstract class MethodScoreHandler {
 	public MethodScoreHandler(IMavenExecutor executor) { }
@@ -25,10 +27,10 @@ public abstract class MethodScoreHandler {
 	
 	public abstract Iterable<Option> getProvidedOptions();
 	
-	//Yes, I know. Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise the event.
-	private IListenerInvoker<Map<IMethodDescription, Double>, IListener<Map<IMethodDescription, Double>>> scoreUpdated;
+	//Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise the event.
+	private NonGenericListenerCollection<Map<IMethodDescription, Double>> scoreUpdated;
 	
-	public IListenerCollection<Map<IMethodDescription, Double>, IListener<Map<IMethodDescription, Double>>> eventScoreUpdated(){
+	public INonGenericListenerCollection<Map<IMethodDescription, Double>> eventScoreUpdated(){
 		return scoreUpdated;
 	}
 }
