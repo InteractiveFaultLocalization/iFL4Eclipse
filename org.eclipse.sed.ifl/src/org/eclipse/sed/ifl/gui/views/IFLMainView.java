@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.views;
+package org.eclipse.sed.ifl.gui.views;
 
 
 import org.eclipse.swt.widgets.Composite;
@@ -10,7 +10,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;

@@ -1,9 +1,8 @@
-package org.eclipse.sed.ifl.preferences;
+package org.eclipse.sed.ifl.gui.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-
-import org.eclipse.sed.ifl.Activator;
+import org.eclipse.sed.ifl.gui.Activator;
 
 /**
  * Class used to initialize default preference values.
