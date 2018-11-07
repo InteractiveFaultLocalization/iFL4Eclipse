@@ -2,8 +2,6 @@ package org.eclipse.sed.ifl.gui.views;
 
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
@@ -11,7 +9,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
 import java.util.List;

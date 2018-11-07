@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.handlers;
+package org.eclipse.sed.ifl.gui.handlers;
 
 import java.util.ArrayList;
 
@@ -9,8 +9,6 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.sed.ifl.Activator;
-import org.eclipse.sed.ifl.views.IFLMainView;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -21,6 +19,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.sed.ifl.gui.views.IFLMainView;
 
 public class IFLHandler extends AbstractHandler {
 
