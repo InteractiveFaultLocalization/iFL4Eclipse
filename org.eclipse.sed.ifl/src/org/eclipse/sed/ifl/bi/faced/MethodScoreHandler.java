@@ -6,9 +6,6 @@ import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
-import org.eclipse.sed.ifl.util.event.IListener;
-import org.eclipse.sed.ifl.util.event.IListenerCollection;
-import org.eclipse.sed.ifl.util.event.IListenerInvoker;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 
