@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.gui;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.sed.ifl.control.MainControl;
@@ -7,6 +9,8 @@ import org.eclipse.sed.ifl.control.project.ProjectControl;
 import org.eclipse.sed.ifl.gui.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.MainModel;
 import org.eclipse.sed.ifl.model.project.ProjectModel;
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -31,8 +35,11 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	private void initMVC() {
-		for (IJavaProject prj : new CodeEntityAccessor().getJavaProjects()) {
-			control.addProjectControl(new ProjectControl(new ProjectModel()));
+		CodeEntityAccessor accessor = new CodeEntityAccessor();
+		for (IJavaProject project : accessor.getJavaProjects()) {
+			List<IMethodDescription> methods = accessor.getMethods(project).stream()
+				.map(method -> new )
+			control.addProjectControl(new ProjectControl(new ProjectModel(methods)));
 		}
 		control.init();
 	}
