@@ -1,8 +1,12 @@
 package org.eclipse.sed.ifl.gui;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.sed.ifl.control.MainControl;
+import org.eclipse.sed.ifl.control.project.ProjectControl;
+import org.eclipse.sed.ifl.gui.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.MainModel;
+import org.eclipse.sed.ifl.model.project.ProjectModel;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -27,6 +31,9 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	private void initMVC() {
+		for (IJavaProject prj : new CodeEntityAccessor().getJavaProjects()) {
+			control.addProjectControl(new ProjectControl(new ProjectModel()));
+		}
 		control.init();
 	}
 
