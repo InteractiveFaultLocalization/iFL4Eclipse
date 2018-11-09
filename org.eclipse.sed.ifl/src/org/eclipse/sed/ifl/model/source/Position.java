@@ -1,20 +1,14 @@
 package org.eclipse.sed.ifl.model.source;
 
 public class Position {
-	private int row;
-	private int column;
+	private int offset;
 		
-	public Position(int row, int column) {
+	public Position(int offset) {
 		super();
-		this.row = row;
-		this.column = column;
+		this.offset = offset;
 	}
 
-	public int getRow() {
-		return row;
-	}
-	
-	public int getColumn() {
-		return column;
+	public int getOffset() {
+		return offset;
 	}	
 }
