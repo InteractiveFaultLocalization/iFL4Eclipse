@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -13,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.exception.ExceptionUtil;
@@ -39,18 +41,25 @@ public class CodeEntityAccessor {
 	}
 	
 	public List<IJavaProject> getJavaProjects() {
-		return Collections.unmodifiableList(getProjects().stream()
+		return getProjects().stream()
 		.filter(prj -> EU.tryUnchecked(() -> prj.isNatureEnabled(Natures.JAVA.getValue())))
 		.map(prj -> JavaCore.create(prj))
-		.collect(Collectors.toList()));
+		.collect(Collectors.toUnmodifiableList());
+	}
+	
+	public List<IMethod> getMethods(IType type) {
+		return EU.tryUnchecked(() -> Stream.of(type.getMethods()))
+		.collect(Collectors.toUnmodifiableList());
 	}
 	
 	public List<IMethod> getMethods(IJavaProject project) {
-		return Arrays.asList(EU.tryUnchecked(() -> project.getPackageFragments())).stream()
+		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
-		.flatMap(fragment -> EU.tryUnchecked(() -> Arrays.asList(fragment.getCompilationUnits()).stream()))
-		.flatMap(unit -> EU.tryUnchecked(() -> Arrays.asList(unit.getAllTypes()).stream()))
-		.flatMap(type -> EU.tryUnchecked(() -> Arrays.asList(type.getMethods()).stream()))
-		.collect(Collectors.toList());
+		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
+		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
+		.flatMap(type -> getMethods(type).stream())
+		.collect(Collectors.toUnmodifiableList());
 	}
+	
+	
 }
