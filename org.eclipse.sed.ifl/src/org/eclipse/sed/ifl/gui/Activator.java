@@ -1,6 +1,21 @@
 package org.eclipse.sed.ifl.gui;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.sed.ifl.control.MainControl;
+import org.eclipse.sed.ifl.control.project.ProjectControl;
+import org.eclipse.sed.ifl.gui.source.CodeEntityAccessor;
+import org.eclipse.sed.ifl.model.MainModel;
+import org.eclipse.sed.ifl.model.project.ProjectModel;
+import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.Method;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.model.source.Position;
+import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -9,52 +24,55 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.sed.ifl"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.sed.ifl";
 
-	// The shared instance
 	private static Activator plugin;
 	
-	/**
-	 * The constructor
-	 */
+	private MainControl control = new MainControl(new MainModel());
+	
 	public Activator() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		initMVC();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
+	private void initMVC() {
+		CodeEntityAccessor accessor = new CodeEntityAccessor();
+		for (IJavaProject project : accessor.getJavaProjects()) {
+			List<IMethodDescription> methods = accessor.getMethods(project).stream()
+			.map(method ->
+				new Method(
+					new MethodIdentity(
+						method.getElementName(),
+						EU.tryUnchecked(() -> method.getSignature()),
+						method.getDeclaringType().getElementName()
+					),
+					new CodeChunkLocation(
+						EU.tryUnchecked(() -> method.getUnderlyingResource().getLocation().toOSString()),
+						new Position(EU.tryUnchecked(() -> method.getSourceRange().getOffset())),
+						new Position(EU.tryUnchecked(() -> method.getSourceRange().getOffset() + method.getSourceRange().getLength()))
+					)
+				)
+			)
+			.collect(Collectors.toUnmodifiableList());
+			control.addProjectControl(new ProjectControl(new ProjectModel(methods)));
+		}
+		control.init();
+	}
+
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		control.teardown();
 	}
 
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
 	public static Activator getDefault() {
 		return plugin;
 	}
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
