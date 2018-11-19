@@ -1,6 +1,5 @@
-package org.eclipse.sed.ifl.gui.source;
+package org.eclipse.sed.ifl.ide.source;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -10,14 +9,12 @@ import java.util.stream.Stream;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.sed.ifl.util.exception.EU;
-import org.eclipse.sed.ifl.util.exception.ExceptionUtil;
 
 public class CodeEntityAccessor {
 	IWorkspace currentWorkspace = ResourcesPlugin.getWorkspace();

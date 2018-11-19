@@ -5,9 +5,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.control.project.ProjectControl;
-import org.eclipse.sed.ifl.gui.source.CodeEntityAccessor;
+import org.eclipse.sed.ifl.ide.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.project.ProjectModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.model.source.CodeChunkLocation;

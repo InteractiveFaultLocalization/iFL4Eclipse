@@ -1,8 +1,6 @@
-package org.eclipse.sed.ifl.gui;
+package org.eclipse.sed.ifl.ide;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.sed.ifl.control.MainControl;
-import org.eclipse.sed.ifl.model.MainModel;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -15,8 +13,6 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 	
-	private MainControl control = new MainControl(new MainModel());
-	
 	public Activator() {
 		System.out.println("activator");
 	}
@@ -25,18 +21,12 @@ public class Activator extends AbstractUIPlugin {
 		System.out.println("activator.start() {");
 		super.start(context);
 		plugin = this;
-		initMVC();
 		System.out.println("} activator.start()");
-	}
-
-	private void initMVC() {
-		control.init();
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-		control.teardown();
 	}
 
 	public static Activator getDefault() {
