@@ -3,9 +3,10 @@ package org.eclipse.sed.ifl.ide.gui;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
-import java.util.List;
+import java.util.Map;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -35,9 +36,9 @@ public class ScoreListUI extends Composite {
 		tableColumn_2.setText("Parent type");
 	}
 	
-	public void setMethodList(List<IMethodDescription> list) {
-		table.setData(list);
-		for (IMethodDescription method : list) {
+	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores) {
+		table.removeAll();
+		for (IMethodDescription method : scores.keySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			item.setText(0, method.getId().getName());
 			item.setText(1, method.getId().getSignature());

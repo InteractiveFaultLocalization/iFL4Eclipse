@@ -15,15 +15,9 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 	
-	public Activator() {
-		System.out.println("activator");
-	}
-
 	public void start(BundleContext context) throws Exception {
-		System.out.println("activator.start() {");
 		super.start(context);
 		plugin = this;
-		System.out.println("} activator.start()");
 	}
 
 	public void stop(BundleContext context) throws Exception {
