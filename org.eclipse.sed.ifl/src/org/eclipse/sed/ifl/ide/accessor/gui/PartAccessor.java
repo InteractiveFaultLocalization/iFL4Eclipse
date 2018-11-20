@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.ide.gui;
+package org.eclipse.sed.ifl.ide.accessor.gui;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.sed.ifl.util.exception.EU;

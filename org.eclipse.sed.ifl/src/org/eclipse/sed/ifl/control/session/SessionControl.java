@@ -6,7 +6,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.project.ProjectControl;
-import org.eclipse.sed.ifl.ide.source.CodeEntityAccessor;
+import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
+import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.project.ProjectModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
@@ -15,21 +16,28 @@ import org.eclipse.sed.ifl.model.source.Method;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.source.Position;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.view.ProjectView;
 import org.eclipse.sed.ifl.view.SessionView;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Label;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
+	private IJavaProject selectedProject;
 	
-	public SessionControl(SessionModel model, SessionView view) {
+	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject) {
 		super(model, view);
+		this.selectedProject = selectedProject;
 	}
 
 	private void addProjectControl(ProjectControl control) {
 		addSubControl(control);
 	}
 	
-	public void startNewSession(IJavaProject subject) {
-		CodeEntityAccessor accessor = new CodeEntityAccessor();
-		List<IMethodDescription> methods = accessor.getMethods(subject).stream()
+	CodeEntityAccessor accessor = new CodeEntityAccessor(); 
+	
+	public void startNewSession() {
+		List<IMethodDescription> methods = accessor.getMethods(selectedProject).stream()
 		.map(method ->
 			new Method(
 				new MethodIdentity(
@@ -45,6 +53,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 			)
 		)
 		.collect(Collectors.toUnmodifiableList());
-		addProjectControl(new ProjectControl(new ProjectModel(methods)));
+		addProjectControl(new ProjectControl(new ProjectModel(methods), new ProjectView(new ScoreListUI(getView().getUI(), SWT.NONE))));
+	}
+	
+	@Override
+	public void init() {
+		super.init();
+		startNewSession();
 	}
 }

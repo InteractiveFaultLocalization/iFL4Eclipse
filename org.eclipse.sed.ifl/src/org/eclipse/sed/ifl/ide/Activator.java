@@ -1,6 +1,8 @@
 package org.eclipse.sed.ifl.ide;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.sed.ifl.control.session.SessionAlreadyActiveException;
+import org.eclipse.sed.ifl.control.session.SessionControl;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -35,5 +37,24 @@ public class Activator extends AbstractUIPlugin {
 
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+	
+	private SessionControl session;
+	
+	public SessionControl getSession() {
+		return session;
+	}
+	
+	public Boolean isSessionActive() {
+		return session != null;
+	}
+	
+	public void setSession(SessionControl newSession) {
+		if (!isSessionActive()) {
+			session = newSession; 
+		}
+		else {
+			throw new SessionAlreadyActiveException();
+		}
 	}
 }

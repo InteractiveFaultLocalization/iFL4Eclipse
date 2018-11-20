@@ -75,7 +75,7 @@
             id="org.eclipse.sed.ifl.views.IFLMainView"
             name="Interactive Fault Localization"
             icon="icons/ico16.png"
-            class="org.eclipse.sed.ifl.view.MainPart"
+            class="org.eclipse.sed.ifl.ide.gui.MainPart"
             category="org.eclipse.sed.ifl"
             inject="true">
       </view>
