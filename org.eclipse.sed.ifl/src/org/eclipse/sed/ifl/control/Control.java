@@ -15,4 +15,16 @@ public class Control<TModel extends IModel, TView extends IView> extends Viewles
 		super(model);
 		this.view = view;
 	}
+	
+	@Override
+	public void init() {
+		super.init();
+		view.init();
+	}
+	
+	@Override
+	public void teardown() {
+		super.teardown();
+		view.teardown();
+	}
 }

@@ -1,6 +1,5 @@
-package org.eclipse.sed.ifl.gui.source;
+package org.eclipse.sed.ifl.ide.accessor.source;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,16 +7,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sed.ifl.util.exception.EU;
-import org.eclipse.sed.ifl.util.exception.ExceptionUtil;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.PlatformUI;
 
 public class CodeEntityAccessor {
 	IWorkspace currentWorkspace = ResourcesPlugin.getWorkspace();
@@ -60,6 +63,42 @@ public class CodeEntityAccessor {
 		.flatMap(type -> getMethods(type).stream())
 		.collect(Collectors.toUnmodifiableList());
 	}
+	
+	private IResource extractSelection(ISelection sel) {
+	      if (!(sel instanceof IStructuredSelection))
+	         return null;
+	      IStructuredSelection ss = (IStructuredSelection) sel;
+	      Object element = ss.getFirstElement();
+	      if (element instanceof IResource)
+	         return (IResource) element;
+	      if (!(element instanceof IAdaptable))
+	         return null;
+	      IAdaptable adaptable = (IAdaptable)element;
+	      Object adapter = adaptable.getAdapter(IResource.class);
+	      return (IResource) adapter;
+	   }
+	
+	public IJavaProject getSelectedProject() {
+		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
+		ISelection selection = service.getSelection();
+		if (selection != null) {
+			IResource resource = extractSelection(selection);
+			if (resource == null) {
+				throw new WrongSelectionException("Non-resources selected.");
+			}
+			IProject project = resource.getProject();
+			if (EU.tryUnchecked(() -> project.isNatureEnabled(Natures.JAVA.getValue()))) {
+				return JavaCore.create(project);
+			}
+			else {
+				throw new WrongSelectionException("Non-Java project are selected.");
+			}
+		}
+		else {
+			throw new WrongSelectionException("Nothing is selected.");
+		}
+	}
+	
 	
 	
 }
