@@ -52,7 +52,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
+		initUIStateListeners();
 		startNewSession();
 		super.init();
+	}
+
+	private void initUIStateListeners() {
+		// TODO Auto-generated method stub
+		
 	}
 }

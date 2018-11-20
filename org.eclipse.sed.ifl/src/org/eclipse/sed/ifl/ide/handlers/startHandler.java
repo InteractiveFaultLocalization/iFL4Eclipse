@@ -29,7 +29,7 @@ public class startHandler extends AbstractHandler {
 				IJavaProject selected = sourceAccessor.getSelectedProject();
 				SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected);
 				Activator.getDefault().setSession(session);
-				session.init();
+				session.init(); 
 			} catch (WrongSelectionException e) {
 				MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
 			}
