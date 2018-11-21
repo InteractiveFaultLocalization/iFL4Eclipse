@@ -15,10 +15,15 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.Method;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.source.Position;
+import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
+import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
@@ -47,6 +52,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 			)
 		)
 		.collect(Collectors.toUnmodifiableList());
+		System.out.printf("%d method found", methods.size());
 		addSubControl(new ScoreListControl(new ScoreListModel(methods), new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE))));
 	}
 	
@@ -56,9 +62,26 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		startNewSession();
 		super.init();
 	}
+	
+	@Override
+	public void teardown() {
+		getView().eventClosed().remove(closeListener);
+		super.teardown();
+	}
 
+	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventFinished() {
+		return finished;
+	}
+	
+	private IListener<IWorkbenchPart> closeListener;
+	
 	private void initUIStateListeners() {
-		// TODO Auto-generated method stub
-		
+		closeListener = part -> {
+			System.out.println("Session closing...");
+			this.finished.invoke(new EmptyEvent());
+		};
+		getView().eventClosed().add(closeListener);
 	}
 }

@@ -1,6 +1,8 @@
 package org.eclipse.sed.ifl.view;
 
 import org.eclipse.sed.ifl.ide.gui.MainPart;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartService;
@@ -27,8 +29,14 @@ public class SessionView extends View {
 	
 	@Override
 	public void teardown() {
-		service.removePartListener(stateListener);
+		//service.removePartListener(stateListener);
 		super.teardown();
+	}
+	
+	private NonGenericListenerCollection<IWorkbenchPart> closed = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<IWorkbenchPart> eventClosed() {
+		return closed;
 	}
 	
 	private IPartService service;
@@ -46,6 +54,7 @@ public class SessionView extends View {
 			public void partClosed(IWorkbenchPart part) {
 				if (SessionView.this.part.equals(part)) {
 					System.out.println("MainPart closed");
+					SessionView.this.closed.invoke(part);
 				}
 			}
 			

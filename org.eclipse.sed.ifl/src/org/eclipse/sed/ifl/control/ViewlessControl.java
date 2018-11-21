@@ -37,8 +37,8 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 	public void teardown() {
 		for (var control : subControls) {
 			control.teardown();
-			subControls.remove(control);
-		}		
+		}
+		subControls.clear();
 		model.teardown();
 	}
 }

@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.ide;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.sed.ifl.control.session.SessionAlreadyActiveException;
 import org.eclipse.sed.ifl.control.session.SessionControl;
+import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -34,9 +36,18 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private SessionControl session;
+
+	private IListener<EmptyEvent> sessionFinishedListener;
 	
 	public SessionControl getSession() {
 		return session;
+	}
+	
+	private void deactivateSession() {
+		//session.eventFinished().remove(sessionFinishedListener);
+		session.teardown();
+		session = null;
+		System.out.println("Session deactivated.");
 	}
 	
 	public Boolean isSessionActive() {
@@ -45,7 +56,9 @@ public class Activator extends AbstractUIPlugin {
 	
 	public void setSession(SessionControl newSession) {
 		if (!isSessionActive()) {
-			session = newSession; 
+			session = newSession;
+			sessionFinishedListener = e -> deactivateSession();
+			session.eventFinished().add(sessionFinishedListener);
 		}
 		else {
 			throw new SessionAlreadyActiveException();

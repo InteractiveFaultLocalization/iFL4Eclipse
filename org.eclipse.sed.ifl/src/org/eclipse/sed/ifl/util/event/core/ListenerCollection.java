@@ -18,15 +18,19 @@ public class ListenerCollection<TEvent, TListener extends IListener<TEvent>> imp
 
 	@Override
 	public void remove(TListener listener) {
-		listeners.remove(listener);
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
 	}
 
 	@Override
 	public void invoke(TEvent event) {
+		List<TListener> currents = new ArrayList<>();
 		synchronized (listeners) {
-			for (TListener listener : listeners) {
-				listener.invoke(event);
-			}
+			currents.addAll(listeners);
+		}
+		for (TListener listener : currents) {
+			listener.invoke(event);
 		}
 	}
 
