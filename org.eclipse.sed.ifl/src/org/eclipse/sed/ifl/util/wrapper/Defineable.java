@@ -3,12 +3,16 @@ package org.eclipse.sed.ifl.util.wrapper;
 public class Defineable<TValue> {
 	private TValue value;
 
+	public Defineable() {
+		this.undefine();
+	}
+	
 	public Defineable(TValue value) {
 		this.setValue(value);
 	}
 
 	public TValue getValue() {
-		if (isDefined) {
+		if (definit) {
 			return value;
 		} else {
 			throw new UnsupportedOperationException();
@@ -17,12 +21,16 @@ public class Defineable<TValue> {
 
 	public void setValue(TValue value) {
 		this.value = value;
-		this.isDefined = true;
+		this.definit = true;
 	}
 	
-	private Boolean isDefined = false;
+	private Boolean definit = false;
+	
+	public Boolean isDefinit() {
+		return definit;
+	}
 	
 	public void undefine() {
-		isDefined = false;
+		definit = false;
 	}
 }
