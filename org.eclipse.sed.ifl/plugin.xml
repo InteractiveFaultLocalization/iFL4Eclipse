@@ -72,12 +72,13 @@
             id="org.eclipse.sed.ifl">
       </category>
       <view
-            id="org.eclipse.sed.ifl.views.IFLMainView"
-            name="Interactive Fault Localization"
-            icon="icons/ico16.png"
-            class="org.eclipse.sed.ifl.ide.gui.MainPart"
             category="org.eclipse.sed.ifl"
-            inject="true">
+            class="org.eclipse.sed.ifl.ide.gui.MainPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLMainView"
+            inject="true"
+            name="Interactive Fault Localization"
+            restorable="false">
       </view>
    </extension>
    <extension
