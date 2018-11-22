@@ -3,7 +3,6 @@ package org.eclipse.sed.ifl.ide.accessor.gui;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -16,12 +15,18 @@ public class PartAccessor {
 	
 	public IViewPart getPart(String id){
 		IWorkbenchWindow window = EU.tryUnchecked(() -> HandlerUtil.getActiveWorkbenchWindowChecked(event));
-		EU.tryUnchecked(() -> window.getActivePage().showView(id));
-		for (IViewReference viewRef : window.getActivePage().getViewReferences()) {
-			if (id.equals(viewRef.getId())) {
-				return viewRef.getView(false);
-			}
+		//TODO: figure out why is it required to close the part and reopen it for a proper initialisation.
+		IViewPart view = window.getActivePage().findView(id);
+		if (view != null) {
+			window.getActivePage().hideView(view);
 		}
-		throw new RuntimeException();
+		EU.tryUnchecked(() -> window.getActivePage().showView(id));
+		view = window.getActivePage().findView(id);
+		if (view == null) {
+			throw new RuntimeException();
+		}
+		else {
+			return view;
+		}
 	}
 }

@@ -7,12 +7,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 import javax.inject.Inject;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.SWT;
 
 public class MainPart extends ViewPart {
 	
 	public MainPart() {
+		System.out.println("mainpart ctor");
 	}
 
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLMainView";

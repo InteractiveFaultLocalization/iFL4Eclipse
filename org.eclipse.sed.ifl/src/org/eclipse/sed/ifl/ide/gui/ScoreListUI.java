@@ -3,9 +3,11 @@ package org.eclipse.sed.ifl.ide.gui;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -22,26 +24,40 @@ public class ScoreListUI extends Composite {
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 		
-		TableColumn tableColumn = new TableColumn(table, SWT.NONE);
-		tableColumn.setWidth(100);
-		tableColumn.setText("Name");
+		TableColumn scoreColumn = new TableColumn(table, SWT.NONE);
+		scoreColumn.setMoveable(true);
+		scoreColumn.setWidth(100);
+		scoreColumn.setText("Score");
 		
-		TableColumn tableColumn_1 = new TableColumn(table, SWT.NONE);
-		tableColumn_1.setWidth(100);
-		tableColumn_1.setText("Signiture");
+		TableColumn nameColumn = new TableColumn(table, SWT.NONE);
+		nameColumn.setMoveable(true);
+		nameColumn.setWidth(100);
+		nameColumn.setText("Name");
 		
-		TableColumn tableColumn_2 = new TableColumn(table, SWT.NONE);
-		tableColumn_2.setWidth(100);
-		tableColumn_2.setText("Parent type");
+		TableColumn signitureColumn = new TableColumn(table, SWT.NONE);
+		signitureColumn.setMoveable(true);
+		signitureColumn.setWidth(100);
+		signitureColumn.setText("Signiture");
+		
+		TableColumn typeColumn = new TableColumn(table, SWT.NONE);
+		typeColumn.setMoveable(true);
+		typeColumn.setWidth(100);
+		typeColumn.setText("Parent type");
 	}
 	
-	public void setMethodList(List<IMethodDescription> list) {
-		table.setData(list);
-		for (IMethodDescription method : list) {
+	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores) {
+		table.removeAll();
+		for (Entry<IMethodDescription, Defineable<Double>> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
-			item.setText(0, method.getId().getName());
-			item.setText(1, method.getId().getSignature());
-			item.setText(2, method.getId().getParentType());
+			if (entry.getValue().isDefinit()) {
+				item.setText(0, entry.getValue().getValue().toString());
+			}
+			else {
+				item.setText(0, "undefined");
+			}
+			item.setText(1, entry.getKey().getId().getName());
+			item.setText(2, entry.getKey().getId().getSignature());
+			item.setText(3, entry.getKey().getId().getParentType());
 		}
 	}
 
