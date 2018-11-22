@@ -20,7 +20,24 @@ public class ScoreListView extends View {
 		return ui;
 	}
 	
-	public void initScores(Map<IMethodDescription, Defineable<Double>> scores) {
-		ui.setMethodScore(scores);
+	public void refreshScores(Map<IMethodDescription, Defineable<Double>> scores, ScoreEnum status) {
+		ui.setMethodScore(scores, status.getIconPath());
+	}
+	
+	public enum ScoreEnum {
+		NONE (null),
+		INCREASED ("icons/up32.png"),
+		DECREASED ("icons/down32.png"),
+		UNDEFINED ("icons/undefined32.png");
+		
+		private final String iconPath;
+		
+		ScoreEnum(String iconPath) {
+			this.iconPath = iconPath;
+		}
+		
+		public String getIconPath() {
+			return iconPath;
+		}
 	}
 }

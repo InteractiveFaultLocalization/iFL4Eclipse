@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.control.score;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.sed.ifl.view.ScoreListView.ScoreEnum;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -12,7 +13,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	@Override
 	public void init() {
-		getView().initScores(getModel().getScores());
+		getView().refreshScores(getModel().getScores(), ScoreEnum.UNDEFINED);
 		super.init();
 	}
 }
