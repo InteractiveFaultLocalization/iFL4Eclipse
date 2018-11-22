@@ -1,5 +1,8 @@
 package org.eclipse.sed.ifl.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -45,19 +48,19 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public Iterable<Option> getProvidedOptions() {
-		ProvidedOptions providedOptions = new ProvidedOptions();
+		List<Option> providedOptions = new ArrayList<Option>();
 
 		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty");
-		providedOptions.addOption(yes);
+		providedOptions.add(yes);
 		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
-		providedOptions.addOption(no);
+		providedOptions.add(no);
 		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
 				"Select this option if the subject is not faulty but its neighbours are suspicious");
-		providedOptions.addOption(noButSuspicious);
+		providedOptions.add(noButSuspicious);
 		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
 				"Neither the subject, nor its neighbours are faulty",
 				"Select this option if neither the subject, nor its neighbours are faulty");
-		providedOptions.addOption(noAndNotSuspicious);
+		providedOptions.add(noAndNotSuspicious);
 
 		return providedOptions;
 	}
