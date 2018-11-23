@@ -33,7 +33,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.selectedProject = selectedProject;
 	}
 
-	CodeEntityAccessor accessor = new CodeEntityAccessor(); 
+	private CodeEntityAccessor accessor = new CodeEntityAccessor();
+	
+	private ScoreListControl scoreListControl;
 	
 	public void startNewSession() {
 		List<IMethodDescription> methods = accessor.getMethods(selectedProject).stream()
@@ -52,8 +54,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 			)
 		)
 		.collect(Collectors.toUnmodifiableList());
-		System.out.printf("%d method found", methods.size());
-		addSubControl(new ScoreListControl(new ScoreListModel(methods), new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE))));
+		System.out.printf("%d method found\n", methods.size());
+		scoreListControl = new ScoreListControl(new ScoreListModel(methods), new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
+		addSubControl(scoreListControl);
 	}
 	
 	@Override
@@ -67,6 +70,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	public void teardown() {
 		getView().eventClosed().remove(closeListener);
 		super.teardown();
+		scoreListControl = null;
 	}
 
 	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
@@ -83,5 +87,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 			this.finished.invoke(new EmptyEvent());
 		};
 		getView().eventClosed().add(closeListener);
+	}
+	
+	public void updateRandomScores(int count) {
+		scoreListControl.updateRandomScores(count);
 	}
 }

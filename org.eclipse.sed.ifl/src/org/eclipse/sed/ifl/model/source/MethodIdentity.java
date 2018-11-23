@@ -60,4 +60,9 @@ public class MethodIdentity {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "MethodIdentity [name=" + name + ", signature=" + signature + ", parentType=" + parentType + "]";
+	}
 }

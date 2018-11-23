@@ -51,7 +51,6 @@ public class ScoreListUI extends Composite {
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
-		table.removeAll();
 		for (Entry<IMethodDescription, Defineable<Double>> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (iconPath != null) {
@@ -69,5 +68,8 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
+	public void clearMethodScores() {
+		table.removeAll();
+	}
 
 }

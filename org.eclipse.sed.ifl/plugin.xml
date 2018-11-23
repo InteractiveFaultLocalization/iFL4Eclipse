@@ -12,6 +12,11 @@
             name="Start iFL session"
             id="org.eclipse.sed.ifl.commands.startCommand">
       </command>
+      <command
+            defaultHandler="org.eclipse.sed.ifl.ide.handlers.TESTHandler"
+            id="org.eclipse.sed.ifl.test"
+            name="TEST">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -47,6 +52,11 @@
                   commandId="org.eclipse.sed.ifl.commands.startCommand"
                   icon="icons/ico16.png"
                   tooltip="Start interactive Fault Localization session.">
+            </command>
+            <command
+                  commandId="org.eclipse.sed.ifl.test"
+                  label="TEST"
+                  style="push">
             </command>
          </toolbar>
       </menuContribution>

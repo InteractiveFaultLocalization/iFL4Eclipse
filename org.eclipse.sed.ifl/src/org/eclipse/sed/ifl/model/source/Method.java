@@ -60,6 +60,8 @@ public class Method implements IMethodDescription {
 		return true;
 	}
 
-	
-
+	@Override
+	public String toString() {
+		return "Method [id=" + id + ", location=" + location + ", size(context)=" + context.size() + "]";
+	}
 }

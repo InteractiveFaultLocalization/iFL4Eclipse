@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.view;
 
 import java.util.Map;
 
+import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -21,23 +22,14 @@ public class ScoreListView extends View {
 	}
 	
 	public void refreshScores(Map<IMethodDescription, Defineable<Double>> scores, ScoreStatus status) {
+		ui.clearMethodScores();
 		ui.setMethodScore(scores, status.getIconPath());
 	}
 	
-	public enum ScoreStatus {
-		NONE (null),
-		INCREASED ("icons/up32.png"),
-		DECREASED ("icons/down32.png"),
-		UNDEFINED ("icons/undefined32.png");
-		
-		private final String iconPath;
-		
-		ScoreStatus(String iconPath) {
-			this.iconPath = iconPath;
-		}
-		
-		public String getIconPath() {
-			return iconPath;
+	public void refreshScores(Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets) {
+		ui.clearMethodScores();
+		for (var bucket : buckets.entrySet()) {
+			ui.setMethodScore(bucket.getValue(), bucket.getKey().getIconPath());
 		}
 	}
 }
