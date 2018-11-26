@@ -24,8 +24,18 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateScore(IUserFeedback feedback) {
-		// TODO Auto-generated method stub
+		if (feedback.getChoise().getId().equals("YES")) {
 
+		}
+		if (feedback.getChoise().getId().equals("NO")) {
+
+		}
+		if (feedback.getChoise().getId().equals("NO_BUT_SUSPICIOUS")) {
+
+		}
+		if (feedback.getChoise().getId().equals("NO_AND_NOT_SUSPICIOUS")) {
+
+		}
 	}
 
 	@Override
