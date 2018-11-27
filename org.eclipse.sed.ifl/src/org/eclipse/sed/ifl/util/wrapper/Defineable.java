@@ -33,4 +33,13 @@ public class Defineable<TValue> {
 	public void undefine() {
 		definit = false;
 	}
+	
+	@Override
+	public String toString() {
+		if (isDefinit()) {
+			return "definit[" + getValue() + "]";
+		} else {
+			return "undefined";
+		}
+	}
 }
