@@ -25,7 +25,7 @@ public abstract class MethodScoreHandler {
 	public abstract Iterable<Option> getProvidedOptions();
 	
 	//Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise the event.
-	private NonGenericListenerCollection<Map<IMethodDescription, Double>> scoreUpdated;
+	protected NonGenericListenerCollection<Map<IMethodDescription, Double>> scoreUpdated;
 	
 	public INonGenericListenerCollection<Map<IMethodDescription, Double>> eventScoreUpdated(){
 		return scoreUpdated;

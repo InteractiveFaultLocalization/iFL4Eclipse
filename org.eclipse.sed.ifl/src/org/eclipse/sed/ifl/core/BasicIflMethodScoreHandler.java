@@ -1,7 +1,9 @@
 package org.eclipse.sed.ifl.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
@@ -24,36 +26,57 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateScore(IUserFeedback feedback) {
+		Map<IMethodDescription, Double> map = new HashMap<IMethodDescription, Double>();
 		if (feedback.getChoise().getId().equals("YES")) {
-
+			// end session
 		}
-		if (feedback.getChoise().getId().equals("NO")) {
+//		else if (feedback.getChoise().getId().equals("NO")) {
+//			feedback.getSubjects().forEach(subject -> map.put(subject, 0.0));
+//		}
+		else if (feedback.getChoise().getId().equals("NO_BUT_SUSPICIOUS")) {
+			feedback.getSubjects().forEach(subject -> map.put(subject, 0.0));
+		} else if (feedback.getChoise().getId().equals("NO_AND_NOT_SUSPICIOUS")) {
 
+			for (IMethodDescription subject : feedback.getSubjects()) {
+				map.put(subject, 0.0);
+				subject.getContext().forEach(contextSubject -> map.put(contextSubject, 0.0));
+			}
+		} else {
+			try {
+				throw new Exception("Invalid option");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		if (feedback.getChoise().getId().equals("NO_BUT_SUSPICIOUS")) {
 
-		}
-		if (feedback.getChoise().getId().equals("NO_AND_NOT_SUSPICIOUS")) {
-
-		}
+		this.scoreUpdated.invoke(map);
 	}
 
 	@Override
 	public void updateMethod(IMethodDescription method) {
-		// TODO Auto-generated method stub
-
+		try {
+			throw new Exception("method not implemented");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void addMethod(IMethodDescription method) {
-		// TODO Auto-generated method stub
-
+		try {
+			throw new Exception("method not implemented");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void removeMethod(IMethodDescription method) {
-		// TODO Auto-generated method stub
-
+		try {
+			throw new Exception("method not implemented");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -62,8 +85,8 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty");
 		providedOptions.add(yes);
-		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
-		providedOptions.add(no);
+//		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
+//		providedOptions.add(no);
 		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
 				"Select this option if the subject is not faulty but its neighbours are suspicious");
 		providedOptions.add(noButSuspicious);
