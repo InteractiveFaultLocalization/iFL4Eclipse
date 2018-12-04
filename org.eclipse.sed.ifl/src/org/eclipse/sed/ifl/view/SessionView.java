@@ -1,7 +1,10 @@
 package org.eclipse.sed.ifl.view;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
@@ -24,12 +27,17 @@ public class SessionView extends View {
 	public void init() {
 		service = part.getSite().getService(IPartService.class);
 		initUIStateListeners();
+		scoreLoadRequestedListener = event -> {
+			scoreLoadRequested.invoke(new EmptyEvent());
+		};
+		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
-		//service.removePartListener(stateListener);
+		service.removePartListener(stateListener);
+		part.eventScoreLoadRequested().remove(scoreLoadRequestedListener);
 		super.teardown();
 	}
 	
@@ -66,4 +74,12 @@ public class SessionView extends View {
 		};
 		service.addPartListener(stateListener);
 	}
+	
+	private NonGenericListenerCollection<EmptyEvent> scoreLoadRequested = new NonGenericListenerCollection<>();
+	private IListener<Action> scoreLoadRequestedListener;
+	
+	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadRequested() {
+		return scoreLoadRequested;
+	}
+
 }

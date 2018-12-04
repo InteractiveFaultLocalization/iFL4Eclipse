@@ -14,6 +14,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.ResourceManager;
 
+import swing2swt.layout.BorderLayout;
+
 public class ScoreListUI extends Composite {
 	private Table table;
 	private TableColumn nameColumn;
@@ -24,6 +26,7 @@ public class ScoreListUI extends Composite {
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
+		setLayoutData(BorderLayout.CENTER);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
