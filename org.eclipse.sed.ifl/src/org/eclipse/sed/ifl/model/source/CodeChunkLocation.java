@@ -28,4 +28,11 @@ public class CodeChunkLocation implements ICodeChunkLocation {
 		return end;
 	}
 
+	@Override
+	public String toString() {
+		return "CodeChunkLocation [absolutePath=" + absolutePath + ", begining=" + begining + ", end=" + end + "]";
+	}
+	
+	
+
 }

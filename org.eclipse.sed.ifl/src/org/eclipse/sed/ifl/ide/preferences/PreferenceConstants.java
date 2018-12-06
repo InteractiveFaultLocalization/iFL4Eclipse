@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.gui.preferences;
+package org.eclipse.sed.ifl.ide.preferences;
 
 /**
  * Constant definitions for plug-in preferences

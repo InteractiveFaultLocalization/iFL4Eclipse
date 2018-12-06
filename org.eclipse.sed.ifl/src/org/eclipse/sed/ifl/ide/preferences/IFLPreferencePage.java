@@ -1,7 +1,7 @@
-package org.eclipse.sed.ifl.gui.preferences;
+package org.eclipse.sed.ifl.ide.preferences;
 
 import org.eclipse.jface.preference.*;
-import org.eclipse.sed.ifl.gui.Activator;
+import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbench;
 
