@@ -11,11 +11,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -63,8 +67,8 @@ public class CodeEntityAccessor {
 		.flatMap(type -> getMethods(type).stream())
 		.collect(Collectors.toUnmodifiableList());
 	}
-	
-	private IResource extractSelection(ISelection sel) {
+
+ 	private IResource extractSelection(ISelection sel) {
 	      if (!(sel instanceof IStructuredSelection))
 	         return null;
 	      IStructuredSelection ss = (IStructuredSelection) sel;
@@ -97,8 +101,5 @@ public class CodeEntityAccessor {
 		else {
 			throw new WrongSelectionException("Nothing is selected.");
 		}
-	}
-	
-	
-	
+	}	
 }

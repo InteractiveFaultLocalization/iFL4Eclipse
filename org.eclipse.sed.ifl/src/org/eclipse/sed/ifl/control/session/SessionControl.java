@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
@@ -40,13 +41,17 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private ScoreListControl scoreListControl;
 	
 	private void startNewSession() {
-		List<IMethodDescription> methods = accessor.getMethods(selectedProject).stream()
-		.map(method ->
+		List<IMethod> rawMethods = accessor.getMethods(selectedProject);
+
+		List<IMethodDescription> methods = rawMethods.stream()
+		.map(method -> 
 			new Method(
 				new MethodIdentity(
 					method.getElementName(),
 					EU.tryUnchecked(() -> method.getSignature()),
-					method.getDeclaringType().getElementName()
+					method.getDeclaringType().getElementName(),
+					EU.tryUnchecked(() -> method.getReturnType()),
+					method.getKey()
 				),
 				new CodeChunkLocation(
 					EU.tryUnchecked(() -> method.getUnderlyingResource().getLocation().toOSString()),
@@ -62,7 +67,6 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
-		System.out.println("fuck");
 	}
 	
 	@Override

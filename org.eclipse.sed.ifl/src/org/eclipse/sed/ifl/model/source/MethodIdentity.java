@@ -4,12 +4,16 @@ public class MethodIdentity {
 	private String name;
 	private String signature;
 	private String parentType;
+	private String returnType;
+	private String key;
 	
-	public MethodIdentity(String name, String signature, String parentType) {
+	public MethodIdentity(String name, String signature, String parentType, String returnType, String key) {
 		super();
 		this.name = name;
 		this.signature = signature;
 		this.parentType = parentType;
+		this.returnType = returnType;
+		this.key = key;
 	}
 
 	public String getName() {
@@ -23,6 +27,10 @@ public class MethodIdentity {
 	public String getParentType() {
 		return parentType;
 	}
+	
+	public String getReturnType() {
+		return returnType;
+	}
 
 	@Override
 	public int hashCode() {
@@ -30,6 +38,7 @@ public class MethodIdentity {
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
+		result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
 		result = prime * result + ((signature == null) ? 0 : signature.hashCode());
 		return result;
 	}
@@ -53,6 +62,11 @@ public class MethodIdentity {
 				return false;
 		} else if (!parentType.equals(other.parentType))
 			return false;
+		if (returnType == null) {
+			if (other.returnType != null)
+				return false;
+		} else if (!returnType.equals(other.returnType))
+			return false;
 		if (signature == null) {
 			if (other.signature != null)
 				return false;
@@ -63,6 +77,14 @@ public class MethodIdentity {
 
 	@Override
 	public String toString() {
-		return "MethodIdentity [name=" + name + ", signature=" + signature + ", parentType=" + parentType + "]";
+		return "MethodIdentity [name=" + name + ", signature=" + signature + ", parentType=" + parentType + ", returnType=" + returnType + "]";
+	}
+	
+	public String toCSVKey() {
+		return parentType + name + signature + " : " + returnType;
+	}
+
+	public String getKey() {
+		return key;
 	}
 }

@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.ResourceManager;
-
 import swing2swt.layout.BorderLayout;
 
 public class ScoreListUI extends Composite {
@@ -23,6 +22,7 @@ public class ScoreListUI extends Composite {
 	private TableColumn scoreColumn;
 	private TableColumn signitureColumn;
 	private TableColumn typeColumn;
+	private TableColumn keyColumn;
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -57,8 +57,9 @@ public class ScoreListUI extends Composite {
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
 		
-		//table.setSortColumn(nameColumn);
-		//table.setSortDirection(SWT.DOWN);
+		keyColumn = new TableColumn(table, SWT.NONE);
+		keyColumn.setWidth(300);
+		keyColumn.setText("Key");
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
@@ -77,9 +78,8 @@ public class ScoreListUI extends Composite {
 			item.setText(2, entry.getKey().getId().getName());
 			item.setText(3, entry.getKey().getId().getSignature());
 			item.setText(4, entry.getKey().getId().getParentType());
+			item.setText(5, entry.getKey().getId().getKey());
 		}
-		//table.setSortColumn(nameColumn);
-		//table.setSortDirection(SWT.DOWN);
 		iconColumn.pack();
 	}
 

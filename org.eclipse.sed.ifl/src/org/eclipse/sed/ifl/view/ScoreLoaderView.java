@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.view;
 
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -19,8 +21,17 @@ public class ScoreLoaderView extends View {
 		return null;
 	}
 
+	private NonGenericListenerCollection<String> fileSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventFileSelected() {
+		return fileSelected;
+	}
+	
 	public void select() {
-		dialog.open();
+		String path = dialog.open();
+		if (path != null) {
+			fileSelected.invoke(path);
+		}
 	}
 	
 }
