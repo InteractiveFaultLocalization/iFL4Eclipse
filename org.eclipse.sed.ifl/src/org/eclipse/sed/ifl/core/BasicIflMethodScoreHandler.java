@@ -42,11 +42,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 				subject.getContext().forEach(contextSubject -> map.put(contextSubject, 0.0));
 			}
 		} else {
-			try {
-				throw new Exception("Invalid option");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			new UnsupportedOperationException("invalid option");
 		}
 
 		this.scoreUpdated.invoke(map);
@@ -54,29 +50,17 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateMethod(IMethodDescription method) {
-		try {
-			throw new Exception("method not implemented");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override
 	public void addMethod(IMethodDescription method) {
-		try {
-			throw new Exception("method not implemented");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override
 	public void removeMethod(IMethodDescription method) {
-		try {
-			throw new Exception("method not implemented");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override
