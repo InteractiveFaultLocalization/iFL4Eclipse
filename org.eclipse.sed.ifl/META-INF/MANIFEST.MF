@@ -8,7 +8,8 @@ Bundle-Vendor: University of Szeged Department of Software Engineering
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.13.100",
- org.eclipse.jdt.core;bundle-version="3.15.0"
+ org.eclipse.jdt.core;bundle-version="3.15.0",
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-10
 Automatic-Module-Name: org.eclipse.sed.ifl
 Bundle-ActivationPolicy: lazy
