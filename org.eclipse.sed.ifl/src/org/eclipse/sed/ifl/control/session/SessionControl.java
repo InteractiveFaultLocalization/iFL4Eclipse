@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
@@ -42,7 +43,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	private void startNewSession() {
 		List<IMethod> rawMethods = accessor.getMethods(selectedProject);
-
+		List<IMethodBinding> resolvedMethods = accessor.getResolvedMethods(selectedProject, rawMethods);
 		List<IMethodDescription> methods = rawMethods.stream()
 		.map(method -> 
 			new Method(

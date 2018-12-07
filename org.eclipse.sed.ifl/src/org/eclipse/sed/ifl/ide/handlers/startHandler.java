@@ -19,20 +19,26 @@ public class startHandler extends AbstractHandler {
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		PartAccessor partAccessor = new PartAccessor(event);
-		CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
-		if (Activator.getDefault().isSessionActive()) {
-			MessageDialog.open(MessageDialog.WARNING, null, "iFL session already active", "You already started an Interactive fault localization session. Consult with the iFL panel for further details.", SWT.NONE);			
-		}
-		else {
-			try {
-				IJavaProject selected = sourceAccessor.getSelectedProject();
-				SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected);
-				Activator.getDefault().setSession(session);
-				session.init(); 
-			} catch (WrongSelectionException e) {
-				MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
+		try {
+			PartAccessor partAccessor = new PartAccessor(event);
+			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
+			if (Activator.getDefault().isSessionActive()) {
+				MessageDialog.open(MessageDialog.WARNING, null, "iFL session already active", "You already started an Interactive fault localization session. Consult with the iFL panel for further details.", SWT.NONE);			
 			}
+			else {
+				try {
+					IJavaProject selected = sourceAccessor.getSelectedProject();
+					SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected);
+					session.init(); 
+					Activator.getDefault().setSession(session);
+				} catch (WrongSelectionException e) {
+					MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
+				}
+			}
+		} catch (Exception e) {
+			MessageDialog.open(MessageDialog.ERROR, null, "Unexpected error during iFL initalization", e.getMessage(), SWT.NONE);
+			e.printStackTrace();
+			Activator.getDefault().setSession(null);
 		}
 		return null;
 	}

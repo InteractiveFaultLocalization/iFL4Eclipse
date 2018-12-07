@@ -11,15 +11,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -60,11 +61,16 @@ public class CodeEntityAccessor {
 	}
 	
 	public List<IMethod> getMethods(IJavaProject project) {
+		return getUnits(project).stream()
+		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
+		.flatMap(type -> getMethods(type).stream())
+		.collect(Collectors.toUnmodifiableList());
+	}
+
+	public List<ICompilationUnit> getUnits(IJavaProject project) {
 		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
-		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
-		.flatMap(type -> getMethods(type).stream())
 		.collect(Collectors.toUnmodifiableList());
 	}
 
@@ -102,4 +108,15 @@ public class CodeEntityAccessor {
 			throw new WrongSelectionException("Nothing is selected.");
 		}
 	}	
+
+	public List<IMethodBinding> getResolvedMethods(IJavaProject project, List<IMethod> methods) {
+		ASTParser parser = ASTParser.newParser(AST.JLS10);
+		parser.setProject(project);
+		IMethod[] ms = new IMethod[methods.size()];
+		methods.toArray(ms);
+		return Arrays.asList(parser.createBindings(ms, new NullProgressMonitor())).stream()
+		.map(binding -> (IMethodBinding)binding)
+		.collect(Collectors.toUnmodifiableList());
+	}
+
 }
