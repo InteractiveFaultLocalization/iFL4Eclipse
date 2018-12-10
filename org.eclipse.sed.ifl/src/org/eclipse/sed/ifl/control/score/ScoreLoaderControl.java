@@ -1,15 +1,15 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-
-import org.eclipse.jface.dialogs.MessageDialog;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
-import org.eclipse.swt.SWT;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
@@ -21,17 +21,29 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 		getView().select();
 	}
 	
+	private static final String UNIQUE_NAME_HEADER = "name";
+	private static final String SCORE_HEADER = "tarantula";
+	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
 		@Override
 		public void invoke(String event) {
 			File file = new File(event); 
-			try (Scanner scanner = new Scanner(file)) {
-				while (scanner.hasNextLine()) { 
-			    	System.out.println(scanner.nextLine());
-			    }
-			} catch (FileNotFoundException e) {
-				MessageDialog.open(MessageDialog.ERROR, null, "iFL score file can not found", "The file " + event + " is not aviable.", SWT.NONE);
-			} 
+			try {
+				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader());
+				int updatedCount = 0;
+				int recordCount = 0;
+				for (CSVRecord record : parser) {
+					recordCount++;
+					String name = record.get(UNIQUE_NAME_HEADER);
+					double score = Double.parseDouble(record.get(SCORE_HEADER));
+					if (getModel().updateScore(name, score)) {
+						updatedCount++;
+					}
+				}
+				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	};
 

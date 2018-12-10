@@ -129,6 +129,6 @@ public class CodeEntityAccessor {
 		signature.append(method.getDeclaringClass().getQualifiedName()).append('.')
 				.append(method.isConstructor() ? "<init>" : method.getName()).append(paramsAndReturn);
 
-		return signature.toString().replace('.', '/').replace(';', ',');
+		return signature.toString();
 	}
 }

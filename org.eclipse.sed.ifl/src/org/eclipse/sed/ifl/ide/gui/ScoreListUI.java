@@ -92,6 +92,9 @@ public class ScoreListUI extends Composite {
 				if (column == typeColumn) {
 					index = 4;
 				}
+				if (column == keyColumn) {
+					index = 5;
+				}
 
 				for (int i = 1; i < items.length; i++) {
 					String value1 = items[i].getText(index);

@@ -14,4 +14,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-10
 Automatic-Module-Name: org.eclipse.sed.ifl
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- swing2swt.jar
+ swing2swt.jar,
+ commons-csv-1.6.jar

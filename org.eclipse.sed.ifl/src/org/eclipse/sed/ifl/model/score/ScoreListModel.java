@@ -39,4 +39,14 @@ public class ScoreListModel extends EmptyModel {
 		Collections.shuffle(keyList);
 		return keyList.stream().limit(Math.min(keyList.size(), count)).collect(Collectors.toList());
 	}
+
+	public boolean updateScore(String name, double score) {
+		for (var entry : scores.entrySet()) {
+			if (entry.getKey().getId().toCSVKey().equals(name)) {
+				entry.setValue(new Defineable<>(score));
+				return true;
+			}
+		}
+		return false;
+	}
 }

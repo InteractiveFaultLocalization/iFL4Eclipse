@@ -81,7 +81,7 @@ public class MethodIdentity {
 	}
 	
 	public String toCSVKey() {
-		return parentType + name + signature + " : " + returnType;
+		return signature;
 	}
 
 	public String getKey() {
