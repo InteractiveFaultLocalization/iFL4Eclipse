@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
@@ -13,16 +11,13 @@ import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
-import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.Method;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
-import org.eclipse.sed.ifl.model.source.Position;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
@@ -42,23 +37,23 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private ScoreListControl scoreListControl;
 	
 	private void startNewSession() {
-		List<IMethod> rawMethods = accessor.getMethods(selectedProject);
-		List<IMethodBinding> resolvedMethods = accessor.getResolvedMethods(selectedProject, rawMethods);
-		List<IMethodDescription> methods = rawMethods.stream()
+		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
+		List<IMethodDescription> methods = resolvedMethods.stream()
 		.map(method -> 
 			new Method(
 				new MethodIdentity(
-					method.getElementName(),
-					EU.tryUnchecked(() -> method.getSignature()),
-					method.getDeclaringType().getElementName(),
-					EU.tryUnchecked(() -> method.getReturnType()),
+					method.getName(),
+					accessor.getSignature(method),
+					method.getDeclaringClass().getName(),
+					method.getReturnType().getName(),
 					method.getKey()
 				),
-				new CodeChunkLocation(
-					EU.tryUnchecked(() -> method.getUnderlyingResource().getLocation().toOSString()),
-					new Position(EU.tryUnchecked(() -> method.getSourceRange().getOffset())),
-					new Position(EU.tryUnchecked(() -> method.getSourceRange().getOffset() + method.getSourceRange().getLength()))
-				)
+				null
+				/*new CodeChunkLocation(
+					EU.tryUnchecked(() -> method.getKey().getUnderlyingResource().getLocation().toOSString()),
+					new Position(EU.tryUnchecked(() -> method.getKey().getSourceRange().getOffset())),
+					new Position(EU.tryUnchecked(() -> method.getKey().getSourceRange().getOffset() + method.getKey().getSourceRange().getLength()))
+				)*/
 			)
 		)
 		.collect(Collectors.toUnmodifiableList());

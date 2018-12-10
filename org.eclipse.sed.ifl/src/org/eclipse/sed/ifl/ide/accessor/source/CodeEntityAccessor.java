@@ -109,14 +109,26 @@ public class CodeEntityAccessor {
 		}
 	}	
 
-	public List<IMethodBinding> getResolvedMethods(IJavaProject project, List<IMethod> methods) {
+	public List<IMethodBinding> getResolvedMethods(IJavaProject project) {
+		var methods = getMethods(project);		
 		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
-		return Arrays.asList(parser.createBindings(ms, new NullProgressMonitor())).stream()
-		.map(binding -> (IMethodBinding)binding)
+		var resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
+		.map(method -> (IMethodBinding)method)
 		.collect(Collectors.toUnmodifiableList());
+		return resolveds;
 	}
+	
+	public String getSignature(IMethodBinding method) {
+		String key = method.getKey();
+		String paramsAndReturn = key.replaceAll(".*(\\(.*\\)[^\\|]*).*", "$1");
 
+		StringBuilder signature = new StringBuilder();
+		signature.append(method.getDeclaringClass().getQualifiedName()).append('.')
+				.append(method.isConstructor() ? "<init>" : method.getName()).append(paramsAndReturn);
+
+		return signature.toString().replace('.', '/').replace(';', ',');
+	}
 }
