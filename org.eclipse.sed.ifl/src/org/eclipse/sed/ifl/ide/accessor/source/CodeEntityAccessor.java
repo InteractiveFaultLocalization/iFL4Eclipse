@@ -11,11 +11,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -56,15 +61,20 @@ public class CodeEntityAccessor {
 	}
 	
 	public List<IMethod> getMethods(IJavaProject project) {
-		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
-		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
-		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
+		return getUnits(project).stream()
 		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
 		.flatMap(type -> getMethods(type).stream())
 		.collect(Collectors.toUnmodifiableList());
 	}
-	
-	private IResource extractSelection(ISelection sel) {
+
+	public List<ICompilationUnit> getUnits(IJavaProject project) {
+		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
+		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
+		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
+		.collect(Collectors.toUnmodifiableList());
+	}
+
+ 	private IResource extractSelection(ISelection sel) {
 	      if (!(sel instanceof IStructuredSelection))
 	         return null;
 	      IStructuredSelection ss = (IStructuredSelection) sel;
@@ -97,8 +107,28 @@ public class CodeEntityAccessor {
 		else {
 			throw new WrongSelectionException("Nothing is selected.");
 		}
+	}	
+
+	public List<IMethodBinding> getResolvedMethods(IJavaProject project) {
+		var methods = getMethods(project);		
+		ASTParser parser = ASTParser.newParser(AST.JLS10);
+		parser.setProject(project);
+		IMethod[] ms = new IMethod[methods.size()];
+		methods.toArray(ms);
+		var resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
+		.map(method -> (IMethodBinding)method)
+		.collect(Collectors.toUnmodifiableList());
+		return resolveds;
 	}
 	
-	
-	
+	public String getSignature(IMethodBinding method) {
+		String key = method.getKey();
+		String paramsAndReturn = key.replaceAll(".*(\\(.*\\)[^\\|]*).*", "$1");
+
+		StringBuilder signature = new StringBuilder();
+		signature.append(method.getDeclaringClass().getQualifiedName()).append('.')
+				.append(method.isConstructor() ? "<init>" : method.getName()).append(paramsAndReturn);
+
+		return signature.toString();
+	}
 }

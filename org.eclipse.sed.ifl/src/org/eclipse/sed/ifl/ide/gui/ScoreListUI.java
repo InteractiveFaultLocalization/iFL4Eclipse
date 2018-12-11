@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.ResourceManager;
+import swing2swt.layout.BorderLayout;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -25,9 +26,11 @@ public class ScoreListUI extends Composite {
 	private TableColumn scoreColumn;
 	private TableColumn signitureColumn;
 	private TableColumn typeColumn;
+	private TableColumn keyColumn;
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
+		setLayoutData(BorderLayout.CENTER);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
@@ -57,6 +60,9 @@ public class ScoreListUI extends Composite {
 		typeColumn.setMoveable(true);
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
+		keyColumn = new TableColumn(table, SWT.NONE);
+		keyColumn.setWidth(300);
+		keyColumn.setText("Key");
 
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
@@ -85,6 +91,9 @@ public class ScoreListUI extends Composite {
 				}
 				if (column == typeColumn) {
 					index = 4;
+				}
+				if (column == keyColumn) {
+					index = 5;
 				}
 
 				for (int i = 1; i < items.length; i++) {
@@ -131,9 +140,8 @@ public class ScoreListUI extends Composite {
 			item.setText(2, entry.getKey().getId().getName());
 			item.setText(3, entry.getKey().getId().getSignature());
 			item.setText(4, entry.getKey().getId().getParentType());
+			item.setText(5, entry.getKey().getId().getKey());
 		}
-		// table.setSortColumn(nameColumn);
-		// table.setSortDirection(SWT.DOWN);
 		iconColumn.pack();
 	}
 

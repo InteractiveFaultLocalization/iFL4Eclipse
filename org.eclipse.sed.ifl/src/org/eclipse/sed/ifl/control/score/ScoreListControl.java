@@ -8,6 +8,7 @@ import java.util.Random;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 
@@ -20,7 +21,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		getView().refreshScores(getModel().getScores(), ScoreStatus.UNDEFINED);
+		getModel().eventScoreUpdateRequested().add(scoreUpdateRequestedListener);
 		super.init();
+	}
+	
+	@Override
+	public void teardown() {
+		getModel().eventScoreUpdateRequested().remove(scoreUpdateRequestedListener);
+		super.teardown();
 	}
 	
 	public enum ScoreStatus {
@@ -45,6 +53,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().updateScore(buckets.values());
 		getView().refreshScores(buckets);
 	}
+	
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequestedListener = new IListener<>() {
+		
+		@Override
+		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
+			updateScore(event);
+		}
+	};
 
 	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> detectStatus(Map<IMethodDescription, Defineable<Double>> newScores) {
 		Map<IMethodDescription, Defineable<Double>> higherScores = new HashMap<IMethodDescription, Defineable<Double>>();

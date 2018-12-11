@@ -3,10 +3,13 @@ package org.eclipse.sed.ifl.ide.gui;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 import javax.inject.Inject;
+import swing2swt.layout.BorderLayout;
 
 public class MainPart extends ViewPart {
 	
@@ -38,6 +41,7 @@ public class MainPart extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		composite = parent;
+		parent.setLayout(new BorderLayout(0, 0));
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
@@ -69,10 +73,31 @@ public class MainPart extends ViewPart {
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
+	private NonGenericListenerCollection<Action> scoreLoadRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Action> eventScoreLoadRequested() {
+		return scoreLoadRequested;
+	}
+	
+	private Action loadScoreAction;
+	
 	private void fillLocalToolBar(IToolBarManager manager) {
+		manager.add(loadScoreAction);
 	}
 
 	private void makeActions() {
+		loadScoreAction = new Action() {
+			@Override
+			public void run() {
+				super.run();
+				scoreLoadRequested.invoke(this);
+			}
+			
+			@Override
+			public String getText() {
+				return "Load scores...";
+			}
+		};
 	}
 
 	private void hookDoubleClickAction() {

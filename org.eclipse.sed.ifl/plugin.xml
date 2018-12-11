@@ -103,6 +103,9 @@
                visible="false">
          </view>
       </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+      </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
