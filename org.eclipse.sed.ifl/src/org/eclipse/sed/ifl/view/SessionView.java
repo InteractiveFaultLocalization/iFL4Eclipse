@@ -38,6 +38,7 @@ public class SessionView extends View {
 	public void teardown() {
 		service.removePartListener(stateListener);
 		part.eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		part.eventHideUndefinedRequested().remove(hideUndefinedListener);
 		super.teardown();
 	}
 	
@@ -73,6 +74,8 @@ public class SessionView extends View {
 			public void partActivated(IWorkbenchPart part) { }
 		};
 		service.addPartListener(stateListener);
+		hideUndefinedListener = status -> hideUndefinedRequested.invoke(status);
+		part.eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
 	
 	private NonGenericListenerCollection<EmptyEvent> scoreLoadRequested = new NonGenericListenerCollection<>();
@@ -80,6 +83,13 @@ public class SessionView extends View {
 	
 	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadRequested() {
 		return scoreLoadRequested;
+	}
+	
+	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
+	private IListener<Boolean> hideUndefinedListener;
+	
+	public INonGenericListenerCollection<Boolean> eventHideUndefinedRequested() {
+		return hideUndefinedRequested;
 	}
 
 }

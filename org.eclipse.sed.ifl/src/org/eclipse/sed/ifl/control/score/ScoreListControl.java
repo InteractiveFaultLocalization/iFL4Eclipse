@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -51,7 +52,15 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
 		var buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
-		getView().refreshScores(buckets);
+		if (hideUndefinedScores) {
+			getView().refreshScores(
+					buckets.entrySet().stream()
+					.filter(entry -> entry.getKey() != ScoreStatus.UNDEFINED)
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
+		}
+		else {
+			getView().refreshScores(buckets);
+		}
 	}
 	
 	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequestedListener = new IListener<>() {
@@ -131,5 +140,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 		System.out.println("random score changes generated");
 		updateScore(newScores);
+	}
+	
+	private Boolean hideUndefinedScores = false;
+	
+	public void setHideUndefinedScores(Boolean status) {
+		System.out.println("hiding undefined scores are requested to set: " + status);
+		hideUndefinedScores = status;
+		updateScore(getModel().getScores());
 	}
 }

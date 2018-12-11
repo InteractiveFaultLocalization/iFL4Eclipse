@@ -75,6 +75,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	@Override
 	public void teardown() {
 		getView().eventClosed().remove(closeListener);
+		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
@@ -90,6 +91,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private ScoreLoaderControl scoreLoaderControl;
 	private IListener<EmptyEvent> scoreLoadRequestedListener;
+	private IListener<Boolean> hideUndefinedListener;
 	
 	private void initUIStateListeners() {
 		closeListener = part -> {
@@ -102,6 +104,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 			this.scoreLoaderControl.load();
 		};
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
+		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
 	
 	public void updateRandomScores(int count) {
