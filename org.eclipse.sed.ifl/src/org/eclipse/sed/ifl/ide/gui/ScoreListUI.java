@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 
 import java.text.Collator;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import java.util.Map.Entry;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
@@ -96,22 +98,36 @@ public class ScoreListUI extends Composite {
 					index = 5;
 				}
 
-				for (int i = 1; i < items.length; i++) {
-					String value1 = items[i].getText(index);
-					for (int j = 0; j < i; j++) {
-						String value2 = items[j].getText(index);
-						if ((collator.compare(value1, value2) < 0 && dir == SWT.UP)
-								|| (collator.compare(value1, value2) > 0 && dir == SWT.DOWN)) {
-							String[] values = { items[i].getText(0), items[i].getText(1), items[i].getText(2),
-									items[i].getText(3), items[i].getText(4) };
-							items[i].dispose();
-							TableItem item = new TableItem(table, SWT.NONE, j);
-							item.setText(values);
-							items = table.getItems();
-							break;
-						}
-					}
+				final int finalIndex = index;
+				if (dir == SWT.UP) {
+					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(finalIndex), b.getText(finalIndex)));
 				}
+				else if (dir == SWT.DOWN) {
+					Arrays.sort(items, (TableItem a, TableItem b) -> -collator.compare(a.getText(finalIndex), b.getText(finalIndex)));					
+				}
+				for (var item : items) {
+					TableItem newItem = new TableItem(table, SWT.NONE);
+					newItem.setText(new String[] { 
+							item.getText(0),
+							item.getText(1),
+							item.getText(2),
+							item.getText(3),
+							item.getText(4),
+							item.getText(5)
+					});
+					newItem.setImage(new Image[] {
+							item.getImage(0),
+							item.getImage(1),
+							item.getImage(2),
+							item.getImage(3),
+							item.getImage(4),
+							item.getImage(5)
+					});
+					newItem.setBackground(item.getBackground());
+					newItem.setForeground(item.getForeground());
+					item.dispose();
+				}
+				
 				table.setSortColumn(column);
 				table.setSortDirection(dir);
 			}

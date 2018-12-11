@@ -1,6 +1,5 @@
 package org.eclipse.sed.ifl.control.session;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
