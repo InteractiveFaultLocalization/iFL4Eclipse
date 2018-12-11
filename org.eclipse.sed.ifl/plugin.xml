@@ -53,11 +53,11 @@
                   icon="icons/ico16.png"
                   tooltip="Start interactive Fault Localization session.">
             </command>
-            <command
+<!--            <command
                   commandId="org.eclipse.sed.ifl.test"
                   label="TEST"
                   style="push">
-            </command>
+            </command>-->
          </toolbar>
       </menuContribution>
    </extension>

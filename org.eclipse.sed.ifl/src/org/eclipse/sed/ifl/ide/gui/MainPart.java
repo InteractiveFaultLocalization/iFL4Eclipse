@@ -79,10 +79,18 @@ public class MainPart extends ViewPart {
 		return scoreLoadRequested;
 	}
 	
+	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventHideUndefinedRequested() {
+		return hideUndefinedRequested;
+	}
+
 	private Action loadScoreAction;
+	private Action hideUndefinedAction;
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(loadScoreAction);
+		manager.add(hideUndefinedAction);
 	}
 
 	private void makeActions() {
@@ -96,6 +104,23 @@ public class MainPart extends ViewPart {
 			@Override
 			public String getText() {
 				return "Load scores...";
+			}
+		};
+		hideUndefinedAction = new Action() {
+			@Override
+			public void run() {
+				System.out.println("hiding undefined scores requested on the GUI to set to " + (isChecked()?"enabled":"disabled"));
+				hideUndefinedRequested.invoke(isChecked());
+			}
+			
+			@Override
+			public int getStyle() {
+				return AS_CHECK_BOX;
+			}
+			
+			@Override
+			public String getText() {
+				return "Hide undefined";
 			}
 		};
 	}
