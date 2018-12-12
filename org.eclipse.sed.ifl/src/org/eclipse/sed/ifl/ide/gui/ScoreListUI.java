@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.ide.gui;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 
 import java.text.Collator;
@@ -13,6 +15,8 @@ import java.util.Map.Entry;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
@@ -113,6 +117,21 @@ public class ScoreListUI extends Composite {
 		typeColumn.addListener(SWT.Selection, sortListener);
 
 		table.setSortColumn(nameColumn);
+
+		final Menu menu = new Menu(table);
+		table.setMenu(menu);
+		menu.addMenuListener(new MenuAdapter() {
+			public void menuShown(MenuEvent e) {
+				MenuItem[] items = menu.getItems();
+				for (int i = 0; i < items.length; i++) {
+					items[i].dispose();
+				}
+				MenuItem newItem = new MenuItem(menu, SWT.NONE);
+				newItem.setText("Menu for " + table.getSelection()[0].getText());
+				MenuItem item2 = new MenuItem(menu, SWT.NONE);
+				item2.setText("Menu for " + table.getSelection()[0].getText());
+			}
+		});
 
 	}
 
