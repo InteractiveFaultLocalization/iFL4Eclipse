@@ -1,7 +1,10 @@
 package org.eclipse.sed.ifl.view;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
@@ -24,12 +27,18 @@ public class SessionView extends View {
 	public void init() {
 		service = part.getSite().getService(IPartService.class);
 		initUIStateListeners();
+		scoreLoadRequestedListener = event -> {
+			scoreLoadRequested.invoke(new EmptyEvent());
+		};
+		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
-		//service.removePartListener(stateListener);
+		service.removePartListener(stateListener);
+		part.eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		part.eventHideUndefinedRequested().remove(hideUndefinedListener);
 		super.teardown();
 	}
 	
@@ -65,5 +74,22 @@ public class SessionView extends View {
 			public void partActivated(IWorkbenchPart part) { }
 		};
 		service.addPartListener(stateListener);
+		hideUndefinedListener = status -> hideUndefinedRequested.invoke(status);
+		part.eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
+	
+	private NonGenericListenerCollection<EmptyEvent> scoreLoadRequested = new NonGenericListenerCollection<>();
+	private IListener<Action> scoreLoadRequestedListener;
+	
+	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadRequested() {
+		return scoreLoadRequested;
+	}
+	
+	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
+	private IListener<Boolean> hideUndefinedListener;
+	
+	public INonGenericListenerCollection<Boolean> eventHideUndefinedRequested() {
+		return hideUndefinedRequested;
+	}
+
 }

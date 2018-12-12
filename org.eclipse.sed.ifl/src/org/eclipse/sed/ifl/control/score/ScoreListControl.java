@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 
@@ -20,7 +22,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		getView().refreshScores(getModel().getScores(), ScoreStatus.UNDEFINED);
+		getModel().eventScoreUpdateRequested().add(scoreUpdateRequestedListener);
 		super.init();
+	}
+	
+	@Override
+	public void teardown() {
+		getModel().eventScoreUpdateRequested().remove(scoreUpdateRequestedListener);
+		super.teardown();
 	}
 	
 	public enum ScoreStatus {
@@ -43,8 +52,24 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
 		var buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
-		getView().refreshScores(buckets);
+		if (hideUndefinedScores) {
+			getView().refreshScores(
+					buckets.entrySet().stream()
+					.filter(entry -> entry.getKey() != ScoreStatus.UNDEFINED)
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
+		}
+		else {
+			getView().refreshScores(buckets);
+		}
 	}
+	
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequestedListener = new IListener<>() {
+		
+		@Override
+		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
+			updateScore(event);
+		}
+	};
 
 	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> detectStatus(Map<IMethodDescription, Defineable<Double>> newScores) {
 		Map<IMethodDescription, Defineable<Double>> higherScores = new HashMap<IMethodDescription, Defineable<Double>>();
@@ -115,5 +140,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 		System.out.println("random score changes generated");
 		updateScore(newScores);
+	}
+	
+	private Boolean hideUndefinedScores = false;
+	
+	public void setHideUndefinedScores(Boolean status) {
+		System.out.println("hiding undefined scores are requested to set: " + status);
+		hideUndefinedScores = status;
+		updateScore(getModel().getScores());
 	}
 }

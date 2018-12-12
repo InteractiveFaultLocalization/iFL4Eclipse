@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class ScoreListModel extends EmptyModel {
@@ -38,5 +40,27 @@ public class ScoreListModel extends EmptyModel {
 		var keyList = new ArrayList<>(scores.entrySet());
 		Collections.shuffle(keyList);
 		return keyList.stream().limit(Math.min(keyList.size(), count)).collect(Collectors.toList());
+	}
+
+	private NonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> eventScoreUpdateRequested() {
+		return scoreUpdateRequested;
+	}
+	
+	public int requestScoreUpdate(Map<String, Double> rawScores) {
+		int count = 0;
+		Map<IMethodDescription, Defineable<Double>> entries = new HashMap<>();
+		for (var raw : rawScores.entrySet()) {
+			for (var entry : scores.entrySet()) {
+				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
+					entries.put(entry.getKey(), new Defineable<>(raw.getValue()));
+					count++;
+				}
+			}
+		}
+		scoreUpdateRequested.invoke(entries);
+		System.out.println(count + "/" + scores.size() + " scores will be updated");
+		return count;
 	}
 }
