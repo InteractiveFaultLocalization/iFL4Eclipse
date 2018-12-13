@@ -12,9 +12,10 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public abstract class MethodScoreHandler {
 
-	protected Map<IMethodDescription,Defineable<Double>> methodsScoreMap;
+	protected Map<IMethodDescription, Defineable<Double>> methodsScoreMap;
 
-	public MethodScoreHandler(IMavenExecutor executor) { }
+	public MethodScoreHandler(IMavenExecutor executor) {
+	}
 
 	public abstract void init(Iterable<IMethodDescription> initialMethods);
 
@@ -35,5 +36,7 @@ public abstract class MethodScoreHandler {
 	public INonGenericListenerCollection<Map<IMethodDescription, Double>> eventScoreUpdated() {
 		return scoreUpdated;
 	}
+
+	public abstract void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map);
 
 }
