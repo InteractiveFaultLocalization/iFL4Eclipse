@@ -34,12 +34,31 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 //			feedback.getSubjects().forEach(subject -> map.put(subject, 0.0));
 //		}
 		else if (feedback.getChoise().getId().equals("NO_BUT_SUSPICIOUS")) {
-			feedback.getSubjects().forEach(subject -> map.put(subject, 0.0));
+			for (IMethodDescription subject : feedback.getSubjects()) {
+				if (methodsScoreMap.get(subject).isDefinit()) {
+					map.put(subject, 0.0);
+				} else {
+					map.put(subject, null);
+				}
+			}
+
 		} else if (feedback.getChoise().getId().equals("NO_AND_NOT_SUSPICIOUS")) {
 
 			for (IMethodDescription subject : feedback.getSubjects()) {
-				map.put(subject, 0.0);
-				subject.getContext().forEach(contextSubject -> map.put(contextSubject, 0.0));
+				if (methodsScoreMap.get(subject).isDefinit()) {
+					map.put(subject, 0.0);
+				} else {
+					map.put(subject, null);
+				}
+
+				for (IMethodDescription contextSubject : feedback.getSubjects()) {
+					if (methodsScoreMap.get(contextSubject).isDefinit()) {
+						map.put(subject, 0.0);
+					} else {
+						map.put(contextSubject, null);
+					}
+				}
+
 			}
 		} else {
 			new UnsupportedOperationException("invalid option");
