@@ -8,7 +8,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="swing2swt.jar"/>
-	<classpathentry kind="lib" path="F:/project/iFL/iFL-eclipse-plugin/libs/commons-csv-1.6-bin/commons-csv-1.6/commons-csv-1.6.jar">
+	<classpathentry kind="lib" path="/home/victor/Documents/GitHub/iFL-eclipse-plugin/libs/commons-csv-1.6-bin/commons-csv-1.6/commons-csv-1.6.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/F:/project/iFL/iFL-eclipse-plugin/libs/commons-csv-1.6-bin/commons-csv-1.6/apidocs/"/>
 		</attributes>

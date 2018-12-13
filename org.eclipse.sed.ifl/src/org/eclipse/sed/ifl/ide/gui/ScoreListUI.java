@@ -143,20 +143,23 @@ public class ScoreListUI extends Composite {
 
 		table.setSortColumn(nameColumn);
 
-		final Menu menu = new Menu(table);
-		table.setMenu(menu);
-		menu.addMenuListener(new MenuAdapter() {
-			public void menuShown(MenuEvent e) {
-				MenuItem[] items = menu.getItems();
-				for (int i = 0; i < items.length; i++) {
-					items[i].dispose();
-				}
-				MenuItem newItem = new MenuItem(menu, SWT.NONE);
-				newItem.setText("Menu for " + table.getSelection()[0].getText());
-				MenuItem item2 = new MenuItem(menu, SWT.NONE);
-				item2.setText("Menu for " + table.getSelection()[0].getText());
-			}
-		});
+		Menu contextMenu = new Menu(table);
+	    table.setMenu(contextMenu);
+	    MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
+	    mItem1.setText("Menu Item Test.");
+
+	    table.addListener(SWT.MouseDown, new Listener(){
+
+	        @Override
+	        public void handleEvent(Event event) {
+	            TableItem[] selection = table.getSelection();
+	            if(selection.length!=0 && (event.button == 3)){
+	                contextMenu.setVisible(true);
+	            }
+
+	        }
+
+	    });
 
 	}
 
