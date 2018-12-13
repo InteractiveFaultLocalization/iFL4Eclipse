@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.bi.faced;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
@@ -37,6 +38,10 @@ public abstract class MethodScoreHandler {
 		return scoreUpdated;
 	}
 
-	public abstract void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map);
+	public void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map) {
+
+		methodsScoreMap.putAll(new HashMap<IMethodDescription, Defineable<Double>>(map));
+
+	}
 
 }

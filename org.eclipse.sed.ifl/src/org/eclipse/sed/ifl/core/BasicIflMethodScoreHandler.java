@@ -10,7 +10,6 @@ import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
@@ -100,13 +99,6 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		providedOptions.add(noAndNotSuspicious);
 
 		return providedOptions;
-	}
-
-	@Override
-	public void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map) {
-
-		methodsScoreMap.putAll(new HashMap<IMethodDescription, Defineable<Double>>(map));
-
 	}
 
 }
