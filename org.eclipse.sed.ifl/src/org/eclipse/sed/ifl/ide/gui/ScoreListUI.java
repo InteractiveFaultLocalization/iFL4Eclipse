@@ -3,8 +3,11 @@ package org.eclipse.sed.ifl.ide.gui;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 
+import java.awt.BorderLayout;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
@@ -14,12 +17,13 @@ import java.util.Map.Entry;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.ResourceManager;
-import swing2swt.layout.BorderLayout;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -138,6 +142,24 @@ public class ScoreListUI extends Composite {
 		typeColumn.addListener(SWT.Selection, sortListener);
 
 		table.setSortColumn(nameColumn);
+
+		Menu contextMenu = new Menu(table);
+	    table.setMenu(contextMenu);
+	    MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
+	    mItem1.setText("Menu Item Test.");
+
+	    table.addListener(SWT.MouseDown, new Listener(){
+
+	        @Override
+	        public void handleEvent(Event event) {
+	            TableItem[] selection = table.getSelection();
+	            if(selection.length!=0 && (event.button == 3)){
+	                contextMenu.setVisible(true);
+	            }
+
+	        }
+
+	    });
 
 	}
 
