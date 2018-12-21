@@ -1,12 +1,5 @@
 package org.eclipse.sed.ifl.ide.gui;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Table;
-
 import java.awt.BorderLayout;
 import java.text.Collator;
 import java.util.Arrays;
@@ -15,14 +8,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.wb.swt.ResourceManager;
 
 public class ScoreListUI extends Composite {
@@ -104,34 +106,23 @@ public class ScoreListUI extends Composite {
 
 				final int finalIndex = index;
 				if (dir == SWT.UP) {
-					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(finalIndex), b.getText(finalIndex)));
-				}
-				else if (dir == SWT.DOWN) {
-					Arrays.sort(items, (TableItem a, TableItem b) -> -collator.compare(a.getText(finalIndex), b.getText(finalIndex)));					
+					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(finalIndex),
+							b.getText(finalIndex)));
+				} else if (dir == SWT.DOWN) {
+					Arrays.sort(items, (TableItem a,
+							TableItem b) -> -collator.compare(a.getText(finalIndex), b.getText(finalIndex)));
 				}
 				for (var item : items) {
 					TableItem newItem = new TableItem(table, SWT.NONE);
-					newItem.setText(new String[] { 
-							item.getText(0),
-							item.getText(1),
-							item.getText(2),
-							item.getText(3),
-							item.getText(4),
-							item.getText(5)
-					});
-					newItem.setImage(new Image[] {
-							item.getImage(0),
-							item.getImage(1),
-							item.getImage(2),
-							item.getImage(3),
-							item.getImage(4),
-							item.getImage(5)
-					});
+					newItem.setText(new String[] { item.getText(0), item.getText(1), item.getText(2), item.getText(3),
+							item.getText(4), item.getText(5) });
+					newItem.setImage(new Image[] { item.getImage(0), item.getImage(1), item.getImage(2),
+							item.getImage(3), item.getImage(4), item.getImage(5) });
 					newItem.setBackground(item.getBackground());
 					newItem.setForeground(item.getForeground());
 					item.dispose();
 				}
-				
+
 				table.setSortColumn(column);
 				table.setSortDirection(dir);
 			}
@@ -142,24 +133,6 @@ public class ScoreListUI extends Composite {
 		typeColumn.addListener(SWT.Selection, sortListener);
 
 		table.setSortColumn(nameColumn);
-
-		Menu contextMenu = new Menu(table);
-	    table.setMenu(contextMenu);
-	    MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
-	    mItem1.setText("Menu Item Test.");
-
-	    table.addListener(SWT.MouseDown, new Listener(){
-
-	        @Override
-	        public void handleEvent(Event event) {
-	            TableItem[] selection = table.getSelection();
-	            if(selection.length!=0 && (event.button == 3)){
-	                contextMenu.setVisible(true);
-	            }
-
-	        }
-
-	    });
 
 	}
 
@@ -187,4 +160,41 @@ public class ScoreListUI extends Composite {
 		table.removeAll();
 	}
 
+	public void createMenuOptions(Iterable<Option> options) {
+		Menu contextMenu = new Menu(table);
+		table.setMenu(contextMenu);
+		for (Option option : options) {
+			MenuItem mItem = new MenuItem(contextMenu, SWT.None);
+			mItem.setText(option.getTitle());
+			mItem.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					
+					TableItem item[]=	table.getSelection();
+					
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					
+				}
+			});
+
+		}
+
+		table.addListener(SWT.MouseDown, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				TableItem[] selection = table.getSelection();
+				if (selection.length != 0 && (event.button == 3)) {
+					contextMenu.setVisible(true);
+				}
+
+			}
+
+		});
+
+	}
 }

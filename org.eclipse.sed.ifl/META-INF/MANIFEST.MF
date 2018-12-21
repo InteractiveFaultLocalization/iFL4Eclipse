@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources;bundle-version="3.13.100",
  org.eclipse.jdt.core;bundle-version="3.15.0",
  org.junit
-Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=1.10))"
+Bundle-RequiredExecutionEnvironment: JavaSE-10
+lacerda-comment: Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=1.10))"
 X-gery-comment: the above line replaced this Bundle-RequiredExecutionEnvironment: JavaSE-10
 Automatic-Module-Name: org.eclipse.sed.ifl
 Bundle-ActivationPolicy: lazy

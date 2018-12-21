@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -18,60 +19,56 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
 	}
-	
+
 	@Override
 	public void init() {
 		getView().refreshScores(getModel().getScores(), ScoreStatus.UNDEFINED);
 		getModel().eventScoreUpdateRequested().add(scoreUpdateRequestedListener);
+		getView().createOptionsMenu(new BasicIflMethodScoreHandler(null).getProvidedOptions());
 		super.init();
 	}
-	
+
 	@Override
 	public void teardown() {
 		getModel().eventScoreUpdateRequested().remove(scoreUpdateRequestedListener);
 		super.teardown();
 	}
-	
+
 	public enum ScoreStatus {
-		NONE (null),
-		INCREASED ("icons/up32.png"),
-		DECREASED ("icons/down32.png"),
-		UNDEFINED ("icons/undefined32.png");
-		
+		NONE(null), INCREASED("icons/up32.png"), DECREASED("icons/down32.png"), UNDEFINED("icons/undefined32.png");
+
 		private final String iconPath;
-		
+
 		ScoreStatus(String iconPath) {
 			this.iconPath = iconPath;
 		}
-		
+
 		public String getIconPath() {
 			return iconPath;
 		}
 	}
-	
+
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
 		var buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
 		if (hideUndefinedScores) {
-			getView().refreshScores(
-					buckets.entrySet().stream()
-					.filter(entry -> entry.getKey() != ScoreStatus.UNDEFINED)
+			getView().refreshScores(buckets.entrySet().stream().filter(entry -> entry.getKey() != ScoreStatus.UNDEFINED)
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
-		}
-		else {
+		} else {
 			getView().refreshScores(buckets);
 		}
 	}
-	
+
 	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequestedListener = new IListener<>() {
-		
+
 		@Override
 		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
 			updateScore(event);
 		}
 	};
 
-	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> detectStatus(Map<IMethodDescription, Defineable<Double>> newScores) {
+	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> detectStatus(
+			Map<IMethodDescription, Defineable<Double>> newScores) {
 		Map<IMethodDescription, Defineable<Double>> higherScores = new HashMap<IMethodDescription, Defineable<Double>>();
 		Map<IMethodDescription, Defineable<Double>> lowerScores = new HashMap<IMethodDescription, Defineable<Double>>();
 		Map<IMethodDescription, Defineable<Double>> unchangedScores = new HashMap<IMethodDescription, Defineable<Double>>();
@@ -100,15 +97,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			}
 		}
 		Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets = Map.ofEntries(
-				Map.entry(ScoreStatus.INCREASED, higherScores),
-				Map.entry(ScoreStatus.DECREASED, lowerScores),
-				Map.entry(ScoreStatus.NONE, unchangedScores),
-				Map.entry(ScoreStatus.UNDEFINED, otherScores)
-		);
+				Map.entry(ScoreStatus.INCREASED, higherScores), Map.entry(ScoreStatus.DECREASED, lowerScores),
+				Map.entry(ScoreStatus.NONE, unchangedScores), Map.entry(ScoreStatus.UNDEFINED, otherScores));
 		return buckets;
 	}
 
-	//TODO: for testing only
+	// TODO: for testing only
 	public void updateRandomScores(int count) {
 		var methods = getModel().getRandomMethods(count);
 		var statuses = List.of(ScoreStatus.DECREASED, ScoreStatus.INCREASED, ScoreStatus.NONE, ScoreStatus.UNDEFINED);
@@ -136,17 +130,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				}
 			}
 			newScores.put(entry.getKey(), value);
-			System.out.printf("Changing %s from %s to %s\n", entry.getKey().getId().toString(), entry.getValue().toString(), value.toString());
+			System.out.printf("Changing %s from %s to %s\n", entry.getKey().getId().toString(),
+					entry.getValue().toString(), value.toString());
 		}
 		System.out.println("random score changes generated");
 		updateScore(newScores);
 	}
-	
+
 	private Boolean hideUndefinedScores = false;
-	
+
 	public void setHideUndefinedScores(Boolean status) {
 		System.out.println("hiding undefined scores are requested to set: " + status);
 		hideUndefinedScores = status;
 		updateScore(getModel().getScores());
 	}
+
 }

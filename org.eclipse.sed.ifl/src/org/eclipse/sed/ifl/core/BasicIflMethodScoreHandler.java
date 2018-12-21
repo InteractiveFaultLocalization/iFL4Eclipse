@@ -29,11 +29,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		Map<IMethodDescription, Double> map = new HashMap<IMethodDescription, Double>();
 		if (feedback.getChoise().getId().equals("YES")) {
 			// end session
-		}
-//		else if (feedback.getChoise().getId().equals("NO")) {
-//			feedback.getSubjects().forEach(subject -> map.put(subject, 0.0));
-//		}
-		else if (feedback.getChoise().getId().equals("NO_BUT_SUSPICIOUS")) {
+		} else if (feedback.getChoise().getId().equals("NO")) {
 			for (IMethodDescription subject : feedback.getSubjects()) {
 				if (methodsScoreMap.get(subject).isDefinit()) {
 					map.put(subject, 0.0);
@@ -88,11 +84,11 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty");
 		providedOptions.add(yes);
-//		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
-//		providedOptions.add(no);
-		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
-				"Select this option if the subject is not faulty but its neighbours are suspicious");
-		providedOptions.add(noButSuspicious);
+		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
+		providedOptions.add(no);
+//		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
+//				"Select this option if the subject is not faulty but its neighbours are suspicious");
+//		providedOptions.add(noButSuspicious);
 		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
 				"Neither the subject, nor its neighbours are faulty",
 				"Select this option if neither the subject, nor its neighbours are faulty");
