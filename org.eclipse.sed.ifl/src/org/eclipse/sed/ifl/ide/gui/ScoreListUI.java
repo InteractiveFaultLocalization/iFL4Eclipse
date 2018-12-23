@@ -8,8 +8,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,7 +25,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.wb.swt.ResourceManager;
 
 public class ScoreListUI extends Composite {
@@ -167,17 +167,18 @@ public class ScoreListUI extends Composite {
 			MenuItem mItem = new MenuItem(contextMenu, SWT.None);
 			mItem.setText(option.getTitle());
 			mItem.addSelectionListener(new SelectionListener() {
-				
+
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					
-					TableItem item[]=	table.getSelection();
-					
+
+					TableItem item[] = table.getSelection();
+					optionSelected.invoke(option.getId());
+
 				}
-				
+
 				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
-					
+
 				}
 			});
 
@@ -196,5 +197,11 @@ public class ScoreListUI extends Composite {
 
 		});
 
+	}
+
+	private NonGenericListenerCollection<String> optionSelected = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<String> eventOptionSelected() {
+		return optionSelected;
 	}
 }

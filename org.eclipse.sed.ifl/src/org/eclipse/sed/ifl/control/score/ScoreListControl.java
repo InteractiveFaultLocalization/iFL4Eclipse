@@ -25,6 +25,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().refreshScores(getModel().getScores(), ScoreStatus.UNDEFINED);
 		getModel().eventScoreUpdateRequested().add(scoreUpdateRequestedListener);
 		getView().createOptionsMenu(new BasicIflMethodScoreHandler(null).getProvidedOptions());
+		getView().eventOptionSelected().add(optionSelectedListener);
 		super.init();
 	}
 
@@ -144,5 +145,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		hideUndefinedScores = status;
 		updateScore(getModel().getScores());
 	}
+
+	private IListener<String> optionSelectedListener = new IListener<String>() {
+
+		@Override
+		public void invoke(String event) {
+			System.out.println(event);
+		}
+
+	};
 
 }

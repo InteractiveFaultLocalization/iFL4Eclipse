@@ -6,6 +6,9 @@ import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.widgets.Composite;
 
@@ -36,5 +39,22 @@ public class ScoreListView extends View {
 
 	public void createOptionsMenu(Iterable<Option> options) {
 		ui.createMenuOptions(options);
+		ui.eventOptionSelected().add(optionSelectedListener);
 	}
+
+	private NonGenericListenerCollection<String> optionSelected = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<String> eventOptionSelected() {
+		return optionSelected;
+
+	}
+
+	private IListener<String> optionSelectedListener = new IListener<String>() {
+
+		@Override
+		public void invoke(String event) {
+			optionSelected.invoke(event);
+		}
+
+	};
 }
