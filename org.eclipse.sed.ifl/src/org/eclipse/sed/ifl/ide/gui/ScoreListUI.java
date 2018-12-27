@@ -31,6 +31,8 @@ public class ScoreListUI extends Composite {
 	private TableColumn signitureColumn;
 	private TableColumn typeColumn;
 	private TableColumn keyColumn;
+	private TableColumn pathColumn;
+	private TableColumn positionColumn;
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -68,6 +70,7 @@ public class ScoreListUI extends Composite {
 		keyColumn.setWidth(300);
 		keyColumn.setText("Key");
 
+		//TODO: update sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
 				TableItem[] items = table.getItems();
@@ -145,6 +148,14 @@ public class ScoreListUI extends Composite {
 	    table.setMenu(contextMenu);
 	    MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
 	    mItem1.setText("Menu Item Test.");
+	    
+	    pathColumn = new TableColumn(table, SWT.NONE);
+	    pathColumn.setWidth(100);
+	    pathColumn.setText("path");
+	    
+	    positionColumn = new TableColumn(table, SWT.NONE);
+	    positionColumn.setWidth(100);
+	    positionColumn.setText("line info");
 
 	    table.addListener(SWT.MouseDown, new Listener(){
 
@@ -177,6 +188,8 @@ public class ScoreListUI extends Composite {
 			item.setText(3, entry.getKey().getId().getSignature());
 			item.setText(4, entry.getKey().getId().getParentType());
 			item.setText(5, entry.getKey().getId().getKey());
+			item.setText(6, entry.getKey().getLocation().getAbsolutePath());
+			item.setText(7, entry.getKey().getLocation().getBegining().getOffset() + "-" + entry.getKey().getLocation().getEnd().getOffset());
 		}
 		iconColumn.pack();
 	}

@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.accessor.source;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -109,15 +110,26 @@ public class CodeEntityAccessor {
 		}
 	}	
 
-	public List<IMethodBinding> getResolvedMethods(IJavaProject project) {
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
 		var methods = getMethods(project);		
+		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
 		var resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
 		.map(method -> (IMethodBinding)method)
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toUnmodifiableMap(
+				method -> method,
+				method -> {
+					var element = method.getJavaElement();
+					if (element instanceof IMethod) {
+						return (IMethod)element;
+					}
+					else {
+						return null;
+					}
+				}));
 		return resolveds;
 	}
 	
