@@ -8,7 +8,7 @@ public class Position {
 		this.offset = offset;
 	}
 
-	public int getOffset() {
+	public Integer getOffset() {
 		return offset;
 	}	
 }

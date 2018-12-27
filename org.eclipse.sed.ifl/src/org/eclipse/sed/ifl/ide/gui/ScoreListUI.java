@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
@@ -22,6 +23,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -40,6 +43,24 @@ public class ScoreListUI extends Composite {
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				System.out.println("double click");
+				if (table.getSelectionCount() == 1) {
+					var selected = table.getSelection()[0];
+					var path = selected.getText(table.indexOf(pathColumn));
+					var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+					System.out.println("navigation requested to: " + path + ":" + offset);
+					//TODO: move this to controll layer ASAP!!
+					EditorAccessor accessor = new EditorAccessor();
+					accessor.open(path, offset);
+				}
+				else {
+					//TODO: handle multiply selection
+				}
+			}
+		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
@@ -86,29 +107,12 @@ public class ScoreListUI extends Composite {
 					table.setSortColumn(column);
 					dir = SWT.UP;
 				}
-				int index = 0;
-				if (column == scoreColumn) {
-					index = 1;
-				}
-				if (column == nameColumn) {
-					index = 2;
-				}
-				if (column == signitureColumn) {
-					index = 3;
-				}
-				if (column == typeColumn) {
-					index = 4;
-				}
-				if (column == keyColumn) {
-					index = 5;
-				}
-
-				final int finalIndex = index;
+				final int index = table.indexOf(column);
 				if (dir == SWT.UP) {
-					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(finalIndex), b.getText(finalIndex)));
+					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(index), b.getText(index)));
 				}
 				else if (dir == SWT.DOWN) {
-					Arrays.sort(items, (TableItem a, TableItem b) -> -collator.compare(a.getText(finalIndex), b.getText(finalIndex)));					
+					Arrays.sort(items, (TableItem a, TableItem b) -> -collator.compare(a.getText(index), b.getText(index)));					
 				}
 				for (var item : items) {
 					TableItem newItem = new TableItem(table, SWT.NONE);
@@ -189,7 +193,7 @@ public class ScoreListUI extends Composite {
 			item.setText(4, entry.getKey().getId().getParentType());
 			item.setText(5, entry.getKey().getId().getKey());
 			item.setText(6, entry.getKey().getLocation().getAbsolutePath());
-			item.setText(7, entry.getKey().getLocation().getBegining().getOffset() + "-" + entry.getKey().getLocation().getEnd().getOffset());
+			item.setText(7, entry.getKey().getLocation().getBegining().getOffset().toString());
 		}
 		iconColumn.pack();
 	}
