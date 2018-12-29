@@ -1,9 +1,12 @@
 package org.eclipse.sed.ifl.control.session;
 
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
@@ -41,31 +44,42 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	private void startNewSession() {
 		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
+		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> 
-			new Method(
-				new MethodIdentity(
-					method.getKey().getName(),
-					accessor.getSignature(method.getKey()),
-					method.getKey().getDeclaringClass().getName(),
-					method.getKey().getReturnType().getName(),
-					method.getKey().getKey()
-				),
-				new CodeChunkLocation(
-					EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
-					new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
-					new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset() + method.getValue().getSourceRange().getLength()))
-				),
-				List.of()
-			)
-		)
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method)))
 		.collect(Collectors.toUnmodifiableList());
 		System.out.printf("%d method found\n", methods.size());
+		
 		ScoreListModel model = new ScoreListModel(methods);
 		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
+	}
+
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method) {
+		return accessor.getResolvedMethods(method.getValue().getDeclaringType(), selectedProject).entrySet().stream()
+		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+		.map(contextMethod -> identityFrom(contextMethod))
+		.collect(Collectors.toUnmodifiableList());
+	}
+
+	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
+		return new CodeChunkLocation(
+			EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset() + method.getValue().getSourceRange().getLength()))
+		);
+	}
+
+	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
+		return new MethodIdentity(
+			method.getKey().getName(),
+			accessor.getSignature(method.getKey()),
+			method.getKey().getDeclaringClass().getName(),
+			method.getKey().getReturnType().getName(),
+			method.getKey().getKey()
+		);
 	}
 	
 	@Override

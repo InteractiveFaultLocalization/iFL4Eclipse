@@ -1,15 +1,16 @@
 package org.eclipse.sed.ifl.model.source;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Method implements IMethodDescription {
 
 	private MethodIdentity id;
 	private CodeChunkLocation location;
-	private List<IMethodDescription> context = new ArrayList<>();
+	private List<MethodIdentity> context = new ArrayList<>();
 	
-	public Method(MethodIdentity id, CodeChunkLocation location, List<IMethodDescription> context) {
+	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context) {
 		super();
 		this.id = id;
 		this.location = location;
@@ -31,8 +32,8 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public Iterable<IMethodDescription> getContext() {
-		return context;
+	public List<MethodIdentity> getContext() {
+		return Collections.unmodifiableList(context);
 	}
 
 	@Override

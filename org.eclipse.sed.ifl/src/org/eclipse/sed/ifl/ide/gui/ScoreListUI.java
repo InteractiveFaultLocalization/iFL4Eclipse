@@ -33,9 +33,9 @@ public class ScoreListUI extends Composite {
 	private TableColumn scoreColumn;
 	private TableColumn signitureColumn;
 	private TableColumn typeColumn;
-	private TableColumn keyColumn;
 	private TableColumn pathColumn;
 	private TableColumn positionColumn;
+	private TableColumn contextSizeColumn;
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -87,9 +87,6 @@ public class ScoreListUI extends Composite {
 		typeColumn.setMoveable(true);
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
-		keyColumn = new TableColumn(table, SWT.NONE);
-		keyColumn.setWidth(300);
-		keyColumn.setText("Key");
 
 		//TODO: update sorting
 		Listener sortListener = new Listener() {
@@ -160,6 +157,10 @@ public class ScoreListUI extends Composite {
 	    positionColumn = new TableColumn(table, SWT.NONE);
 	    positionColumn.setWidth(100);
 	    positionColumn.setText("line info");
+	    
+	    contextSizeColumn = new TableColumn(table, SWT.NONE);
+	    contextSizeColumn.setWidth(100);
+	    contextSizeColumn.setText("context size");
 
 	    table.addListener(SWT.MouseDown, new Listener(){
 
@@ -181,19 +182,19 @@ public class ScoreListUI extends Composite {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (iconPath != null) {
 				var icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
-				item.setImage(0, icon);
+				item.setImage(table.indexOf(iconColumn), icon);
 			}
 			if (entry.getValue().isDefinit()) {
-				item.setText(1, entry.getValue().getValue().toString());
+				item.setText(table.indexOf(scoreColumn), entry.getValue().getValue().toString());
 			} else {
-				item.setText(1, "undefined");
+				item.setText(table.indexOf(scoreColumn), "undefined");
 			}
-			item.setText(2, entry.getKey().getId().getName());
-			item.setText(3, entry.getKey().getId().getSignature());
-			item.setText(4, entry.getKey().getId().getParentType());
-			item.setText(5, entry.getKey().getId().getKey());
-			item.setText(6, entry.getKey().getLocation().getAbsolutePath());
-			item.setText(7, entry.getKey().getLocation().getBegining().getOffset().toString());
+			item.setText(table.indexOf(nameColumn), entry.getKey().getId().getName());
+			item.setText(table.indexOf(signitureColumn), entry.getKey().getId().getSignature());
+			item.setText(table.indexOf(typeColumn), entry.getKey().getId().getParentType());
+			item.setText(table.indexOf(pathColumn), entry.getKey().getLocation().getAbsolutePath());
+			item.setText(table.indexOf(positionColumn), entry.getKey().getLocation().getBegining().getOffset().toString());
+			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
 		}
 		iconColumn.pack();
 	}
