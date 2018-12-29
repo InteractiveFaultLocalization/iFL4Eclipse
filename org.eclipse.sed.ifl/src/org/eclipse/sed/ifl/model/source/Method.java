@@ -7,9 +7,9 @@ public class Method implements IMethodDescription {
 
 	private MethodIdentity id;
 	private CodeChunkLocation location;
-	private List<IMethodDescription> context = new ArrayList<>();
+	private List<MethodIdentity> context = new ArrayList<>();
 	
-	public Method(MethodIdentity id, CodeChunkLocation location, List<IMethodDescription> context) {
+	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context) {
 		super();
 		this.id = id;
 		this.location = location;
@@ -31,7 +31,7 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public Iterable<IMethodDescription> getContext() {
+	public Iterable<MethodIdentity> getContext() {
 		return context;
 	}
 

@@ -5,5 +5,5 @@ public interface IMethodDescription {
 	
 	public ICodeChunkLocation getLocation();
 	
-	public Iterable<IMethodDescription> getContext();
+	public Iterable<MethodIdentity> getContext();
 }

@@ -60,7 +60,7 @@ public class CodeEntityAccessor {
 		return EU.tryUnchecked(() -> Stream.of(type.getMethods()))
 		.collect(Collectors.toUnmodifiableList());
 	}
-	
+		
 	public List<IMethod> getMethods(IJavaProject project) {
 		return getUnits(project).stream()
 		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
@@ -110,8 +110,15 @@ public class CodeEntityAccessor {
 		}
 	}	
 
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IType type, IJavaProject project) {
+		return resolve(project, getMethods(type));
+	}
+	
 	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
-		var methods = getMethods(project);		
+		return resolve(project, getMethods(project));
+	}
+
+	private Map<IMethodBinding, IMethod> resolve(IJavaProject project, List<IMethod> methods) {
 		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setProject(project);
