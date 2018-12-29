@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.model.source;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Method implements IMethodDescription {
@@ -31,8 +32,8 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public Iterable<MethodIdentity> getContext() {
-		return context;
+	public List<MethodIdentity> getContext() {
+		return Collections.unmodifiableList(context);
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package org.eclipse.sed.ifl.model.source;
 
+import java.util.List;
+
 public interface IMethodDescription {
 	public MethodIdentity getId();
 	
 	public ICodeChunkLocation getLocation();
 	
-	public Iterable<MethodIdentity> getContext();
+	public List<MethodIdentity> getContext();
 }
