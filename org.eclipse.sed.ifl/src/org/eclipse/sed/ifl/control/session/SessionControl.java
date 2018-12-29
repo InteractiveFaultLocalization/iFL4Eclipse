@@ -59,6 +59,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method) {
 		return accessor.getResolvedMethods(method.getValue().getDeclaringType(), selectedProject).entrySet().stream()
+		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
 		.map(contextMethod -> identityFrom(contextMethod))
 		.collect(Collectors.toUnmodifiableList());
 	}
