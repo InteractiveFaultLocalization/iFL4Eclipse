@@ -60,7 +60,8 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			new UnsupportedOperationException("invalid option");
 		}
 
-		this.scoreUpdated.invoke(map);
+		if (!feedback.getChoise().getId().equals("YES"))
+			this.scoreUpdated.invoke(map);
 	}
 
 	@Override

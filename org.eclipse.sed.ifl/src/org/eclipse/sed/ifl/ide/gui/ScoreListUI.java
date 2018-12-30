@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.awt.BorderLayout;
 import java.text.Collator;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -172,7 +174,10 @@ public class ScoreListUI extends Composite {
 				public void widgetSelected(SelectionEvent e) {
 
 					TableItem item[] = table.getSelection();
-					optionSelected.invoke(option.getId());
+
+					Map map = new HashMap<String, List>();
+					map.put(option.getId(), Arrays.asList(item));
+					optionSelected.invoke(map);
 
 				}
 
@@ -199,9 +204,10 @@ public class ScoreListUI extends Composite {
 
 	}
 
-	private NonGenericListenerCollection<String> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<String> eventOptionSelected() {
+	public INonGenericListenerCollection<Map> eventOptionSelected() {
 		return optionSelected;
 	}
+
 }

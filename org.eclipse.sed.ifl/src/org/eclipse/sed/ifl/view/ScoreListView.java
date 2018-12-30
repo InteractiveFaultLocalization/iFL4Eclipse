@@ -42,19 +42,20 @@ public class ScoreListView extends View {
 		ui.eventOptionSelected().add(optionSelectedListener);
 	}
 
-	private NonGenericListenerCollection<String> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<String> eventOptionSelected() {
+	public INonGenericListenerCollection<Map> eventOptionSelected() {
 		return optionSelected;
 
 	}
 
-	private IListener<String> optionSelectedListener = new IListener<String>() {
+	private IListener<Map> optionSelectedListener = new IListener<Map>() {
 
 		@Override
-		public void invoke(String event) {
+		public void invoke(Map event) {
 			optionSelected.invoke(event);
 		}
 
 	};
+
 }

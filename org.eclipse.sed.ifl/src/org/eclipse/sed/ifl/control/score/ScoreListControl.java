@@ -1,18 +1,28 @@
 package org.eclipse.sed.ifl.control.score;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.model.source.Position;
+import org.eclipse.sed.ifl.model.user.identification.IUser;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.swt.widgets.TableItem;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -146,11 +156,76 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		updateScore(getModel().getScores());
 	}
 
-	private IListener<String> optionSelectedListener = new IListener<String>() {
+	private IListener<Map> optionSelectedListener = new IListener<Map>() {
 
 		@Override
-		public void invoke(String event) {
-			System.out.println(event);
+		public void invoke(Map event) {
+			BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
+			handler.updateScore(new IUserFeedback() {
+
+				@Override
+				public IUser getUser() {
+					return null;
+				}
+
+				@Override
+				public Iterable<IMethodDescription> getSubjects() {
+					List<IMethodDescription> subjects = new ArrayList<IMethodDescription>();
+					Map.Entry<String, List> entry = (Entry<String, List>) event.entrySet().iterator().next();
+
+					List<TableItem> tableItens = entry.getValue();
+					for (TableItem item : tableItens) {
+						subjects.add(new IMethodDescription() {
+
+							@Override
+							public ICodeChunkLocation getLocation() {
+								return new ICodeChunkLocation() {
+
+									@Override
+									public Position getEnd() {
+										return null;
+									}
+
+									@Override
+									public Position getBegining() {
+										return null;
+									}
+
+									@Override
+									public String getAbsolutePath() {
+										return null;
+									}
+								};
+							}
+
+							@Override
+							public MethodIdentity getId() {
+								return new MethodIdentity(item.getText(2), item.getText(3), item.getText(4), "",
+										item.getText(5));
+							}
+
+							@Override
+							public Iterable<IMethodDescription> getContext() {
+								// TODO Auto-generated method stub
+								return null;
+							}
+						});
+					}
+					return subjects;
+				}
+
+				@Override
+				public Option getChoise() {
+					for (Option option : handler.getProvidedOptions()) {
+						Map.Entry<String, List> entry = (Entry<String, List>) event.entrySet().iterator().next();
+						if (option.getId().equals(entry.getKey())) {
+							return option;
+						}
+					}
+					new UnsupportedOperationException("invalid option");
+					return null;
+				}
+			});
 		}
 
 	};
