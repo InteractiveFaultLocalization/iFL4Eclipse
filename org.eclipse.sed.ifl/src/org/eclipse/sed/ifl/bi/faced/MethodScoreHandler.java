@@ -13,7 +13,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public abstract class MethodScoreHandler {
 
-	protected Map<IMethodDescription, Defineable<Double>> methodsScoreMap;
+	protected Map<IMethodDescription, Defineable<Double>> methodsScoreMap = new HashMap<IMethodDescription, Defineable<Double>>();
 
 	public MethodScoreHandler(IMavenExecutor executor) {
 	}
@@ -41,7 +41,6 @@ public abstract class MethodScoreHandler {
 	public void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map) {
 
 		methodsScoreMap.putAll(new HashMap<IMethodDescription, Defineable<Double>>(map));
-
 	}
 
 }

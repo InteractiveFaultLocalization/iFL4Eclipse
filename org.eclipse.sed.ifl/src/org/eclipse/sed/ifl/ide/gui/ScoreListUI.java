@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -154,6 +155,7 @@ public class ScoreListUI extends Composite {
 			item.setText(3, entry.getKey().getId().getSignature());
 			item.setText(4, entry.getKey().getId().getParentType());
 			item.setText(5, entry.getKey().getId().getKey());
+			item.setData(entry.getKey());
 		}
 		iconColumn.pack();
 	}
@@ -172,11 +174,13 @@ public class ScoreListUI extends Composite {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					List<IMethodDescription> subjects = new ArrayList<>();
 
-					TableItem item[] = table.getSelection();
-
+					for (TableItem item : table.getSelection()) {
+						subjects.add((IMethodDescription) item.getData());
+					}
 					Map map = new HashMap<String, List>();
-					map.put(option.getId(), Arrays.asList(item));
+					map.put(option.getId(), subjects);
 					optionSelected.invoke(map);
 
 				}
