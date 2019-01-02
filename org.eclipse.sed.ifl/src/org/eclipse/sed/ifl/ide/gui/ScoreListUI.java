@@ -123,6 +123,7 @@ public class ScoreListUI extends Composite {
 							item.getImage(3), item.getImage(4), item.getImage(5) });
 					newItem.setBackground(item.getBackground());
 					newItem.setForeground(item.getForeground());
+					newItem.setData(item.getData());
 					item.dispose();
 				}
 

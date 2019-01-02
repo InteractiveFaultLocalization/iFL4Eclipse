@@ -189,7 +189,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	};
 
-	private IListener<Map<IMethodDescription, Double>> scoreUpdatedListener = new IListener<Map<IMethodDescription, Double>>() {
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdatedListener = new IListener<Map<IMethodDescription, Defineable<Double>>>() {
 
 		@Override
 		public void invoke(Map event) {

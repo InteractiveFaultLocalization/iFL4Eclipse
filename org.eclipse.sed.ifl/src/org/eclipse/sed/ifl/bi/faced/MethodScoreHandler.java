@@ -32,9 +32,9 @@ public abstract class MethodScoreHandler {
 
 	// Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise
 	// the event.
-	protected NonGenericListenerCollection<Map<IMethodDescription, Double>> scoreUpdated;
+	protected NonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> scoreUpdated = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<IMethodDescription, Double>> eventScoreUpdated() {
+	public INonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> eventScoreUpdated() {
 		return scoreUpdated;
 	}
 

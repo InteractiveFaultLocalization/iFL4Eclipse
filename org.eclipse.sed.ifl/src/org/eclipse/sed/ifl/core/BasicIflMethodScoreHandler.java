@@ -10,6 +10,7 @@ import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
@@ -26,15 +27,15 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateScore(IUserFeedback feedback) {
-		Map<IMethodDescription, Double> map = new HashMap<IMethodDescription, Double>();
+		Map<IMethodDescription, Defineable<Double>> map = new HashMap<IMethodDescription, Defineable<Double>>();
 		if (feedback.getChoise().getId().equals("YES")) {
 			// end session
 		} else if (feedback.getChoise().getId().equals("NO")) {
 			for (IMethodDescription subject : feedback.getSubjects()) {
 				if (methodsScoreMap.get(subject).isDefinit()) {
-					map.put(subject, 0.0);
+					map.put(subject, new Defineable<>(0.0));
 				} else {
-					map.put(subject, null);
+//					map.put(subject, null);
 				}
 			}
 
@@ -42,16 +43,16 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 			for (IMethodDescription subject : feedback.getSubjects()) {
 				if (methodsScoreMap.get(subject).isDefinit()) {
-					map.put(subject, 0.0);
+					map.put(subject, new Defineable<>(0.0));
 				} else {
-					map.put(subject, null);
+//					map.put(subject, null);
 				}
 
 				for (IMethodDescription contextSubject : feedback.getSubjects()) {
 					if (methodsScoreMap.get(contextSubject).isDefinit()) {
-						map.put(subject, 0.0);
+						map.put(subject, new Defineable<>(0.0));
 					} else {
-						map.put(contextSubject, null);
+//						map.put(contextSubject, null);
 					}
 				}
 
