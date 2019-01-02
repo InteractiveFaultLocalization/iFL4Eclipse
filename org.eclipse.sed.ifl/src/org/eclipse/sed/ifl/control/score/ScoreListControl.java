@@ -32,7 +32,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdateRequested().add(scoreUpdateRequestedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
-//		handler.eventScoreUpdated().add(listener);
+		handler.eventScoreUpdated().add(scoreUpdatedListener);
 		handler.loadMethodsScoreMap(getModel().getScores());
 		super.init();
 	}
@@ -185,6 +185,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					return null;
 				}
 			});
+		}
+
+	};
+
+	private IListener<Map<IMethodDescription, Double>> scoreUpdatedListener = new IListener<Map<IMethodDescription, Double>>() {
+
+		@Override
+		public void invoke(Map event) {
+			updateScore(event);
+
 		}
 
 	};
