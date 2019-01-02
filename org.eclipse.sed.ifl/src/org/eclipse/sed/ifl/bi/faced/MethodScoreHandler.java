@@ -13,7 +13,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public abstract class MethodScoreHandler {
 
-	protected Map<IMethodDescription, Defineable<Double>> methodsScoreMap;
+	protected Map<IMethodDescription, Defineable<Double>> methodsScoreMap = new HashMap<IMethodDescription, Defineable<Double>>();
 
 	public MethodScoreHandler(IMavenExecutor executor) {
 	}
@@ -32,16 +32,15 @@ public abstract class MethodScoreHandler {
 
 	// Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise
 	// the event.
-	protected NonGenericListenerCollection<Map<IMethodDescription, Double>> scoreUpdated;
+	protected NonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> scoreUpdated = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<IMethodDescription, Double>> eventScoreUpdated() {
+	public INonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> eventScoreUpdated() {
 		return scoreUpdated;
 	}
 
 	public void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map) {
 
 		methodsScoreMap.putAll(new HashMap<IMethodDescription, Defineable<Double>>(map));
-
 	}
 
 }
