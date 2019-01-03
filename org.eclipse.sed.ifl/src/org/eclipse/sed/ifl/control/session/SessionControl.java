@@ -1,10 +1,13 @@
 package org.eclipse.sed.ifl.control.session;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -50,7 +53,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
 		.collect(Collectors.toUnmodifiableList());
 		System.out.printf("%d method found\n", methods.size());
-		
+
+		Random r = new Random();
+		var sampleScores = methods.stream()
+		.map(method -> method.getId().toCSVKey())
+		.collect(Collectors.toUnmodifiableMap(id -> id, id -> r.nextDouble()));
+		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
+
 		ScoreListModel model = new ScoreListModel(methods);
 		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());

@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -26,13 +28,15 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "tarantula";
+	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
+
 		@Override
 		public void invoke(String event) {
 			File file = new File(event); 
 			try {
-				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader());
+				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 				int recordCount = 0;
 				Map<String, Double> loadedScores = new HashMap<>(); 
 				for (CSVRecord record : parser) {
@@ -48,6 +52,19 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			}
 		}
 	};
+	
+	public static void saveSample(Map<String, Double> scores, File dump) {
+		try (CSVPrinter printer = new CSVPrinter(new FileWriter(dump), CSVFORMAT)) {
+			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER);
+			for (var entry : scores.entrySet()) {
+				printer.printRecord(entry.getKey(), entry.getValue());
+			}
+			printer.flush();
+			System.out.println("Sample CSV was saved to " + dump.getAbsolutePath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void init() {

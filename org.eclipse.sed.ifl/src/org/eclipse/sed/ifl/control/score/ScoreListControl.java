@@ -192,9 +192,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		@Override
 		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
 			updateScore(event);
-
 		}
-
+		
 	};
 
 }
