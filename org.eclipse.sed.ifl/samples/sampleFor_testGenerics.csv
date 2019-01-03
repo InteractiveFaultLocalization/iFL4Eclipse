@@ -1,0 +1,4 @@
+name;tarantula
+"testGenerics.NonGenericClass.makes(Ljava/lang/Object;)V";0.6152184610875573
+"testGenerics.GenericClass.does(TAlma;)V";0.6476246319834469
+"testGenerics.GenericClass.makes(Ljava/lang/Object;)V";0.38706262216500886

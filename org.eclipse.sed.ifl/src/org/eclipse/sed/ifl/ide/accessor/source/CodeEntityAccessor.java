@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,12 +111,19 @@ public class CodeEntityAccessor {
 		}
 	}	
 
+	@Deprecated
 	public Map<IMethodBinding, IMethod> getResolvedMethods(IType type, IJavaProject project) {
 		return resolve(project, getMethods(type));
 	}
 	
 	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
 		return resolve(project, getMethods(project));
+	}
+	
+	public Map<IMethodBinding, IMethod> getSiblings(Entry<IMethodBinding, IMethod> me, Map<IMethodBinding, IMethod> others) {
+		return others.entrySet().stream()
+		.filter(method -> method.getValue().getDeclaringType().equals(me.getValue().getDeclaringType()))
+		.collect(Collectors.toUnmodifiableMap(method -> method.getKey(), method -> method.getValue()));
 	}
 
 	private Map<IMethodBinding, IMethod> resolve(IJavaProject project, List<IMethod> methods) {

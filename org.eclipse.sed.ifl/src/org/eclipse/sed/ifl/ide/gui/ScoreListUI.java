@@ -94,7 +94,7 @@ public class ScoreListUI extends Composite {
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
 
-		// TODO: update sorting
+		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
 				TableItem[] items = table.getItems();
@@ -120,10 +120,14 @@ public class ScoreListUI extends Composite {
 				}
 				for (var item : items) {
 					TableItem newItem = new TableItem(table, SWT.NONE);
-					newItem.setText(new String[] { item.getText(0), item.getText(1), item.getText(2), item.getText(3),
-							item.getText(4), item.getText(5) });
-					newItem.setImage(new Image[] { item.getImage(0), item.getImage(1), item.getImage(2),
-							item.getImage(3), item.getImage(4), item.getImage(5) });
+					String[] texts = new String[table.getColumnCount()];
+					Image[] images = new Image[table.getColumnCount()];
+					for (int i = 0; i < table.getColumnCount(); i++) {
+						texts[i] = item.getText(i);
+						images[i] = item.getImage(i);
+					}
+					newItem.setText(texts);
+					newItem.setImage(images);
 					newItem.setBackground(item.getBackground());
 					newItem.setForeground(item.getForeground());
 					newItem.setData(item.getData());
@@ -141,11 +145,6 @@ public class ScoreListUI extends Composite {
 
 		table.setSortColumn(nameColumn);
 
-		Menu contextMenu = new Menu(table);
-		table.setMenu(contextMenu);
-		MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
-		mItem1.setText("Menu Item Test.");
-
 		pathColumn = new TableColumn(table, SWT.NONE);
 		pathColumn.setWidth(100);
 		pathColumn.setText("path");
@@ -157,20 +156,6 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("context size");
-
-		table.addListener(SWT.MouseDown, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				TableItem[] selection = table.getSelection();
-				if (selection.length != 0 && (event.button == 3)) {
-					contextMenu.setVisible(true);
-				}
-
-			}
-
-		});
-
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
@@ -192,11 +177,6 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
-			item.setData(entry.getKey());
-			item.setText(2, entry.getKey().getId().getName());
-			item.setText(3, entry.getKey().getId().getSignature());
-			item.setText(4, entry.getKey().getId().getParentType());
-			item.setText(5, entry.getKey().getId().getKey());
 			item.setData(entry.getKey());
 		}
 		iconColumn.pack();
@@ -221,7 +201,8 @@ public class ScoreListUI extends Composite {
 					for (TableItem item : table.getSelection()) {
 						subjects.add((IMethodDescription) item.getData());
 					}
-					Map map = new HashMap<String, List>();
+					//TODO: is this map really necessary?
+					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
 					map.put(option.getId(), subjects);
 					optionSelected.invoke(map);
 
@@ -250,9 +231,9 @@ public class ScoreListUI extends Composite {
 
 	}
 
-	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map> eventOptionSelected() {
+	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
 		return optionSelected;
 	}
 
