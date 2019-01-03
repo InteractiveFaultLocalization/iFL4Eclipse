@@ -197,7 +197,8 @@ public class ScoreListUI extends Composite {
 					for (TableItem item : table.getSelection()) {
 						subjects.add((IMethodDescription) item.getData());
 					}
-					Map map = new HashMap<String, List>();
+					//TODO: is this map really necessary?
+					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
 					map.put(option.getId(), subjects);
 					optionSelected.invoke(map);
 
@@ -226,9 +227,9 @@ public class ScoreListUI extends Composite {
 
 	}
 
-	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map> eventOptionSelected() {
+	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
 		return optionSelected;
 	}
 

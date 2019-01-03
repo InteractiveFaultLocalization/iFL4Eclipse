@@ -3,12 +3,10 @@ package org.eclipse.sed.ifl.control.score;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -158,10 +156,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		updateScore(getModel().getScores());
 	}
 
-	private IListener<Map> optionSelectedListener = new IListener<Map>() {
+	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map event) {
+		public void invoke(Map<String, List<IMethodDescription>> event) {
 			handler.updateScore(new IUserFeedback() {
 
 				@Override
@@ -171,16 +169,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 				@Override
 				public Iterable<IMethodDescription> getSubjects() {
-//					List<IMethodDescription> subjects = new ArrayList<IMethodDescription>();
-					Map.Entry<String, List> entry = (Entry<String, List>) event.entrySet().iterator().next();
-					return entry.getValue();
+					return event.entrySet().iterator().next().getValue();
 				}
 
 				@Override
 				public Option getChoise() {
 					for (Option option : handler.getProvidedOptions()) {
-						Map.Entry<String, List> entry = (Entry<String, List>) event.entrySet().iterator().next();
-						if (option.getId().equals(entry.getKey())) {
+						if (option.getId().equals(event.entrySet().iterator().next().getKey())) {
 							return option;
 						}
 					}
