@@ -193,11 +193,6 @@ public class ScoreListUI extends Composite {
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
 			item.setData(entry.getKey());
-			item.setText(2, entry.getKey().getId().getName());
-			item.setText(3, entry.getKey().getId().getSignature());
-			item.setText(4, entry.getKey().getId().getParentType());
-			item.setText(5, entry.getKey().getId().getKey());
-			item.setData(entry.getKey());
 		}
 		iconColumn.pack();
 	}
