@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -40,6 +41,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void teardown() {
 		getModel().eventScoreUpdateRequested().remove(scoreUpdateRequestedListener);
+		getView().eventOptionSelected().remove(optionSelectedListener);
+		handler.eventScoreUpdated().remove(scoreUpdatedListener);
 		super.teardown();
 	}
 
@@ -58,7 +61,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
-		var buckets = detectStatus(newScores);
+		var<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
 		handler.loadMethodsScoreMap(getModel().getScores());
 		if (hideUndefinedScores) {
@@ -115,12 +118,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	// TODO: for testing only
 	public void updateRandomScores(int count) {
 		var methods = getModel().getRandomMethods(count);
-		var statuses = List.of(ScoreStatus.DECREASED, ScoreStatus.INCREASED, ScoreStatus.NONE, ScoreStatus.UNDEFINED);
+		var<ScoreStatus> statuses = List.of(ScoreStatus.DECREASED, ScoreStatus.INCREASED, ScoreStatus.NONE, ScoreStatus.UNDEFINED);
 		Random r = new Random();
 		Map<IMethodDescription, Defineable<Double>> newScores = new HashMap<>();
 		for (var entry : methods) {
 			var status = statuses.get(r.nextInt(statuses.size()));
-			var value = new Defineable<>(0.0);
+			var<Double> value = new Defineable<>(0.0);
 			if (entry.getValue().isDefinit()) {
 				switch (status) {
 				case DECREASED:
@@ -192,7 +195,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdatedListener = new IListener<Map<IMethodDescription, Defineable<Double>>>() {
 
 		@Override
-		public void invoke(Map event) {
+		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
 			updateScore(event);
 
 		}
