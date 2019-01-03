@@ -48,7 +48,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 //					map.put(subject, null);
 				}
 
-				for (IMethodDescription contextSubject : feedback.getSubjects()) {
+				for (IMethodDescription contextSubject : subject.getContext()) {
 					if (methodsScoreMap.get(contextSubject).isDefinit()) {
 						map.put(subject, new Defineable<>(0.0));
 					} else {
