@@ -94,7 +94,7 @@ public class ScoreListUI extends Composite {
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
 
-		// TODO: update sorting
+		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
 				TableItem[] items = table.getItems();
@@ -120,10 +120,14 @@ public class ScoreListUI extends Composite {
 				}
 				for (var item : items) {
 					TableItem newItem = new TableItem(table, SWT.NONE);
-					newItem.setText(new String[] { item.getText(0), item.getText(1), item.getText(2), item.getText(3),
-							item.getText(4), item.getText(5) });
-					newItem.setImage(new Image[] { item.getImage(0), item.getImage(1), item.getImage(2),
-							item.getImage(3), item.getImage(4), item.getImage(5) });
+					String[] texts = new String[table.getColumnCount()];
+					Image[] images = new Image[table.getColumnCount()];
+					for (int i = 0; i < table.getColumnCount(); i++) {
+						texts[i] = item.getText(i);
+						images[i] = item.getImage(i);
+					}
+					newItem.setText(texts);
+					newItem.setImage(images);
 					newItem.setBackground(item.getBackground());
 					newItem.setForeground(item.getForeground());
 					newItem.setData(item.getData());
