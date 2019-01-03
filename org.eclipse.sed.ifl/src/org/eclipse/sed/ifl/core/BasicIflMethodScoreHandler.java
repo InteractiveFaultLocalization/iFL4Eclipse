@@ -8,6 +8,7 @@ import java.util.Map;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -48,16 +49,22 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 //					map.put(subject, null);
 				}
 
-				for (IMethodDescription contextSubject : subject.getContext()) {
-					if (methodsScoreMap.get(contextSubject).isDefinit()) {
-						map.put(subject, new Defineable<>(0.0));
-					} else {
-//						map.put(contextSubject, null);
+				for (MethodIdentity contextSubject : subject.getContext()) {
+					for (IMethodDescription iDesc : methodsScoreMap.keySet()) {
+						if (iDesc.getId().equals(contextSubject)) {
+							if (methodsScoreMap.get(iDesc).isDefinit()) {
+								map.put(iDesc, new Defineable<>(0.0));
+							} else {
+//							map.put(contextSubject, null);
+							}
+						}
 					}
 				}
 
 			}
-		} else {
+		} else
+
+		{
 			new UnsupportedOperationException("invalid option");
 		}
 
