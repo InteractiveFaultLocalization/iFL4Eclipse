@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.ide.accessor.source;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +61,7 @@ public class CodeEntityAccessor {
 		return EU.tryUnchecked(() -> Stream.of(type.getMethods()))
 		.collect(Collectors.toUnmodifiableList());
 	}
-	
+		
 	public List<IMethod> getMethods(IJavaProject project) {
 		return getUnits(project).stream()
 		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
@@ -109,15 +111,40 @@ public class CodeEntityAccessor {
 		}
 	}	
 
-	public List<IMethodBinding> getResolvedMethods(IJavaProject project) {
-		var methods = getMethods(project);		
+	@Deprecated
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IType type, IJavaProject project) {
+		return resolve(project, getMethods(type));
+	}
+	
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
+		return resolve(project, getMethods(project));
+	}
+	
+	public Map<IMethodBinding, IMethod> getSiblings(Entry<IMethodBinding, IMethod> me, Map<IMethodBinding, IMethod> others) {
+		return others.entrySet().stream()
+		.filter(method -> method.getValue().getDeclaringType().equals(me.getValue().getDeclaringType()))
+		.collect(Collectors.toUnmodifiableMap(method -> method.getKey(), method -> method.getValue()));
+	}
+
+	private Map<IMethodBinding, IMethod> resolve(IJavaProject project, List<IMethod> methods) {
+		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
 		var resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
 		.map(method -> (IMethodBinding)method)
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toUnmodifiableMap(
+				method -> method,
+				method -> {
+					var element = method.getJavaElement();
+					if (element instanceof IMethod) {
+						return (IMethod)element;
+					}
+					else {
+						return null;
+					}
+				}));
 		return resolveds;
 	}
 	

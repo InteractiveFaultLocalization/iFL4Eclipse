@@ -25,7 +25,6 @@ public class ScoreListModel extends EmptyModel {
 	private Map<IMethodDescription, Defineable<Double>> scores = new HashMap<>();
 
 	public Map<IMethodDescription, Defineable<Double>> getScores() {
-		Map<IMethodDescription, Defineable<Double>> scores2 = scores;
 		return Collections.unmodifiableMap(scores);
 	}
 

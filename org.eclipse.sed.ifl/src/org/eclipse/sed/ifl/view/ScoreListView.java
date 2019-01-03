@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
@@ -39,20 +40,21 @@ public class ScoreListView extends View {
 
 	public void createOptionsMenu(Iterable<Option> options) {
 		ui.createMenuOptions(options);
+		//TODO: move to init!
 		ui.eventOptionSelected().add(optionSelectedListener);
 	}
 
-	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map> eventOptionSelected() {
+	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
 		return optionSelected;
 
 	}
 
-	private IListener<Map> optionSelectedListener = new IListener<Map>() {
+	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map event) {
+		public void invoke(Map<String, List<IMethodDescription>> event) {
 			optionSelected.invoke(event);
 		}
 

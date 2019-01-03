@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -29,6 +30,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -37,7 +40,9 @@ public class ScoreListUI extends Composite {
 	private TableColumn scoreColumn;
 	private TableColumn signitureColumn;
 	private TableColumn typeColumn;
-	private TableColumn keyColumn;
+	private TableColumn pathColumn;
+	private TableColumn positionColumn;
+	private TableColumn contextSizeColumn;
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -45,6 +50,23 @@ public class ScoreListUI extends Composite {
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				System.out.println("double click");
+				if (table.getSelectionCount() == 1) {
+					var selected = table.getSelection()[0];
+					var path = selected.getText(table.indexOf(pathColumn));
+					var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+					System.out.println("navigation requested to: " + path + ":" + offset);
+					// TODO: move this to controll layer ASAP!!
+					EditorAccessor accessor = new EditorAccessor();
+					accessor.open(path, offset);
+				} else {
+					// TODO: handle multiply selection
+				}
+			}
+		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
@@ -71,10 +93,8 @@ public class ScoreListUI extends Composite {
 		typeColumn.setMoveable(true);
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
-		keyColumn = new TableColumn(table, SWT.NONE);
-		keyColumn.setWidth(300);
-		keyColumn.setText("Key");
 
+		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
 				TableItem[] items = table.getItems();
@@ -90,37 +110,24 @@ public class ScoreListUI extends Composite {
 					table.setSortColumn(column);
 					dir = SWT.UP;
 				}
-				int index = 0;
-				if (column == scoreColumn) {
-					index = 1;
-				}
-				if (column == nameColumn) {
-					index = 2;
-				}
-				if (column == signitureColumn) {
-					index = 3;
-				}
-				if (column == typeColumn) {
-					index = 4;
-				}
-				if (column == keyColumn) {
-					index = 5;
-				}
-
-				final int finalIndex = index;
+				final int index = table.indexOf(column);
 				if (dir == SWT.UP) {
-					Arrays.sort(items, (TableItem a, TableItem b) -> collator.compare(a.getText(finalIndex),
-							b.getText(finalIndex)));
+					Arrays.sort(items,
+							(TableItem a, TableItem b) -> collator.compare(a.getText(index), b.getText(index)));
 				} else if (dir == SWT.DOWN) {
-					Arrays.sort(items, (TableItem a,
-							TableItem b) -> -collator.compare(a.getText(finalIndex), b.getText(finalIndex)));
+					Arrays.sort(items,
+							(TableItem a, TableItem b) -> -collator.compare(a.getText(index), b.getText(index)));
 				}
 				for (var item : items) {
 					TableItem newItem = new TableItem(table, SWT.NONE);
-					newItem.setText(new String[] { item.getText(0), item.getText(1), item.getText(2), item.getText(3),
-							item.getText(4), item.getText(5) });
-					newItem.setImage(new Image[] { item.getImage(0), item.getImage(1), item.getImage(2),
-							item.getImage(3), item.getImage(4), item.getImage(5) });
+					String[] texts = new String[table.getColumnCount()];
+					Image[] images = new Image[table.getColumnCount()];
+					for (int i = 0; i < table.getColumnCount(); i++) {
+						texts[i] = item.getText(i);
+						images[i] = item.getImage(i);
+					}
+					newItem.setText(texts);
+					newItem.setImage(images);
 					newItem.setBackground(item.getBackground());
 					newItem.setForeground(item.getForeground());
 					newItem.setData(item.getData());
@@ -138,6 +145,17 @@ public class ScoreListUI extends Composite {
 
 		table.setSortColumn(nameColumn);
 
+		pathColumn = new TableColumn(table, SWT.NONE);
+		pathColumn.setWidth(100);
+		pathColumn.setText("path");
+
+		positionColumn = new TableColumn(table, SWT.NONE);
+		positionColumn.setWidth(100);
+		positionColumn.setText("line info");
+
+		contextSizeColumn = new TableColumn(table, SWT.NONE);
+		contextSizeColumn.setWidth(100);
+		contextSizeColumn.setText("context size");
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
@@ -145,17 +163,20 @@ public class ScoreListUI extends Composite {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (iconPath != null) {
 				var icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
-				item.setImage(0, icon);
+				item.setImage(table.indexOf(iconColumn), icon);
 			}
 			if (entry.getValue().isDefinit()) {
-				item.setText(1, entry.getValue().getValue().toString());
+				item.setText(table.indexOf(scoreColumn), entry.getValue().getValue().toString());
 			} else {
-				item.setText(1, "undefined");
+				item.setText(table.indexOf(scoreColumn), "undefined");
 			}
-			item.setText(2, entry.getKey().getId().getName());
-			item.setText(3, entry.getKey().getId().getSignature());
-			item.setText(4, entry.getKey().getId().getParentType());
-			item.setText(5, entry.getKey().getId().getKey());
+			item.setText(table.indexOf(nameColumn), entry.getKey().getId().getName());
+			item.setText(table.indexOf(signitureColumn), entry.getKey().getId().getSignature());
+			item.setText(table.indexOf(typeColumn), entry.getKey().getId().getParentType());
+			item.setText(table.indexOf(pathColumn), entry.getKey().getLocation().getAbsolutePath());
+			item.setText(table.indexOf(positionColumn),
+					entry.getKey().getLocation().getBegining().getOffset().toString());
+			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
 			item.setData(entry.getKey());
 		}
 		iconColumn.pack();
@@ -180,7 +201,8 @@ public class ScoreListUI extends Composite {
 					for (TableItem item : table.getSelection()) {
 						subjects.add((IMethodDescription) item.getData());
 					}
-					Map map = new HashMap<String, List>();
+					//TODO: is this map really necessary?
+					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
 					map.put(option.getId(), subjects);
 					optionSelected.invoke(map);
 
@@ -209,9 +231,9 @@ public class ScoreListUI extends Composite {
 
 	}
 
-	private NonGenericListenerCollection<Map> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map> eventOptionSelected() {
+	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
 		return optionSelected;
 	}
 

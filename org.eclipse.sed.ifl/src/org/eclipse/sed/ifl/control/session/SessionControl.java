@@ -1,9 +1,15 @@
 package org.eclipse.sed.ifl.control.session;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
@@ -11,13 +17,16 @@ import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
+import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.Method;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.model.source.Position;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
@@ -38,31 +47,48 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	private void startNewSession() {
 		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
-		List<IMethodDescription> methods = resolvedMethods.stream()
-		.map(method -> 
-			new Method(
-				new MethodIdentity(
-					method.getName(),
-					accessor.getSignature(method),
-					method.getDeclaringClass().getName(),
-					method.getReturnType().getName(),
-					method.getKey()
-				),
-				null
-				/*new CodeChunkLocation(
-					EU.tryUnchecked(() -> method.getKey().getUnderlyingResource().getLocation().toOSString()),
-					new Position(EU.tryUnchecked(() -> method.getKey().getSourceRange().getOffset())),
-					new Position(EU.tryUnchecked(() -> method.getKey().getSourceRange().getOffset() + method.getKey().getSourceRange().getLength()))
-				)*/
-			)
-		)
+		
+		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
 		.collect(Collectors.toUnmodifiableList());
 		System.out.printf("%d method found\n", methods.size());
+
+		Random r = new Random();
+		var sampleScores = methods.stream()
+		.map(method -> method.getId().toCSVKey())
+		.collect(Collectors.toUnmodifiableMap(id -> id, id -> r.nextDouble()));
+		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
+
 		ScoreListModel model = new ScoreListModel(methods);
 		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
+	}
+
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
+		return accessor.getSiblings(method, others).entrySet().stream()
+		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+		.map(contextMethod -> identityFrom(contextMethod))
+		.collect(Collectors.toUnmodifiableList());
+	}
+
+	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
+		return new CodeChunkLocation(
+			EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset() + method.getValue().getSourceRange().getLength()))
+		);
+	}
+
+	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
+		return new MethodIdentity(
+			method.getKey().getName(),
+			accessor.getSignature(method.getKey()),
+			method.getKey().getDeclaringClass().getName(),
+			method.getKey().getReturnType().getName(),
+			method.getKey().getKey()
+		);
 	}
 	
 	@Override
