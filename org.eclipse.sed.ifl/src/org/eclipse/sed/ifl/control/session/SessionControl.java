@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.session;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method)))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
 		.collect(Collectors.toUnmodifiableList());
 		System.out.printf("%d method found\n", methods.size());
 		
@@ -57,8 +58,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(scoreListControl);
 	}
 
-	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method) {
-		return accessor.getResolvedMethods(method.getValue().getDeclaringType(), selectedProject).entrySet().stream()
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
+		return accessor.getSiblings(method, others).entrySet().stream()
 		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
 		.map(contextMethod -> identityFrom(contextMethod))
 		.collect(Collectors.toUnmodifiableList());

@@ -141,11 +141,6 @@ public class ScoreListUI extends Composite {
 
 		table.setSortColumn(nameColumn);
 
-		Menu contextMenu = new Menu(table);
-		table.setMenu(contextMenu);
-		MenuItem mItem1 = new MenuItem(contextMenu, SWT.None);
-		mItem1.setText("Menu Item Test.");
-
 		pathColumn = new TableColumn(table, SWT.NONE);
 		pathColumn.setWidth(100);
 		pathColumn.setText("path");
@@ -157,20 +152,6 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("context size");
-
-		table.addListener(SWT.MouseDown, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				TableItem[] selection = table.getSelection();
-				if (selection.length != 0 && (event.button == 3)) {
-					contextMenu.setVisible(true);
-				}
-
-			}
-
-		});
-
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
