@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
-
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -59,15 +57,29 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
-		var<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets = detectStatus(newScores);
+		var buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
 		handler.loadMethodsScoreMap(getModel().getScores());
+		getView().refreshScores(filterForView(buckets));
+	}
+
+	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> filterForView(
+			Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets) {
+		Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> filtered = new HashMap<>();
 		if (hideUndefinedScores) {
-			getView().refreshScores(buckets.entrySet().stream().filter(entry -> entry.getKey() != ScoreStatus.UNDEFINED)
-					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
-		} else {
-			getView().refreshScores(buckets);
+			for (var bucket : buckets.entrySet()) {
+				filtered.put(bucket.getKey(), new HashMap<>());
+				for (var item : bucket.getValue().entrySet()) {
+					if (item.getValue().isDefinit()) {
+						filtered.get(bucket.getKey()).put(item.getKey(), item.getValue());
+					}
+				}
+			}
 		}
+		else {
+			filtered = buckets;
+		}
+		return filtered;
 	}
 
 	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreUpdateRequestedListener = new IListener<>() {

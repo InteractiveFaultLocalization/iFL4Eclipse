@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
