@@ -27,7 +27,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	}
 	
 	private static final String UNIQUE_NAME_HEADER = "name";
-	private static final String SCORE_HEADER = "tarantula";
+	private static final String SCORE_HEADER = "score";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {

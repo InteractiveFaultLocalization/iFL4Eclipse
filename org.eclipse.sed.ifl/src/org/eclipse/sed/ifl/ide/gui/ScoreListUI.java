@@ -166,7 +166,7 @@ public class ScoreListUI extends Composite {
 				item.setImage(table.indexOf(iconColumn), icon);
 			}
 			if (entry.getValue().isDefinit()) {
-				item.setText(table.indexOf(scoreColumn), entry.getValue().getValue().toString());
+				item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
 			} else {
 				item.setText(table.indexOf(scoreColumn), "undefined");
 			}
