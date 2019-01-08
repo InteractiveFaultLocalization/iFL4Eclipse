@@ -1,4 +1,4 @@
-version;id;name;faulty;tarantula;ochiai;dstar;tarantula_rank;ochiai_rank;dstar_rank
+version;id;name;faulty;score;ochiai;dstar;tarantula_rank;ochiai_rank;dstar_rank
 1;2241;"org.apache.commons.math3.exception.MathIllegalStateException.getMessage()Ljava/lang/String;";False;1.0;1.0;0.0;1.0;1.0;3079.5
 1;1902;"org.apache.commons.math3.exception.util.ExceptionContext.getLocalizedMessage()Ljava/lang/String;";False;0.9997530254383798;0.8164965809277261;4.0;2.5;2.5;1.5
 1;1901;"org.apache.commons.math3.exception.MathIllegalStateException.getLocalizedMessage()Ljava/lang/String;";False;0.9997530254383798;0.8164965809277261;4.0;2.5;2.5;1.5

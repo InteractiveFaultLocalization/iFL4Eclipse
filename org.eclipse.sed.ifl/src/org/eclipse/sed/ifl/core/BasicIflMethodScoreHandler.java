@@ -93,15 +93,15 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty");
 		providedOptions.add(yes);
+		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
+				"Neither the subject, nor its neighbours are faulty",
+				"Select this option if neither the subject, nor its neighbours are faulty");
+		providedOptions.add(noAndNotSuspicious);
 		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
 		providedOptions.add(no);
 //		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
 //				"Select this option if the subject is not faulty but its neighbours are suspicious");
 //		providedOptions.add(noButSuspicious);
-		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
-				"Neither the subject, nor its neighbours are faulty",
-				"Select this option if neither the subject, nor its neighbours are faulty");
-		providedOptions.add(noAndNotSuspicious);
 
 		return providedOptions;
 	}

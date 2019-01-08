@@ -1,0 +1,14 @@
+name;score
+testGenerics.Apple.hashCode()I;0.5140896150767069
+flSample.ChainFLExample.x()I;0.6323238660965214
+flSample.ChainFLExample.b(I)V;0.4568141896681863
+testGenerics.Apple.rotten()V;0.9579762043864297
+"testGenerics.NonGenericClass.pista()Ljava/lang/String;";0.08908257501626726
+flSample.ChainFLExample.g(I)V;0.8433267504455479
+"testGenerics.GenericClass.does(TAlma;)V";0.25516031721305865
+"testGenerics.Apple.equals(Ljava/lang/Object;)Z";0.14419651642349385
+flSample.ChainFLExample.f(I)V;0.05162124296151438
+"testGenerics.NonGenericClass.makes(Ljava/lang/Object;)V";0.2433183622530668
+"testGenerics.GenericClass.makes(Ljava/lang/Object;)V";0.7590838518176019
+flSample.ChainFLExample.a(I)V;0.5802137793205816
+"testGenerics.NonGenericClass.lango(I)Ljava/lang/Double;";0.3177277583764738
