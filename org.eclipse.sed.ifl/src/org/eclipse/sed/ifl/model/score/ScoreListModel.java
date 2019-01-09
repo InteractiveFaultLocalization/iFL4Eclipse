@@ -28,6 +28,7 @@ public class ScoreListModel extends EmptyModel {
 		return Collections.unmodifiableMap(scores);
 	}
 
+	@Deprecated
 	public void updateScore(Collection<Map<IMethodDescription, Defineable<Double>>> buckets) {
 		scores.clear();
 		for (var bucket : buckets) {
@@ -35,7 +36,10 @@ public class ScoreListModel extends EmptyModel {
 		}
 	}
 
-	// TODO: for testing only
+	/**
+	 * @deprecated for testing only
+	 */
+	@Deprecated
 	public List<Entry<IMethodDescription, Defineable<Double>>> getRandomMethods(int count) {
 		var keyList = new ArrayList<>(scores.entrySet());
 		Collections.shuffle(keyList);

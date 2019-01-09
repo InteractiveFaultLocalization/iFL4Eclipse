@@ -56,6 +56,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	}
 
+	@Deprecated
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
 		var buckets = detectStatus(newScores);
 		getModel().updateScore(buckets.values());
@@ -90,6 +91,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	};
 
+	@Deprecated
 	private Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> detectStatus(
 			Map<IMethodDescription, Defineable<Double>> newScores) {
 		Map<IMethodDescription, Defineable<Double>> higherScores = new HashMap<IMethodDescription, Defineable<Double>>();

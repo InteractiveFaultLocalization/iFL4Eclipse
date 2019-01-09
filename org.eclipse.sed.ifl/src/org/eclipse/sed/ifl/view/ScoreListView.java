@@ -26,11 +26,13 @@ public class ScoreListView extends View {
 		return ui;
 	}
 
+	@Deprecated
 	public void refreshScores(Map<IMethodDescription, Defineable<Double>> scores, ScoreStatus status) {
 		ui.clearMethodScores();
 		ui.setMethodScore(scores, status.getIconPath());
 	}
 
+	@Deprecated
 	public void refreshScores(Map<ScoreStatus, Map<IMethodDescription, Defineable<Double>>> buckets) {
 		ui.clearMethodScores();
 		for (var bucket : buckets.entrySet()) {
