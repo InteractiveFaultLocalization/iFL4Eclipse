@@ -38,6 +38,22 @@ public class ScoreListModel extends EmptyModel {
 		}
 		scoreUpdated.invoke(getScores());
 	}
+	
+	public int loadScore(Map<String, Double> rawScores) {
+		int count = 0;
+		Map<IMethodDescription, Defineable<Double>> entries = new HashMap<>();
+		for (var raw : rawScores.entrySet()) {
+			for (var entry : scores.entrySet()) {
+				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
+					entries.put(entry.getKey(), new Defineable<>(raw.getValue()));
+					count++;
+				}
+			}
+		}
+		updateScore(entries);
+		System.out.println(count + "/" + scores.size() + " scores will be updated");
+		return count;
+	}
 
 	private NonGenericListenerCollection<Map<IMethodDescription, Score>> scoreUpdated = new NonGenericListenerCollection<>();
 
