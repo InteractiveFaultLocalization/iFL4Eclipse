@@ -45,7 +45,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					double score = Double.parseDouble(record.get(SCORE_HEADER));
 					loadedScores.put(name, score);
 				}
-				int updatedCount = getModel().requestScoreUpdate(loadedScores);
+				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
 			} catch (IOException e) {
 				e.printStackTrace();

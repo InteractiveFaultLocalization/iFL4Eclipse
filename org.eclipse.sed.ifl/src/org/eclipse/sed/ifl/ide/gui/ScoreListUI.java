@@ -8,14 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-
+import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -158,9 +156,10 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn.setText("context size");
 	}
 
-	public void setMethodScore(Map<IMethodDescription, Defineable<Double>> scores, String iconPath) {
-		for (Entry<IMethodDescription, Defineable<Double>> entry : scores.entrySet()) {
+	public void setMethodScore(Map<IMethodDescription, Score> scores) {
+		for (var entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
+			String iconPath = entry.getValue().getStatus().getIconPath();
 			if (iconPath != null) {
 				var icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 				item.setImage(table.indexOf(iconColumn), icon);

@@ -133,10 +133,4 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
-	
-	public void updateRandomScores(int count) {
-		scoreListControl.updateRandomScores(count);
-	}
-
-	
 }
