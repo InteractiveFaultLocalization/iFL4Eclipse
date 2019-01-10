@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.model.score;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -21,6 +23,11 @@ public class ScoreListModel extends EmptyModel {
 
 	public Map<IMethodDescription, Score> getScores() {
 		return Collections.unmodifiableMap(scores);
+	}
+	
+	public Map<IMethodDescription, Defineable<Double>> getRawScore() {
+		return getScores().entrySet().stream()
+		.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> (Defineable<Double>)e.getValue()));
 	}
 
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {

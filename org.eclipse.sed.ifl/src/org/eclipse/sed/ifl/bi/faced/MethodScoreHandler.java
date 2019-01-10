@@ -39,7 +39,6 @@ public abstract class MethodScoreHandler {
 	}
 
 	public void loadMethodsScoreMap(Map<IMethodDescription, Defineable<Double>> map) {
-
 		methodsScoreMap.putAll(new HashMap<IMethodDescription, Defineable<Double>>(map));
 	}
 

@@ -28,12 +28,16 @@ public class Score extends Defineable<Double> {
 	
 	@Override
 	public void setValue(Double value) {
-		if (value > this.getValue()) {
-			status = ScoreStatus.INCREASED;
-		} else if (value < this.getValue()) {
-			status = ScoreStatus.DECREASED;
+		if (isDefinit()) {
+			if (value > this.getValue()) {
+				status = ScoreStatus.INCREASED;
+			} else if (value < this.getValue()) {
+				status = ScoreStatus.DECREASED;
+			} else {
+				status = ScoreStatus.NONE;
+			}
 		} else {
-			status = ScoreStatus.NONE;
+			status = ScoreStatus.UNDEFINED;
 		}
 		super.setValue(value);
 	}

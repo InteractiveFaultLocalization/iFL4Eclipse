@@ -11,6 +11,7 @@ import org.eclipse.sed.ifl.model.user.identification.IUser;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
@@ -27,9 +28,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
-		//TODO: reenable these after clean up
-		//handler.eventScoreUpdated().add(scoreUpdatedListener);
-		//handler.loadMethodsScoreMap(getModel().getScores());
+		handler.eventScoreUpdated().add(scoreRecalculatedListener);
+		handler.loadMethodsScoreMap(getModel().getRawScore());
 		super.init();
 	}
 
@@ -37,8 +37,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public void teardown() {
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
-		//TODO: reenable this after clean up
-		//handler.eventScoreUpdated().remove(scoreUpdatedListener);
+		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		super.teardown();
 	}
 
@@ -57,10 +56,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	}
 
-	//TODO: it was public, but I think it could be private
 	private void updateScore(Map<IMethodDescription, Score> newScores) {
-		//TODO: reenable this after clean up
-		//handler.loadMethodsScoreMap(getModel().getScores());
+		handler.loadMethodsScoreMap(getModel().getRawScore());
 		getView().refreshScores(filterForView(newScores));
 	}
 
@@ -126,6 +123,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			updateScore(event);
 		}
 		
+	};
+	
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = new IListener<>() {
+		
+		@Override
+		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
+			getModel().updateScore(event);
+		}
 	};
 
 }
