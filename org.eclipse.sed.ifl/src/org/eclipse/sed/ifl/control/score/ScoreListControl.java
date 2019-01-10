@@ -1,9 +1,13 @@
 package org.eclipse.sed.ifl.control.score;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
+import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -30,6 +34,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().add(optionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
+		filters.add(hideUndefinedFilter);
 		super.init();
 	}
 
@@ -61,28 +66,21 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().refreshScores(filterForView(newScores));
 	}
 
-	//TODO: replace with strategy pattern
+	private List<ScoreFilter> filters = new ArrayList<>();
+	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+	
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
-		Map<IMethodDescription, Score> filtered = new HashMap<>();
-		if (hideUndefinedScores) {
-			for (var item : allScores.entrySet()) {
-				if (item.getValue().isDefinit()) {
-					filtered.put(item.getKey(), item.getValue());
-				}
-			}
+		var filtered = allScores.entrySet().stream();
+		for (var filter : filters) {
+			filtered = filtered.filter(filter);
 		}
-		else {
-			filtered = allScores;
-		}
-		return filtered;
+		return filtered.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
 	}
-
-	private Boolean hideUndefinedScores = false;
 
 	public void setHideUndefinedScores(Boolean status) {
 		System.out.println("hiding undefined scores are requested to set: " + status);
-		hideUndefinedScores = status;
-		updateScore(getModel().getScores());
+		hideUndefinedFilter.setEnabled(status);
+		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
 	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
