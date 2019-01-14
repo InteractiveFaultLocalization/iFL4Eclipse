@@ -32,10 +32,22 @@ public class ScoreListView extends View {
 
 	public void createOptionsMenu(Iterable<Option> options) {
 		ui.createMenuOptions(options);
-		//TODO: move to init!
-		ui.eventOptionSelected().add(optionSelectedListener);
 	}
 
+	@Override
+	public void init() {
+		ui.eventOptionSelected().add(optionSelectedListener);
+		ui.eventSortRequired().add(sortListener);
+		super.init();
+	}
+	
+	@Override
+	public void teardown() {
+		ui.eventOptionSelected().remove(optionSelectedListener);
+		ui.eventSortRequired().remove(sortListener);
+		super.teardown();
+	}
+	
 	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
@@ -52,4 +64,17 @@ public class ScoreListView extends View {
 
 	};
 
+	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+		return sortRequired;
+	}
+	
+	private IListener<SortingArg> sortListener = new IListener<>() {
+		
+		@Override
+		public void invoke(org.eclipse.sed.ifl.view.SortingArg event) {
+			sortRequired.invoke(event);
+		}
+	};
 }

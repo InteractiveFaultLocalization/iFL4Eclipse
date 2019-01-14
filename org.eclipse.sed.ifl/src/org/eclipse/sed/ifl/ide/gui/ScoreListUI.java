@@ -14,6 +14,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.view.SortingArg;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -76,6 +77,7 @@ public class ScoreListUI extends Composite {
 		scoreColumn.setMoveable(true);
 		scoreColumn.setWidth(100);
 		scoreColumn.setText("Score");
+		scoreColumn.setData("sort", SortingArg.Score);
 
 		nameColumn = new TableColumn(table, SWT.NONE);
 		nameColumn.setMoveable(true);
@@ -92,70 +94,53 @@ public class ScoreListUI extends Composite {
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
 
+		pathColumn = new TableColumn(table, SWT.NONE);
+		pathColumn.setWidth(100);
+		pathColumn.setText("Path");
+
+		positionColumn = new TableColumn(table, SWT.NONE);
+		positionColumn.setWidth(100);
+		positionColumn.setText("Lineinfo");
+
+		contextSizeColumn = new TableColumn(table, SWT.NONE);
+		contextSizeColumn.setWidth(100);
+		contextSizeColumn.setText("Context size");
+
 		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
-				TableItem[] items = table.getItems();
-				Collator collator = Collator.getInstance(Locale.getDefault());
 				TableColumn sortColumn = table.getSortColumn();
 				int dir = table.getSortDirection();
 
 				TableColumn column = (TableColumn) e.widget;
+				SortingArg arg = (SortingArg) column.getData("sort");
 
 				if (sortColumn == column) {
 					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
 				} else {
 					table.setSortColumn(column);
-					dir = SWT.UP;
+					dir = SWT.DOWN;
 				}
-				final int index = table.indexOf(column);
-				if (dir == SWT.UP) {
-					Arrays.sort(items,
-							(TableItem a, TableItem b) -> collator.compare(a.getText(index), b.getText(index)));
-				} else if (dir == SWT.DOWN) {
-					Arrays.sort(items,
-							(TableItem a, TableItem b) -> -collator.compare(a.getText(index), b.getText(index)));
-				}
-				for (var item : items) {
-					TableItem newItem = new TableItem(table, SWT.NONE);
-					String[] texts = new String[table.getColumnCount()];
-					Image[] images = new Image[table.getColumnCount()];
-					for (int i = 0; i < table.getColumnCount(); i++) {
-						texts[i] = item.getText(i);
-						images[i] = item.getImage(i);
-					}
-					newItem.setText(texts);
-					newItem.setImage(images);
-					newItem.setBackground(item.getBackground());
-					newItem.setForeground(item.getForeground());
-					newItem.setData(item.getData());
-					item.dispose();
-				}
-
+				
 				table.setSortColumn(column);
 				table.setSortDirection(dir);
+				
+				arg.setDescending(dir == SWT.DOWN);
+				sortRequired.invoke(arg);
 			}
 		};
-		scoreColumn.addListener(SWT.Selection, sortListener);
-		nameColumn.addListener(SWT.Selection, sortListener);
-		signitureColumn.addListener(SWT.Selection, sortListener);
-		typeColumn.addListener(SWT.Selection, sortListener);
-
-		table.setSortColumn(nameColumn);
-
-		pathColumn = new TableColumn(table, SWT.NONE);
-		pathColumn.setWidth(100);
-		pathColumn.setText("path");
-
-		positionColumn = new TableColumn(table, SWT.NONE);
-		positionColumn.setWidth(100);
-		positionColumn.setText("line info");
-
-		contextSizeColumn = new TableColumn(table, SWT.NONE);
-		contextSizeColumn.setWidth(100);
-		contextSizeColumn.setText("context size");
+		
+		for (var column : table.getColumns()) {
+			column.addListener(SWT.Selection, sortListener);
+		}
 	}
 
+	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+		return sortRequired;
+	}
+	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
 		for (var entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
