@@ -9,6 +9,7 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
@@ -43,7 +44,7 @@ public class ScoreListModel extends EmptyModel {
 				}
 			}
 		}
-		scoreUpdated.invoke(getScores());
+		scoreUpdated.invoke(new EmptyEvent());
 	}
 	
 	public int loadScore(Map<String, Double> rawScores) {
@@ -62,9 +63,9 @@ public class ScoreListModel extends EmptyModel {
 		return count;
 	}
 
-	private NonGenericListenerCollection<Map<IMethodDescription, Score>> scoreUpdated = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> scoreUpdated = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<IMethodDescription, Score>> eventScoreUpdated() {
+	public INonGenericListenerCollection<EmptyEvent> eventScoreUpdated() {
 		return scoreUpdated;
 	}
 }

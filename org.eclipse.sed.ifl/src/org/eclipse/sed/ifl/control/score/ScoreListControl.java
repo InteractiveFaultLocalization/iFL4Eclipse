@@ -17,6 +17,7 @@ import org.eclipse.sed.ifl.model.user.identification.IUser;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.SortingArg;
@@ -66,10 +67,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	}
 
-	private void updateScore(Map<IMethodDescription, Score> newScores) {
+	private void updateScore() {
 		//TODO: inspect this call, maybe could be uncoupled from the model
 		handler.loadMethodsScoreMap(getModel().getRawScore());
-		getView().refreshScores(filterForView(newScores));
+		refreshView();
 	}
 
 	private List<ScoreFilter> filters = new ArrayList<>();
@@ -138,11 +139,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	};
 
-	private IListener<Map<IMethodDescription, Score>> scoreUpdatedListener = new IListener<>() {
+	private IListener<EmptyEvent> scoreUpdatedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map<IMethodDescription, Score> event) {
-			updateScore(event);
+		public void invoke(EmptyEvent event) {
+			updateScore();
 		}
 		
 	};
