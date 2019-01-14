@@ -1,8 +1,10 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
@@ -17,6 +19,7 @@ import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.sed.ifl.view.SortingArg;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -35,6 +38,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
+		getView().eventSortRequired().add(sortListener);
 		super.init();
 	}
 
@@ -43,6 +47,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
+		getView().eventSortRequired().remove(sortListener);
 		super.teardown();
 	}
 
@@ -62,6 +67,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore(Map<IMethodDescription, Score> newScores) {
+		//TODO: inspect this call, maybe could be uncoupled from the model
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		getView().refreshScores(filterForView(newScores));
 	}
@@ -74,12 +80,30 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		for (var filter : filters) {
 			filtered = filtered.filter(filter);
 		}
-		return filtered.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
+		if (sorting != null) {
+			switch (sorting) {
+			case Score:
+				return filtered
+					.sorted((a, b) -> a.getValue().compareTo(b.getValue()))
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (a, b) -> a, LinkedHashMap::new));
+	
+			default:
+				return filtered
+					.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
+			}
+		} else {
+			return filtered
+				.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
+		}
 	}
 
 	public void setHideUndefinedScores(Boolean status) {
 		System.out.println("hiding undefined scores are requested to set: " + status);
 		hideUndefinedFilter.setEnabled(status);
+		refreshView();
+	}
+
+	private void refreshView() {
 		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
@@ -129,6 +153,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
 			getModel().updateScore(event);
 		}
+	};
+	
+	private SortingArg sorting;
+	
+	private IListener<SortingArg> sortListener = new IListener<>() {
+		
+		@Override
+		public void invoke(SortingArg event) {
+			sorting = event;
+			refreshView();
+		}
+		
 	};
 
 }
