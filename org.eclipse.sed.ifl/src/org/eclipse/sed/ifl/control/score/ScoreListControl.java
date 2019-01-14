@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
@@ -84,16 +84,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			switch (sorting) {
 			case Score:
 				return filtered
-					.sorted((a, b) -> a.getValue().compareTo(b.getValue()))
-					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (a, b) -> a, LinkedHashMap::new));
+					.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 	
 			default:
 				return filtered
-					.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
+					.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
 			}
 		} else {
 			return filtered
-				.collect(Collectors.toUnmodifiableMap(e -> e.getKey(), e -> e.getValue()));
+				.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
 		}
 	}
 

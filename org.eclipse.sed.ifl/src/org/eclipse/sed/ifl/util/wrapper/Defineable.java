@@ -50,9 +50,9 @@ public class Defineable<TValue extends Comparable<TValue>> implements Comparable
 			return result;
 		} else {
 			if (this.isDefinit()) {
-				return -1;
-			} else {
 				return 1;
+			} else {
+				return -1;
 			}
 		}
 	}
