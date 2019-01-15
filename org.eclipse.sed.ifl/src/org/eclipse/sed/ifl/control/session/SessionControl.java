@@ -27,6 +27,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
@@ -46,6 +47,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private ScoreListControl scoreListControl;
 	
 	private void startNewSession() {
+		NanoWatch watch = new NanoWatch("starting session");
 		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
@@ -64,6 +66,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
+		System.out.println(watch);
 	}
 
 	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {

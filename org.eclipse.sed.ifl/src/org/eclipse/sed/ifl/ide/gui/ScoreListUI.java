@@ -1,12 +1,9 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
@@ -14,10 +11,11 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
+import org.eclipse.sed.ifl.view.SortingArg;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -76,6 +74,7 @@ public class ScoreListUI extends Composite {
 		scoreColumn.setMoveable(true);
 		scoreColumn.setWidth(100);
 		scoreColumn.setText("Score");
+		scoreColumn.setData("sort", SortingArg.Score);
 
 		nameColumn = new TableColumn(table, SWT.NONE);
 		nameColumn.setMoveable(true);
@@ -92,70 +91,55 @@ public class ScoreListUI extends Composite {
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
 
+		pathColumn = new TableColumn(table, SWT.NONE);
+		pathColumn.setWidth(100);
+		pathColumn.setText("Path");
+
+		positionColumn = new TableColumn(table, SWT.NONE);
+		positionColumn.setWidth(100);
+		positionColumn.setText("Lineinfo");
+
+		contextSizeColumn = new TableColumn(table, SWT.NONE);
+		contextSizeColumn.setWidth(100);
+		contextSizeColumn.setText("Context size");
+
 		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
-				TableItem[] items = table.getItems();
-				Collator collator = Collator.getInstance(Locale.getDefault());
 				TableColumn sortColumn = table.getSortColumn();
 				int dir = table.getSortDirection();
 
 				TableColumn column = (TableColumn) e.widget;
+				SortingArg arg = (SortingArg) column.getData("sort");
 
 				if (sortColumn == column) {
 					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
 				} else {
 					table.setSortColumn(column);
-					dir = SWT.UP;
+					dir = SWT.DOWN;
 				}
-				final int index = table.indexOf(column);
-				if (dir == SWT.UP) {
-					Arrays.sort(items,
-							(TableItem a, TableItem b) -> collator.compare(a.getText(index), b.getText(index)));
-				} else if (dir == SWT.DOWN) {
-					Arrays.sort(items,
-							(TableItem a, TableItem b) -> -collator.compare(a.getText(index), b.getText(index)));
-				}
-				for (var item : items) {
-					TableItem newItem = new TableItem(table, SWT.NONE);
-					String[] texts = new String[table.getColumnCount()];
-					Image[] images = new Image[table.getColumnCount()];
-					for (int i = 0; i < table.getColumnCount(); i++) {
-						texts[i] = item.getText(i);
-						images[i] = item.getImage(i);
-					}
-					newItem.setText(texts);
-					newItem.setImage(images);
-					newItem.setBackground(item.getBackground());
-					newItem.setForeground(item.getForeground());
-					newItem.setData(item.getData());
-					item.dispose();
-				}
-
+				
 				table.setSortColumn(column);
 				table.setSortDirection(dir);
+				
+				arg.setDescending(dir == SWT.DOWN);
+				var watch = new NanoWatch("sorting score-list");
+				sortRequired.invoke(arg);
+				System.out.println(watch);
 			}
 		};
-		scoreColumn.addListener(SWT.Selection, sortListener);
-		nameColumn.addListener(SWT.Selection, sortListener);
-		signitureColumn.addListener(SWT.Selection, sortListener);
-		typeColumn.addListener(SWT.Selection, sortListener);
-
-		table.setSortColumn(nameColumn);
-
-		pathColumn = new TableColumn(table, SWT.NONE);
-		pathColumn.setWidth(100);
-		pathColumn.setText("path");
-
-		positionColumn = new TableColumn(table, SWT.NONE);
-		positionColumn.setWidth(100);
-		positionColumn.setText("line info");
-
-		contextSizeColumn = new TableColumn(table, SWT.NONE);
-		contextSizeColumn.setWidth(100);
-		contextSizeColumn.setText("context size");
+		
+		for (var column : table.getColumns()) {
+			column.addListener(SWT.Selection, sortListener);
+		}
 	}
 
+	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+		return sortRequired;
+	}
+	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
 		for (var entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);

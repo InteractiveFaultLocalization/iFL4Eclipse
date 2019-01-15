@@ -1,9 +1,15 @@
 package org.eclipse.sed.ifl.control.score;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
+import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -11,8 +17,10 @@ import org.eclipse.sed.ifl.model.user.identification.IUser;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.sed.ifl.view.SortingArg;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -30,6 +38,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().add(optionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
+		filters.add(hideUndefinedFilter);
+		getView().eventSortRequired().add(sortListener);
 		super.init();
 	}
 
@@ -38,6 +48,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
+		getView().eventSortRequired().remove(sortListener);
 		super.teardown();
 	}
 
@@ -56,33 +67,45 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	}
 
-	private void updateScore(Map<IMethodDescription, Score> newScores) {
+	private void updateScore() {
+		//TODO: inspect this call, maybe could be uncoupled from the model
 		handler.loadMethodsScoreMap(getModel().getRawScore());
-		getView().refreshScores(filterForView(newScores));
+		refreshView();
 	}
 
-	//TODO: replace with strategy pattern
+	private List<ScoreFilter> filters = new ArrayList<>();
+	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+	
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
-		Map<IMethodDescription, Score> filtered = new HashMap<>();
-		if (hideUndefinedScores) {
-			for (var item : allScores.entrySet()) {
-				if (item.getValue().isDefinit()) {
-					filtered.put(item.getKey(), item.getValue());
-				}
+		var filtered = allScores.entrySet().stream();
+		for (var filter : filters) {
+			filtered = filtered.filter(filter);
+		}
+		if (sorting != null) {
+			switch (sorting) {
+			case Score:
+				return filtered
+					.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+	
+			default:
+				return filtered
+					.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
 			}
+		} else {
+			return filtered
+				.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
 		}
-		else {
-			filtered = allScores;
-		}
-		return filtered;
 	}
-
-	private Boolean hideUndefinedScores = false;
 
 	public void setHideUndefinedScores(Boolean status) {
 		System.out.println("hiding undefined scores are requested to set: " + status);
-		hideUndefinedScores = status;
-		updateScore(getModel().getScores());
+		hideUndefinedFilter.setEnabled(status);
+		refreshView();
+	}
+
+	private void refreshView() {
+		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
 	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
@@ -116,11 +139,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	};
 
-	private IListener<Map<IMethodDescription, Score>> scoreUpdatedListener = new IListener<>() {
+	private IListener<EmptyEvent> scoreUpdatedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map<IMethodDescription, Score> event) {
-			updateScore(event);
+		public void invoke(EmptyEvent event) {
+			updateScore();
 		}
 		
 	};
@@ -131,6 +154,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
 			getModel().updateScore(event);
 		}
+	};
+	
+	private SortingArg sorting;
+	
+	private IListener<SortingArg> sortListener = new IListener<>() {
+		
+		@Override
+		public void invoke(SortingArg event) {
+			sorting = event;
+			refreshView();
+		}
+		
 	};
 
 }

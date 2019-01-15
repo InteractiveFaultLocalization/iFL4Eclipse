@@ -14,6 +14,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
@@ -34,6 +35,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 
 		@Override
 		public void invoke(String event) {
+			NanoWatch watch = new NanoWatch("loading scores from csv");
 			File file = new File(event); 
 			try {
 				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
@@ -50,6 +52,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			System.out.println(watch);
 		}
 	};
 	
