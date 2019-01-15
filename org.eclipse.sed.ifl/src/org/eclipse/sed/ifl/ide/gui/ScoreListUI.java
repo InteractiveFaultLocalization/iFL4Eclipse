@@ -11,6 +11,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.SortingArg;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -122,7 +123,9 @@ public class ScoreListUI extends Composite {
 				table.setSortDirection(dir);
 				
 				arg.setDescending(dir == SWT.DOWN);
+				var watch = new NanoWatch("sorting score-list");
 				sortRequired.invoke(arg);
+				System.out.println(watch);
 			}
 		};
 		

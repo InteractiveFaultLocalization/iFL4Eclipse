@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.PlatformUI;
 
@@ -117,7 +118,10 @@ public class CodeEntityAccessor {
 	}
 	
 	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
-		return resolve(project, getMethods(project));
+		NanoWatch watch = new NanoWatch("resolve method");
+		Map<IMethodBinding, IMethod> result = resolve(project, getMethods(project));
+		System.out.println(watch);
+		return result;
 	}
 	
 	public Map<IMethodBinding, IMethod> getSiblings(Entry<IMethodBinding, IMethod> me, Map<IMethodBinding, IMethod> others) {
