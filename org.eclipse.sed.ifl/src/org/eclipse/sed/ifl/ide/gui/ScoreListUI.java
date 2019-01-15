@@ -103,7 +103,6 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("Context size");
 
-		// TODO: clean up sorting
 		Listener sortListener = new Listener() {
 			public void handleEvent(Event e) {
 				TableColumn sortColumn = table.getSortColumn();
