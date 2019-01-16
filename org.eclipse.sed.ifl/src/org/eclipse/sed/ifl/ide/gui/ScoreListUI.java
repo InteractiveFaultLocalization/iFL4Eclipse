@@ -180,9 +180,16 @@ public class ScoreListUI extends Composite {
 		table.removeAll();
 	}
 
-	public void createMenuOptions(Iterable<Option> options) {
+	public void createContexMenu(Iterable<Option> options) {
 		Menu contextMenu = new Menu(table);
 		table.setMenu(contextMenu);
+		addFeedbackOptions(options, contextMenu);
+		new MenuItem(contextMenu, SWT.SEPARATOR);
+		var navigateToSelected = new MenuItem(contextMenu, SWT.None);
+		navigateToSelected.setText("Navigate to selected");
+	}
+
+	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle());
@@ -203,7 +210,6 @@ public class ScoreListUI extends Composite {
 
 				}
 			});
-
 		}
 	}
 

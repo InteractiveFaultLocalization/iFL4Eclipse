@@ -33,7 +33,7 @@ public class ScoreListView extends View {
 	}
 
 	public void createOptionsMenu(Iterable<Option> options) {
-		ui.createMenuOptions(options);
+		ui.createContexMenu(options);
 	}
 
 	@Override
