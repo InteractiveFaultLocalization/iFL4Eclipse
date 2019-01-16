@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.view;
+package org.eclipse.sed.ifl.control.score;
 
 public enum SortingArg {
 	Score();

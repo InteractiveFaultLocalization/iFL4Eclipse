@@ -11,7 +11,9 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
+import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.identification.IUser;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -20,7 +22,6 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
-import org.eclipse.sed.ifl.view.SortingArg;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -40,6 +41,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
 		getView().eventSortRequired().add(sortListener);
+		getView().eventNavigateToRequired().add(navigateToListener);
 		super.init();
 	}
 
@@ -49,6 +51,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
+		getView().eventNavigateToRequired().remove(navigateToListener);
 		super.teardown();
 	}
 
@@ -68,7 +71,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore() {
-		//TODO: inspect this call, maybe could be uncoupled from the model
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		refreshView();
 	}
@@ -167,5 +169,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 		
 	};
-
+	
+	EditorAccessor editor = new EditorAccessor();
+	
+	private IListener<ICodeChunkLocation> navigateToListener = event -> {
+		editor.open(event.getAbsolutePath(), event.getBegining().getOffset());
+	};
 }

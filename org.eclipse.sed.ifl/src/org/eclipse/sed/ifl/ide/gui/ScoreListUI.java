@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
-import org.eclipse.sed.ifl.view.SortingArg;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -45,27 +47,59 @@ public class ScoreListUI extends Composite {
 		setLayoutData(BorderLayout.CENTER);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
+		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				System.out.println("double click");
+				System.out.println("double click on list detected");
 				if (table.getSelectionCount() == 1) {
 					var selected = table.getSelection()[0];
 					var path = selected.getText(table.indexOf(pathColumn));
 					var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
 					System.out.println("navigation requested to: " + path + ":" + offset);
-					// TODO: move this to controll layer ASAP!!
-					EditorAccessor accessor = new EditorAccessor();
-					accessor.open(path, offset);
+					var entry = (IMethodDescription) selected.getData();
+					navigateToRequired.invoke(entry.getLocation());
 				} else {
-					// TODO: handle multiply selection
+					System.out.println("//TODO: handle multiply selection");
 				}
 			}
 		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
+		createColumns();
+
+		Listener sortListener = new Listener() {
+			public void handleEvent(Event e) {
+				TableColumn sortColumn = table.getSortColumn();
+				int dir = table.getSortDirection();
+
+				TableColumn column = (TableColumn) e.widget;
+				SortingArg arg = (SortingArg) column.getData("sort");
+
+				if (sortColumn == column) {
+					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+				} else {
+					table.setSortColumn(column);
+					dir = SWT.DOWN;
+				}
+				
+				table.setSortColumn(column);
+				table.setSortDirection(dir);
+				
+				arg.setDescending(dir == SWT.DOWN);
+				var watch = new NanoWatch("sorting score-list");
+				sortRequired.invoke(arg);
+				System.out.println(watch);
+			}
+		};
+		
+		for (var column : table.getColumns()) {
+			column.addListener(SWT.Selection, sortListener);
+		}
+	}
+
+	private void createColumns() {
 		iconColumn = new TableColumn(table, SWT.NONE);
 		iconColumn.setWidth(32);
 		iconColumn.setResizable(false);
@@ -102,37 +136,14 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("Context size");
-
-		Listener sortListener = new Listener() {
-			public void handleEvent(Event e) {
-				TableColumn sortColumn = table.getSortColumn();
-				int dir = table.getSortDirection();
-
-				TableColumn column = (TableColumn) e.widget;
-				SortingArg arg = (SortingArg) column.getData("sort");
-
-				if (sortColumn == column) {
-					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-				} else {
-					table.setSortColumn(column);
-					dir = SWT.DOWN;
-				}
-				
-				table.setSortColumn(column);
-				table.setSortDirection(dir);
-				
-				arg.setDescending(dir == SWT.DOWN);
-				var watch = new NanoWatch("sorting score-list");
-				sortRequired.invoke(arg);
-				System.out.println(watch);
-			}
-		};
-		
-		for (var column : table.getColumns()) {
-			column.addListener(SWT.Selection, sortListener);
-		}
 	}
 
+	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
+		return navigateToRequired;
+	}
+	
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
@@ -172,22 +183,21 @@ public class ScoreListUI extends Composite {
 		Menu contextMenu = new Menu(table);
 		table.setMenu(contextMenu);
 		for (Option option : options) {
-			MenuItem mItem = new MenuItem(contextMenu, SWT.None);
-			mItem.setText(option.getTitle());
-			mItem.addSelectionListener(new SelectionListener() {
+			MenuItem item = new MenuItem(contextMenu, SWT.None);
+			item.setText(option.getTitle());
+			item.addSelectionListener(new SelectionListener() {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					List<IMethodDescription> subjects = new ArrayList<>();
 
 					for (TableItem item : table.getSelection()) {
-						subjects.add((IMethodDescription) item.getData());
+						subjects.add((IMethodDescription)item.getData());
 					}
 					//TODO: is this map really necessary?
 					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
 					map.put(option.getId(), subjects);
 					optionSelected.invoke(map);
-
 				}
 
 				@Override
@@ -197,20 +207,6 @@ public class ScoreListUI extends Composite {
 			});
 
 		}
-
-		table.addListener(SWT.MouseDown, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				TableItem[] selection = table.getSelection();
-				if (selection.length != 0 && (event.button == 3)) {
-					contextMenu.setVisible(true);
-				}
-
-			}
-
-		});
-
 	}
 
 	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();

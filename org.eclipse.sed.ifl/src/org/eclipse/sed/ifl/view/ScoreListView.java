@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -38,6 +40,7 @@ public class ScoreListView extends View {
 	public void init() {
 		ui.eventOptionSelected().add(optionSelectedListener);
 		ui.eventSortRequired().add(sortListener);
+		ui.eventNavigateToRequired().add(navigateToListener);
 		super.init();
 	}
 	
@@ -45,6 +48,7 @@ public class ScoreListView extends View {
 	public void teardown() {
 		ui.eventOptionSelected().remove(optionSelectedListener);
 		ui.eventSortRequired().remove(sortListener);
+		ui.eventNavigateToRequired().remove(navigateToListener);
 		super.teardown();
 	}
 	
@@ -73,8 +77,16 @@ public class ScoreListView extends View {
 	private IListener<SortingArg> sortListener = new IListener<>() {
 		
 		@Override
-		public void invoke(org.eclipse.sed.ifl.view.SortingArg event) {
+		public void invoke(org.eclipse.sed.ifl.control.score.SortingArg event) {
 			sortRequired.invoke(event);
 		}
 	};
+	
+	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
+		return navigateToRequired;
+	}
+	
+	private IListener<ICodeChunkLocation> navigateToListener = navigateToRequired::invoke;
 }
