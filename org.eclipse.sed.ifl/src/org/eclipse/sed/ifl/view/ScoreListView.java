@@ -1,6 +1,5 @@
 package org.eclipse.sed.ifl.view;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.Score;
@@ -8,6 +7,7 @@ import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -52,17 +52,17 @@ public class ScoreListView extends View {
 		super.teardown();
 	}
 	
-	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
 
 	}
 
-	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
+	private IListener<IUserFeedback> optionSelectedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map<String, List<IMethodDescription>> event) {
+		public void invoke(IUserFeedback event) {
 			optionSelected.invoke(event);
 		}
 

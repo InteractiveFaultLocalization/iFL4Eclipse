@@ -1,17 +1,18 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
-import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
-import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
@@ -185,19 +186,16 @@ public class ScoreListUI extends Composite {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle());
+			item.setData(option);
 			item.addSelectionListener(new SelectionListener() {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					List<IMethodDescription> subjects = new ArrayList<>();
-
-					for (TableItem item : table.getSelection()) {
-						subjects.add((IMethodDescription)item.getData());
-					}
-					//TODO: is this map really necessary?
-					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
-					map.put(option.getId(), subjects);
-					optionSelected.invoke(map);
+					List<IMethodDescription> subjects = Stream.of(table.getSelection())
+						.map(selection -> (IMethodDescription)selection.getData())
+						.collect(Collectors.toUnmodifiableList());
+					UserFeedback feedback = new UserFeedback(option, subjects);					
+					optionSelected.invoke(feedback);
 				}
 
 				@Override
@@ -209,9 +207,9 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
-	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
 	}
 
