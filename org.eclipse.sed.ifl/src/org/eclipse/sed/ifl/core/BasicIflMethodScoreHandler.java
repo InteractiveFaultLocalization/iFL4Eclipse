@@ -17,13 +17,11 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	public BasicIflMethodScoreHandler(IMavenExecutor executor) {
 		super(executor);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void init(Iterable<IMethodDescription> initialMethods) {
-		// TODO Auto-generated method stub
-
+		//TODO implement this in a meeningfull way 
 	}
 
 	@Override

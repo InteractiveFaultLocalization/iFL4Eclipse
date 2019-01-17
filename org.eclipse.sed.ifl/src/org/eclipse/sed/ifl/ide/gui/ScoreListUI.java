@@ -1,18 +1,21 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
-import org.eclipse.sed.ifl.view.SortingArg;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -40,32 +43,65 @@ public class ScoreListUI extends Composite {
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
 
+	private void requestNavigateToAllSelection() {
+		for (var selected : table.getSelection()) {
+			var path = selected.getText(table.indexOf(pathColumn));
+			var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+			System.out.println("navigation requested to: " + path + ":" + offset);
+			var entry = (IMethodDescription) selected.getData();
+			navigateToRequired.invoke(entry.getLocation());
+		}
+	}
+
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION);
+		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				System.out.println("double click");
-				if (table.getSelectionCount() == 1) {
-					var selected = table.getSelection()[0];
-					var path = selected.getText(table.indexOf(pathColumn));
-					var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
-					System.out.println("navigation requested to: " + path + ":" + offset);
-					// TODO: move this to controll layer ASAP!!
-					EditorAccessor accessor = new EditorAccessor();
-					accessor.open(path, offset);
-				} else {
-					// TODO: handle multiply selection
-				}
+				System.out.println("double click on list detected");
+				requestNavigateToAllSelection();
 			}
 		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
+		createColumns();
+
+		Listener sortListener = new Listener() {
+			public void handleEvent(Event e) {
+				TableColumn sortColumn = table.getSortColumn();
+				int dir = table.getSortDirection();
+
+				TableColumn column = (TableColumn) e.widget;
+				SortingArg arg = (SortingArg) column.getData("sort");
+
+				if (sortColumn == column) {
+					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+				} else {
+					table.setSortColumn(column);
+					dir = SWT.DOWN;
+				}
+				
+				table.setSortColumn(column);
+				table.setSortDirection(dir);
+				
+				arg.setDescending(dir == SWT.DOWN);
+				var watch = new NanoWatch("sorting score-list");
+				sortRequired.invoke(arg);
+				System.out.println(watch);
+			}
+		};
+		
+		for (var column : table.getColumns()) {
+			column.addListener(SWT.Selection, sortListener);
+		}
+	}
+
+	private void createColumns() {
 		iconColumn = new TableColumn(table, SWT.NONE);
 		iconColumn.setWidth(32);
 		iconColumn.setResizable(false);
@@ -102,38 +138,14 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("Context size");
-
-		// TODO: clean up sorting
-		Listener sortListener = new Listener() {
-			public void handleEvent(Event e) {
-				TableColumn sortColumn = table.getSortColumn();
-				int dir = table.getSortDirection();
-
-				TableColumn column = (TableColumn) e.widget;
-				SortingArg arg = (SortingArg) column.getData("sort");
-
-				if (sortColumn == column) {
-					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-				} else {
-					table.setSortColumn(column);
-					dir = SWT.DOWN;
-				}
-				
-				table.setSortColumn(column);
-				table.setSortDirection(dir);
-				
-				arg.setDescending(dir == SWT.DOWN);
-				var watch = new NanoWatch("sorting score-list");
-				sortRequired.invoke(arg);
-				System.out.println(watch);
-			}
-		};
-		
-		for (var column : table.getColumns()) {
-			column.addListener(SWT.Selection, sortListener);
-		}
 	}
 
+	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
+		return navigateToRequired;
+	}
+	
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
@@ -169,26 +181,42 @@ public class ScoreListUI extends Composite {
 		table.removeAll();
 	}
 
-	public void createMenuOptions(Iterable<Option> options) {
+	public void createContexMenu(Iterable<Option> options) {
 		Menu contextMenu = new Menu(table);
 		table.setMenu(contextMenu);
+		addFeedbackOptions(options, contextMenu);
+		new MenuItem(contextMenu, SWT.SEPARATOR);
+		var navigateToSelected = new MenuItem(contextMenu, SWT.None);
+		navigateToSelected.setText("Navigate to selected");
+		navigateToSelected.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				requestNavigateToAllSelection();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
+		var navigateToContext = new MenuItem(contextMenu, SWT.None);
+		navigateToContext.setEnabled(false);
+		navigateToContext.setText("Navigate to context");
+	}
+
+	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
-			MenuItem mItem = new MenuItem(contextMenu, SWT.None);
-			mItem.setText(option.getTitle());
-			mItem.addSelectionListener(new SelectionListener() {
+			MenuItem item = new MenuItem(contextMenu, SWT.None);
+			item.setText(option.getTitle());
+			item.setData(option);
+			item.addSelectionListener(new SelectionListener() {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					List<IMethodDescription> subjects = new ArrayList<>();
-
-					for (TableItem item : table.getSelection()) {
-						subjects.add((IMethodDescription) item.getData());
-					}
-					//TODO: is this map really necessary?
-					Map<String, List<IMethodDescription>> map = new HashMap<String, List<IMethodDescription>>();
-					map.put(option.getId(), subjects);
-					optionSelected.invoke(map);
-
+					List<IMethodDescription> subjects = Stream.of(table.getSelection())
+						.map(selection -> (IMethodDescription)selection.getData())
+						.collect(Collectors.toUnmodifiableList());
+					UserFeedback feedback = new UserFeedback(option, subjects);					
+					optionSelected.invoke(feedback);
 				}
 
 				@Override
@@ -196,27 +224,12 @@ public class ScoreListUI extends Composite {
 
 				}
 			});
-
 		}
-
-		table.addListener(SWT.MouseDown, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				TableItem[] selection = table.getSelection();
-				if (selection.length != 0 && (event.button == 3)) {
-					contextMenu.setVisible(true);
-				}
-
-			}
-
-		});
-
 	}
 
-	private NonGenericListenerCollection<Map<String, List<IMethodDescription>>> optionSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<String, List<IMethodDescription>>> eventOptionSelected() {
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
 	}
 

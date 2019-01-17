@@ -11,16 +11,15 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
+import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.user.identification.IUser;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
-import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
-import org.eclipse.sed.ifl.view.SortingArg;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -40,6 +39,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
 		getView().eventSortRequired().add(sortListener);
+		getView().eventNavigateToRequired().add(navigateToListener);
 		super.init();
 	}
 
@@ -49,6 +49,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
+		getView().eventNavigateToRequired().remove(navigateToListener);
 		super.teardown();
 	}
 
@@ -68,7 +69,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore() {
-		//TODO: inspect this call, maybe could be uncoupled from the model
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		refreshView();
 	}
@@ -108,33 +108,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
-	private IListener<Map<String, List<IMethodDescription>>> optionSelectedListener = new IListener<>() {
+	private IListener<IUserFeedback> optionSelectedListener = new IListener<>() {
 
 		@Override
-		public void invoke(Map<String, List<IMethodDescription>> event) {
-			handler.updateScore(new IUserFeedback() {
-
-				@Override
-				public IUser getUser() {
-					return null;
-				}
-
-				@Override
-				public Iterable<IMethodDescription> getSubjects() {
-					return event.entrySet().iterator().next().getValue();
-				}
-
-				@Override
-				public Option getChoise() {
-					for (Option option : handler.getProvidedOptions()) {
-						if (option.getId().equals(event.entrySet().iterator().next().getKey())) {
-							return option;
-						}
-					}
-					new UnsupportedOperationException("invalid option");
-					return null;
-				}
-			});
+		public void invoke(IUserFeedback event) {
+			handler.updateScore(event);
 		}
 
 	};
@@ -167,5 +145,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 		
 	};
-
+	
+	EditorAccessor editor = new EditorAccessor();
+	
+	private IListener<ICodeChunkLocation> navigateToListener = event -> {
+		editor.open(event.getAbsolutePath(), event.getBegining().getOffset());
+	};
 }
