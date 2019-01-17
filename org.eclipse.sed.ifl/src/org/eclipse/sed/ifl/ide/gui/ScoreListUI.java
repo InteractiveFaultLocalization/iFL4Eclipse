@@ -43,6 +43,16 @@ public class ScoreListUI extends Composite {
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
 
+	private void requestNavigateToAllSelection() {
+		for (var selected : table.getSelection()) {
+			var path = selected.getText(table.indexOf(pathColumn));
+			var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+			System.out.println("navigation requested to: " + path + ":" + offset);
+			var entry = (IMethodDescription) selected.getData();
+			navigateToRequired.invoke(entry.getLocation());
+		}
+	}
+
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
@@ -53,16 +63,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				System.out.println("double click on list detected");
-				if (table.getSelectionCount() == 1) {
-					var selected = table.getSelection()[0];
-					var path = selected.getText(table.indexOf(pathColumn));
-					var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
-					System.out.println("navigation requested to: " + path + ":" + offset);
-					var entry = (IMethodDescription) selected.getData();
-					navigateToRequired.invoke(entry.getLocation());
-				} else {
-					System.out.println("//TODO: handle multiply selection");
-				}
+				requestNavigateToAllSelection();
 			}
 		});
 		table.setLinesVisible(true);
@@ -187,6 +188,19 @@ public class ScoreListUI extends Composite {
 		new MenuItem(contextMenu, SWT.SEPARATOR);
 		var navigateToSelected = new MenuItem(contextMenu, SWT.None);
 		navigateToSelected.setText("Navigate to selected");
+		navigateToSelected.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				requestNavigateToAllSelection();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
+		var navigateToContext = new MenuItem(contextMenu, SWT.None);
+		navigateToContext.setEnabled(false);
+		navigateToContext.setText("Navigate to context");
 	}
 
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
