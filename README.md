@@ -1,4 +1,11 @@
-# Interactive Fault Localization for Eclipse
+# iFL for Eclipse 0.1
+
+## Requirements
+
++ Java 10 or later
++ Eclipse 2018-12 or later
+
+## Interactive Fault Localization for Eclipse
 
 <!--<img src="https://git.sed.hu/geryxyz/iFL-eclipse-plugin/raw/dev/org.eclipse.sed.ifl/icons/logo.png" alt="logo" width="200px"/>-->
 
