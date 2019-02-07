@@ -1,0 +1,6 @@
+name;tarantula
+"testGenerics.NonGenericClass.pista()Ljava/lang/String;";0.175940197569586
+"testGenerics.NonGenericClass.lango(I)Ljava/lang/Double;";0.9627734181384789
+"testGenerics.GenericClass.makes(Ljava/lang/Object;)V";0.4763619332551503
+"testGenerics.GenericClass.does(TAlma;)V";0.27655656106531845
+"testGenerics.NonGenericClass.makes(Ljava/lang/Object;)V";0.7503996796072762
