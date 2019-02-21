@@ -17,27 +17,26 @@ public abstract class Node {
 		return creation;
 	}
 	
-	public abstract String getType();
-	
 	private Map<String, Object> properties = new HashMap<>();
 	
 	public Map<String, Object> getProperties() {
 		return Collections.unmodifiableMap(properties);
 	}
 
-	@SafeVarargs
-	public Node(Map.Entry<String, Object>... properties) {
+	public Node(Map<String, Object> properties) {
 		super();
-		for (var property : properties) {
-			this.properties.put(property.getKey(), property.getValue());
-		}
+		this.properties.putAll(properties);
 	}
 	
 	public Vertex createNode(GraphTraversalSource g) {
-		var t = g.addV("event").property("type", getType()).property("created", getCreation().toString());
+		var t = g.addV(getLabel()).property("type", getType()).property("created", getCreation().toString());
 		for (var property : getProperties().entrySet()) {
 			t.property(property.getKey(), property.getValue().toString());
 		}
 		return t.next();
+	}
+
+	protected final String getType() {
+		return this.getClass().getSimpleName();
 	}
 }

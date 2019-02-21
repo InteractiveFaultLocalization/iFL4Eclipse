@@ -1,8 +1,6 @@
 package org.eclipse.sed.ifl.model.monitor.event;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -11,6 +9,10 @@ import org.eclipse.sed.ifl.model.monitor.Node;
 import org.eclipse.sed.ifl.model.monitor.resource.Resource;
 
 public abstract class Event extends Node {
+	public Event(Map<String, Object> properties) {
+		super(properties);
+	}
+
 	@Override
 	protected final String getLabel() {
 		return "event";
@@ -19,13 +21,23 @@ public abstract class Event extends Node {
 	@Override
 	public Vertex createNode(GraphTraversalSource g) {
 		Vertex eventNode = super.createNode(g);
-		for (var resource : createResources(g).entrySet()) {
-			g.V(eventNode).addE("related").to(resource.getKey().createNode(g)).next();
+		for (var resource : createResources().entrySet()) {
+			g.V(eventNode)
+			.addE("related").to(resource.getKey().createNode(g))
+			.property("role", resource.getValue())
+			.next();
 		}
 		return eventNode;
 	}
 	
-	protected Map<Resource, String> createResources(GraphTraversalSource g) {
+	protected Map<Resource, String> createResources() {
 		return new HashMap<>();
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Event [getType()=%s, getCreation()=%s]", getType(), getCreation());
+	}
+	
+	
 }
