@@ -11,10 +11,12 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
+import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
@@ -36,6 +38,8 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
+	
+	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 	
 	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject) {
 		super(model, view);
@@ -96,9 +100,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
+		addSubControl(activityMonitor);
+		
 		initUIStateListeners();
 		startNewSession();
 		super.init();
+		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
 	
 	@Override
@@ -108,6 +115,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
+		activityMonitor = null;
 	}
 
 	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
@@ -116,24 +124,23 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		return finished;
 	}
 	
-	private IListener<IWorkbenchPart> closeListener;
+	private IListener<IWorkbenchPart> closeListener = part -> {
+		System.out.println("Session closing...");
+		activityMonitor.log(SessionEvent.stop(selectedProject));
+		this.finished.invoke(new EmptyEvent());
+	};
 
 	private ScoreLoaderControl scoreLoaderControl;
-	private IListener<EmptyEvent> scoreLoadRequestedListener;
-	private IListener<Boolean> hideUndefinedListener;
+	
+	private IListener<EmptyEvent> scoreLoadRequestedListener =__ -> {
+		System.out.println("Loading scores from files are requested...");
+		this.scoreLoaderControl.load();
+	};
+	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 	
 	private void initUIStateListeners() {
-		closeListener = part -> {
-			System.out.println("Session closing...");
-			this.finished.invoke(new EmptyEvent());
-		};
 		getView().eventClosed().add(closeListener);
-		scoreLoadRequestedListener = __ -> {
-			System.out.println("Loading scores from files are requested...");
-			this.scoreLoaderControl.load();
-		};
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
-		hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
 }
