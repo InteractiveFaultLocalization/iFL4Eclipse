@@ -58,6 +58,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		super.teardown();
+		activityMonitor = null;
 	}
 
 	//TODO: Yoda-mode :) split or move it to view

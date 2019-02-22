@@ -21,7 +21,7 @@ public abstract class Event extends Node {
 	@Override
 	public Vertex createNode(GraphTraversalSource g) {
 		Vertex eventNode = super.createNode(g);
-		for (var resource : createResources().entrySet()) {
+		for (var resource : resources.entrySet()) {
 			g.V(eventNode)
 			.addE("related").to(resource.getKey().createNode(g))
 			.property("role", resource.getValue())
@@ -30,9 +30,7 @@ public abstract class Event extends Node {
 		return eventNode;
 	}
 	
-	protected Map<Resource, String> createResources() {
-		return new HashMap<>();
-	}
+	protected Map<Resource, String> resources = new HashMap<>();
 
 	@Override
 	public String toString() {

@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class LineInfo extends Resource {
 
-	public LineInfo(String id, Map<String, Object> properties) {
-		super(id, properties);
+	public LineInfo(String absolutePath, int offset) {
+		super(absolutePath + ":" + offset, Map.of("absolute_path", absolutePath, "position", offset));
 	}
 }
