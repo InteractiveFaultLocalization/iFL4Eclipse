@@ -8,10 +8,13 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -24,6 +27,8 @@ import org.eclipse.sed.ifl.view.ScoreListView;
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
+	
+	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
@@ -31,6 +36,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	@Override
 	public void init() {
+		this.addSubControl(activityMonitor);
+		
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -150,5 +157,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<ICodeChunkLocation> navigateToListener = event -> {
 		editor.open(event.getAbsolutePath(), event.getBegining().getOffset());
+		activityMonitor.log(new NavigationEvent(event));
 	};
 }

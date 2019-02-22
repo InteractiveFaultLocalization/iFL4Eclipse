@@ -2,6 +2,9 @@ package org.eclipse.sed.ifl.model.monitor.resource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -17,7 +20,11 @@ public abstract class Resource extends Node {
 	private String id;
 	
 	public Resource(String id, Map<String, Object> properties) {
-		super(properties);
+		super(
+			Stream.concat(
+				properties.entrySet().stream(),
+				Map.of("id",id).entrySet().stream())
+			.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue)));
 		this.id = id;
 	}
 	

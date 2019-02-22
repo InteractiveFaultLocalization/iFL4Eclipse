@@ -2,17 +2,20 @@ package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.Map;
 
-import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.model.monitor.resource.LineInfo;
 import org.eclipse.sed.ifl.model.monitor.resource.Resource;
-import org.eclipse.sed.ifl.model.monitor.resource.ScoreListEntry;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 
 public class NavigationEvent extends Event {
-	private ScoreListEntry target;
+	private LineInfo target;
 
-	public NavigationEvent(IMethodDescription target, Score score) {
-		super(Map.of("score", score.isDefinit() ? score.getValue() : "unidefined"));
-		this.target = new ScoreListEntry(target.getId().getKey(), Map.of());
+	public NavigationEvent(ICodeChunkLocation target) {
+		super(Map.of());
+		this.target = new LineInfo(
+			target.getAbsolutePath() + ":" + target.getBegining().getOffset(),
+			Map.of(
+				"absolute_path", target.getAbsolutePath(),
+				"position", target.getBegining().getOffset()));
 	}
 	
 	@Override
