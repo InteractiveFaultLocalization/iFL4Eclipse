@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.model.user.identification;
 
 public interface IUser {
-	//TODO
+	public String getRealName();	
+	
+	public String getUserID();
 }

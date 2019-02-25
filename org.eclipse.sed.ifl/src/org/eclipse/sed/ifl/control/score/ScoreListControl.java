@@ -15,6 +15,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
+import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -121,6 +122,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		@Override
 		public void invoke(IUserFeedback event) {
 			handler.updateScore(event);
+			activityMonitor.log(new UserFeedbackEvent(event));
 		}
 
 	};
