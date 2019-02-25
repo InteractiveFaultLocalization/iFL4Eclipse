@@ -10,6 +10,7 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
@@ -31,6 +32,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Color;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -53,6 +55,13 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
+
+	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Table> eventSelectionChanged() {
+		return selectionChanged;
+	}
+
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
@@ -64,6 +73,19 @@ public class ScoreListUI extends Composite {
 			public void mouseDoubleClick(MouseEvent e) {
 				System.out.println("double click on list detected");
 				requestNavigateToAllSelection();
+			}
+		});
+		table.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionChanged.invoke((Table)e.widget);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 		table.setLinesVisible(true);
@@ -231,6 +253,20 @@ public class ScoreListUI extends Composite {
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
+	}
+
+	public void highlight(List<MethodIdentity> context) {
+		for (var item : table.getItems()) {
+			item.setBackground(null);
+		}
+		for (var item : table.getItems()) {
+			for (var target : context) {
+				if (item.getData() instanceof IMethodDescription &&
+					target.equals(((IMethodDescription)item.getData()).getId())) {
+					item.setBackground(new Color(item.getDisplay(), 249,205,173));
+				}
+			}
+		}
 	}
 
 }
