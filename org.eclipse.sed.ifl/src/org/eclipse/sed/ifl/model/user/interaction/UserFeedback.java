@@ -4,19 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.user.identification.DefaultUser;
 import org.eclipse.sed.ifl.model.user.identification.IUser;
 
 public class UserFeedback implements IUserFeedback {
 
 	public UserFeedback(Option option, List<IMethodDescription> subjects) {
+		this(option, subjects, new DefaultUser());
+	}
+	
+	public UserFeedback(Option option, List<IMethodDescription> subjects, IUser user) {
 		super();
 		this.option = option;
 		this.subjects.addAll(subjects);
+		this.user = user;
 	}
 
+	private IUser user;
+	
 	@Override
 	public IUser getUser() {
-		return null;
+		return user;
 	}
 
 	private Option option;
