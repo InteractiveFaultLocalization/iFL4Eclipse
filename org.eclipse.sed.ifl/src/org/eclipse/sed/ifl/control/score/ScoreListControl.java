@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
@@ -21,10 +22,12 @@ import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.swt.widgets.Display;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -129,8 +132,34 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		handler.updateScore(event);
-		activityMonitor.log(new UserFeedbackEvent(event));
+		var effect = event.getChoise().getSideEffect();
+		if (effect == SideEffect.NOTHING) {
+			handler.updateScore(event);
+			activityMonitor.log(new UserFeedbackEvent(event));
+		}
+		else {
+			boolean confirmed = false;
+			for (var subject : event.getSubjects()) {
+				String pass = subject.getId().getName();
+				InputDialog dialog = new InputDialog(
+					Display.getCurrent().getActiveShell(),
+					"Terminal choice confirmation:" + event.getChoise().getTitle(), 
+					"You choose an option which will end this iFL session with a "
+					+ (effect.isSuccessFul()?"successful":"unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code element '" + pass
+					+ "', by typing its name bellow.", null, null);
+				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
+					confirmed = true;
+				}
+				else {
+					confirmed = false;
+					break;
+				}
+			}
+			if (confirmed) {
+				//TODO
+			}
+		}
 	};
 
 	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();

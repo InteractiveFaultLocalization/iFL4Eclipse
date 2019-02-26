@@ -2,26 +2,36 @@ package org.eclipse.sed.ifl.model.user.interaction;
 
 public class Option {
 	private String id;
-	private String Title;
-	private String Description;
+	private String title;
+	private String description;
+	private SideEffect sideEffect; 
 
-	public Option(String id, String title, String description) {
+	public Option(String id, String title, String description, SideEffect sideEffect) {
 		super();
 		this.id = id;
-		Title = title;
-		Description = description;
+		this.title = title;
+		this.description = description;
+		this.sideEffect = sideEffect;
+	}
+	
+	public Option(String id, String title, String description) {
+		this(id, title, description, SideEffect.NOTHING);
 	}
 
+	public SideEffect getSideEffect() {
+		return sideEffect;
+	}
+	
 	public String getId() {
 		return id;
 	}
 
 	public String getTitle() {
-		return Title;
+		return title;
 	}
 
 	public String getDescription() {
-		return Description;
+		return description;
 	}
 
 	@Override

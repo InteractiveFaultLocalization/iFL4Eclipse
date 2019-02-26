@@ -11,6 +11,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
@@ -89,7 +90,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 	public Iterable<Option> getProvidedOptions() {
 		List<Option> providedOptions = new ArrayList<Option>();
 
-		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty");
+		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty", SideEffect.FOUND);
 		providedOptions.add(yes);
 		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
 				"Neither the subject, nor its neighbours are faulty",
