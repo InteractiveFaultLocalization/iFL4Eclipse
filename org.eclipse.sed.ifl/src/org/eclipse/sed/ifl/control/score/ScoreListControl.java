@@ -155,7 +155,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					"You choose an option which will end this iFL session with a "
 					+ (effect.isSuccessFul()?"successful":"unsuccessful") + " result.\n"
 					+ "Please confim that you intend to mark the selected code element '" + pass
-					+ "', by typing its name bellow.", null, null);
+					+ "', by typing its name bellow.", "name of item",
+					input -> pass.equals(input)?null:"Type the name of the item or select cancel to abort.");
 				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
 					confirmed = true;
 				}
