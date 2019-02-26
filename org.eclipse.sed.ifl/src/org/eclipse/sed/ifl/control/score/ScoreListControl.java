@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
@@ -14,6 +15,8 @@ import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
+import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -21,10 +24,15 @@ import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.swt.widgets.Display;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -128,9 +136,49 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().highlight(context);
 	};
 
+	private NonGenericListenerCollection<SideEffect> terminationRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
+		return terminationRequested;
+	}
+
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		handler.updateScore(event);
-		activityMonitor.log(new UserFeedbackEvent(event));
+		var effect = event.getChoise().getSideEffect();
+		if (effect == SideEffect.NOTHING) {
+			handler.updateScore(event);
+			activityMonitor.log(new UserFeedbackEvent(event));
+		}
+		else {
+			boolean confirmed = false;
+			for (var subject : event.getSubjects()) {
+				String pass = subject.getId().getName();
+				InputDialog dialog = new InputDialog(
+					Display.getCurrent().getActiveShell(),
+					"Terminal choice confirmation:" + event.getChoise().getTitle(), 
+					"You choose an option which will end this iFL session with a "
+					+ (effect.isSuccessFul()?"successful":"unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code element '" + pass
+					+ "', by typing its name bellow.", "name of item",
+					input -> pass.equals(input)?null:"Type the name of the item or select cancel to abort.");
+				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
+					confirmed = true;
+				}
+				else {
+					confirmed = false;
+					activityMonitor.log(
+						new AbortEvent(
+							new UserFeedback(
+								event.getChoise(),
+								List.of(subject),
+								event.getUser())));
+					break;
+				}
+			}
+			if (confirmed) {
+				activityMonitor.log(new ConfirmEvent(event));
+				terminationRequested.invoke(effect);
+			}
+		}
 	};
 
 	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();

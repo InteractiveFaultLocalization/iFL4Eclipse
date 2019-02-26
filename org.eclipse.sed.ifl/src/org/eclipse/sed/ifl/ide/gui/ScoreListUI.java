@@ -13,6 +13,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -83,10 +84,7 @@ public class ScoreListUI extends Composite {
 			}
 			
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -228,7 +226,7 @@ public class ScoreListUI extends Composite {
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
-			item.setText(option.getTitle());
+			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setData(option);
 			item.addSelectionListener(new SelectionListener() {
 
