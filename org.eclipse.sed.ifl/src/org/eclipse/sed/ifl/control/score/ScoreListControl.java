@@ -15,6 +15,8 @@ import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
+import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -23,6 +25,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -162,10 +165,17 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				}
 				else {
 					confirmed = false;
+					activityMonitor.log(
+						new AbortEvent(
+							new UserFeedback(
+								event.getChoise(),
+								List.of(subject),
+								event.getUser())));
 					break;
 				}
 			}
 			if (confirmed) {
+				activityMonitor.log(new ConfirmEvent(event));
 				terminationRequested.invoke(effect);
 			}
 		}
