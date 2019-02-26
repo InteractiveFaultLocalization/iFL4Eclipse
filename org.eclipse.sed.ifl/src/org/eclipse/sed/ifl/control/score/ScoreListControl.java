@@ -19,6 +19,7 @@ import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -48,6 +49,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filters.add(hideUndefinedFilter);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
+		getView().eventSelectionChanged().add(selectionChangedListener);
 		super.init();
 	}
 
@@ -58,6 +60,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
+		getView().eventSelectionChanged().remove(selectionChangedListener);
 		super.teardown();
 		activityMonitor = null;
 	}
@@ -117,43 +120,28 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
-	private IListener<IUserFeedback> optionSelectedListener = new IListener<>() {
-
-		@Override
-		public void invoke(IUserFeedback event) {
-			handler.updateScore(event);
-			activityMonitor.log(new UserFeedbackEvent(event));
+	private IListener<List<IMethodDescription>> selectionChangedListener = event -> {
+		List<MethodIdentity> context = new ArrayList<>();
+		for (var item : event) {
+			context.addAll(item.getContext());
 		}
-
+		getView().highlight(context);
 	};
 
-	private IListener<EmptyEvent> scoreUpdatedListener = new IListener<>() {
-
-		@Override
-		public void invoke(EmptyEvent event) {
-			updateScore();
-		}
-		
+	private IListener<IUserFeedback> optionSelectedListener = event -> {
+		handler.updateScore(event);
+		activityMonitor.log(new UserFeedbackEvent(event));
 	};
+
+	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
 	
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = new IListener<>() {
-		
-		@Override
-		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
-			getModel().updateScore(event);
-		}
-	};
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = getModel()::updateScore;
 	
 	private SortingArg sorting;
 	
-	private IListener<SortingArg> sortListener = new IListener<>() {
-		
-		@Override
-		public void invoke(SortingArg event) {
-			sorting = event;
-			refreshView();
-		}
-		
+	private IListener<SortingArg> sortListener = event -> {
+		sorting = event;
+		refreshView();
 	};
 	
 	EditorAccessor editor = new EditorAccessor();
