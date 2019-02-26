@@ -90,17 +90,15 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 	public Iterable<Option> getProvidedOptions() {
 		List<Option> providedOptions = new ArrayList<Option>();
 
-		Option yes = new Option("YES", "Is faulty", "Select this option if the subject is faulty", SideEffect.FOUND);
-		providedOptions.add(yes);
-		Option noAndNotSuspicious = new Option("NO_AND_NOT_SUSPICIOUS",
-				"Neither the subject, nor its neighbours are faulty",
-				"Select this option if neither the subject, nor its neighbours are faulty");
-		providedOptions.add(noAndNotSuspicious);
-		Option no = new Option("NO", "Not faulty", "Select this option if the subject is NOT faulty");
-		providedOptions.add(no);
-//		Option noButSuspicious = new Option("NO_BUT_SUSPICIOUS", "Is not faulty but its neighbours are suspicious",
-//				"Select this option if the subject is not faulty but its neighbours are suspicious");
-//		providedOptions.add(noButSuspicious);
+		providedOptions.add(new Option("YES",
+				"This is faulty", "Select this option if the item is faulty.",
+				SideEffect.FOUND));
+		providedOptions.add(new Option("NO_AND_NOT_SUSPICIOUS",
+				"Neither this, nor its context are faulty",
+				"Select this option if neither the selected item, nor its context are faulty"));
+		providedOptions.add(new Option("NO",
+				"This is not faulty",
+				"Select this option if the item is not faulty"));
 
 		return providedOptions;
 	}

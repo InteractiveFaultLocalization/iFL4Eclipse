@@ -24,7 +24,9 @@ import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.widgets.Display;
@@ -131,6 +133,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().highlight(context);
 	};
 
+	private NonGenericListenerCollection<SideEffect> terminationRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
+		return terminationRequested;
+	}
+
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		var effect = event.getChoise().getSideEffect();
 		if (effect == SideEffect.NOTHING) {
@@ -157,7 +165,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				}
 			}
 			if (confirmed) {
-				//TODO
+				terminationRequested.invoke(effect);
 			}
 		}
 	};
