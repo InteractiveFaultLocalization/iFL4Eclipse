@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +35,7 @@ import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -47,11 +49,11 @@ public class ScoreListUI extends Composite {
 	private TableColumn contextSizeColumn;
 
 	private void requestNavigateToAllSelection() {
-		for (var selected : table.getSelection()) {
-			var path = selected.getText(table.indexOf(pathColumn));
-			var offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+		for (TableItem selected : table.getSelection()) {
+			String path = selected.getText(table.indexOf(pathColumn));
+			int offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
 			System.out.println("navigation requested to: " + path + ":" + offset);
-			var entry = (IMethodDescription) selected.getData();
+			IMethodDescription entry = (IMethodDescription) selected.getData();
 			navigateToRequired.invoke(entry.getLocation());
 		}
 	}
@@ -110,13 +112,13 @@ public class ScoreListUI extends Composite {
 				table.setSortDirection(dir);
 				
 				arg.setDescending(dir == SWT.DOWN);
-				var watch = new NanoWatch("sorting score-list");
+				NanoWatch watch = new NanoWatch("sorting score-list");
 				sortRequired.invoke(arg);
 				System.out.println(watch);
 			}
 		};
 		
-		for (var column : table.getColumns()) {
+		for (TableColumn column : table.getColumns()) {
 			column.addListener(SWT.Selection, sortListener);
 		}
 	}
@@ -173,11 +175,11 @@ public class ScoreListUI extends Composite {
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		for (var entry : scores.entrySet()) {
+		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			String iconPath = entry.getValue().getStatus().getIconPath();
 			if (iconPath != null) {
-				var icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
+				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 				item.setImage(table.indexOf(iconColumn), icon);
 			}
 			if (entry.getValue().isDefinit()) {
@@ -206,7 +208,7 @@ public class ScoreListUI extends Composite {
 		table.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
 		new MenuItem(contextMenu, SWT.SEPARATOR);
-		var navigateToSelected = new MenuItem(contextMenu, SWT.None);
+		MenuItem navigateToSelected = new MenuItem(contextMenu, SWT.None);
 		navigateToSelected.setText("Navigate to selected");
 		navigateToSelected.addSelectionListener(new SelectionListener() {
 			
@@ -218,7 +220,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
-		var navigateToContext = new MenuItem(contextMenu, SWT.None);
+		MenuItem navigateToContext = new MenuItem(contextMenu, SWT.None);
 		navigateToContext.setEnabled(false);
 		navigateToContext.setText("Navigate to context");
 	}
@@ -234,7 +236,7 @@ public class ScoreListUI extends Composite {
 				public void widgetSelected(SelectionEvent e) {
 					List<IMethodDescription> subjects = Stream.of(table.getSelection())
 						.map(selection -> (IMethodDescription)selection.getData())
-						.collect(Collectors.toUnmodifiableList());
+						.collect(Collectors.toList());
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
 				}
@@ -254,11 +256,11 @@ public class ScoreListUI extends Composite {
 	}
 
 	public void highlight(List<MethodIdentity> context) {
-		for (var item : table.getItems()) {
+		for (TableItem item : table.getItems()) {
 			item.setBackground(null);
 		}
-		for (var item : table.getItems()) {
-			for (var target : context) {
+		for (TableItem item : table.getItems()) {
+			for (MethodIdentity target : context) {
 				if (item.getData() instanceof IMethodDescription &&
 					target.equals(((IMethodDescription)item.getData()).getId())) {
 					item.setBackground(new Color(item.getDisplay(), 249,205,173));

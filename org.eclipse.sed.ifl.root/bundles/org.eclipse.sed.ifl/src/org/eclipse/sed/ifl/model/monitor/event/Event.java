@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -21,7 +22,7 @@ public abstract class Event extends Node {
 	@Override
 	public Vertex createNode(GraphTraversalSource g) {
 		Vertex eventNode = super.createNode(g);
-		for (var resource : resources.entrySet()) {
+		for (Entry<Resource, String> resource : resources.entrySet()) {
 			g.V(eventNode)
 			.addE("related").to(resource.getKey().createNode(g))
 			.property("role", resource.getValue())

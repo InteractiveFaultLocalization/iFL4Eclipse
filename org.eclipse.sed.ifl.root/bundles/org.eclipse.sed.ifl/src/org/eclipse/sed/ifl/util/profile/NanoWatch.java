@@ -23,7 +23,7 @@ public class NanoWatch {
 	 * @return The elapsed time in seconds.
 	 */
 	public double stop() {
-		var duration = System.nanoTime() - past;
+		long duration = System.nanoTime() - past;
 		return duration / 1_000_000_000.0;
 	}
 	

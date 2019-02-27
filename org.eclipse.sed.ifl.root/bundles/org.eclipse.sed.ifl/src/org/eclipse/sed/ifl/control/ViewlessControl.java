@@ -27,7 +27,7 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 	
 	@Override
 	public void init() {
-		for (var control : subControls) {
+		for (IViewlessControl<? extends IModel> control : subControls) {
 			control.init();
 		}
 		model.init();
@@ -35,7 +35,7 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 
 	@Override
 	public void teardown() {
-		for (var control : subControls) {
+		for (IViewlessControl<? extends IModel> control : subControls) {
 			control.teardown();
 		}
 		subControls.clear();

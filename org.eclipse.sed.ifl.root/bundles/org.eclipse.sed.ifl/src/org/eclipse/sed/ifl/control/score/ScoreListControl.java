@@ -1,11 +1,13 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.sed.ifl.control.Control;
@@ -37,7 +39,7 @@ import org.eclipse.swt.widgets.Display;
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
-	
+
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
@@ -47,7 +49,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		this.addSubControl(activityMonitor);
-		
+
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -73,7 +75,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		activityMonitor = null;
 	}
 
-	//TODO: Yoda-mode :) split or move it to view
+	// TODO: Yoda-mode :) split or move it to view
 	public enum ScoreStatus {
 		NONE(null), INCREASED("icons/up32.png"), DECREASED("icons/down32.png"), UNDEFINED("icons/undefined32.png");
 
@@ -95,26 +97,23 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
-	
+
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
-		var filtered = allScores.entrySet().stream();
-		for (var filter : filters) {
+		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
+		for (ScoreFilter filter : filters) {
 			filtered = filtered.filter(filter);
 		}
 		if (sorting != null) {
 			switch (sorting) {
 			case Score:
-				return filtered
-					.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
-					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-	
+				return filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
+						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
 			default:
-				return filtered
-					.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+				return filtered.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 			}
 		} else {
-			return filtered
-				.collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+			return filtered.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		}
 	}
 
@@ -130,7 +129,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private IListener<List<IMethodDescription>> selectionChangedListener = event -> {
 		List<MethodIdentity> context = new ArrayList<>();
-		for (var item : event) {
+		for (IMethodDescription item : event) {
 			context.addAll(item.getContext());
 		}
 		getView().highlight(context);
@@ -143,35 +142,26 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		var effect = event.getChoise().getSideEffect();
+		SideEffect effect = event.getChoise().getSideEffect();
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
-		}
-		else {
+		} else {
 			boolean confirmed = false;
-			for (var subject : event.getSubjects()) {
+			for (IMethodDescription subject : event.getSubjects()) {
 				String pass = subject.getId().getName();
-				InputDialog dialog = new InputDialog(
-					Display.getCurrent().getActiveShell(),
-					"Terminal choice confirmation:" + event.getChoise().getTitle(), 
-					"You choose an option which will end this iFL session with a "
-					+ (effect.isSuccessFul()?"successful":"unsuccessful") + " result.\n"
-					+ "Please confim that you intend to mark the selected code element '" + pass
-					+ "', by typing its name bellow.", "name of item",
-					input -> pass.equals(input)?null:"Type the name of the item or select cancel to abort.");
+				InputDialog dialog = new InputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
+								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name bellow.",
+						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.");
 				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
 					confirmed = true;
-				}
-				else {
+				} else {
 					confirmed = false;
-					activityMonitor.log(
-						new AbortEvent(
-							new UserFeedback(
-								event.getChoise(),
-								List.of(subject),
-								event.getUser())));
+					
+					activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), Arrays.asList(subject), event.getUser())));
 					break;
+					
 				}
 			}
 			if (confirmed) {
@@ -182,18 +172,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 
 	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
-	
+
 	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = getModel()::updateScore;
-	
+
 	private SortingArg sorting;
-	
+
 	private IListener<SortingArg> sortListener = event -> {
 		sorting = event;
 		refreshView();
 	};
-	
+
 	EditorAccessor editor = new EditorAccessor();
-	
+
 	private IListener<ICodeChunkLocation> navigateToListener = event -> {
 		editor.open(event.getAbsolutePath(), event.getBegining().getOffset());
 		activityMonitor.log(new NavigationEvent(event));

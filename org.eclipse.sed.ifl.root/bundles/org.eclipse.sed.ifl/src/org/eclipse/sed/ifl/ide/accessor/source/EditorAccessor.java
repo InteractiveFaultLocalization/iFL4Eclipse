@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -19,9 +20,9 @@ public class EditorAccessor {
 		    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		 
 		    try {
-		        var editor = IDE.openEditorOnFileStore( page, fileStore );
+		        IEditorPart editor = IDE.openEditorOnFileStore( page, fileStore );
 		        if (editor instanceof ITextEditor) {
-		        	var textEditor = (ITextEditor)editor;
+		        	ITextEditor textEditor = (ITextEditor)editor;
 		        	textEditor.selectAndReveal(offset, 0);
 		        }
 		    } catch ( PartInitException e ) {

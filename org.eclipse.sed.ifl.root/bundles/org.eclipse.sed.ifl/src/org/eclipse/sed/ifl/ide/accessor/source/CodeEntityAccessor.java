@@ -15,6 +15,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -55,26 +56,26 @@ public class CodeEntityAccessor {
 		return getProjects().stream()
 		.filter(prj -> EU.tryUnchecked(() -> prj.isNatureEnabled(Natures.JAVA.getValue())))
 		.map(prj -> JavaCore.create(prj))
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 	}
 	
 	public List<IMethod> getMethods(IType type) {
 		return EU.tryUnchecked(() -> Stream.of(type.getMethods()))
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 	}
 		
 	public List<IMethod> getMethods(IJavaProject project) {
 		return getUnits(project).stream()
 		.flatMap(unit -> EU.tryUnchecked(() -> Stream.of(unit.getAllTypes())))
 		.flatMap(type -> getMethods(type).stream())
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 	}
 
 	public List<ICompilationUnit> getUnits(IJavaProject project) {
 		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 	}
 
  	private IResource extractSelection(ISelection sel) {
@@ -127,7 +128,7 @@ public class CodeEntityAccessor {
 	public Map<IMethodBinding, IMethod> getSiblings(Entry<IMethodBinding, IMethod> me, Map<IMethodBinding, IMethod> others) {
 		return others.entrySet().stream()
 		.filter(method -> method.getValue().getDeclaringType().equals(me.getValue().getDeclaringType()))
-		.collect(Collectors.toUnmodifiableMap(method -> method.getKey(), method -> method.getValue()));
+		.collect(Collectors.toMap(method -> method.getKey(), method -> method.getValue()));
 	}
 
 	private Map<IMethodBinding, IMethod> resolve(IJavaProject project, List<IMethod> methods) {
@@ -136,12 +137,12 @@ public class CodeEntityAccessor {
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
-		var resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
+		Map<IMethodBinding, IMethod> resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
 		.map(method -> (IMethodBinding)method)
-		.collect(Collectors.toUnmodifiableMap(
+		.collect(Collectors.toMap(
 				method -> method,
 				method -> {
-					var element = method.getJavaElement();
+					IJavaElement element = method.getJavaElement();
 					if (element instanceof IMethod) {
 						return (IMethod)element;
 					}

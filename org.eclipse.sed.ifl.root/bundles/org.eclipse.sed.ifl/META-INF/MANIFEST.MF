@@ -7,14 +7,12 @@ Bundle-Activator: org.eclipse.sed.ifl.ide.Activator
 Bundle-Vendor: University of Szeged Department of Software Engineering
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.core.resources;bundle-version="3.13.100",
- org.eclipse.jdt.core;bundle-version="3.15.0",
+ org.eclipse.jdt.core;bundle-version="3.12.3",
  org.junit,
- org.eclipse.core.filesystem;bundle-version="1.7.200",
- org.eclipse.ui.ide;bundle-version="3.14.100",
- org.eclipse.ui.workbench.texteditor;bundle-version="3.11.100"
-Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=1.10))"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ org.eclipse.core.filesystem;bundle-version="1.7.0",
+ org.eclipse.ui.ide;bundle-version="3.12.3",
+ org.eclipse.ui.workbench.texteditor;bundle-version="3.10.100",
+ org.eclipse.core.resources;bundle-version="3.11.1"
 Automatic-Module-Name: org.eclipse.sed.ifl
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
@@ -38,8 +36,8 @@ Bundle-ClassPath: .,
  libs/netty-all-4.1.25.Final.jar,
  libs/slf4j-api-1.7.21.jar,
  libs/snakeyaml-1.15.jar,
- libs/swing2swt.jar,
- libs/org.eclipse.sed.ifl.dependencies.jar
+ libs/org.eclipse.sed.ifl.dependencies.jar,
+ libs/swing2swt.jar
 Export-Package: .,
  org.eclipse.sed.ifl.bi.faced,
  org.eclipse.sed.ifl.bi.faced.execution,
@@ -73,3 +71,4 @@ Export-Package: .,
  org.eclipse.sed.ifl.view,
  org.eclipse.sed.ifl.views,
  org.eclipse.wb.swt
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

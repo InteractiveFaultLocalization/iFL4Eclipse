@@ -53,17 +53,17 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		var resolvedMethods = accessor.getResolvedMethods(selectedProject);
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject);
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
 		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 		System.out.printf("%d method found\n", methods.size());
 
 		Random r = new Random();
-		var sampleScores = methods.stream()
+		Map<String, Double> sampleScores = methods.stream()
 		.map(method -> method.getId().toCSVKey())
-		.collect(Collectors.toUnmodifiableMap(id -> id, id -> r.nextDouble()));
+		.collect(Collectors.toMap(id -> id, id -> r.nextDouble()));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
@@ -78,7 +78,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		return accessor.getSiblings(method, others).entrySet().stream()
 		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
 		.map(contextMethod -> identityFrom(contextMethod))
-		.collect(Collectors.toUnmodifiableList());
+		.collect(Collectors.toList());
 	}
 
 	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {

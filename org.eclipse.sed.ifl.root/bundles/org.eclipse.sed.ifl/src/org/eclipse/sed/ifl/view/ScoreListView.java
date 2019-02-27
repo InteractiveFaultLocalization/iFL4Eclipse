@@ -17,6 +17,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 
 
 public class ScoreListView extends View {
@@ -67,7 +68,7 @@ public class ScoreListView extends View {
 	
 	private IListener<Table> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (var item : event.getSelection()) {
+		for (TableItem item : event.getSelection()) {
 			selection.add((IMethodDescription)item.getData());
 		}
 		selectionChanged.invoke(selection);

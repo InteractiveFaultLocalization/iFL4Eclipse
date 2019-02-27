@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -59,7 +60,8 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	public static void saveSample(Map<String, Double> scores, File dump) {
 		try (CSVPrinter printer = new CSVPrinter(new FileWriter(dump), CSVFORMAT)) {
 			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER);
-			for (var entry : scores.entrySet()) {
+			
+			for (Entry<String, Double> entry : scores.entrySet()) {
 				printer.printRecord(entry.getKey(), entry.getValue());
 			}
 			printer.flush();

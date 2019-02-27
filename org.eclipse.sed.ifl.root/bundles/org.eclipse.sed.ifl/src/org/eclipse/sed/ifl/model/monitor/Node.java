@@ -4,7 +4,9 @@ import java.time.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
@@ -29,8 +31,8 @@ public abstract class Node {
 	}
 	
 	public Vertex createNode(GraphTraversalSource g) {
-		var t = g.addV(getLabel()).property("type", getType()).property("created", getCreation().toString());
-		for (var property : getProperties().entrySet()) {
+		GraphTraversal<Vertex, Vertex> t = g.addV(getLabel()).property("type", getType()).property("created", getCreation().toString());
+		for (Entry<String, Object> property : getProperties().entrySet()) {
 			t.property(property.getKey(), property.getValue().toString());
 		}
 		return t.next();
