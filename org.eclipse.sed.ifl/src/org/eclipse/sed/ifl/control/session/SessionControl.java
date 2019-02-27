@@ -26,6 +26,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.Method;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.source.Position;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -109,12 +110,14 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 		initUIStateListeners();
 		startNewSession();
+		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
 	
 	@Override
 	public void teardown() {
+		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		super.teardown();
@@ -122,6 +125,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = null;
 		activityMonitor = null;
 	}
+	
+	private IListener<SideEffect> terminationReqestedListener = event -> {
+		getView().close();
+	};
 
 	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
 	
@@ -130,10 +137,14 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	}
 	
 	private IListener<IWorkbenchPart> closeListener = part -> {
+		terminate();
+	};
+
+	private void terminate() {
 		System.out.println("Session closing...");
 		activityMonitor.log(SessionEvent.stop(selectedProject));
 		this.finished.invoke(new EmptyEvent());
-	};
+	}
 
 	private ScoreLoaderControl scoreLoaderControl;
 	

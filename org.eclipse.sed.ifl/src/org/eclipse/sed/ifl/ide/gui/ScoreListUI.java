@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,8 +11,10 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -19,9 +22,10 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -31,6 +35,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Slider;
 
 public class ScoreListUI extends Composite {
 	private Table table;
@@ -53,18 +61,97 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
+
+	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
+	private Label minLabel;
+	private Label maxLabel;
+	
+	public INonGenericListenerCollection<Table> eventSelectionChanged() {
+		return selectionChanged;
+	}
+
+	private void updateScoreFilterLimit() {
+		var value = slider.getSelection() / SLIDER_PRECISION;
+		enabledCheckButton.setText("filter scores <= " + new DecimalFormat("#0.0000").format(value));
+		enabledCheckButton.requestLayout();
+		lowerScoreLimitChanged.invoke(value);
+	}
+
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
-		setLayout(new FillLayout(SWT.HORIZONTAL));
+		setLayout(new GridLayout(1, false));
+		
+		composite = new Composite(this, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		composite.setSize(0, 100);
+		composite.setLayout(new GridLayout(4, false));
+		
+		enabledCheckButton = new Button(composite, SWT.CHECK);
+		enabledCheckButton.setToolTipText("enable");
+		enabledCheckButton.setEnabled(false);
+		enabledCheckButton.setText("load some defined scores to enable this filter");
+		enabledCheckButton.setSelection(true);
+		enabledCheckButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		minLabel = new Label(composite, SWT.NONE);
+		minLabel.setText("");
 
-		table = new Table(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		slider = new Slider(composite, SWT.NONE);
+		slider.setEnabled(false);
+		slider.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slider.setSelection(0);
+		slider.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateScoreFilterLimit();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+
+		maxLabel = new Label(composite, SWT.NONE);
+		maxLabel.setText("");
+
+		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
+		GridData gd_table = new GridData(SWT.FILL);
+		gd_table.grabExcessVerticalSpace = true;
+		gd_table.grabExcessHorizontalSpace = true;
+		gd_table.verticalAlignment = SWT.FILL;
+		gd_table.horizontalAlignment = SWT.FILL;
+		table.setLayoutData(gd_table);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				System.out.println("double click on list detected");
 				requestNavigateToAllSelection();
 			}
+		});
+		table.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionChanged.invoke((Table)e.widget);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -140,6 +227,18 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn.setText("Context size");
 	}
 
+	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
+		return lowerScoreLimitChanged;
+	}
+
+	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
+		return lowerScoreLimitEnabled;
+	}
+	
 	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
@@ -150,6 +249,21 @@ public class ScoreListUI extends Composite {
 	
 	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
 		return sortRequired;
+	}
+	
+	private static final double SLIDER_PRECISION = 1000.0; 
+	
+	public void setScoreFilter(Double min, Double max) {
+		DecimalFormat format = new DecimalFormat("#0.0000");
+		maxLabel.setText(format.format(max));
+		maxLabel.requestLayout();
+		minLabel.setText(format.format(min));
+		minLabel.requestLayout();
+		slider.setMinimum(Double.valueOf(min * SLIDER_PRECISION).intValue());
+		slider.setMaximum(Double.valueOf(max * SLIDER_PRECISION).intValue());
+		enabledCheckButton.setEnabled(true);
+		slider.setEnabled(true);
+		updateScoreFilterLimit();
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
@@ -206,7 +320,7 @@ public class ScoreListUI extends Composite {
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
-			item.setText(option.getTitle());
+			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setData(option);
 			item.addSelectionListener(new SelectionListener() {
 
@@ -228,9 +342,26 @@ public class ScoreListUI extends Composite {
 	}
 
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
+	private Composite composite;
+	private Button enabledCheckButton;
+	private Slider slider;
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
+	}
+
+	public void highlight(List<MethodIdentity> context) {
+		for (var item : table.getItems()) {
+			item.setBackground(null);
+		}
+		for (var item : table.getItems()) {
+			for (var target : context) {
+				if (item.getData() instanceof IMethodDescription &&
+					target.equals(((IMethodDescription)item.getData()).getId())) {
+					item.setBackground(new Color(item.getDisplay(), 249,205,173));
+				}
+			}
+		}
 	}
 
 }

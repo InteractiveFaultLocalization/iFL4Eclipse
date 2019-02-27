@@ -1,29 +1,40 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
+import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
+import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.swt.widgets.Display;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -46,8 +57,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
+		filters.add(lessOrEqualFilter);
+		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
+		getView().eventSelectionChanged().add(selectionChangedListener);
 		super.init();
 	}
 
@@ -58,6 +73,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
+		getView().eventSelectionChanged().remove(selectionChangedListener);
+		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		super.teardown();
 		activityMonitor = null;
 	}
@@ -78,12 +96,23 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore() {
-		handler.loadMethodsScoreMap(getModel().getRawScore());
+		var rawScores = getModel().getRawScore();
+		var min = rawScores.values().stream()
+		.filter(score -> score.isDefinit())
+		.min(Comparator.comparing(score -> score.getValue()));
+		var max = rawScores.values().stream()
+		.filter(score -> score.isDefinit())
+		.max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+		}
+		handler.loadMethodsScoreMap(rawScores);
 		refreshView();
 	}
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 	
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		var filtered = allScores.entrySet().stream();
@@ -112,48 +141,83 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		hideUndefinedFilter.setEnabled(status);
 		refreshView();
 	}
+	
+	private IListener<Double> lowerScoreLimitChangedListener = limit -> {
+		lessOrEqualFilter.setLimit(limit);
+		refreshView();
+	};
+	
+	private IListener<Boolean> lowerScoreLimitEnabledListener = enabled -> {
+		lessOrEqualFilter.setEnabled(enabled);
+		refreshView();
+	};
 
 	private void refreshView() {
 		getView().refreshScores(filterForView(getModel().getScores()));
 	}
 
-	private IListener<IUserFeedback> optionSelectedListener = new IListener<>() {
+	private IListener<List<IMethodDescription>> selectionChangedListener = event -> {
+		List<MethodIdentity> context = new ArrayList<>();
+		for (var item : event) {
+			context.addAll(item.getContext());
+		}
+		getView().highlight(context);
+	};
 
-		@Override
-		public void invoke(IUserFeedback event) {
+	private NonGenericListenerCollection<SideEffect> terminationRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
+		return terminationRequested;
+	}
+
+	private IListener<IUserFeedback> optionSelectedListener = event -> {
+		var effect = event.getChoise().getSideEffect();
+		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		}
-
-	};
-
-	private IListener<EmptyEvent> scoreUpdatedListener = new IListener<>() {
-
-		@Override
-		public void invoke(EmptyEvent event) {
-			updateScore();
+		else {
+			boolean confirmed = false;
+			for (var subject : event.getSubjects()) {
+				String pass = subject.getId().getName();
+				InputDialog dialog = new InputDialog(
+					Display.getCurrent().getActiveShell(),
+					"Terminal choice confirmation:" + event.getChoise().getTitle(), 
+					"You choose an option which will end this iFL session with a "
+					+ (effect.isSuccessFul()?"successful":"unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code element '" + pass
+					+ "', by typing its name bellow.", "name of item",
+					input -> pass.equals(input)?null:"Type the name of the item or select cancel to abort.");
+				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
+					confirmed = true;
+				}
+				else {
+					confirmed = false;
+					activityMonitor.log(
+						new AbortEvent(
+							new UserFeedback(
+								event.getChoise(),
+								List.of(subject),
+								event.getUser())));
+					break;
+				}
+			}
+			if (confirmed) {
+				activityMonitor.log(new ConfirmEvent(event));
+				terminationRequested.invoke(effect);
+			}
 		}
-		
 	};
+
+	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
 	
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = new IListener<>() {
-		
-		@Override
-		public void invoke(Map<IMethodDescription, Defineable<Double>> event) {
-			getModel().updateScore(event);
-		}
-	};
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = getModel()::updateScore;
 	
 	private SortingArg sorting;
 	
-	private IListener<SortingArg> sortListener = new IListener<>() {
-		
-		@Override
-		public void invoke(SortingArg event) {
-			sorting = event;
-			refreshView();
-		}
-		
+	private IListener<SortingArg> sortListener = event -> {
+		sorting = event;
+		refreshView();
 	};
 	
 	EditorAccessor editor = new EditorAccessor();

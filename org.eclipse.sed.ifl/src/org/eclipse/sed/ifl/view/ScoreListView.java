@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.view;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.Score;
@@ -7,12 +9,15 @@ import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
+
 
 public class ScoreListView extends View {
 	ScoreListUI ui;
@@ -41,6 +46,9 @@ public class ScoreListView extends View {
 		ui.eventOptionSelected().add(optionSelectedListener);
 		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
+		ui.eventSelectionChanged().add(selectionChangedListener);
+		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		super.init();
 	}
 	
@@ -49,9 +57,26 @@ public class ScoreListView extends View {
 		ui.eventOptionSelected().remove(optionSelectedListener);
 		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
+		ui.eventSelectionChanged().remove(selectionChangedListener);
+		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		super.teardown();
 	}
 	
+	private NonGenericListenerCollection<List<IMethodDescription>> selectionChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<IMethodDescription>> eventSelectionChanged() {
+		return selectionChanged;
+	}
+	
+	private IListener<Table> selectionChangedListener = event -> {
+		List<IMethodDescription> selection = new ArrayList<>();
+		for (var item : event.getSelection()) {
+			selection.add((IMethodDescription)item.getData());
+		}
+		selectionChanged.invoke(selection);
+	};
+
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
@@ -59,14 +84,7 @@ public class ScoreListView extends View {
 
 	}
 
-	private IListener<IUserFeedback> optionSelectedListener = new IListener<>() {
-
-		@Override
-		public void invoke(IUserFeedback event) {
-			optionSelected.invoke(event);
-		}
-
-	};
+	private IListener<IUserFeedback> optionSelectedListener = optionSelected::invoke;
 
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
@@ -74,13 +92,7 @@ public class ScoreListView extends View {
 		return sortRequired;
 	}
 	
-	private IListener<SortingArg> sortListener = new IListener<>() {
-		
-		@Override
-		public void invoke(org.eclipse.sed.ifl.control.score.SortingArg event) {
-			sortRequired.invoke(event);
-		}
-	};
+	private IListener<SortingArg> sortListener = sortRequired::invoke;
 	
 	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
 	
@@ -89,4 +101,28 @@ public class ScoreListView extends View {
 	}
 	
 	private IListener<ICodeChunkLocation> navigateToListener = navigateToRequired::invoke;
+	
+	public void highlight(List<MethodIdentity> context) {
+		ui.highlight(context);
+	}
+	
+	public void setScoreFilter(double min, double max) {
+		ui.setScoreFilter(min, max);
+	}
+	
+	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
+		return lowerScoreLimitChanged;
+	}
+	
+	private IListener<Double> lowerScoreLimitChangedListener = lowerScoreLimitChanged::invoke;
+
+	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
+		return lowerScoreLimitEnabled;
+	}
+	
+	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
 }

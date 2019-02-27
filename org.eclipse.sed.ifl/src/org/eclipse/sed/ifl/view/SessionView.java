@@ -92,4 +92,8 @@ public class SessionView extends View {
 		return hideUndefinedRequested;
 	}
 
+	public void close() {
+		part.getSite().getPage().hideView(part);
+	}
+
 }
