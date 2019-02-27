@@ -12,7 +12,6 @@ import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.WrongSelectionException;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
-import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.monitor.PartMonitorModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.view.SessionView;
