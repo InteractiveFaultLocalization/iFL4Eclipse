@@ -38,7 +38,8 @@ Bundle-ClassPath: .,
  libs/netty-all-4.1.25.Final.jar,
  libs/slf4j-api-1.7.21.jar,
  libs/snakeyaml-1.15.jar,
- libs/swing2swt.jar
+ libs/swing2swt.jar,
+ libs/org.eclipse.sed.ifl.dependencies.jar
 Export-Package: .,
  org.eclipse.sed.ifl.bi.faced,
  org.eclipse.sed.ifl.bi.faced.execution,
