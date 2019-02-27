@@ -6,11 +6,7 @@ import java.util.Map;
 public class Option extends Resource {
 
 	public Option(String id, String message) {
-		super(id, new HashMap<String, Object>() {
-			{
-				put("absolute_path", message);
-			}
-		});
+		super(id, new HashMap<String, Object>() {{put("message", message);}});
 	}
 
 }

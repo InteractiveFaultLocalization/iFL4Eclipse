@@ -1,7 +1,7 @@
 package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.HashMap;
-import java.util.Map;
+
 
 import org.eclipse.sed.ifl.model.monitor.resource.LineInfo;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;

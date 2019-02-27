@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.model.monitor.resource;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,27 +18,29 @@ public abstract class Resource extends Node {
 	protected final String getLabel() {
 		return "resource";
 	}
-
+	
 	private String id;
-
+	
 	public Resource(String id, Map<String, Object> properties) {
-		super(Stream.concat(properties.entrySet().stream(), new HashMap<String, Object>() {
-			{
-				put("id", id);
-			}
-		}.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		super(
+			Stream.concat(
+				properties.entrySet().stream(),
+				new HashMap<String, Object>() {{put("id", id);}}.entrySet().stream())
+			.collect(Collectors.collectingAndThen(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue),Collections::unmodifiableMap)));
 		this.id = id;
 	}
-
+	
 	@Override
 	public Vertex createNode(GraphTraversalSource g) {
 		List<Vertex> candidates = g.V().where(__.properties("id").value().is(id)).toList();
 		if (candidates.isEmpty()) {
 			return super.createNode(g);
-		} else {
+		}
+		else {
 			if (candidates.size() == 1) {
 				return candidates.get(0);
-			} else {
+			}
+			else {
 				throw new IncorrectGraphState();
 			}
 		}

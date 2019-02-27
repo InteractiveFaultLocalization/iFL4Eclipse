@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -236,7 +237,7 @@ public class ScoreListUI extends Composite {
 				public void widgetSelected(SelectionEvent e) {
 					List<IMethodDescription> subjects = Stream.of(table.getSelection())
 						.map(selection -> (IMethodDescription)selection.getData())
-						.collect(Collectors.toList());
+						.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
 				}

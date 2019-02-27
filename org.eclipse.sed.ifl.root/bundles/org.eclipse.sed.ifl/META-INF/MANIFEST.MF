@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Fault Localization
 Bundle-SymbolicName: org.eclipse.sed.ifl;singleton:=true
-Bundle-Version: 1.0.0.0
+Bundle-Version: 1.2.0.0
 Bundle-Activator: org.eclipse.sed.ifl.ide.Activator
 Bundle-Vendor: University of Szeged Department of Software Engineering
 Require-Bundle: org.eclipse.ui,

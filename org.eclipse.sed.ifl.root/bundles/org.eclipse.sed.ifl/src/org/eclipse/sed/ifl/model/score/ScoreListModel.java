@@ -29,7 +29,7 @@ public class ScoreListModel extends EmptyModel {
 	
 	public Map<IMethodDescription, Defineable<Double>> getRawScore() {
 		return getScores().entrySet().stream()
-		.collect(Collectors.toMap(e -> e.getKey(), e -> (Defineable<Double>)e.getValue()));
+		.collect(Collectors.collectingAndThen(Collectors.toMap(e -> e.getKey(), e -> (Defineable<Double>)e.getValue()),Collections::unmodifiableMap));
 	}
 
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {

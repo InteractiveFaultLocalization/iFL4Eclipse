@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.control.score;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,11 +111,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 
 			default:
-				return filtered.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+				return filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 			}
 		} else {
-			return filtered.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+			return filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 		}
+
 	}
 
 	public void setHideUndefinedScores(Boolean status) {
@@ -158,10 +161,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					confirmed = true;
 				} else {
 					confirmed = false;
-					
 					activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), Arrays.asList(subject), event.getUser())));
 					break;
-					
 				}
 			}
 			if (confirmed) {

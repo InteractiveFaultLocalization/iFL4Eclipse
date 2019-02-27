@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.session;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -57,13 +58,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
 		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
-		.collect(Collectors.toList());
+		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
 		Random r = new Random();
 		Map<String, Double> sampleScores = methods.stream()
 		.map(method -> method.getId().toCSVKey())
-		.collect(Collectors.toMap(id -> id, id -> r.nextDouble()));
+		.collect(Collectors.collectingAndThen(Collectors.toMap(id -> id, id -> r.nextDouble()),Collections::unmodifiableMap));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
@@ -78,7 +79,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		return accessor.getSiblings(method, others).entrySet().stream()
 		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
 		.map(contextMethod -> identityFrom(contextMethod))
-		.collect(Collectors.toList());
+		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
 
 	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
