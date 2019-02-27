@@ -47,6 +47,8 @@ public class ScoreListView extends View {
 		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
 		ui.eventSelectionChanged().add(selectionChangedListener);
+		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		super.init();
 	}
 	
@@ -56,6 +58,8 @@ public class ScoreListView extends View {
 		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
 		ui.eventSelectionChanged().remove(selectionChangedListener);
+		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		super.teardown();
 	}
 	
@@ -101,4 +105,24 @@ public class ScoreListView extends View {
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);
 	}
+	
+	public void setScoreFilter(double min, double max) {
+		ui.setScoreFilter(min, max);
+	}
+	
+	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
+		return lowerScoreLimitChanged;
+	}
+	
+	private IListener<Double> lowerScoreLimitChangedListener = lowerScoreLimitChanged::invoke;
+
+	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
+		return lowerScoreLimitEnabled;
+	}
+	
+	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
 }
