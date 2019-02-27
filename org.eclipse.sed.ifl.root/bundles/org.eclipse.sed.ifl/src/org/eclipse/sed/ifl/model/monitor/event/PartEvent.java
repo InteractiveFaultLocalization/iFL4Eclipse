@@ -2,26 +2,22 @@ package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.sed.ifl.control.monitor.PartState;
 import org.eclipse.sed.ifl.model.monitor.resource.Part;
+import org.eclipse.sed.ifl.util.Maps;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.ui.IWorkbenchPartReference;
 
 public class PartEvent extends Event {
 
 	public PartEvent(IWorkbenchPartReference part, PartState state) {
-		super(new HashMap<String, Object>() {
-			{
-				put("new-state", state.name());
-				put("part-id", part.getId());
-				put("title", part.getTitle());
-				put("tooltip", part.getTitleToolTip());
-				put("name", part.getPartName());
-			}
-		});
+		super(Maps.<String, Object>builder()
+				.put("new-state", state.name())
+				.put("part-id", part.getId())
+				.put("title", part.getTitle())
+				.put("tooltip", part.getTitleToolTip())
+				.put("name", part.getPartName())
+				.unmodifiable(true).build());
 		resources.put(new Part(pseudoIdOf(part)), "subject");
 
 		

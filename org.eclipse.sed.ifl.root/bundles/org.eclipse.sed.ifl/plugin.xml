@@ -12,12 +12,6 @@
             name="Start iFL session"
             id="org.eclipse.sed.ifl.commands.startCommand">
       </command>
-      <command
-            categoryId="org.eclipse.sed.ifl.commands.category"
-            defaultHandler="TESTHandler"
-            id="org.eclipse.sed.ifl.test"
-            name="TEST">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -41,11 +35,6 @@
                   id="org.eclipse.sed.ifl.menus.startCommand"
                   mnemonic="i"
                   icon="icons/ico16.png">
-            </command>
-            <command
-                  commandId="org.eclipse.sed.ifl.test"
-                  label="TEST"
-                  style="push">
             </command>
          </menu>
       </menuContribution>

@@ -1,18 +1,14 @@
 package org.eclipse.sed.ifl.control.session;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.sed.ifl.model.monitor.resource.Project;
+import org.eclipse.sed.ifl.util.Maps;
 
 public class SessionEvent extends Event {
 
 	private SessionEvent(String state, IJavaProject project) {
-		super(new HashMap<String, Object>() {{put("state", state);}});
+		super(Maps.<String, Object>builder().put("state", state).unmodifiable(true).build());
 
 		resources.put(new Project(project.getElementName()), "target");
 	}

@@ -1,7 +1,6 @@
 package org.eclipse.sed.ifl.model.monitor.resource;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.eclipse.sed.ifl.model.monitor.IncorrectGraphState;
 import org.eclipse.sed.ifl.model.monitor.Node;
+import org.eclipse.sed.ifl.util.Maps;
 
 public abstract class Resource extends Node {
 	@Override
@@ -25,7 +25,7 @@ public abstract class Resource extends Node {
 		super(
 			Stream.concat(
 				properties.entrySet().stream(),
-				new HashMap<String, Object>() {{put("id", id);}}.entrySet().stream())
+				Maps.<String, Object>builder().put("id", id).unmodifiable(true).build().entrySet().stream())
 			.collect(Collectors.collectingAndThen(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue),Collections::unmodifiableMap)));
 		this.id = id;
 	}

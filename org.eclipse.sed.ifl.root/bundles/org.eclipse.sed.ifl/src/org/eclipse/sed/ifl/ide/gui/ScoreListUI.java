@@ -216,7 +216,7 @@ public class ScoreListUI extends Composite {
 		signitureColumn = new TableColumn(table, SWT.NONE);
 		signitureColumn.setMoveable(true);
 		signitureColumn.setWidth(100);
-		signitureColumn.setText("Signiture");
+		signitureColumn.setText("Signature");
 
 		typeColumn = new TableColumn(table, SWT.NONE);
 		typeColumn.setMoveable(true);

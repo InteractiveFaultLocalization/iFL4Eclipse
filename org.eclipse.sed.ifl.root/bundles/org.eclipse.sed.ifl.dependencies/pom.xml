@@ -77,6 +77,16 @@
 			<artifactId>neo4j-tinkerpop-api-impl</artifactId>
 			<version>0.7-3.2.3</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.apache.tinkerpop/gremlin-driver -->
+		<dependency>
+		    <groupId>org.apache.tinkerpop</groupId>
+		    <artifactId>gremlin-driver</artifactId>
+		    <version>3.4.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-csv</artifactId>
+		    <version>1.6</version>
+		</dependency>
 	</dependencies>
 </project>

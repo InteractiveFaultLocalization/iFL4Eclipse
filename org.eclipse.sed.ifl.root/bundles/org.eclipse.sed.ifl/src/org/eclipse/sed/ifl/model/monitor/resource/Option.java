@@ -1,12 +1,11 @@
 package org.eclipse.sed.ifl.model.monitor.resource;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.eclipse.sed.ifl.util.Maps;
 
 public class Option extends Resource {
 
 	public Option(String id, String message) {
-		super(id, new HashMap<String, Object>() {{put("message", message);}});
+		super(id, Maps.<String, Object>builder().put("message", message).unmodifiable(true).build());
 	}
 
 }
