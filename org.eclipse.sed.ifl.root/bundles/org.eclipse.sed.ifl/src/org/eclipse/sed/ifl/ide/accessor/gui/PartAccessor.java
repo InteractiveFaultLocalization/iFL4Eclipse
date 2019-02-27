@@ -2,7 +2,9 @@ package org.eclipse.sed.ifl.ide.accessor.gui;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -28,5 +30,19 @@ public class PartAccessor {
 		else {
 			return view;
 		}
+	}
+	
+	public void addListenerToAllPages(IPartListener2 eclipseListener) {
+		IWorkbenchWindow window = EU.tryUnchecked(() -> HandlerUtil.getActiveWorkbenchWindowChecked(event));
+        for (IWorkbenchPage page : window.getPages()) {
+            page.addPartListener(eclipseListener);
+        }
+	}
+
+	public void removeListenerToAllPages(IPartListener2 eclipseListener) {
+		IWorkbenchWindow window = EU.tryUnchecked(() -> HandlerUtil.getActiveWorkbenchWindowChecked(event));
+        for (IWorkbenchPage page : window.getPages()) {
+            page.removePartListener(eclipseListener);
+        }
 	}
 }

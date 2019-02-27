@@ -1,12 +1,17 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
+
+import java.util.Comparator;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,6 +19,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
+import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
@@ -58,6 +64,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
+		filters.add(lessOrEqualFilter);
+		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
@@ -72,6 +81,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
+		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		super.teardown();
 		activityMonitor = null;
 	}
@@ -92,12 +103,20 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore() {
-		handler.loadMethodsScoreMap(getModel().getRawScore());
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
+		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+		}
+		handler.loadMethodsScoreMap(rawScores);
 		refreshView();
 	}
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+
+	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -125,6 +144,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		hideUndefinedFilter.setEnabled(status);
 		refreshView();
 	}
+
+	private IListener<Double> lowerScoreLimitChangedListener = limit -> {
+		lessOrEqualFilter.setLimit(limit);
+		refreshView();
+	};
+
+	private IListener<Boolean> lowerScoreLimitEnabledListener = enabled -> {
+		lessOrEqualFilter.setEnabled(enabled);
+		refreshView();
+	};
 
 	private void refreshView() {
 		getView().refreshScores(filterForView(getModel().getScores()));
