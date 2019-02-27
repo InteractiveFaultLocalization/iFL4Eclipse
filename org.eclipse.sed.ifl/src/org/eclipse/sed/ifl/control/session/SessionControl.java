@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
@@ -41,10 +42,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
 	
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private PartMonitorControl partMonitor;
 	
-	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject) {
+	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		super(model, view);
 		this.selectedProject = selectedProject;
+		this.partMonitor = partMonitor;
 	}
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
@@ -102,7 +105,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	@Override
 	public void init() {
 		addSubControl(activityMonitor);
-		
+		addSubControl(partMonitor);
+
 		initUIStateListeners();
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
