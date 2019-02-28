@@ -139,6 +139,7 @@ public class ScoreListUI extends Composite {
 		maxLabel.setText("");
 
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
+		contextMenu = new Menu(table);
 		GridData gd_table = new GridData(SWT.FILL);
 		gd_table.grabExcessVerticalSpace = true;
 		gd_table.grabExcessHorizontalSpace = true;
@@ -157,6 +158,23 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectionChanged.invoke((Table)e.widget);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
+		table.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Boolean interactivity = Stream.of(table.getSelection())
+						.map(selection -> ((Score)selection.getData("score")).isInteractive())
+						.reduce((Boolean t, Boolean u) -> t && u).get();
+				if (interactivity) {
+					table.setMenu(contextMenu);
+				} else {
+					table.setMenu(null);
+				}
 			}
 			
 			@Override
@@ -296,6 +314,7 @@ public class ScoreListUI extends Composite {
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
 			item.setData(entry.getKey());
+			item.setData("score", entry.getValue());
 		}
 		iconColumn.pack();
 	}
@@ -304,8 +323,9 @@ public class ScoreListUI extends Composite {
 		table.removeAll();
 	}
 
+	Menu contextMenu;
+	
 	public void createContexMenu(Iterable<Option> options) {
-		Menu contextMenu = new Menu(table);
 		table.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
 		new MenuItem(contextMenu, SWT.SEPARATOR);
@@ -336,8 +356,8 @@ public class ScoreListUI extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					List<IMethodDescription> subjects = Stream.of(table.getSelection())
-						.map(selection -> (IMethodDescription)selection.getData())
-						.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+							.map(selection -> (IMethodDescription)selection.getData())
+							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
 				}

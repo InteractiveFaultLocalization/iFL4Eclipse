@@ -48,7 +48,8 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					String name = record.get(UNIQUE_NAME_HEADER);
 					double value = Double.parseDouble(record.get(SCORE_HEADER));
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					loadedScores.put(name, new Score(value, interactivity));
+					Score score = new Score(value, interactivity);
+					loadedScores.put(name, score);
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");

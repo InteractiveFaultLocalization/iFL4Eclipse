@@ -19,7 +19,7 @@ public class Defineable<TValue extends Comparable<TValue>> implements Comparable
 		}
 	}
 
-	public void setValue(TValue value) {
+	protected void setValue(TValue value) {
 		this.value = value;
 		this.definit = true;
 	}

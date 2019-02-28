@@ -33,17 +33,15 @@ public class ScoreListModel extends EmptyModel {
 	}
 
 	public void updateScore(Map<IMethodDescription, Score> newScores) {
-		for (Entry<IMethodDescription, Score> score : newScores.entrySet()) {
-			Score oldScore = scores.get(score.getKey());
-			if (oldScore == null) {
-				scores.put(score.getKey(), score.getValue());
-			} else {
-				if (score.getValue().isDefinit()) {
-					oldScore.setValue(score.getValue().getValue());
-				} else {
-					oldScore.undefine();
+		for (Entry<IMethodDescription, Score> entry : newScores.entrySet()) {
+			Score newScore = entry.getValue();
+			Score oldScore = scores.get(entry.getKey());
+			if (oldScore != null) {
+				if (oldScore.isDefinit()) {
+					newScore.updateStatus(oldScore.getValue());
 				}
 			}
+			scores.put(entry.getKey(), newScore);
 		}
 		scoreUpdated.invoke(new EmptyEvent());
 	}
