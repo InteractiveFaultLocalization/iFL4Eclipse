@@ -203,7 +203,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
 
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = getModel()::updateScore;
+	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = event -> {
+		getModel().updateScore(
+			event.entrySet().stream()
+			.collect(
+				Collectors.toMap(
+					Map.Entry::getKey,
+					i -> new Score(i.getValue(), true))));
+	};
 
 	private SortingArg sorting;
 

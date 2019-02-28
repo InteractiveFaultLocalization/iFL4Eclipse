@@ -30,6 +30,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
+	private static final String INTERACTIVITY_HEADER = "interactive";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
@@ -41,12 +42,12 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			try {
 				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 				int recordCount = 0;
-				Map<String, Double> loadedScores = new HashMap<>(); 
+				Map<String, Score> loadedScores = new HashMap<>(); 
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
-					double score = Double.parseDouble(record.get(SCORE_HEADER));
-					loadedScores.put(name, score);
+					double value = Double.parseDouble(record.get(SCORE_HEADER));
+					loadedScores.put(name, new Score(value, true));
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");

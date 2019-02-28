@@ -17,7 +17,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
 		for (IMethodDescription method : methods) {
-			scores.put(method, new Score());
+			scores.put(method, new Score(true));
 		}
 	}
 
@@ -32,11 +32,11 @@ public class ScoreListModel extends EmptyModel {
 		.collect(Collectors.collectingAndThen(Collectors.toMap(e -> e.getKey(), e -> (Defineable<Double>)e.getValue()),Collections::unmodifiableMap));
 	}
 
-	public void updateScore(Map<IMethodDescription, Defineable<Double>> newScores) {
-		for (Entry<IMethodDescription, Defineable<Double>> score : newScores.entrySet()) {
+	public void updateScore(Map<IMethodDescription, Score> newScores) {
+		for (Entry<IMethodDescription, Score> score : newScores.entrySet()) {
 			Score oldScore = scores.get(score.getKey());
 			if (oldScore == null) {
-				scores.put(score.getKey(), new Score(score.getValue()));
+				scores.put(score.getKey(), score.getValue());
 			} else {
 				if (score.getValue().isDefinit()) {
 					oldScore.setValue(score.getValue().getValue());
@@ -48,13 +48,13 @@ public class ScoreListModel extends EmptyModel {
 		scoreUpdated.invoke(new EmptyEvent());
 	}
 	
-	public int loadScore(Map<String, Double> rawScores) {
+	public int loadScore(Map<String, Score> rawScores) {
 		int count = 0;
-		Map<IMethodDescription, Defineable<Double>> entries = new HashMap<>();
-		for (Entry<String, Double> raw : rawScores.entrySet()) {
+		Map<IMethodDescription, Score> entries = new HashMap<>();
+		for (Entry<String, Score> raw : rawScores.entrySet()) {
 			for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
-					entries.put(entry.getKey(), new Defineable<>(raw.getValue()));
+					entries.put(entry.getKey(), raw.getValue());
 					count++;
 				}
 			}

@@ -5,19 +5,26 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class Score extends Defineable<Double> {
 	
-	public Score() {
+	public Score(boolean interactive) {
 		super();
 		status = ScoreStatus.UNDEFINED;
+		this.interactive = interactive;
 	}
 
-	public Score(Double value) {
+	public Score(Double value, boolean interactive) {
 		super(value);
 	}
 	
-	public Score(Defineable<Double> score) {
+	public Score(Defineable<Double> score, boolean interactive) {
 		if (score.isDefinit()) {
 			this.setValue(score.getValue());
 		}
+	}
+	
+	private boolean interactive = true;
+	
+	public boolean isInteractive() {
+		return interactive;
 	}
 
 	private ScoreStatus status = ScoreStatus.UNDEFINED;
