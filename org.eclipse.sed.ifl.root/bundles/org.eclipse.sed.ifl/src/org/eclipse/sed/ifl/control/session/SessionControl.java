@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
+import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
@@ -65,9 +66,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.printf("%d method found\n", methods.size());
 
 		Random r = new Random();
-		Map<String, Double> sampleScores = methods.stream()
+		Map<String, Score> sampleScores = methods.stream()
 		.map(method -> method.getId().toCSVKey())
-		.collect(Collectors.collectingAndThen(Collectors.toMap(id -> id, id -> r.nextDouble()),Collections::unmodifiableMap));
+		.collect(
+			Collectors.collectingAndThen(
+				Collectors.toMap(id -> id, id -> new Score(r.nextDouble(), r.nextBoolean())),
+				Collections::unmodifiableMap));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);

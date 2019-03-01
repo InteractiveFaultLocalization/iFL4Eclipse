@@ -74,6 +74,7 @@ public class ScoreListUI extends Composite {
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
 	private Label minLabel;
 	private Label maxLabel;
+	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
 		return selectionChanged;
@@ -139,6 +140,8 @@ public class ScoreListUI extends Composite {
 		maxLabel.setText("");
 
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
+		contextMenu = new Menu(table);
+		nonInteractiveContextMenu = new Menu(table);
 		GridData gd_table = new GridData(SWT.FILL);
 		gd_table.grabExcessVerticalSpace = true;
 		gd_table.grabExcessHorizontalSpace = true;
@@ -157,6 +160,23 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectionChanged.invoke((Table)e.widget);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
+		table.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Boolean interactivity = Stream.of(table.getSelection())
+						.map(selection -> ((Score)selection.getData("score")).isInteractive())
+						.reduce((Boolean t, Boolean u) -> t && u).get();
+				if (interactivity) {
+					table.setMenu(contextMenu);
+				} else {
+					table.setMenu(nonInteractiveContextMenu);
+				}
 			}
 			
 			@Override
@@ -234,6 +254,10 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("Context size");
+		
+		interactivityColumn = new TableColumn(table, SWT.NONE);
+		interactivityColumn.setWidth(200);
+		interactivityColumn.setText("");
 	}
 
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
@@ -295,7 +319,12 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
+			if (!entry.getValue().isInteractive()) {
+				item.setText(table.indexOf(interactivityColumn), "(user feedback disabled)");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 255,100,100));
+			}
 			item.setData(entry.getKey());
+			item.setData("score", entry.getValue());
 		}
 		iconColumn.pack();
 	}
@@ -304,12 +333,28 @@ public class ScoreListUI extends Composite {
 		table.removeAll();
 	}
 
+	Menu contextMenu;
+	Menu nonInteractiveContextMenu;
+	
 	public void createContexMenu(Iterable<Option> options) {
-		Menu contextMenu = new Menu(table);
 		table.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
-		new MenuItem(contextMenu, SWT.SEPARATOR);
-		MenuItem navigateToSelected = new MenuItem(contextMenu, SWT.None);
+		addDisabledFeedbackOptions(nonInteractiveContextMenu);
+		addNavigationOptions(contextMenu);
+		addNavigationOptions(nonInteractiveContextMenu);
+	}
+
+	private void addDisabledFeedbackOptions(Menu menu) {
+		new MenuItem(menu, SWT.SEPARATOR);
+		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
+		noFeedback.setText("(user feedback is disabled)");
+		noFeedback.setToolTipText("User feedback is disabled for some the selected items. Remove these items from the selection to reenable it.");
+		noFeedback.setEnabled(false);
+	}
+	
+	private void addNavigationOptions(Menu menu) {
+		new MenuItem(menu, SWT.SEPARATOR);
+		MenuItem navigateToSelected = new MenuItem(menu, SWT.None);
 		navigateToSelected.setText("Navigate to selected");
 		navigateToSelected.addSelectionListener(new SelectionListener() {
 			
@@ -321,7 +366,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
-		MenuItem navigateToContext = new MenuItem(contextMenu, SWT.None);
+		MenuItem navigateToContext = new MenuItem(menu, SWT.None);
 		navigateToContext.setEnabled(false);
 		navigateToContext.setText("Navigate to context");
 	}
@@ -336,8 +381,8 @@ public class ScoreListUI extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					List<IMethodDescription> subjects = Stream.of(table.getSelection())
-						.map(selection -> (IMethodDescription)selection.getData())
-						.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+							.map(selection -> (IMethodDescription)selection.getData())
+							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
 				}
