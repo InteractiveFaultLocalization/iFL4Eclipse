@@ -27,6 +27,7 @@ import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
+import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
@@ -165,6 +166,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			context.addAll(item.getContext());
 		}
 		getView().highlight(context);
+		activityMonitor.log(new SelectionChangedEvent(event));
 	};
 
 	private NonGenericListenerCollection<SideEffect> terminationRequested = new NonGenericListenerCollection<>();

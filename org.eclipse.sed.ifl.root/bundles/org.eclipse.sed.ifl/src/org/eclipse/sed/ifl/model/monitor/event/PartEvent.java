@@ -13,15 +13,8 @@ public class PartEvent extends Event {
 	public PartEvent(IWorkbenchPartReference part, PartState state) {
 		super(Maps.<String, Object>builder()
 				.put("new-state", state.name())
-				.put("part-id", part.getId())
-				.put("title", part.getTitle())
-				.put("tooltip", part.getTitleToolTip())
-				.put("name", part.getPartName())
 				.unmodifiable(true).build());
-		resources.put(new Part(pseudoIdOf(part)), "subject");
-
-		
-
+		resources.put(new Part(pseudoIdOf(part), part.getId(), part.getPartName(), part.getTitle(), part.getTitleToolTip()), "subject");
 	}
 
 	private String hash(String message) {
