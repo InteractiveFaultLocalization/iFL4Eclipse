@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
-import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -66,7 +65,7 @@ public class ScoreListUI extends Composite {
 			int offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
 			System.out.println("navigation requested to: " + path + ":" + offset);
 			IMethodDescription entry = (IMethodDescription) selected.getData();
-			navigateToRequired.invoke(entry.getLocation());
+			navigateToRequired.invoke(entry);
 		}
 	}
 
@@ -272,9 +271,9 @@ public class ScoreListUI extends Composite {
 		return lowerScoreLimitEnabled;
 	}
 	
-	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
+	public INonGenericListenerCollection<IMethodDescription> eventNavigateToRequired() {
 		return navigateToRequired;
 	}
 	
