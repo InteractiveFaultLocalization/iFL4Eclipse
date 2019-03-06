@@ -30,7 +30,6 @@ import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
-import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -223,8 +222,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	EditorAccessor editor = new EditorAccessor();
 
-	private IListener<ICodeChunkLocation> navigateToListener = event -> {
-		editor.open(event.getAbsolutePath(), event.getBegining().getOffset());
+	private IListener<IMethodDescription> navigateToListener = event -> {
+		editor.open(event.getLocation().getAbsolutePath(), event.getLocation().getBegining().getOffset());
 		activityMonitor.log(new NavigationEvent(event));
 	};
 }

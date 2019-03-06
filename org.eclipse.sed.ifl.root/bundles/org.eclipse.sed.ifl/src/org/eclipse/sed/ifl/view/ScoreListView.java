@@ -7,7 +7,6 @@ import java.util.Map;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
-import org.eclipse.sed.ifl.model.source.ICodeChunkLocation;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -95,13 +94,13 @@ public class ScoreListView extends View {
 	
 	private IListener<SortingArg> sortListener = sortRequired::invoke;
 	
-	private NonGenericListenerCollection<ICodeChunkLocation> navigateToRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<ICodeChunkLocation> eventNavigateToRequired() {
+	public INonGenericListenerCollection<IMethodDescription> eventNavigateToRequired() {
 		return navigateToRequired;
 	}
 	
-	private IListener<ICodeChunkLocation> navigateToListener = navigateToRequired::invoke;
+	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);
