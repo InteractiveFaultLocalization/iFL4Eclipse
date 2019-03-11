@@ -11,5 +11,7 @@ public interface IMethodDescription {
 	
 	public String getDetailsLink();
 	
+	public void setDetailsLink(String link);
+	
 	public boolean hasDetailsLink();
 }

@@ -364,9 +364,10 @@ public class ScoreListUI extends Composite {
 					IMethodDescription sourceItem = (IMethodDescription)item.getData();
 					if (sourceItem.hasDetailsLink()) {
 						openDetails.setEnabled(true);
+						return;
 					}
-					openDetails.setEnabled(false);
 				}
+				openDetails.setEnabled(false);
 			}
 			
 			@Override

@@ -73,6 +73,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
+		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		super.init();
 	}
 
@@ -86,6 +87,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		super.teardown();
 		activityMonitor = null;
 	}

@@ -87,4 +87,9 @@ public class Method implements IMethodDescription {
 	public boolean hasDetailsLink() {
 		return detailsLink != null;
 	}
+
+	@Override
+	public void setDetailsLink(String link) {
+		this.detailsLink = link;
+	}
 }
