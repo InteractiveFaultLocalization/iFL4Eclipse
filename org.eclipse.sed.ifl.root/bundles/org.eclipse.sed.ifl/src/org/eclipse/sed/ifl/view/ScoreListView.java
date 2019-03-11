@@ -49,6 +49,7 @@ public class ScoreListView extends View {
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		super.init();
 	}
 	
@@ -60,6 +61,7 @@ public class ScoreListView extends View {
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		super.teardown();
 	}
 	
@@ -125,4 +127,12 @@ public class ScoreListView extends View {
 	}
 	
 	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
+	
+	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<IMethodDescription> eventOpenDetailsRequired() {
+		return openDetailsRequired;
+	}
+	
+	IListener<IMethodDescription> openDetailsRequiredListener = openDetailsRequired::invoke;
 }

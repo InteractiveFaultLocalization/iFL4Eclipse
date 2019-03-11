@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
@@ -277,6 +279,12 @@ public class ScoreListUI extends Composite {
 		return navigateToRequired;
 	}
 	
+	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<IMethodDescription> eventOpenDetailsRequired() {
+		return openDetailsRequired;
+	}
+	
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
@@ -341,10 +349,48 @@ public class ScoreListUI extends Composite {
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
 		addNavigationOptions(contextMenu);
 		addNavigationOptions(nonInteractiveContextMenu);
+		addDetailsOptions(contextMenu);
+		addDetailsOptions(nonInteractiveContextMenu);
+	}
+
+	private void addDetailsOptions(Menu menu) {
+		new MenuItem(menu, SWT.SEPARATOR);
+		MenuItem openDetails = new MenuItem(menu, SWT.NONE);
+		menu.addMenuListener(new MenuListener() {
+			
+			@Override
+			public void menuShown(MenuEvent e) {
+				for (TableItem item : table.getSelection()) {
+					IMethodDescription sourceItem = (IMethodDescription)item.getData();
+					if (sourceItem.hasDetailsLink()) {
+						openDetails.setEnabled(true);
+					}
+					openDetails.setEnabled(false);
+				}
+			}
+			
+			@Override
+			public void menuHidden(MenuEvent e) { }
+		});
+		openDetails.setText("Open details...");
+		openDetails.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (TableItem item : table.getSelection()) {
+					IMethodDescription sourceItem = (IMethodDescription)item.getData();
+					if (sourceItem.hasDetailsLink()) {
+						openDetailsRequired.invoke(sourceItem);
+					}
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
 	}
 
 	private void addDisabledFeedbackOptions(Menu menu) {
-		new MenuItem(menu, SWT.SEPARATOR);
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
 		noFeedback.setText("(user feedback is disabled)");
 		noFeedback.setToolTipText("User feedback is disabled for some the selected items. Remove these items from the selection to reenable it.");

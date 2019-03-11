@@ -8,4 +8,8 @@ public interface IMethodDescription {
 	public ICodeChunkLocation getLocation();
 	
 	public List<MethodIdentity> getContext();
+	
+	public String getDetailsLink();
+	
+	public boolean hasDetailsLink();
 }

@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.control.score;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
+import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
@@ -39,6 +41,7 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.widgets.Display;
@@ -112,6 +115,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(rawScores);
 		refreshView();
 	}
+	
+	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
+		new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
