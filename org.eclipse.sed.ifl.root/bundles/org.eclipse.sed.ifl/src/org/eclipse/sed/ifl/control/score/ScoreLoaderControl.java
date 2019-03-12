@@ -88,7 +88,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					entry.getKey(),
 					entry.getValue().getValue(),
 					entry.getValue().isInteractive()?"yes":"no",
-					"https://www.google.hu/search?q=bla");
+					"https://www.google.hu/search?q=" + entry.getKey());
 			}
 			printer.flush();
 			System.out.println("Sample CSV was saved to " + dump.getAbsolutePath());
