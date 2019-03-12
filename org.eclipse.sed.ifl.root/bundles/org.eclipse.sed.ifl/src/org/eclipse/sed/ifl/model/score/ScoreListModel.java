@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -46,13 +47,14 @@ public class ScoreListModel extends EmptyModel {
 		scoreUpdated.invoke(new EmptyEvent());
 	}
 	
-	public int loadScore(Map<String, Score> rawScores) {
+	public int loadScore(Map<ScoreLoaderControl.Entry, Score> rawScores) {
 		int count = 0;
 		Map<IMethodDescription, Score> entries = new HashMap<>();
-		for (Entry<String, Score> raw : rawScores.entrySet()) {
+		for (Entry<ScoreLoaderControl.Entry, Score> raw : rawScores.entrySet()) {
 			for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
-				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
+				if (entry.getKey().getId().toCSVKey().equals(raw.getKey().getName())) {
 					entries.put(entry.getKey(), raw.getValue());
+					entry.getKey().setDetailsLink(raw.getKey().getDetailsLink());
 					count++;
 				}
 			}

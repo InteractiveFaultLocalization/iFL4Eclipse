@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -31,7 +29,27 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
 	private static final String INTERACTIVITY_HEADER = "interactive";
+	private static final String DETAILS_LINK_HEADER = "details";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
+	
+	public class Entry {
+		private String name;
+		private String detailsLink;
+		
+		public Entry(String name, String detailsLink) {
+			super();
+			this.name = name;
+			this.detailsLink = detailsLink;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getDetailsLink() {
+			return detailsLink;
+		}
+	}
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
 
@@ -42,14 +60,15 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			try {
 				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 				int recordCount = 0;
-				Map<String, Score> loadedScores = new HashMap<>(); 
+				Map<Entry, Score> loadedScores = new HashMap<>(); 
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
 					double value = Double.parseDouble(record.get(SCORE_HEADER));
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
+					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null);
 					Score score = new Score(value, interactivity);
-					loadedScores.put(name, score);
+					loadedScores.put(entry, score);
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
@@ -62,10 +81,14 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	
 	public static void saveSample(Map<String, Score> scores, File dump) {
 		try (CSVPrinter printer = new CSVPrinter(new FileWriter(dump), CSVFORMAT)) {
-			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER, INTERACTIVITY_HEADER);
+			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER, INTERACTIVITY_HEADER, DETAILS_LINK_HEADER);
 			
-			for (Entry<String, Score> entry : scores.entrySet()) {
-				printer.printRecord(entry.getKey(), entry.getValue().getValue(), entry.getValue().isInteractive()?"yes":"no");
+			for (Map.Entry<String, Score> entry : scores.entrySet()) {
+				printer.printRecord(
+					entry.getKey(),
+					entry.getValue().getValue(),
+					entry.getValue().isInteractive()?"yes":"no",
+					"https://www.google.hu/search?q=" + entry.getKey());
 			}
 			printer.flush();
 			System.out.println("Sample CSV was saved to " + dump.getAbsolutePath());
