@@ -75,4 +75,8 @@ public class Activator extends AbstractUIPlugin {
 	public boolean isLogOnlyModeActive() {
 		return logOnlyMode != null;
 	}
+	
+	public LogOnlyModeControl getLogOnlyMode() {
+		return logOnlyMode;
+	}
 }

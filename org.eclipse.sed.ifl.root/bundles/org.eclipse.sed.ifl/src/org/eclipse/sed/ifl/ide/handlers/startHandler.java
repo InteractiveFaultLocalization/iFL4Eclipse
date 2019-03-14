@@ -1,6 +1,15 @@
 package org.eclipse.sed.ifl.ide.handlers;
 
 import org.eclipse.core.commands.ExecutionEvent;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.IJavaProject;
@@ -20,7 +29,7 @@ import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 
 public class startHandler extends AbstractHandler {
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
@@ -47,7 +56,8 @@ public class startHandler extends AbstractHandler {
 						mode.init();
 						Activator.getDefault().setLogOnlyMode(mode);
 					}
-					else {
+					else {	
+						Activator.getDefault().getLogOnlyMode().logDenied();
 						MessageDialog.open(MessageDialog.WARNING, null, "iFL", "You already activated log-only mode. You could continue your work as you usually do.", SWT.NONE);
 					}
 				}
@@ -61,7 +71,20 @@ public class startHandler extends AbstractHandler {
 	}
 
 	private boolean isKeyFilePresent() {
-		// TODO Auto-generated method stub
+		File key = new File("key");
+		System.out.println("looking for key file at: " + key.getAbsolutePath());
+		if (key.canRead()) {
+			try (BufferedReader reader = new BufferedReader(new FileReader(key))) {
+				List<String> lines = reader.lines().collect(Collectors.toList());
+					if (!lines.isEmpty()) {
+						return lines.get(0).equals("dza tan kaho adz");
+					}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return false;
 	}
 
