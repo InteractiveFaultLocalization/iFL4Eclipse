@@ -1,7 +1,6 @@
-package org.eclipse.sed.ifl.control.session;
+package org.eclipse.sed.ifl.model.monitor.event;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.sed.ifl.model.monitor.resource.Project;
 import org.eclipse.sed.ifl.util.Maps;
 

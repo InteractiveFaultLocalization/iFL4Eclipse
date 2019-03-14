@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.sed.ifl.control.monitor.LogOnlyModeControl;
 import org.eclipse.sed.ifl.control.session.SessionAlreadyActiveException;
 import org.eclipse.sed.ifl.control.session.SessionControl;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -25,6 +26,12 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		if (session != null) {
+			deactivateSession();
+		}
+		if (logOnlyMode != null) {
+			logOnlyMode.teardown();
+		}
 	}
 
 	public static Activator getDefault() {
@@ -63,5 +70,19 @@ public class Activator extends AbstractUIPlugin {
 		else {
 			throw new SessionAlreadyActiveException();
 		}
+	}
+	
+	private LogOnlyModeControl logOnlyMode;
+	
+	public void setLogOnlyMode(LogOnlyModeControl value) {
+		logOnlyMode = value;
+	}
+	
+	public boolean isLogOnlyModeActive() {
+		return logOnlyMode != null;
+	}
+	
+	public LogOnlyModeControl getLogOnlyMode() {
+		return logOnlyMode;
 	}
 }
