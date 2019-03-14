@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.accessor.gui;
 
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
@@ -40,9 +41,15 @@ public class PartAccessor {
 	}
 
 	public void removeListenerToAllPages(IPartListener2 eclipseListener) {
-		IWorkbenchWindow window = EU.tryUnchecked(() -> HandlerUtil.getActiveWorkbenchWindowChecked(event));
-        for (IWorkbenchPage page : window.getPages()) {
-            page.removePartListener(eclipseListener);
-        }
+		IWorkbenchWindow window;
+		try {
+			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+	        for (IWorkbenchPage page : window.getPages()) {
+	            page.removePartListener(eclipseListener);
+	        }
+		} catch (ExecutionException e) {
+			//TODO: check if this assumption is correct: no need to unsubscribe of there is no active window.
+			System.out.println("it seems Eclipse is closed... Unable to unsubscribe");
+		}
 	}
 }

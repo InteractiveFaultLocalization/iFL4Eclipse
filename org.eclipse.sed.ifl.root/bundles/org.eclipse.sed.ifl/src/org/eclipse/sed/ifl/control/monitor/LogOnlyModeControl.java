@@ -35,8 +35,8 @@ public class LogOnlyModeControl extends ViewlessControl<LogOnlyModeModel> {
 	
 	@Override
 	public void teardown() {
-		super.teardown();
 		activityMonitor.log(new ModeEvent(NAME, ModeEvent.State.DEACTIVATED));
+		super.teardown();
 	}
 	
 	public void logDenied() {

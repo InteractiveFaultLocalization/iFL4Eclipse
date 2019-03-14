@@ -26,6 +26,12 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		if (session != null) {
+			deactivateSession();
+		}
+		if (logOnlyMode != null) {
+			logOnlyMode.teardown();
+		}
 	}
 
 	public static Activator getDefault() {
