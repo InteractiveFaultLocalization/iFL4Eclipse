@@ -1,7 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
 public enum SortingArg {
-	Score();
+	Score, Name, Signature, ParentType, Path, Position, ContextSize;
 	
 	private boolean descending;
 	
