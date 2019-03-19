@@ -233,28 +233,34 @@ public class ScoreListUI extends Composite {
 		nameColumn.setMoveable(true);
 		nameColumn.setWidth(100);
 		nameColumn.setText("Name");
+		nameColumn.setData("sort", SortingArg.Name);
 
 		signitureColumn = new TableColumn(table, SWT.NONE);
 		signitureColumn.setMoveable(true);
 		signitureColumn.setWidth(100);
 		signitureColumn.setText("Signature");
+		signitureColumn.setData("sort", SortingArg.Signature);
 
 		typeColumn = new TableColumn(table, SWT.NONE);
 		typeColumn.setMoveable(true);
 		typeColumn.setWidth(100);
 		typeColumn.setText("Parent type");
+		typeColumn.setData("sort", SortingArg.ParentType);
 
 		pathColumn = new TableColumn(table, SWT.NONE);
 		pathColumn.setWidth(100);
 		pathColumn.setText("Path");
+		pathColumn.setData("sort", SortingArg.Path);
 
 		positionColumn = new TableColumn(table, SWT.NONE);
 		positionColumn.setWidth(100);
-		positionColumn.setText("Lineinfo");
+		positionColumn.setText("Position");
+		positionColumn.setData("sort", SortingArg.Position);
 
 		contextSizeColumn = new TableColumn(table, SWT.NONE);
 		contextSizeColumn.setWidth(100);
 		contextSizeColumn.setText("Context size");
+		contextSizeColumn.setData("sort", SortingArg.ContextSize);
 		
 		interactivityColumn = new TableColumn(table, SWT.NONE);
 		interactivityColumn.setWidth(200);
