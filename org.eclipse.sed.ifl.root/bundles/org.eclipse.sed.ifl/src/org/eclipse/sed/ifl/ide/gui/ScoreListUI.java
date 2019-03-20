@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -47,7 +48,6 @@ import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Slider;
 
 
 public class ScoreListUI extends Composite {
@@ -82,8 +82,8 @@ public class ScoreListUI extends Composite {
 	}
 
 	private void updateScoreFilterLimit() {
-		double value = slider.getSelection() / SLIDER_PRECISION;
-		enabledCheckButton.setText("filter scores <= " + new DecimalFormat("#0.0000").format(value));
+		double value = fromScale(scale.getSelection());
+		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
@@ -108,6 +108,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
+				scale.setEnabled(enabledCheckButton.getSelection());
 			}
 			
 			@Override
@@ -119,12 +120,12 @@ public class ScoreListUI extends Composite {
 		
 		minLabel = new Label(composite, SWT.NONE);
 		minLabel.setText("");
-
-		slider = new Slider(composite, SWT.NONE);
-		slider.setEnabled(false);
-		slider.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		slider.setSelection(0);
-		slider.addSelectionListener(new SelectionListener() {
+	
+		scale = new Scale(composite, SWT.NONE);
+		scale.setEnabled(false);
+		scale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		scale.setSelection(0);
+		scale.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -297,18 +298,26 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
-	private static final double SLIDER_PRECISION = 1000.0; 
+	private static final double SLIDER_PRECISION = 1000.0;
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.000");
+	
+	private static int toScale(double value) {
+		return Double.valueOf(value * SLIDER_PRECISION).intValue();
+	}
+	
+	private static double fromScale(int value) {
+		return value / SLIDER_PRECISION;
+	}
 	
 	public void setScoreFilter(Double min, Double max) {
-		DecimalFormat format = new DecimalFormat("#0.0000");
-		maxLabel.setText(format.format(max));
+		maxLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(max))));
 		maxLabel.requestLayout();
-		minLabel.setText(format.format(min));
+		minLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(min))));
 		minLabel.requestLayout();
-		slider.setMinimum(Double.valueOf(min * SLIDER_PRECISION).intValue());
-		slider.setMaximum(Double.valueOf(max * SLIDER_PRECISION).intValue());
+		scale.setMaximum(toScale(max));
+		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
-		slider.setEnabled(true);
+		scale.setEnabled(true);
 		updateScoreFilterLimit();
 	}
 	
@@ -458,7 +467,7 @@ public class ScoreListUI extends Composite {
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 	private Composite composite;
 	private Button enabledCheckButton;
-	private Slider slider;
+	private Scale scale;
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
