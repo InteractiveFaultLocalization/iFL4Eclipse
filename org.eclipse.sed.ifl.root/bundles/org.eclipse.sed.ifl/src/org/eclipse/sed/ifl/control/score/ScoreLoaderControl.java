@@ -10,11 +10,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
+import org.eclipse.swt.SWT;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
@@ -65,6 +67,15 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
 					double value = Double.parseDouble(record.get(SCORE_HEADER));
+					if (value > 1 || value < 0) {
+						MessageDialog.open(
+							MessageDialog.ERROR, null,
+							"Error during iFL score loading",
+							"The value for '" + name + "' is invalid.\n"
+							+ "All scores in the '" + SCORE_HEADER + "' column should not be less then 0 or greater then 1.",
+							SWT.NONE);
+						return;
+					}
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null);
 					Score score = new Score(value, interactivity);
@@ -72,8 +83,13 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
-			} catch (IOException e) {
-				e.printStackTrace();
+				MessageDialog.open(
+					MessageDialog.INFORMATION, null,
+					"iFL score loading",
+					updatedCount + " scores are loaded from the " + recordCount + " records of " + event,
+					SWT.NONE);
+			} catch (Exception e) {
+				MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", e.getMessage(), SWT.NONE);
 			}
 			System.out.println(watch);
 		}
