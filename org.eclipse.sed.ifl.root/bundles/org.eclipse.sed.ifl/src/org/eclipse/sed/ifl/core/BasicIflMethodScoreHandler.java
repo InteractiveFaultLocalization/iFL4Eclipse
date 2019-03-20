@@ -22,7 +22,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void init(Iterable<IMethodDescription> initialMethods) {
-		//TODO implement this in a meeningfull way 
+		//TODO implement this in a meaningful way 
 	}
 
 	@Override
@@ -92,13 +92,16 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 		providedOptions.add(new Option("YES",
 				"This is faulty", "Select this option if the item is faulty.",
-				SideEffect.FOUND));
+				SideEffect.FOUND,
+				"icons/item-faulty16.png"));
 		providedOptions.add(new Option("NO_AND_NOT_SUSPICIOUS",
 				"Neither this, nor its context are faulty",
-				"Select this option if neither the selected item, nor its context are faulty"));
+				"Select this option if neither the selected item, nor its context are faulty",
+				"icons/context-notfaulty16.png"));
 		providedOptions.add(new Option("NO",
 				"This is not faulty",
-				"Select this option if the item is not faulty"));
+				"Select this option if the item is not faulty",
+				"icons/item-notfaulty16.png"));
 
 		return providedOptions;
 	}

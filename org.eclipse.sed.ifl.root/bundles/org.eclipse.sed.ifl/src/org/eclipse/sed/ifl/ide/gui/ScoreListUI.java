@@ -399,8 +399,9 @@ public class ScoreListUI extends Composite {
 
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
-		noFeedback.setText("(user feedback is disabled)");
+		noFeedback.setText("(User feedback is disabled.)");
 		noFeedback.setToolTipText("User feedback is disabled for some the selected items. Remove these items from the selection to reenable it.");
+		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);
 	}
 	
@@ -408,6 +409,7 @@ public class ScoreListUI extends Composite {
 		new MenuItem(menu, SWT.SEPARATOR);
 		MenuItem navigateToSelected = new MenuItem(menu, SWT.None);
 		navigateToSelected.setText("Navigate to selected");
+		navigateToSelected.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-selected16.png"));
 		navigateToSelected.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -421,6 +423,7 @@ public class ScoreListUI extends Composite {
 		MenuItem navigateToContext = new MenuItem(menu, SWT.None);
 		navigateToContext.setEnabled(false);
 		navigateToContext.setText("Navigate to context");
+		navigateToContext.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-context16.png"));
 	}
 
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
@@ -428,6 +431,9 @@ public class ScoreListUI extends Composite {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setData(option);
+			if (option.getIconPath() != null) {
+				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getIconPath()));
+			}
 			item.addSelectionListener(new SelectionListener() {
 
 				@Override
