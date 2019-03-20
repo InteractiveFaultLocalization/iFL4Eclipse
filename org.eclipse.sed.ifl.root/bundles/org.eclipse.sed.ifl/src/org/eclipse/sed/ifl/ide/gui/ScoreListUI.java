@@ -380,6 +380,7 @@ public class ScoreListUI extends Composite {
 			public void menuHidden(MenuEvent e) { }
 		});
 		openDetails.setText("Open details...");
+		openDetails.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/open-details16.png"));
 		openDetails.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -430,6 +431,7 @@ public class ScoreListUI extends Composite {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
+			item.setToolTipText(option.getDescription());
 			item.setData(option);
 			if (option.getIconPath() != null) {
 				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getIconPath()));
