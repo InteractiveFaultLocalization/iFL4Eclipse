@@ -108,6 +108,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
+				slider.setEnabled(enabledCheckButton.getSelection());
 			}
 			
 			@Override
