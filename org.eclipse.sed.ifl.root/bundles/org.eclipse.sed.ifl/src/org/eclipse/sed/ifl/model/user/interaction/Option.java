@@ -6,16 +6,25 @@ public class Option {
 	private String description;
 	private SideEffect sideEffect; 
 
-	public Option(String id, String title, String description, SideEffect sideEffect) {
+	public Option(String id, String title, String description, SideEffect sideEffect, String iconPath) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.sideEffect = sideEffect;
+		this.iconPath = iconPath;
 	}
 	
+	public Option(String id, String title, String description, SideEffect sideEffect) {
+		this(id, title, description, sideEffect, null);
+	}
+	
+	public Option(String id, String title, String description, String iconPath) {
+		this(id, title, description, SideEffect.NOTHING, iconPath);
+	}
+
 	public Option(String id, String title, String description) {
-		this(id, title, description, SideEffect.NOTHING);
+		this(id, title, description, SideEffect.NOTHING, null);
 	}
 
 	public SideEffect getSideEffect() {
@@ -57,6 +66,12 @@ public class Option {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	private String iconPath; 
+	
+	public String getIconPath() {
+		return iconPath;
 	}
  
 }
