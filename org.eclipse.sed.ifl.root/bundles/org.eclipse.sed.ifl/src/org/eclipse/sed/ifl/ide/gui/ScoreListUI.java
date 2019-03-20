@@ -82,8 +82,8 @@ public class ScoreListUI extends Composite {
 	}
 
 	private void updateScoreFilterLimit() {
-		double value = scale.getSelection() / SLIDER_PRECISION;
-		enabledCheckButton.setText("filter scores <= " + new DecimalFormat("#0.0000").format(value));
+		double value = fromScale(scale.getSelection());
+		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
@@ -298,16 +298,24 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
-	private static final double SLIDER_PRECISION = 10000.0; 
+	private static final double SLIDER_PRECISION = 1000.0;
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.000");
+	
+	private static int toScale(double value) {
+		return Double.valueOf(value * SLIDER_PRECISION).intValue();
+	}
+	
+	private static double fromScale(int value) {
+		return value / SLIDER_PRECISION;
+	}
 	
 	public void setScoreFilter(Double min, Double max) {
-		DecimalFormat format = new DecimalFormat("#0.0000");
-		maxLabel.setText(format.format(max));
+		maxLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(max))));
 		maxLabel.requestLayout();
-		minLabel.setText(format.format(min));
+		minLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(min))));
 		minLabel.requestLayout();
-		scale.setMaximum(Double.valueOf(max * SLIDER_PRECISION).intValue() + 1);
-		scale.setMinimum(Double.valueOf(min * SLIDER_PRECISION).intValue());
+		scale.setMaximum(toScale(max));
+		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
 		scale.setEnabled(true);
 		updateScoreFilterLimit();
