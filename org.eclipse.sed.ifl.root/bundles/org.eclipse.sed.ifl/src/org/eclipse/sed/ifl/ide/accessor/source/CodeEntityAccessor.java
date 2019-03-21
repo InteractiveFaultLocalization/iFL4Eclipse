@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -73,10 +74,15 @@ public class CodeEntityAccessor {
 	}
 
 	public List<ICompilationUnit> getUnits(IJavaProject project) {
-		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
+		List<ICompilationUnit> foo = Stream.of(EU.tryUnchecked(() -> project.getPackageFragmentRoots()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
+		.filter(fragment -> EU.tryUnchecked(() ->!fragment.getRawClasspathEntry().isTest()))
+		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getChildren())))
+		.filter(javaElement -> javaElement instanceof IPackageFragment)
+		.map(javaElement -> (IPackageFragment)javaElement)
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+		return foo;
 	}
 
  	private IResource extractSelection(ISelection sel) {
