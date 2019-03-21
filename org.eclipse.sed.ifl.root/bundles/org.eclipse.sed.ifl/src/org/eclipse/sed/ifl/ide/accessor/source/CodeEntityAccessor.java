@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,9 +119,14 @@ public class CodeEntityAccessor {
 		return resolve(project, getMethods(type));
 	}
 	
-	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project, Predicate<? super IMethod> preFilter, Predicate<? super Entry<IMethodBinding, IMethod>> postFilter) {
 		NanoWatch watch = new NanoWatch("resolve method");
-		Map<IMethodBinding, IMethod> result = resolve(project, getMethods(project));
+		List<IMethod> methods = getMethods(project).stream()
+			.filter(preFilter)
+			.collect(Collectors.toList());
+		Map<IMethodBinding, IMethod> result = resolve(project, methods).entrySet().stream()
+			.filter(postFilter)
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		System.out.println(watch);
 		return result;
 	}

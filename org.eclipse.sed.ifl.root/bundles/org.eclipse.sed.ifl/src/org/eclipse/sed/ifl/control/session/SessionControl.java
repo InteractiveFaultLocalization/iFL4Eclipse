@@ -5,12 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
@@ -56,10 +59,31 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 	
 	private ScoreListControl scoreListControl;
-	
+
+	private Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
+		if (Modifier.isAbstract(entry.getKey().getModifiers())) {
+			return false;
+		}
+		if (entry.getKey().getDeclaringClass().isInterface()) {
+			return false;
+		}
+		return true;
+	};
+
+	private Predicate<? super IMethod> preUnrelevantFilter = method -> {
+		try {
+			if (method.getDeclaringType().isClass()) {
+				return true;
+			}
+		} catch (JavaModelException e) {
+			return false;
+		}
+		return false;
+	};
+
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject);
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
 		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
