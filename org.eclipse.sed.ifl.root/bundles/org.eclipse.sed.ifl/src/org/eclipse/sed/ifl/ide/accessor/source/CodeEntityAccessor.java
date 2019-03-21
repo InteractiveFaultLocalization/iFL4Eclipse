@@ -74,7 +74,7 @@ public class CodeEntityAccessor {
 	}
 
 	public List<ICompilationUnit> getUnits(IJavaProject project) {
-		List<ICompilationUnit> foo = Stream.of(EU.tryUnchecked(() -> project.getPackageFragmentRoots()))
+		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragmentRoots()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
 		.filter(fragment -> EU.tryUnchecked(() ->!fragment.getRawClasspathEntry().isTest()))
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getChildren())))
@@ -82,7 +82,6 @@ public class CodeEntityAccessor {
 		.map(javaElement -> (IPackageFragment)javaElement)
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-		return foo;
 	}
 
  	private IResource extractSelection(ISelection sel) {
