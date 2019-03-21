@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,6 +19,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -72,8 +74,12 @@ public class CodeEntityAccessor {
 	}
 
 	public List<ICompilationUnit> getUnits(IJavaProject project) {
-		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragments()))
+		return Stream.of(EU.tryUnchecked(() -> project.getPackageFragmentRoots()))
 		.filter(fragment -> EU.tryUnchecked(() -> fragment.getKind() == IPackageFragmentRoot.K_SOURCE))
+		.filter(fragment -> EU.tryUnchecked(() ->!fragment.getRawClasspathEntry().isTest()))
+		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getChildren())))
+		.filter(javaElement -> javaElement instanceof IPackageFragment)
+		.map(javaElement -> (IPackageFragment)javaElement)
 		.flatMap(fragment -> EU.tryUnchecked(() -> Stream.of(fragment.getCompilationUnits())))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
@@ -118,9 +124,14 @@ public class CodeEntityAccessor {
 		return resolve(project, getMethods(type));
 	}
 	
-	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project) {
+	public Map<IMethodBinding, IMethod> getResolvedMethods(IJavaProject project, Predicate<? super IMethod> preFilter, Predicate<? super Entry<IMethodBinding, IMethod>> postFilter) {
 		NanoWatch watch = new NanoWatch("resolve method");
-		Map<IMethodBinding, IMethod> result = resolve(project, getMethods(project));
+		List<IMethod> methods = getMethods(project).stream()
+			.filter(preFilter)
+			.collect(Collectors.toList());
+		Map<IMethodBinding, IMethod> result = resolve(project, methods).entrySet().stream()
+			.filter(postFilter)
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		System.out.println(watch);
 		return result;
 	}
