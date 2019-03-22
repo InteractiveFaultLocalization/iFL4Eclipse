@@ -115,5 +115,4 @@
             commandId="org.eclipse.sed.ifl.commands.startCommand">
       </handler>
    </extension>
-
 </plugin>
