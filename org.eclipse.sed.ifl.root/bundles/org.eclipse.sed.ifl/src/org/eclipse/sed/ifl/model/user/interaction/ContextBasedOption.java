@@ -2,8 +2,10 @@ package org.eclipse.sed.ifl.model.user.interaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -58,38 +60,48 @@ public class ContextBasedOption extends Option {
 		this.updateOther = updateOthers;
 	}
 
+	@Override
 	public Map<IMethodDescription, Defineable<Double>> apply(IUserFeedback feedback, Map<IMethodDescription, Defineable<Double>> allScores) {
 		Map<IMethodDescription, Defineable<Double>> newScores = new HashMap<>();
-		List<IMethodDescription> selected = feedback.getSubjects();
-		List<IMethodDescription> context = collectContext(feedback, allScores);
-		List<IMethodDescription> other = collectOther(allScores, selected, context);
-		
-		newScores.putAll(updateSelected.apply(selected));
-		newScores.putAll(updateContext.apply(context));
-		newScores.putAll(updateOther.apply(other));
+		List<IMethodDescription> selected = null;
+		List<IMethodDescription> context = null;
+		List<IMethodDescription> other = null;
+		if (updateSelected != null) {
+			selected = feedback.getSubjects();
+			newScores.putAll(updateSelected.apply(selected));
+		}
+		if (updateContext != null) {
+			context = collectContext(feedback, allScores);
+			newScores.putAll(updateContext.apply(context));
+		}
+		if (updateOther != null) {
+			if (selected == null) {
+				selected = feedback.getSubjects();
+				newScores.putAll(updateSelected.apply(selected));
+			}
+			if (context == null) {
+				context = collectContext(feedback, allScores);
+				newScores.putAll(updateContext.apply(context));
+			}
+			other = collectOther(allScores, selected, context);
+			newScores.putAll(updateOther.apply(other));
+		}
 		
 		return newScores;
 	}
 
 	private List<IMethodDescription> collectOther(Map<IMethodDescription, Defineable<Double>> allScores,
 			List<IMethodDescription> selected, List<IMethodDescription> context) {
-		List<IMethodDescription> other = new ArrayList<>();
-		outer: for (IMethodDescription desc : allScores.keySet()) {
-			List<IMethodDescription> union = new ArrayList<>(selected);
-			union.addAll(context);
-			for (IMethodDescription method : union) {
-				if (method.equals(desc)) {
-					continue outer;
-				}
-			}
-			other.add(desc);
-		}
-		return other;
+		Set<IMethodDescription> other = new HashSet<>();
+		other.addAll(allScores.keySet());
+		other.removeAll(selected);
+		other.removeAll(context);
+		return new ArrayList<>(other);
 	}
 
 	private List<IMethodDescription> collectContext(IUserFeedback feedback,
 			Map<IMethodDescription, Defineable<Double>> allScores) {
-		List<IMethodDescription> context = new ArrayList<>();
+		Set<IMethodDescription> context = new HashSet<>();
 		feedback.getSubjects().stream()
 			.flatMap(subject -> subject.getContext().stream())
 			.forEach(id -> {
@@ -100,6 +112,6 @@ public class ContextBasedOption extends Option {
 					}
 				}
 			});
-		return context;
+		return new ArrayList<>(context);
 	}
 }
