@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
+import java.util.List;
+
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.identification.IUser;
 
@@ -8,5 +10,5 @@ public interface IUserFeedback {
 	
 	public Option getChoise();
 	
-	public Iterable<IMethodDescription> getSubjects();
+	public List<IMethodDescription> getSubjects();
 }
