@@ -9,6 +9,7 @@ import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
@@ -53,21 +54,34 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			"I think that the selected items are faulty, hence I found the bug.",
 			SideEffect.FOUND,
 			"icons/item-faulty16.png"),
-		new ContextBasedOption("SELECTED_AND_CONTEXT_SUSPICIOUS",
+		new ContextBasedOption("SELECTED_AND_CONTEXT_NOT_SUSPICIOUS",
 			"Context (including selected items) seem not suspicious.",
 			"Currently, I think that the selected items and its context are not suspicious.",
 			"icons/context-notfaulty16.png",
-			null, null, null),
+			item -> new Defineable<Double>(0.0),
+			item -> new Defineable<Double>(0.0),
+			null),
 		new ContextBasedOption("SELECTED_NOT_SUSPICIOUS",
 			"Selected items seem not suspicious",
 			"Currently, I think that the selected items are not suspicious.",
 			"icons/item-notfaulty16.png",
-			null, null, null),
+			item -> new Defineable<Double>(0.0),
+			null,
+			null),
 		new ContextBasedOption("CONTEXT_SUSPICIOUS",
-			"Context (excluding selected items) seem suspicious.",
-			"Currently, I am sure that the selected items are not but its context are suspicious.",
+			"Only the context (excluding selected items) seems suspicious.",
+			"Currently, I think that the selected items are not but only their context are suspicious.",
 			"icons/down32.png",
-			null, null, null));
+			item -> new Defineable<Double>(0.0),
+			null,
+			item -> new Defineable<Double>(0.0)),
+		new ContextBasedOption("SELECTED_AND_CONTEXT_SUSPICIOUS",
+			"Only the context (including selected items) seems suspicious.",
+			"Currently, I think that only the selected items and their context are suspicious.",
+			"icons/down32.png",
+			null,
+			null,
+			item -> new Defineable<Double>(0.0)));
 	
 	@Override
 	public Iterable<Option> getProvidedOptions() {

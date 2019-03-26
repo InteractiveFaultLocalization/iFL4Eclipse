@@ -12,15 +12,15 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class ContextBasedOption extends Option {
 
-	private Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateSelected;
-	private Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateContext;
-	private Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateOther;
+	private Function<IMethodDescription, Defineable<Double>> updateSelected;
+	private Function<IMethodDescription, Defineable<Double>> updateContext;
+	private Function<IMethodDescription, Defineable<Double>> updateOther;
 	
 	public ContextBasedOption(
 		String id, String title, String description,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateSelected,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateContext,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateOthers) {
+		Function<IMethodDescription, Defineable<Double>> updateSelected,
+		Function<IMethodDescription, Defineable<Double>> updateContext,
+		Function<IMethodDescription, Defineable<Double>> updateOthers) {
 		super(id, title, description);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
@@ -29,9 +29,9 @@ public class ContextBasedOption extends Option {
 
 	public ContextBasedOption(
 		String id, String title, String description, SideEffect sideEffect, String iconPath,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateSelected,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateContext,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateOthers) {
+		Function<IMethodDescription, Defineable<Double>> updateSelected,
+		Function<IMethodDescription, Defineable<Double>> updateContext,
+		Function<IMethodDescription, Defineable<Double>> updateOthers) {
 		super(id, title, description, sideEffect, iconPath);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
@@ -40,9 +40,9 @@ public class ContextBasedOption extends Option {
 
 	public ContextBasedOption(
 		String id, String title, String description, SideEffect sideEffect,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateSelected,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateContext,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateOthers) {
+		Function<IMethodDescription, Defineable<Double>> updateSelected,
+		Function<IMethodDescription, Defineable<Double>> updateContext,
+		Function<IMethodDescription, Defineable<Double>> updateOthers) {
 		super(id, title, description, sideEffect);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
@@ -51,15 +51,23 @@ public class ContextBasedOption extends Option {
 
 	public ContextBasedOption(
 		String id, String title, String description, String iconPath,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateSelected,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateContext,
-		Function<List<IMethodDescription>, Map<IMethodDescription, Defineable<Double>>> updateOthers) {
+		Function<IMethodDescription, Defineable<Double>> updateSelected,
+		Function<IMethodDescription, Defineable<Double>> updateContext,
+		Function<IMethodDescription, Defineable<Double>> updateOthers) {
 		super(id, title, description, iconPath);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
 		this.updateOther = updateOthers;
 	}
 
+	private Map<IMethodDescription, Defineable<Double>> applyAll(Function<IMethodDescription, Defineable<Double>> function, List<IMethodDescription> items) {
+		Map<IMethodDescription, Defineable<Double>> result = new HashMap<>();
+		for (IMethodDescription item : items) {
+			result.put(item, function.apply(item));
+		}
+		return result;
+	}
+	
 	@Override
 	public Map<IMethodDescription, Defineable<Double>> apply(IUserFeedback feedback, Map<IMethodDescription, Defineable<Double>> allScores) {
 		Map<IMethodDescription, Defineable<Double>> newScores = new HashMap<>();
@@ -68,25 +76,22 @@ public class ContextBasedOption extends Option {
 		List<IMethodDescription> other = null;
 		if (updateSelected != null) {
 			selected = feedback.getSubjects();
-			newScores.putAll(updateSelected.apply(selected));
+			newScores.putAll(applyAll(updateSelected, selected));
 		}
 		if (updateContext != null) {
 			context = collectContext(feedback, allScores);
-			newScores.putAll(updateContext.apply(context));
+			newScores.putAll(applyAll(updateContext, context));
 		}
 		if (updateOther != null) {
 			if (selected == null) {
 				selected = feedback.getSubjects();
-				newScores.putAll(updateSelected.apply(selected));
 			}
 			if (context == null) {
 				context = collectContext(feedback, allScores);
-				newScores.putAll(updateContext.apply(context));
 			}
 			other = collectOther(allScores, selected, context);
-			newScores.putAll(updateOther.apply(other));
+			newScores.putAll(applyAll(updateOther, other));
 		}
-		
 		return newScores;
 	}
 
