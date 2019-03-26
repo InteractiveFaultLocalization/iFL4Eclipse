@@ -94,7 +94,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	// TODO: Yoda-mode :) split or move it to view
 	public enum ScoreStatus {
-		NONE(null), INCREASED("icons/up32.png"), DECREASED("icons/down32.png"), UNDEFINED("icons/undefined32.png");
+		NONE(null), INCREASED("icons/up_arrow16.png"), DECREASED("icons/down_arrow16.png"), UNDEFINED("icons/undef16.png");
 
 		private final String iconPath;
 
