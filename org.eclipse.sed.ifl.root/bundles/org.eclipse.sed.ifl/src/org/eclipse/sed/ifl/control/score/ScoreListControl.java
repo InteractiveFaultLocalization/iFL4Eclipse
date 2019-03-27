@@ -282,17 +282,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
 		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
-		if (min.isPresent() && max.isPresent()) {
+		if (rawScores.size() > TOP_SCORE_LIMIT && min.isPresent() && max.isPresent()) {
 			Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList()).get(0).getValue();
 			if (limit.isDefinit()) {
 				getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
 			}
+			MessageDialog.open(
+					MessageDialog.INFORMATION, null,
+					"iFL Score List",
+					"Only the top 10 source code items are displayed.\n"
+					+ "You can set the filters to show more or less items.", SWT.NONE);
 		}
-		MessageDialog.open(
-				MessageDialog.INFORMATION, null,
-				"iFL Score List",
-				"Only the top 10 source code items are displayed.\n"
-				+ "You can set the filters to show more or less items.", SWT.NONE);
-
 	};
 }
