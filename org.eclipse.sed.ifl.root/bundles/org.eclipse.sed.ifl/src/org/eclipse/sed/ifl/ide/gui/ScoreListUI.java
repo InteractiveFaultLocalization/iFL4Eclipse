@@ -320,6 +320,14 @@ public class ScoreListUI extends Composite {
 		scale.setEnabled(true);
 		updateScoreFilterLimit();
 	}
+
+	public void setScoreFilter(Double min, Double max, Double current) {
+		setScoreFilter(min, max);
+		if (min < current && current < max) {
+			scale.setSelection(toScale(current));
+			updateScoreFilterLimit();
+		}
+	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {

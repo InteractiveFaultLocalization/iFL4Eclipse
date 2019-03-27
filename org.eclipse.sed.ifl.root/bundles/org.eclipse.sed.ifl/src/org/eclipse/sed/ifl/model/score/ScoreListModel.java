@@ -61,7 +61,14 @@ public class ScoreListModel extends EmptyModel {
 		}
 		updateScore(entries);
 		System.out.println(count + "/" + scores.size() + " scores will be updated");
+		scoreLoaded.invoke(new EmptyEvent());
 		return count;
+	}
+
+	private NonGenericListenerCollection<EmptyEvent> scoreLoaded = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventScoreLoaded() {
+		return scoreLoaded;
 	}
 
 	private NonGenericListenerCollection<EmptyEvent> scoreUpdated = new NonGenericListenerCollection<>();
