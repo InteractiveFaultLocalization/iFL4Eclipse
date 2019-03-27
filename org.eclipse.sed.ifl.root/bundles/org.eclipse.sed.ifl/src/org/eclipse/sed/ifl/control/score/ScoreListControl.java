@@ -76,6 +76,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
+		getModel().eventScoreLoaded().add(scoreLoadedListener);
 		super.init();
 	}
 
@@ -90,6 +91,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
+		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
 		activityMonitor = null;
 	}
@@ -199,7 +201,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			MessageDialog.open(
 				MessageDialog.WARNING, null,
 				"iFL Score List",
-				"There is not any source code items to display.\n"
+				"There are no source code items to display.\n"
 				+ "Please check that you do not set the filters to hide all items.", SWT.NONE);
 		}
 	}
@@ -270,5 +272,27 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private IListener<IMethodDescription> navigateToListener = event -> {
 		editor.open(event.getLocation().getAbsolutePath(), event.getLocation().getBegining().getOffset());
 		activityMonitor.log(new NavigationEvent(event));
+	};
+	
+	private static final int TOP_SCORE_LIMIT = 9;
+	
+	private IListener<EmptyEvent> scoreLoadedListener = __ -> {
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore().entrySet().stream()
+			.sorted((a, b) -> -1 * a.getValue().compareTo(b.getValue()))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList()).get(0).getValue();
+			if (limit.isDefinit()) {
+				getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
+			}
+		}
+		MessageDialog.open(
+				MessageDialog.INFORMATION, null,
+				"iFL Score List",
+				"Only the top 10 source code items are displayed.\n"
+				+ "You can set the filters to show more or less items.", SWT.NONE);
+
 	};
 }
