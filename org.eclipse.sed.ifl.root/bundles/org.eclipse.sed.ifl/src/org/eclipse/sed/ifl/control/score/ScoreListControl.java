@@ -201,7 +201,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			MessageDialog.open(
 				MessageDialog.WARNING, null,
 				"iFL Score List",
-				"There is not any source code items to display.\n"
+				"There are no source code items to display.\n"
 				+ "Please check that you do not set the filters to hide all items.", SWT.NONE);
 		}
 	}
@@ -276,7 +276,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private static final int TOP_SCORE_LIMIT = 9;
 	
-	private IListener<EmptyEvent> scoreLoadedListener = event -> {
+	private IListener<EmptyEvent> scoreLoadedListener = __ -> {
 		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore().entrySet().stream()
 			.sorted((a, b) -> -1 * a.getValue().compareTo(b.getValue()))
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
@@ -288,5 +288,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
 			}
 		}
+		MessageDialog.open(
+				MessageDialog.INFORMATION, null,
+				"iFL Score List",
+				"Only the top 10 source code items are displayed.\n"
+				+ "You can set the filters to show more or less items.", SWT.NONE);
+
 	};
 }
