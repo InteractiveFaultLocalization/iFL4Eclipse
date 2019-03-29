@@ -1,9 +1,5 @@
 package org.eclipse.sed.ifl.model.monitor;
 
-import org.eclipse.sed.ifl.model.EmptyModel;
-import org.eclipse.sed.ifl.model.monitor.event.Event;
-import org.eclipse.sed.ifl.util.exception.EU;
-
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
 
 import java.util.List;
@@ -13,6 +9,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.eclipse.sed.ifl.model.EmptyModel;
+import org.eclipse.sed.ifl.model.monitor.event.Event;
+import org.eclipse.sed.ifl.util.exception.EU;
 
 public class ActivityMonitorModel extends EmptyModel {
 	private GraphTraversalSource g;

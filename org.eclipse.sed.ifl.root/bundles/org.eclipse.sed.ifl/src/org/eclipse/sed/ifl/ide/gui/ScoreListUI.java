@@ -1,11 +1,8 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-
-import java.util.Collections;
-
 import java.text.DecimalFormat;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,9 +21,17 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -37,17 +42,8 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.ResourceManager;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Color;
-
-import org.eclipse.swt.graphics.Image;
-
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 
 
 public class ScoreListUI extends Composite {
@@ -75,18 +71,28 @@ public class ScoreListUI extends Composite {
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
 	private Label minLabel;
 	private Label maxLabel;
+	private Label manualLabel;
 	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
 		return selectionChanged;
 	}
 
+
+	//modified to handle manual score input
+	//double param, scalet és textet is tudja kezelni
 	private void updateScoreFilterLimit() {
+		
 		double value = fromScale(scale.getSelection());
 		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
+		//modification
+		manualText.setText(String.valueOf(value));
 		lowerScoreLimitChanged.invoke(value);
 	}
+	
+	
+
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -96,7 +102,8 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(4, false));
+		//changed the number of columns from 4 to 7, to make room for a label, a text field and a button
+		composite.setLayout(new GridLayout(7, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -118,9 +125,92 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		
+		//label aktív/nem aktívra csere
+				manualLabel = new Label(composite, SWT.NONE);
+				manualLabel.setText("Value");
+				manualLabel.setVisible(false);
+				//text field
+				manualText = new Text(composite, SWT.BORDER);
+				manualText.setToolTipText("You may enter the score value manually here");
+				manualText.setVisible(false);
+				//text listener
+				manualText.addListener(SWT.Traverse, new Listener() {
+
+					@Override
+					public void handleEvent(Event event) {
+						//if event == enter button pressed
+						if(event.detail == SWT.TRAVERSE_RETURN)
+				            {
+							//check if input value is between min and max and valid
+							String text = manualText.getText();
+							//csere
+							String minText = minLabel.getText().replace(",", ".");
+							String maxText = maxLabel.getText().replace(",", ".");
+							if(isValidInput(text)) {
+								double input = Double.valueOf(text);
+								double min = Double.valueOf(minText);
+								double max = Double.valueOf(maxText);
+								if(input >= min && input <= max) {
+									//set scale value according to input value
+									scale.setSelection(toScale(Double.valueOf(manualText.getText())));
+									
+									updateScoreFilterLimit();
+								} else {
+									System.out.println("Input number must be in range of minimum and maximum value!");
+								}
+							} else {
+								System.out.println("Input is not valid!");
+							}
+							
+				         }
+					}
+					
+				});
+				//button
+				manualButton = new Button(composite, SWT.NONE);
+				manualButton.setText("Apply");
+				manualButton.setVisible(false);
+				//button selection listener
+				manualButton.addSelectionListener(new SelectionListener() {
+					
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						//check if input value is between min and max and valid
+						String text = manualText.getText();
+						String minText = minLabel.getText().replace(",", ".");
+						String maxText = maxLabel.getText().replace(",", ".");
+						if(isValidInput(text)) {
+							double input = Double.valueOf(text);
+							double min = Double.valueOf(minText);
+							double max = Double.valueOf(maxText);
+							if(input >= min && input <= max) {
+								//set scale value according to input value
+								scale.setSelection(toScale(Double.valueOf(manualText.getText())));
+								
+								updateScoreFilterLimit();
+							} else {
+								System.out.println("Input number must be in range of minimum and maximum value!");
+							}
+						} else {
+							System.out.println("Input is not valid!");
+						}
+						
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+						
+					}
+				});
+		
+		
 		minLabel = new Label(composite, SWT.NONE);
 		minLabel.setText("");
-	
+		
+		
+		
+		
+		
 		scale = new Scale(composite, SWT.NONE);
 		scale.setEnabled(false);
 		scale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -317,6 +407,10 @@ public class ScoreListUI extends Composite {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
+		//enabling manual input
+		manualLabel.setVisible(true);
+		manualText.setVisible(true);
+		manualButton.setVisible(true);
 		scale.setEnabled(true);
 		updateScoreFilterLimit();
 	}
@@ -468,6 +562,16 @@ public class ScoreListUI extends Composite {
 	private Composite composite;
 	private Button enabledCheckButton;
 	private Scale scale;
+	//manual text field
+	private Text manualText;
+	//method to check if input is two decimals separated by a dot, and first decimal is 0
+	//számmá konvertálni, azt ellenõrizni
+	private boolean isValidInput(String string) {
+		
+		return string.matches("^0(\\.\\d+)$");
+	}
+	//manual button
+	private Button manualButton;
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;

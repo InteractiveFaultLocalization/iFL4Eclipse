@@ -1,8 +1,9 @@
 package org.eclipse.sed.ifl.ide.gui;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+
 import swing2swt.layout.BorderLayout;
 
 public class ScoreLoaderButton extends Composite {
