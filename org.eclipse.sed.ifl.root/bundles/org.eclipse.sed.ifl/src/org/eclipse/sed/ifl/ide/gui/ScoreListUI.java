@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -78,21 +79,12 @@ public class ScoreListUI extends Composite {
 		return selectionChanged;
 	}
 
-
-	//modified to handle manual score input
-	//double param, scalet és textet is tudja kezelni
-	private void updateScoreFilterLimit() {
-		
-		double value = fromScale(scale.getSelection());
+	private void updateScoreFilterLimit(double value) {
+		scale.setSelection(toScale(value));
 		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
-		//modification
-		manualText.setText(String.valueOf(value));
 		lowerScoreLimitChanged.invoke(value);
 	}
-	
-	
-
 
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
@@ -102,7 +94,6 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		//changed the number of columns from 4 to 7, to make room for a label, a text field and a button
 		composite.setLayout(new GridLayout(7, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
@@ -125,76 +116,58 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		
-		//label aktív/nem aktívra csere
 				manualLabel = new Label(composite, SWT.NONE);
 				manualLabel.setText("Value");
-				manualLabel.setVisible(false);
-				//text field
+				manualLabel.setEnabled(false);
 				manualText = new Text(composite, SWT.BORDER);
 				manualText.setToolTipText("You may enter the score value manually here");
-				manualText.setVisible(false);
-				//text listener
+				manualText.setEnabled(false);
 				manualText.addListener(SWT.Traverse, new Listener() {
 
 					@Override
 					public void handleEvent(Event event) {
-						//if event == enter button pressed
 						if(event.detail == SWT.TRAVERSE_RETURN)
 				            {
-							//check if input value is between min and max and valid
 							String text = manualText.getText();
-							//csere
-							String minText = minLabel.getText().replace(",", ".");
-							String maxText = maxLabel.getText().replace(",", ".");
-							if(isValidInput(text)) {
-								double input = Double.valueOf(text);
-								double min = Double.valueOf(minText);
-								double max = Double.valueOf(maxText);
-								if(input >= min && input <= max) {
-									//set scale value according to input value
-									scale.setSelection(toScale(Double.valueOf(manualText.getText())));
-									
-									updateScoreFilterLimit();
+							double value;
+							try {
+								value = Double.parseDouble(text);
+								if(value >= minValue && value <= maxValue) {
+									updateScoreFilterLimit(value);
 								} else {
-									System.out.println("Input number must be in range of minimum and maximum value!");
+									MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
+									"User input must be between minimum and maximum value.", SWT.NONE);
 								}
-							} else {
-								System.out.println("Input is not valid!");
-							}
-							
-				         }
+							} catch (NumberFormatException exception){
+								MessageDialog.open(MessageDialog.ERROR, null, "Number format error",
+								"User input is not a number.", SWT.NONE);
+							}							
+				        }
 					}
 					
 				});
-				//button
+
 				manualButton = new Button(composite, SWT.NONE);
 				manualButton.setText("Apply");
-				manualButton.setVisible(false);
-				//button selection listener
+				manualButton.setEnabled(false);
 				manualButton.addSelectionListener(new SelectionListener() {
 					
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						//check if input value is between min and max and valid
 						String text = manualText.getText();
-						String minText = minLabel.getText().replace(",", ".");
-						String maxText = maxLabel.getText().replace(",", ".");
-						if(isValidInput(text)) {
-							double input = Double.valueOf(text);
-							double min = Double.valueOf(minText);
-							double max = Double.valueOf(maxText);
-							if(input >= min && input <= max) {
-								//set scale value according to input value
-								scale.setSelection(toScale(Double.valueOf(manualText.getText())));
-								
-								updateScoreFilterLimit();
+						double value;
+						try {
+							value = Double.parseDouble(text);
+							if(value >= minValue && value <= maxValue) {
+								updateScoreFilterLimit(value);
 							} else {
-								System.out.println("Input number must be in range of minimum and maximum value!");
+								MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
+								"User input must be between minimum and maximum value.", SWT.NONE);
 							}
-						} else {
-							System.out.println("Input is not valid!");
+						} catch (NumberFormatException exception){
+							MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
+							"User input is not a number.", SWT.NONE);
 						}
-						
 					}
 
 					@Override
@@ -202,15 +175,9 @@ public class ScoreListUI extends Composite {
 						
 					}
 				});
-		
-		
+
 		minLabel = new Label(composite, SWT.NONE);
 		minLabel.setText("");
-		
-		
-		
-		
-		
 		scale = new Scale(composite, SWT.NONE);
 		scale.setEnabled(false);
 		scale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -219,7 +186,9 @@ public class ScoreListUI extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				updateScoreFilterLimit();
+				double value = fromScale(scale.getSelection());
+				manualText.setText(Double.toString(value));
+				updateScoreFilterLimit(value);
 			}
 
 			@Override
@@ -399,7 +368,12 @@ public class ScoreListUI extends Composite {
 		return value / SLIDER_PRECISION;
 	}
 	
+	private double minValue;
+	private double maxValue;
+	
 	public void setScoreFilter(Double min, Double max) {
+		minValue = min;
+		maxValue = max;
 		maxLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(max))));
 		maxLabel.requestLayout();
 		minLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(min))));
@@ -407,12 +381,11 @@ public class ScoreListUI extends Composite {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
-		//enabling manual input
-		manualLabel.setVisible(true);
-		manualText.setVisible(true);
-		manualButton.setVisible(true);
+		manualLabel.setEnabled(true);
+		manualText.setEnabled(true);
+		manualButton.setEnabled(true);
 		scale.setEnabled(true);
-		updateScoreFilterLimit();
+		//updateScoreFilterLimit();
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
@@ -562,15 +535,7 @@ public class ScoreListUI extends Composite {
 	private Composite composite;
 	private Button enabledCheckButton;
 	private Scale scale;
-	//manual text field
 	private Text manualText;
-	//method to check if input is two decimals separated by a dot, and first decimal is 0
-	//számmá konvertálni, azt ellenõrizni
-	private boolean isValidInput(String string) {
-		
-		return string.matches("^0(\\.\\d+)$");
-	}
-	//manual button
 	private Button manualButton;
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
