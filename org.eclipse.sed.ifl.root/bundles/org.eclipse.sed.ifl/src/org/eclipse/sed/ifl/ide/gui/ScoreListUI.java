@@ -385,7 +385,7 @@ public class ScoreListUI extends Composite {
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
-		//updateScoreFilterLimit();
+		updateScoreFilterLimit(min);
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
