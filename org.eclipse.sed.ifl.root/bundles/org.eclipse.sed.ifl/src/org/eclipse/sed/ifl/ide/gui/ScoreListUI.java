@@ -57,6 +57,7 @@ public class ScoreListUI extends Composite {
 	private TableColumn pathColumn;
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
+	
 
 	private void requestNavigateToAllSelection() {
 		for (TableItem selected : table.getSelection()) {
@@ -324,7 +325,7 @@ public class ScoreListUI extends Composite {
 		
 		interactivityColumn = new TableColumn(table, SWT.NONE);
 		interactivityColumn.setWidth(200);
-		interactivityColumn.setText("");
+		interactivityColumn.setText("Interactivity");
 	}
 
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
@@ -408,9 +409,15 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
-			if (!entry.getValue().isInteractive()) {
-				item.setText(table.indexOf(interactivityColumn), "(user feedback disabled)");
-				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 255,100,100));
+			if ((!entry.getValue().isInteractive()) && entry.getValue().isDefinit()) {
+				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
+			} else if (entry.getValue().isInteractive() && entry.getValue().isDefinit()) {
+				item.setText(table.indexOf(interactivityColumn), "User feedback enabled");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 34,139,34));
+			} else {
+				item.setText(table.indexOf(interactivityColumn), "Load scores for user feedback");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 0,0,0));
 			}
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
@@ -477,7 +484,7 @@ public class ScoreListUI extends Composite {
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
 		noFeedback.setText("(User feedback is disabled.)");
-		noFeedback.setToolTipText("User feedback is disabled for some the selected items. Remove these items from the selection to reenable it.");
+		noFeedback.setToolTipText("User feedback is disabled for some of the selected items. Remove these items from the selection to reenable it.");
 		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);
 	}
