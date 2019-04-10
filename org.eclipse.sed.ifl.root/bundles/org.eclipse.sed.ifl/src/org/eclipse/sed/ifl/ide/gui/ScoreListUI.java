@@ -133,7 +133,7 @@ public class ScoreListUI extends Composite {
 							double value;
 							try {
 								value = Double.parseDouble(text);
-								if(value >= minValue && value <= maxValue) {
+								if(value > minValue && value < maxValue) {
 									updateScoreFilterLimit(value);
 								} else {
 									MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
@@ -159,7 +159,7 @@ public class ScoreListUI extends Composite {
 						double value;
 						try {
 							value = Double.parseDouble(text);
-							if(value >= minValue && value <= maxValue) {
+							if(value > minValue && value < maxValue) {
 								updateScoreFilterLimit(value);
 							} else {
 								MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
