@@ -1,3 +1,5 @@
+# python log-sanity.py -is "ws://localhost:8182/gremlin" -its "g"
+
 import pdb
 
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
@@ -35,10 +37,9 @@ if __name__ == '__main__':
 
     logger = logging.getLogger(__name__)
     logger.setLevel(clargs.log_level)
-    #handler = logging.StreamHandler()
-    #handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    #handler.setLevel(clargs.log_level)
-    #logger.addHandler(handler)
+    handler = logging.FileHandler('sanity.log', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
 
     logger.info("subject Gremlin server: %s, %s" % (clargs.input_server, clargs.input_source))
     graph = anonymous_traversal.traversal().withRemote(DriverRemoteConnection(clargs.input_server, clargs.input_source))
