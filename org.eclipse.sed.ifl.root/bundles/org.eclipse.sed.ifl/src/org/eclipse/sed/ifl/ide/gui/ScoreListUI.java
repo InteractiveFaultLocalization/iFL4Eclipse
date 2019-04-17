@@ -87,6 +87,39 @@ public class ScoreListUI extends Composite {
 		lowerScoreLimitChanged.invoke(value);
 	}
 
+	public double userInputTextValidator(String input) {
+		double returnValue;
+		try {
+			returnValue = Double.parseDouble(input);
+		} catch (NumberFormatException e) {
+			returnValue = minValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
+			"User provided upper score limit is not a number." + System.lineSeparator() + 
+			"Your input " + input + " could not be interpreted as a number." + System.lineSeparator() +
+			"Upper score limit has been set to minimum value.", SWT.NONE);
+		}
+		return returnValue;
+	}
+			
+	public double userInputRangeValidator(double input) {
+		double returnValue = input;
+		if (input < minValue) {
+			returnValue = minValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
+			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
+			" is lesser than " + LIMIT_FORMAT.format(minValue) + " minimum value." + System.lineSeparator() + 
+			"Upper score limit has been set to minimum value.", SWT.NONE);
+		}
+		if (input > maxValue) {
+			returnValue = maxValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
+			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
+			" is greater than " + LIMIT_FORMAT.format(maxValue) + " maximum value." + System.lineSeparator() + 
+			"Upper score limit has been set to maximum value.", SWT.NONE);
+		}
+		return returnValue;
+	}
+	
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
@@ -127,27 +160,15 @@ public class ScoreListUI extends Composite {
 
 					@Override
 					public void handleEvent(Event event) {
-						if(event.detail == SWT.TRAVERSE_RETURN)
-				            {
-							String text = manualText.getText();
-							double value;
-							try {
-								value = Double.parseDouble(text);
-								if(value > minValue && value < maxValue) {
-									updateScoreFilterLimit(value);
-								} else {
-									MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
-									"User input must be between minimum and maximum value.", SWT.NONE);
-								}
-							} catch (NumberFormatException exception){
-								MessageDialog.open(MessageDialog.ERROR, null, "Number format error",
-								"User input is not a number.", SWT.NONE);
-							}							
+						if(event.detail == SWT.TRAVERSE_RETURN) {
+				            double value = userInputTextValidator(manualText.getText());
+				            double correctValue = userInputRangeValidator(value);
+				            updateScoreFilterLimit(correctValue);
 				        }
 					}
 					
 				});
-
+				
 				manualButton = new Button(composite, SWT.NONE);
 				manualButton.setText("Apply");
 				manualButton.setEnabled(false);
@@ -155,20 +176,9 @@ public class ScoreListUI extends Composite {
 					
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						String text = manualText.getText();
-						double value;
-						try {
-							value = Double.parseDouble(text);
-							if(value > minValue && value < maxValue) {
-								updateScoreFilterLimit(value);
-							} else {
-								MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
-								"User input must be between minimum and maximum value.", SWT.NONE);
-							}
-						} catch (NumberFormatException exception){
-							MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
-							"User input is not a number.", SWT.NONE);
-						}
+						double value = userInputTextValidator(manualText.getText());
+			            double correctValue = userInputRangeValidator(value);
+			            updateScoreFilterLimit(correctValue);
 					}
 
 					@Override
