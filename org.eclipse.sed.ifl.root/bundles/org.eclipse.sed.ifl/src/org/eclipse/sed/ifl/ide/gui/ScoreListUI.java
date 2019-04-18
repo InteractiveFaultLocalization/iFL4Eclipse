@@ -69,7 +69,6 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
-
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
 	private Label minLabel;
 	private Label maxLabel;
@@ -82,6 +81,7 @@ public class ScoreListUI extends Composite {
 
 	private void updateScoreFilterLimit(double value) {
 		scale.setSelection(toScale(value));
+		manualText.setText(LIMIT_FORMAT.format(value));
 		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
@@ -150,42 +150,41 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		
-				manualLabel = new Label(composite, SWT.NONE);
-				manualLabel.setText("Value");
-				manualLabel.setEnabled(false);
-				manualText = new Text(composite, SWT.BORDER);
-				manualText.setToolTipText("You may enter the score value manually here");
-				manualText.setEnabled(false);
-				manualText.addListener(SWT.Traverse, new Listener() {
+		manualLabel = new Label(composite, SWT.NONE);
+		manualLabel.setText("Value");
+		manualLabel.setEnabled(false);
+		manualText = new Text(composite, SWT.BORDER);
+		manualText.setToolTipText("You may enter the score value manually here");
+		manualText.setEnabled(false);
+		manualText.addListener(SWT.Traverse, new Listener() {
 
-					@Override
-					public void handleEvent(Event event) {
-						if(event.detail == SWT.TRAVERSE_RETURN) {
-				            double value = userInputTextValidator(manualText.getText());
-				            double correctValue = userInputRangeValidator(value);
-				            updateScoreFilterLimit(correctValue);
-				        }
-					}
-					
-				});
+			@Override
+			public void handleEvent(Event event) {
+				if(event.detail == SWT.TRAVERSE_RETURN) {
+		            double value = userInputTextValidator(manualText.getText());
+		            double correctValue = userInputRangeValidator(value);
+		            updateScoreFilterLimit(correctValue);
+		        }
+			}
+		});
 				
-				manualButton = new Button(composite, SWT.NONE);
-				manualButton.setText("Apply");
-				manualButton.setEnabled(false);
-				manualButton.addSelectionListener(new SelectionListener() {
+		manualButton = new Button(composite, SWT.NONE);
+		manualButton.setText("Apply");
+		manualButton.setEnabled(false);
+		manualButton.addSelectionListener(new SelectionListener() {
 					
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						double value = userInputTextValidator(manualText.getText());
-			            double correctValue = userInputRangeValidator(value);
-			            updateScoreFilterLimit(correctValue);
-					}
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				double value = userInputTextValidator(manualText.getText());
+		           double correctValue = userInputRangeValidator(value);
+		           updateScoreFilterLimit(correctValue);
+			}
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-						
-					}
-				});
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+					
+			}
+		});
 
 		minLabel = new Label(composite, SWT.NONE);
 		minLabel.setText("");
@@ -198,7 +197,6 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
-				manualText.setText(Double.toString(value));
 				updateScoreFilterLimit(value);
 			}
 
@@ -419,15 +417,12 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
-			if ((!entry.getValue().isInteractive()) && entry.getValue().isDefinit()) {
+			if (!entry.getValue().isInteractive()) {
 				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
-			} else if (entry.getValue().isInteractive() && entry.getValue().isDefinit()) {
+			} else {
 				item.setText(table.indexOf(interactivityColumn), "User feedback enabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 34,139,34));
-			} else {
-				item.setText(table.indexOf(interactivityColumn), "Load scores for user feedback");
-				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 0,0,0));
 			}
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
