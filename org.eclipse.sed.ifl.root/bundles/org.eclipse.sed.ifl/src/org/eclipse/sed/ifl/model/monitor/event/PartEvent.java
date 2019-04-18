@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+
 import org.eclipse.sed.ifl.control.monitor.PartState;
 import org.eclipse.sed.ifl.model.monitor.resource.Part;
 import org.eclipse.sed.ifl.util.Maps;

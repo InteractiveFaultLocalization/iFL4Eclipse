@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.HashMap;
+
 import org.eclipse.sed.ifl.model.monitor.resource.CodeElement;
 import org.eclipse.sed.ifl.model.monitor.resource.Option;
 import org.eclipse.sed.ifl.model.monitor.resource.User;
