@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.HashMap;
 import java.util.List;
+
 import org.eclipse.sed.ifl.model.monitor.resource.CodeElement;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 
