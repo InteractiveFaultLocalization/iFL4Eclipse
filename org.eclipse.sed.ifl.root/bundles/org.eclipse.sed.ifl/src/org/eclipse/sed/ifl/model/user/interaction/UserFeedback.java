@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -37,8 +38,8 @@ public class UserFeedback implements IUserFeedback {
 	private List<IMethodDescription> subjects = new ArrayList<>();
 	
 	@Override
-	public Iterable<IMethodDescription> getSubjects() {
-		return subjects;
+	public List<IMethodDescription> getSubjects() {
+		return Collections.unmodifiableList(subjects);
 	}
 
 }

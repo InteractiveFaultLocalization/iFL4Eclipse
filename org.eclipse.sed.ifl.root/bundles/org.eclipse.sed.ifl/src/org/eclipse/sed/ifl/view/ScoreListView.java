@@ -108,6 +108,10 @@ public class ScoreListView extends View {
 		ui.highlight(context);
 	}
 	
+	public void setScoreFilter(double min, double max, double current) {
+		ui.setScoreFilter(min, max, current);
+	}
+	
 	public void setScoreFilter(double min, double max) {
 		ui.setScoreFilter(min, max);
 	}

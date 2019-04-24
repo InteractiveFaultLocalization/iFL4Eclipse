@@ -1,7 +1,5 @@
 package org.eclipse.sed.ifl.ide.handlers;
 
-import org.eclipse.core.commands.ExecutionEvent;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;

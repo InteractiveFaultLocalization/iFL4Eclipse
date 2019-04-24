@@ -1,17 +1,15 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-
-import java.util.Collections;
-
 import java.text.DecimalFormat;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
@@ -24,9 +22,17 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -37,17 +43,8 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.ResourceManager;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Color;
-
-import org.eclipse.swt.graphics.Image;
-
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 
 
 public class ScoreListUI extends Composite {
@@ -60,6 +57,7 @@ public class ScoreListUI extends Composite {
 	private TableColumn pathColumn;
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
+	
 
 	private void requestNavigateToAllSelection() {
 		for (TableItem selected : table.getSelection()) {
@@ -71,23 +69,59 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
-
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
 	private Label minLabel;
 	private Label maxLabel;
+	private Label manualLabel;
 	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
 		return selectionChanged;
 	}
-
-	private void updateScoreFilterLimit() {
-		double value = fromScale(scale.getSelection());
+	
+	private void updateScoreFilterLimit(double value) {
+		scale.setSelection(toScale(value));
+		String formattedValue = LIMIT_FORMAT.format(value);
+		manualText.setText(formattedValue.replaceAll(",", "."));
 		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
 
+	public double userInputTextValidator(String input) {
+		double returnValue;
+		try {
+			input.replaceAll(",","." );
+			returnValue = Double.parseDouble(input);
+		} catch (NumberFormatException e) {
+			returnValue = minValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
+			"User provided upper score limit is not a number." + System.lineSeparator() + 
+			"Your input " + input + " could not be interpreted as a number." + System.lineSeparator() +
+			"Upper score limit has been set to minimum value.", SWT.NONE);
+		}
+		return returnValue;
+	}
+			
+	public double userInputRangeValidator(double input) {
+		double returnValue = input;
+		if (input < minValue) {
+			returnValue = minValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
+			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
+			" is lesser than " + LIMIT_FORMAT.format(minValue) + " minimum value." + System.lineSeparator() + 
+			"Upper score limit has been set to minimum value.", SWT.NONE);
+		}
+		if (input > maxValue) {
+			returnValue = minValue;
+			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
+			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
+			" is greater than " + LIMIT_FORMAT.format(maxValue) + " maximum value." + System.lineSeparator() + 
+			"Upper score limit has been set to minimum value.", SWT.NONE);
+		}
+		return returnValue;
+	}
+	
 	public ScoreListUI(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(BorderLayout.CENTER);
@@ -96,7 +130,7 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(4, false));
+		composite.setLayout(new GridLayout(7, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -118,9 +152,44 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		
+		manualLabel = new Label(composite, SWT.NONE);
+		manualLabel.setText("Value");
+		manualLabel.setEnabled(false);
+		manualText = new Text(composite, SWT.BORDER);
+		manualText.setToolTipText("You may enter the score value manually here");
+		manualText.setEnabled(false);
+		manualText.addListener(SWT.Traverse, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				if(event.detail == SWT.TRAVERSE_RETURN) {
+		            double value = userInputTextValidator(manualText.getText());
+		            double correctValue = userInputRangeValidator(value);
+		            updateScoreFilterLimit(correctValue);
+		        }
+			}
+		});
+				
+		manualButton = new Button(composite, SWT.NONE);
+		manualButton.setText("Apply");
+		manualButton.setEnabled(false);
+		manualButton.addSelectionListener(new SelectionListener() {
+					
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				double value = userInputTextValidator(manualText.getText());
+		           double correctValue = userInputRangeValidator(value);
+		           updateScoreFilterLimit(correctValue);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+					
+			}
+		});
+
 		minLabel = new Label(composite, SWT.NONE);
 		minLabel.setText("");
-	
 		scale = new Scale(composite, SWT.NONE);
 		scale.setEnabled(false);
 		scale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -129,7 +198,8 @@ public class ScoreListUI extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				updateScoreFilterLimit();
+				double value = fromScale(scale.getSelection());
+				updateScoreFilterLimit(value);
 			}
 
 			@Override
@@ -265,7 +335,7 @@ public class ScoreListUI extends Composite {
 		
 		interactivityColumn = new TableColumn(table, SWT.NONE);
 		interactivityColumn.setWidth(200);
-		interactivityColumn.setText("");
+		interactivityColumn.setText("Interactivity");
 	}
 
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
@@ -309,7 +379,12 @@ public class ScoreListUI extends Composite {
 		return value / SLIDER_PRECISION;
 	}
 	
+	private double minValue;
+	private double maxValue;
+	
 	public void setScoreFilter(Double min, Double max) {
+		minValue = min;
+		maxValue = max;
 		maxLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(max))));
 		maxLabel.requestLayout();
 		minLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(min))));
@@ -317,8 +392,19 @@ public class ScoreListUI extends Composite {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
+		manualLabel.setEnabled(true);
+		manualText.setEnabled(true);
+		manualButton.setEnabled(true);
 		scale.setEnabled(true);
-		updateScoreFilterLimit();
+		updateScoreFilterLimit(min);
+	}
+
+	public void setScoreFilter(Double min, Double max, Double current) {
+		setScoreFilter(min, max);
+		if (min < current && current < max) {
+			scale.setSelection(toScale(current));
+			updateScoreFilterLimit(current);
+		}
 	}
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
@@ -342,8 +428,11 @@ public class ScoreListUI extends Composite {
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
 			if (!entry.getValue().isInteractive()) {
-				item.setText(table.indexOf(interactivityColumn), "(user feedback disabled)");
-				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 255,100,100));
+				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
+			} else {
+				item.setText(table.indexOf(interactivityColumn), "User feedback enabled");
+				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 34,139,34));
 			}
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
@@ -410,7 +499,7 @@ public class ScoreListUI extends Composite {
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
 		noFeedback.setText("(User feedback is disabled.)");
-		noFeedback.setToolTipText("User feedback is disabled for some the selected items. Remove these items from the selection to reenable it.");
+		noFeedback.setToolTipText("User feedback is disabled for some of the selected items. Remove these items from the selection to reenable it.");
 		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);
 	}
@@ -468,6 +557,8 @@ public class ScoreListUI extends Composite {
 	private Composite composite;
 	private Button enabledCheckButton;
 	private Scale scale;
+	private Text manualText;
+	private Button manualButton;
 
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
