@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +34,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -73,6 +77,8 @@ public class ScoreListUI extends Composite {
 	private Label minLabel;
 	private Label maxLabel;
 	private Label manualLabel;
+	//context label
+	private Label contextSizeLabel;
 	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
@@ -131,6 +137,11 @@ public class ScoreListUI extends Composite {
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
 		composite.setLayout(new GridLayout(7, false));
+		
+		contextSizeComposite = new Composite(this, SWT.NONE);
+		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		contextSizeComposite.setSize(0, 100);
+		contextSizeComposite.setLayout(new RowLayout());
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -210,7 +221,19 @@ public class ScoreListUI extends Composite {
 
 		maxLabel = new Label(composite, SWT.NONE);
 		maxLabel.setText("");
-
+		
+		//Label for context size
+		contextSizeLabel = new Label(contextSizeComposite, SWT.NONE);
+		contextSizeLabel.setText("Context size:");
+		contextSizeLabel.setEnabled(false);
+		//combobox for context size
+		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
+		contextSizeCombo.setEnabled(false);
+		//apply button for context size
+		contextSizeButton = new Button(contextSizeComposite, SWT.NONE);
+		contextSizeButton.setText("Apply");
+		contextSizeButton.setEnabled(false);
+		
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
 		contextMenu = new Menu(table);
 		nonInteractiveContextMenu = new Menu(table);
@@ -396,6 +419,10 @@ public class ScoreListUI extends Composite {
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
+		//context combo enabling
+		contextSizeLabel.setEnabled(true);
+		contextSizeCombo.setEnabled(true);
+		contextSizeButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -404,6 +431,18 @@ public class ScoreListUI extends Composite {
 		if (min < current && current < max) {
 			scale.setSelection(toScale(current));
 			updateScoreFilterLimit(current);
+		}
+	}
+	
+	//set context size combo options
+	public void setContextSizeForCombo(Map<IMethodDescription, Score> scores) {
+		Set<String>comboSet = new TreeSet<String>();
+		for(Entry<IMethodDescription, Score> entry : scores.entrySet()) {
+			String treeItem = String.valueOf(entry.getKey().getContext().size());
+			comboSet.add(treeItem);
+		}
+		for(String option : comboSet) {
+			contextSizeCombo.add(option);
 		}
 	}
 	
@@ -555,6 +594,12 @@ public class ScoreListUI extends Composite {
 
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 	private Composite composite;
+	//new composite for context size
+	private Composite contextSizeComposite;
+	//new combobox for context size
+	private Combo contextSizeCombo;
+	//new button for context size
+	private Button contextSizeButton;
 	private Button enabledCheckButton;
 	private Scale scale;
 	private Text manualText;

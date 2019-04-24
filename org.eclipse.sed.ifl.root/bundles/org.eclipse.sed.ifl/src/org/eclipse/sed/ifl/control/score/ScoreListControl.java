@@ -61,6 +61,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		this.addSubControl(activityMonitor);
 
 		getView().refreshScores(getModel().getScores());
+		//modified
+		getView().refreshContextSizeCombo(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
