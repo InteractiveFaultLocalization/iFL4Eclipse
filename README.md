@@ -1,4 +1,4 @@
-# iFL for Eclipse 0.1
+# iFL for Eclipse
 
 ## Requirements
 
@@ -20,6 +20,10 @@ This table also enables direct navigation towards the project tree and the conta
 Interactivity between the tool and the programmer is achieved by providing the capability to send feedback to the FL engine about the next element in the table based on user knowledge.
 It involves the context of the investigated element, in our case, Java classes and methods.
 This gives an opportunity to change the order of elements in the table and hopefully arrive more quickly at the faulty element.
+
+## Features
+
+You can watch our [demo video](https://youtu.be/ADeK5ibnqSY) here.
 
 ## Installation Guide
 
