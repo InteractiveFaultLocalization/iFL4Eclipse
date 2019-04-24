@@ -1,8 +1,8 @@
-# iFL for Eclipse 0.1
+# iFL for Eclipse
 
 ## Requirements
 
-+ Java 10 or later
++ Java 1.8 or later
 + Eclipse 2018-12 or later
 
 ## Interactive Fault Localization for Eclipse
@@ -20,3 +20,15 @@ This table also enables direct navigation towards the project tree and the conta
 Interactivity between the tool and the programmer is achieved by providing the capability to send feedback to the FL engine about the next element in the table based on user knowledge.
 It involves the context of the investigated element, in our case, Java classes and methods.
 This gives an opportunity to change the order of elements in the table and hopefully arrive more quickly at the faulty element.
+
+## Features
+
+You can watch our [demo video](https://youtu.be/ADeK5ibnqSY) here.
+
+## Installation Guide
+
+At first you have to download the content of our update site and unzip it into a desired location. The official versions of iFL for Eclipse could be found under [Releases](https://github.com/sed-szeged/iFL4Eclipse/releases).
+
+You are able to install our plug-in directly from Eclipse IDE. Please use the [Install New Software wizard](https://help.eclipse.org/2018-09/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Ftasks%2Ftasks-124.htm) which allows you to add new software to your Eclipse installation.
+
+To access all aviable features of iFL for Eclipse please copy the `key` file next to your Eclipse executable. For further details see the description of selected version.
