@@ -34,7 +34,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -79,6 +78,12 @@ public class ScoreListUI extends Composite {
 	private Label manualLabel;
 	//context label
 	private Label contextSizeLabel;
+	//context size lesser than label
+	private Label contextSizeLesserLabel;
+	//context size greater than label
+	private Label contextSizeGreaterLabel;
+	//context size equals label
+	private Label contextSizeEqualLabel;
 	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
@@ -138,10 +143,11 @@ public class ScoreListUI extends Composite {
 		composite.setSize(0, 100);
 		composite.setLayout(new GridLayout(7, false));
 		
+		//new composite for contextsize elements
 		contextSizeComposite = new Composite(this, SWT.NONE);
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new RowLayout());
+		contextSizeComposite.setLayout(new GridLayout(9, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -224,11 +230,28 @@ public class ScoreListUI extends Composite {
 		
 		//Label for context size
 		contextSizeLabel = new Label(contextSizeComposite, SWT.NONE);
-		contextSizeLabel.setText("Context size:");
+		contextSizeLabel.setText("Context size");
 		contextSizeLabel.setEnabled(false);
 		//combobox for context size
 		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
+		contextSizeCombo.setToolTipText("You may filter the results by context size here");
 		contextSizeCombo.setEnabled(false);
+		//adding options and their labels
+		contextSizeLesserLabel = new Label(contextSizeComposite, SWT.NONE);
+		contextSizeLesserLabel.setText(" Lesser than:");
+		contextSizeLesserLabel.setEnabled(false);
+		contextSizeLesserButton = new Button(contextSizeComposite, SWT.RADIO);
+		contextSizeLesserButton.setEnabled(false);
+		contextSizeGreaterLabel = new Label(contextSizeComposite, SWT.NONE);
+		contextSizeGreaterLabel.setText(" Greater than:");
+		contextSizeGreaterLabel.setEnabled(false);
+		contextSizeGreaterButton = new Button(contextSizeComposite, SWT.RADIO);
+		contextSizeGreaterButton.setEnabled(false);
+		contextSizeEqualLabel = new Label(contextSizeComposite, SWT.NONE);
+		contextSizeEqualLabel.setText(" Equals:");
+		contextSizeEqualLabel.setEnabled(false);
+		contextSizeEqualButton = new Button(contextSizeComposite, SWT.CHECK);
+		contextSizeEqualButton.setEnabled(false);
 		//apply button for context size
 		contextSizeButton = new Button(contextSizeComposite, SWT.NONE);
 		contextSizeButton.setText("Apply");
@@ -423,6 +446,12 @@ public class ScoreListUI extends Composite {
 		contextSizeLabel.setEnabled(true);
 		contextSizeCombo.setEnabled(true);
 		contextSizeButton.setEnabled(true);
+		contextSizeLesserLabel.setEnabled(true);
+		contextSizeGreaterLabel.setEnabled(true);
+		contextSizeEqualLabel.setEnabled(true);
+		contextSizeLesserButton.setEnabled(true);
+		contextSizeGreaterButton.setEnabled(true);
+		contextSizeEqualButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -436,6 +465,7 @@ public class ScoreListUI extends Composite {
 	
 	//set context size combo options
 	public void setContextSizeForCombo(Map<IMethodDescription, Score> scores) {
+		contextSizeCombo.removeAll();
 		Set<String>comboSet = new TreeSet<String>();
 		for(Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			String treeItem = String.valueOf(entry.getKey().getContext().size());
@@ -600,6 +630,12 @@ public class ScoreListUI extends Composite {
 	private Combo contextSizeCombo;
 	//new button for context size
 	private Button contextSizeButton;
+	//new button for context size equality
+	private Button contextSizeEqualButton;
+	//new button for context size lesser than
+	private Button contextSizeLesserButton;
+	//new button for context size greater than
+	private Button contextSizeGreaterButton;
 	private Button enabledCheckButton;
 	private Scale scale;
 	private Text manualText;
