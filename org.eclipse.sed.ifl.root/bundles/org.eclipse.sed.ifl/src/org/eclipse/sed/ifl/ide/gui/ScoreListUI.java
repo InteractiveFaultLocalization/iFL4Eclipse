@@ -147,7 +147,7 @@ public class ScoreListUI extends Composite {
 		contextSizeComposite = new Composite(this, SWT.NONE);
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new GridLayout(9, false));
+		contextSizeComposite.setLayout(new GridLayout(10, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -262,6 +262,25 @@ public class ScoreListUI extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
 				updateScoreFilterLimit(value);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		clearContextOptionsButton = new Button(contextSizeComposite, SWT.NONE);
+		clearContextOptionsButton.setText("Clear options");
+		clearContextOptionsButton.setEnabled(false);
+		clearContextOptionsButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				contextSizeLesserButton.setSelection(false);
+				contextSizeGreaterButton.setSelection(false);
+				contextSizeEqualButton.setSelection(false);
 			}
 
 			@Override
@@ -467,6 +486,7 @@ public class ScoreListUI extends Composite {
 		contextSizeLesserButton.setEnabled(true);
 		contextSizeGreaterButton.setEnabled(true);
 		contextSizeEqualButton.setEnabled(true);
+		clearContextOptionsButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -500,13 +520,28 @@ public class ScoreListUI extends Composite {
 				boolean isSetContextGreater = contextSizeGreaterButton.getSelection();
 				boolean isSetContextLesser = contextSizeLesserButton.getSelection();
 				boolean isSetContextEqual = contextSizeEqualButton.getSelection();
-				if(isSetContextLesser) {
+				if(isSetContextLesser && !isSetContextEqual) {
 					if (entry.getKey().getContext().size() >= contextSize) {
 						continue;
 					}
 				}
-				if(isSetContextGreater) {
+				if(isSetContextGreater && !isSetContextEqual) {
 					if (entry.getKey().getContext().size() <= contextSize) {
+						continue;
+					}
+				}
+				if(isSetContextEqual && !isSetContextGreater && !isSetContextLesser) {
+					if (entry.getKey().getContext().size() != contextSize) {
+						continue;
+					}
+				}
+				if(isSetContextEqual && isSetContextGreater) {
+					if (entry.getKey().getContext().size() < contextSize) {
+						continue;
+					}
+				}
+				if(isSetContextEqual && isSetContextLesser) {
+					if (entry.getKey().getContext().size() > contextSize) {
 						continue;
 					}
 				}
@@ -670,6 +705,8 @@ public class ScoreListUI extends Composite {
 	private Button contextSizeLesserButton;
 	//new button for context size greater than
 	private Button contextSizeGreaterButton;
+	//new button for clearing context options
+	private Button clearContextOptionsButton;
 	private Button enabledCheckButton;
 	private Scale scale;
 	private Text manualText;
