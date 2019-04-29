@@ -501,6 +501,7 @@ public class ScoreListUI extends Composite {
 	//set context size combo options
 	public void setContextSizeForCombo(Map<IMethodDescription, Score> scores) {
 		contextSizeCombo.removeAll();
+		contextSizeCombo.add("");
 		Set<String>comboSet = new TreeSet<String>();
 		for(Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			String treeItem = String.valueOf(entry.getKey().getContext().size());
