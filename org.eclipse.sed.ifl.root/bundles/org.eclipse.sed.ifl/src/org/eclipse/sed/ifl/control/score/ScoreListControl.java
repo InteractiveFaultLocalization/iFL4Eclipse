@@ -8,11 +8,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -42,6 +44,7 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.CustomInputDialog;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -228,12 +231,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			for (IMethodDescription subject : event.getSubjects()) {
+			ListIterator<IMethodDescription> subjectIterator = event.getSubjects().listIterator();
+			int counter = 0;
+			while (subjectIterator.hasNext()) {
+			//for (int i = 0; i < event.getSubjects().size(); i++) {
+			//for (IMethodDescription subject : event.getSubjects()) {
+				IMethodDescription subject = subjectIterator.next();
+				counter++;
 				String pass = subject.getId().getName();
-				InputDialog dialog = new InputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+				CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
 						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name bellow.",
-						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.");
+								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name below.",
+						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.", event.getSubjects().size(), counter);
+				System.out.println(dialog.getReturnCode());
 				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
 					confirmed = true;
 				} else {
