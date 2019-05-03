@@ -32,10 +32,6 @@ public class ScoreListView extends View {
 		return ui;
 	}
 	
-	//modified
-	public void refreshContextSizeCombo(Map<IMethodDescription, Score> scores) {
-		ui.setContextSizeForCombo(scores);
-	}
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {
 		ui.clearMethodScores();
@@ -54,6 +50,7 @@ public class ScoreListView extends View {
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		ui.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		super.init();
 	}
@@ -66,6 +63,7 @@ public class ScoreListView extends View {
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		ui.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		super.teardown();
 	}
@@ -136,6 +134,14 @@ public class ScoreListView extends View {
 	}
 	
 	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
+	
+	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventcontextSizeLimitEnabled() {
+		return contextSizeLimitEnabled;
+	}
+	
+	private IListener<Boolean> contextSizeLimitEnabledListener = contextSizeLimitEnabled::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
 	

@@ -18,6 +18,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
@@ -59,10 +60,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		this.addSubControl(activityMonitor);
-
 		getView().refreshScores(getModel().getScores());
-		//modified
-		getView().refreshContextSizeCombo(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
@@ -70,8 +68,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
 		filters.add(lessOrEqualFilter);
+		filters.add(contextSizeFilter);
 		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		getView().eventcontextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
@@ -90,6 +90,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
@@ -130,6 +131,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
 
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
+	
+	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(true);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -191,6 +194,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private IListener<Boolean> lowerScoreLimitEnabledListener = enabled -> {
 		lessOrEqualFilter.setEnabled(enabled);
+		refreshView();
+	};
+	
+	private IListener<Boolean> contextSizeLimitEnabledListener = enabled -> {
+		contextSizeFilter.setEnabled(enabled);
 		refreshView();
 	};
 
