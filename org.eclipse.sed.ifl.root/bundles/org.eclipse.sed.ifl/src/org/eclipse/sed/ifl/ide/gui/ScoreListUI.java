@@ -90,6 +90,14 @@ public class ScoreListUI extends Composite {
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
+	
+	private void updateContextSizeLimit(int value) {
+		contextSizeLimitChanged.invoke(value);
+	}
+	
+	private void updateContextSizeRelation(String text) {
+		contextSizeRelationChanged.invoke(text);
+	}
 
 	public double userInputTextValidator(String input) {
 		double returnValue;
@@ -241,6 +249,21 @@ public class ScoreListUI extends Composite {
 		contextSizeLabel.setEnabled(false);
 		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
 		contextSizeSpinner.setEnabled(false);
+		contextSizeSpinner.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int value = contextSizeSpinner.getSelection();
+				updateContextSizeLimit(value);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
 		contextSizeCombo.add("<");
 		contextSizeCombo.add("<=");
@@ -248,6 +271,23 @@ public class ScoreListUI extends Composite {
 		contextSizeCombo.add(">=");
 		contextSizeCombo.add(">");
 		contextSizeCombo.setEnabled(false);
+		contextSizeCombo.addSelectionListener(new SelectionListener () {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				String text = contextSizeCombo.getText();
+				System.out.println("Combo selected item: "+text);
+				updateContextSizeRelation(text);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
 		contextMenu = new Menu(table);
@@ -392,6 +432,18 @@ public class ScoreListUI extends Composite {
 	
 	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
 		return contextSizeLimitEnabled;
+	}
+	
+	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
+		return contextSizeLimitChanged;
+	}
+	
+	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
+		return contextSizeRelationChanged;
 	}
 	
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();

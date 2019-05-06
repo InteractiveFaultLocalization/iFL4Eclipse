@@ -51,6 +51,8 @@ public class ScoreListView extends View {
 		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		ui.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
+		ui.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
+		ui.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		super.init();
 	}
@@ -64,6 +66,8 @@ public class ScoreListView extends View {
 		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		ui.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
+		ui.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
+		ui.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		super.teardown();
 	}
@@ -142,6 +146,22 @@ public class ScoreListView extends View {
 	}
 	
 	private IListener<Boolean> contextSizeLimitEnabledListener = contextSizeLimitEnabled::invoke;
+	
+	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
+		return contextSizeLimitChanged;
+	}
+	
+	private IListener<Integer> contextSizeLimitChangedListener = contextSizeLimitChanged::invoke;
+	
+	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
+		return contextSizeRelationChanged;
+	}
+	
+	private IListener<String> contextSizeRelationChangedListener = contextSizeRelationChanged::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
 	

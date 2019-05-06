@@ -72,6 +72,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		getView().eventcontextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
+		getView().eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
+		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
@@ -91,6 +93,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
+		getView().eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
+		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
@@ -199,6 +203,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<Boolean> contextSizeLimitEnabledListener = enabled -> {
 		contextSizeFilter.setEnabled(enabled);
+		refreshView();
+	};
+	
+	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
+		contextSizeFilter.setLimit(limit);
+		System.out.println("Context size filter limit changed to: " + limit);
+		refreshView();
+	};
+	
+	private IListener<String> contextSizeRelationChangedListener = relation -> {
+		contextSizeFilter.setRelation(relation);
+		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
 	};
 

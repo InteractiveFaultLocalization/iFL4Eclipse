@@ -19,9 +19,31 @@ public class ContextSizeFilter extends ScoreFilter {
 		limit = value;
 	}
 	
+	public void setRelation(String text) {
+		relation = text;
+	}
+	
 	@Override
 	protected boolean check(Entry<IMethodDescription, Score> arg0) {
-		return arg0.getKey().getContext().size() > limit;
+		boolean rValue = true;
+		switch (relation) {
+		case ">":
+			rValue =  arg0.getKey().getContext().size() > limit;
+			break;
+		case ">=":
+			rValue = arg0.getKey().getContext().size() >= limit;
+			break;
+		case "=":
+			rValue = arg0.getKey().getContext().size() == limit;
+			break;
+		case "<=":
+			rValue = arg0.getKey().getContext().size() <= limit;
+			break;
+		case "<":
+			rValue = arg0.getKey().getContext().size() < limit;
+			break;
+		}
+		return rValue;
 	}
 
 }
