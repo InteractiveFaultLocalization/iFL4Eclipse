@@ -151,7 +151,7 @@ public class ScoreListUI extends Composite {
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
 		enabledCheckButton.setEnabled(false);
-		enabledCheckButton.setText("load some defined scores to enable this filter");
+		enabledCheckButton.setText("Load some defined scores to enable this filter");
 		enabledCheckButton.setSelection(true);
 		enabledCheckButton.addSelectionListener(new SelectionListener() {
 			
@@ -234,6 +234,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
+				contextSizeLabel.setEnabled(contextSizeCheckBox.getSelection());
 				contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
 				contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
 			}
@@ -245,31 +246,16 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		contextSizeLabel = new Label(contextSizeComposite, SWT.NONE);
-		contextSizeLabel.setText("Filter by context size: ");
+		contextSizeLabel.setText("Filter context size");
 		contextSizeLabel.setEnabled(false);
-		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
-		contextSizeSpinner.setEnabled(false);
-		contextSizeSpinner.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int value = contextSizeSpinner.getSelection();
-				updateContextSizeLimit(value);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
+		
 		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
 		contextSizeCombo.add("<");
 		contextSizeCombo.add("<=");
 		contextSizeCombo.add("=");
 		contextSizeCombo.add(">=");
 		contextSizeCombo.add(">");
+		contextSizeCombo.setText("=");
 		contextSizeCombo.setEnabled(false);
 		contextSizeCombo.addSelectionListener(new SelectionListener () {
 
@@ -279,6 +265,24 @@ public class ScoreListUI extends Composite {
 				String text = contextSizeCombo.getText();
 				System.out.println("Combo selected item: "+text);
 				updateContextSizeRelation(text);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
+		contextSizeSpinner.setEnabled(false);
+		contextSizeSpinner.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int value = contextSizeSpinner.getSelection();
+				updateContextSizeLimit(value);
 			}
 
 			@Override
@@ -493,9 +497,6 @@ public class ScoreListUI extends Composite {
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
 		contextSizeCheckBox.setEnabled(true);
-		contextSizeLabel.setEnabled(true);
-		contextSizeCombo.setEnabled(true);
-		contextSizeSpinner.setEnabled(true);
 		clearContextOptionsButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
