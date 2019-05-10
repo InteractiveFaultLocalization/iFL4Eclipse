@@ -1,57 +1,44 @@
 package org.eclipse.sed.ifl.view;
 
 
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
-
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomInputDialog extends InputDialog {
-
-	private Label counterLabel;
-	private int elementNumber;
-	private int currentElementNumber;
+	
+	private List <IMethodDescription> list;
 	
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage, String initialValue,
-			IInputValidator validator, int elementNumber, int currentElementNumber) {
+			IInputValidator validator, List<IMethodDescription> methodDescription) {
 		super(parentShell, dialogTitle, dialogMessage, initialValue, validator);
-		this.elementNumber = elementNumber;
-		this.currentElementNumber = currentElementNumber;
-	}
-
-	protected void createButtonsForButtonBar(Composite parent) {
-		
-		 parent.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-		 createButton(parent, IDialogConstants.RETRY_ID, "<< First", false);
-		 createButton(parent, IDialogConstants.BACK_ID, "< Prev.", false);
-		 counterLabel = new Label(parent, SWT.NONE);
-		 counterLabel.setText(currentElementNumber + "/" + elementNumber);
-		 createButton(parent, IDialogConstants.NEXT_ID, "Next >", false);
-		 createButton(parent, IDialogConstants.FINISH_ID, "Last >>", false);
-
-		  // Create a spacer label
-		 Label spacer = new Label(parent, SWT.NONE);
-		 spacer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
-
-		  // Update layout of the parent composite to count the spacer
-		 GridLayout layout = (GridLayout)parent.getLayout();
-		 layout.numColumns = 10;
-		 layout.makeColumnsEqualWidth = false;
-
-		 createButton(parent, IDialogConstants.OK_ID,"OK", false);
-		 createButton(parent, IDialogConstants.CANCEL_ID,"Close", false);
+		this.list = methodDescription;
 	}
 	
-	protected void buttonPressed(int buttonId) {
-		setReturnCode(buttonId);
-	}
+	@Override
+	  protected Control createDialogArea(final Composite parent)
+	  {
+	    final Composite body = (Composite)super.createDialogArea(parent);
+
+	    final TableViewer viewer = new TableViewer(body, SWT.BORDER);
+
+	    viewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+	    // TODO: Set TableViewer content and label providers
+	    // TODO: Set TableViewer input
+
+	    return body;
+	  }
 	
 }

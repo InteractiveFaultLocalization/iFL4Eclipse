@@ -64,8 +64,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		this.addSubControl(activityMonitor);
 
 		getView().refreshScores(getModel().getScores());
-		//modified
-		getView().refreshContextSizeCombo(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
@@ -232,18 +230,17 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		} else {
 			boolean confirmed = false;
 			ListIterator<IMethodDescription> subjectIterator = event.getSubjects().listIterator();
-			int counter = 0;
+			
 			while (subjectIterator.hasNext()) {
 			//for (int i = 0; i < event.getSubjects().size(); i++) {
 			//for (IMethodDescription subject : event.getSubjects()) {
 				IMethodDescription subject = subjectIterator.next();
-				counter++;
+				
 				String pass = subject.getId().getName();
 				CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
 						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name below.",
-						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.", event.getSubjects().size(), counter);
-				System.out.println(dialog.getReturnCode());
+						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.", event.getSubjects());
 				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
 					confirmed = true;
 				} else {

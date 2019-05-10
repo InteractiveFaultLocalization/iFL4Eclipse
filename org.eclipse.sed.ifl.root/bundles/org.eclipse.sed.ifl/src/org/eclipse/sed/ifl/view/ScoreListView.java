@@ -31,11 +31,6 @@ public class ScoreListView extends View {
 	public Composite getUI() {
 		return ui;
 	}
-	
-	//modified
-	public void refreshContextSizeCombo(Map<IMethodDescription, Score> scores) {
-		ui.setContextSizeForCombo(scores);
-	}
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {
 		ui.clearMethodScores();
