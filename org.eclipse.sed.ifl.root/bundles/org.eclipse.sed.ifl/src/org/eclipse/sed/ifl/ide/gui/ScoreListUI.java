@@ -74,8 +74,6 @@ public class ScoreListUI extends Composite {
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
 	private Label minLabel;
 	private Label maxLabel;
-	private Label manualLabel;
-	private Label contextSizeLabel;
 	private TableColumn interactivityColumn;
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
@@ -86,7 +84,7 @@ public class ScoreListUI extends Composite {
 		scale.setSelection(toScale(value));
 		String formattedValue = LIMIT_FORMAT.format(value);
 		manualText.setText(formattedValue.replaceAll(",", "."));
-		enabledCheckButton.setText("filter scores <= " + LIMIT_FORMAT.format(value));
+		enabledCheckButton.setText("Filter scores <= ");
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
@@ -168,9 +166,6 @@ public class ScoreListUI extends Composite {
 			}
 		});
 		
-		manualLabel = new Label(composite, SWT.NONE);
-		manualLabel.setText("Value");
-		manualLabel.setEnabled(false);
 		manualText = new Text(composite, SWT.BORDER);
 		manualText.setToolTipText("You may enter the score value manually here");
 		manualText.setEnabled(false);
@@ -229,12 +224,12 @@ public class ScoreListUI extends Composite {
 		
 		contextSizeCheckBox = new Button(contextSizeComposite, SWT.CHECK);
 		contextSizeCheckBox.setEnabled(false);
+		contextSizeCheckBox.setText("Filter context size");
 		contextSizeCheckBox.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-				contextSizeLabel.setEnabled(contextSizeCheckBox.getSelection());
 				contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
 				contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
 			}
@@ -245,9 +240,6 @@ public class ScoreListUI extends Composite {
 				
 			}
 		});
-		contextSizeLabel = new Label(contextSizeComposite, SWT.NONE);
-		contextSizeLabel.setText("Filter context size");
-		contextSizeLabel.setEnabled(false);
 		
 		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
 		contextSizeCombo.add("<");
@@ -492,12 +484,10 @@ public class ScoreListUI extends Composite {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
-		manualLabel.setEnabled(true);
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
 		contextSizeCheckBox.setEnabled(true);
-		clearContextOptionsButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -661,7 +651,6 @@ public class ScoreListUI extends Composite {
 	private Combo contextSizeCombo;
 	private Button contextSizeCheckBox;
 	private Spinner contextSizeSpinner;
-	private Button clearContextOptionsButton;
 	private Button enabledCheckButton;
 	private Scale scale;
 	private Text manualText;

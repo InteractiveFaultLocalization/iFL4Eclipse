@@ -136,7 +136,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 	
-	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(true);
+	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(false);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -226,7 +226,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				MessageDialog.WARNING, null,
 				"iFL Score List",
 				"There are no source code items to display.\n"
-				+ "Please check that you do not set the filters to hide all items.", SWT.NONE);
+				+ "Please check if you have set the filters in a way that hides all items.", SWT.NONE);
 		}
 	}
 
