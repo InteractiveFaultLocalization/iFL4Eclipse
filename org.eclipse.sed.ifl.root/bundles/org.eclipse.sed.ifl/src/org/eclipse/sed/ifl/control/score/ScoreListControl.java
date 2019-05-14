@@ -2,20 +2,16 @@ package org.eclipse.sed.ifl.control.score;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
@@ -229,25 +225,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			ListIterator<IMethodDescription> subjectIterator = event.getSubjects().listIterator();
-			
-			while (subjectIterator.hasNext()) {
-			//for (int i = 0; i < event.getSubjects().size(); i++) {
-			//for (IMethodDescription subject : event.getSubjects()) {
-				IMethodDescription subject = subjectIterator.next();
-				
-				String pass = subject.getId().getName();
-				CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
-						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name below.",
-						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.", event.getSubjects());
-				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
-					confirmed = true;
-				} else {
-					confirmed = false;
-					activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), Arrays.asList(subject), event.getUser())));
-					break;
-				}
+			String pass = "Finish session";
+			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code elements by checking the boxes next to them and then typing \"Finish session\" in the text area.",
+					"type here", input -> pass.equals(input) ? null : "Type \"Finish session\" and check all boxes or select cancel to abort.", event.getSubjects());
+			if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
+				confirmed = true;
+			} else {
+				confirmed = false;
+				activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), event.getSubjects(), event.getUser())));
 			}
 			if (confirmed) {
 				activityMonitor.log(new ConfirmEvent(event));
