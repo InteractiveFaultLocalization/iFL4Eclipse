@@ -15,7 +15,16 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	
 	private static Boolean showError = true;
 	
+	private static Boolean enabled = false;
+	
+	public static void enable() {
+		enabled = true;
+	}
+	
 	public void log(Event event) {
+		if (!enabled) {
+			return;
+		}
 		try {
 			getModel().insertEvent(event);
 			System.out.printf("new %s are logged\n", event.toString());
