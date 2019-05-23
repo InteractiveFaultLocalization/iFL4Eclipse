@@ -228,7 +228,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			String pass = "Finish session";
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-					+ "Please confim that you intend to mark the selected code elements by checking the boxes next to them and then typing \"Finish session\" in the text area.",
+					+ "Please confim that you intend to mark the selected code elements by typing their name next to them and then typing \"Finish session\" in the text area.",
 					"type here", input -> pass.equals(input) ? null : "Type \"Finish session\" and check all boxes or select cancel to abort.", event.getSubjects());
 			if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
 				confirmed = true;

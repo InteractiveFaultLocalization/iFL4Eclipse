@@ -9,9 +9,8 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -19,6 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +26,17 @@ import java.util.List;
 public class CustomInputDialog extends InputDialog {
 	
 	private List <IMethodDescription> list;
-	private ArrayList <Button> buttonList;
+	private ArrayList <Label> labelList;
+	private ArrayList <Text> textList;
 	
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage, String initialValue,
 			IInputValidator validator, List<IMethodDescription> methodDescription) {
 		super(parentShell, dialogTitle, dialogMessage, initialValue, validator);
 		this.list = methodDescription;
-		buttonList = new ArrayList<Button>();
+		textList = new ArrayList<Text>();
+		labelList = new ArrayList<Label>();
 	}
+	
 	
 	@Override
 	  protected Control createDialogArea(final Composite parent)
@@ -55,11 +58,11 @@ public class CustomInputDialog extends InputDialog {
 	    nameColumn.setResizable(false);
 	    
 	    TableViewerColumn tableViewerColumn2 = new TableViewerColumn(viewer, SWT.LEFT);
-	    TableColumn checkColumn = tableViewerColumn2.getColumn();
+	    TableColumn typeColumn = tableViewerColumn2.getColumn();
 	    System.out.println("Table area width: " + table.getClientArea().width);
-	    checkColumn.setText("Check");
-	    checkColumn.setWidth(220);
-	    checkColumn.setResizable(false);
+	    typeColumn.setText("Check");
+	    typeColumn.setWidth(220);
+	    typeColumn.setResizable(false);
 	    
 	    for(int i = 0; i < list.size(); i++) {
 	    	new TableItem(table, SWT.NONE);
@@ -67,35 +70,33 @@ public class CustomInputDialog extends InputDialog {
 	    TableItem[] items = table.getItems();
 	    for(int i = 0; i < items.length; i++) {
 	    	TableEditor nameEditor = new TableEditor(table);
-	    	Label methodName = new Label(table, SWT.LEFT);
-	    	methodName.setText(list.get(i).getId().getName());
+	    	Label nameLabel = new Label(table, SWT.LEFT);
+	    	nameLabel.setText(list.get(i).getId().getName());
 	    	nameEditor.grabHorizontal = true;
 			nameEditor.grabVertical = true;
 	    	nameEditor.horizontalAlignment = SWT.RIGHT;
-	    	nameEditor.setEditor(methodName, items[i], 0);
+	    	nameEditor.setEditor(nameLabel, items[i], 0);
 	    	
-	    	TableEditor checkEditor = new TableEditor(table);
-	    	Button button = new Button(table, SWT.CHECK);
-	    	button.addSelectionListener(new SelectionListener() {
+	    	labelList.add(nameLabel);
+	    	
+	    	TableEditor typeEditor = new TableEditor(table);
+	    	Text nameText = new Text(table, SWT.BORDER);
+	    	nameText.addModifyListener(new ModifyListener() {
 
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void modifyText(ModifyEvent e) {
 					validateInput();
-					
-				}
-
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
 					
 				}
 	    		
 	    	});
-	        button.pack();
-	        checkEditor.minimumWidth = button.getSize().x;
-	    	checkEditor.horizontalAlignment = SWT.LEFT;
-	        checkEditor.setEditor(button, items[i], 1);
-	    	buttonList.add(button);
+	        
+	    	typeEditor.grabHorizontal = true;
+			typeEditor.grabVertical = true;
+	    	typeEditor.horizontalAlignment = SWT.RIGHT;
+	    	typeEditor.setEditor(nameText, items[i], 1);
+	    	
+	        textList.add(nameText);
 	    }
 	    	    
 	    return body;
@@ -108,17 +109,17 @@ public class CustomInputDialog extends InputDialog {
 			errorMessage = super.getValidator().isValid(super.getText().getText());
 		}
 		
-		if(!allBoxesChecked()) {
-			errorMessage = "Type \"Finish session\" and check all boxes or select cancel to abort.";
+		if(!allNamesWritten()) {
+			errorMessage = "Type \"Finish session\" and the name of all selected methods or select cancel to abort.";
 		}
 		
 		super.setErrorMessage(errorMessage);
 	}
 	
-	public boolean allBoxesChecked() {
+	public boolean allNamesWritten() {
 		boolean rValue = true;
-		for(int i=0; i<buttonList.size(); i++) {
-			if(!buttonList.get(i).getSelection()) {
+		for(int i=0; i<labelList.size(); i++) {
+			if(!textList.get(i).getText().equals(labelList.get(i).getText())) {
 				rValue = false;
 				break;
 			}
