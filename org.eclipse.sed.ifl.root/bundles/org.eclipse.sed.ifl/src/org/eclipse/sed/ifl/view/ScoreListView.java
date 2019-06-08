@@ -47,6 +47,7 @@ public class ScoreListView extends View {
 		ui.eventOptionSelected().add(optionSelectedListener);
 		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
+		ui.eventNavigateToContext().add(navigateToContextListener);
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
@@ -62,6 +63,7 @@ public class ScoreListView extends View {
 		ui.eventOptionSelected().remove(optionSelectedListener);
 		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
+		ui.eventNavigateToContext().remove(navigateToContextListener);
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
@@ -110,6 +112,14 @@ public class ScoreListView extends View {
 	}
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
+	
+	private NonGenericListenerCollection<IMethodDescription> navigateToContext = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<IMethodDescription> eventNavigateToContext() {
+		return navigateToContext;
+	}
+	
+	private IListener<IMethodDescription> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);

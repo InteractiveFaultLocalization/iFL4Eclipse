@@ -76,6 +76,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
+		getView().eventNavigateToContext().add(navigateToContextListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
@@ -89,6 +90,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
+		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
@@ -295,6 +297,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private IListener<IMethodDescription> navigateToListener = event -> {
 		editor.open(event.getLocation().getAbsolutePath(), event.getLocation().getBegining().getOffset());
+		activityMonitor.log(new NavigationEvent(event));
+	};
+	
+	private IListener<IMethodDescription> navigateToContextListener = event -> {
+		editor.open(event.getLocation().getAbsolutePath(), 0);
 		activityMonitor.log(new NavigationEvent(event));
 	};
 	

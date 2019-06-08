@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
@@ -68,6 +67,16 @@ public class ScoreListUI extends Composite {
 			System.out.println("navigation requested to: " + path + ":" + offset);
 			IMethodDescription entry = (IMethodDescription) selected.getData();
 			navigateToRequired.invoke(entry);
+		}
+	}
+	
+	private void requestNavigateToContextSelection() {
+		for (TableItem selected : table.getSelection()) {
+			String path = selected.getText(table.indexOf(pathColumn));
+			int offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
+			System.out.println("navigation requested to: " + path + ":" + offset);
+			IMethodDescription entry = (IMethodDescription) selected.getData();
+			navigateToContext.invoke(entry);
 		}
 	}
 
@@ -448,6 +457,12 @@ public class ScoreListUI extends Composite {
 		return navigateToRequired;
 	}
 	
+	private NonGenericListenerCollection<IMethodDescription> navigateToContext = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<IMethodDescription> eventNavigateToContext() {
+		return navigateToContext;
+	}
+	
 	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<IMethodDescription> eventOpenDetailsRequired() {
@@ -612,9 +627,24 @@ public class ScoreListUI extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
 		MenuItem navigateToContext = new MenuItem(menu, SWT.None);
-		navigateToContext.setEnabled(false);
+		//navigateToContext.setEnabled(false);
 		navigateToContext.setText("Navigate to context");
 		navigateToContext.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-context16.png"));
+		navigateToContext.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				requestNavigateToContextSelection();
+				
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
