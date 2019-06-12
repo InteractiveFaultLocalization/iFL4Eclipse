@@ -16,13 +16,16 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 
 	private static Boolean showError = true;
+	private static boolean enabled = false;
 
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
 			try {
-				getModel().insertEvent(event);
-				System.out.printf("new %s are logged\n", event.toString());
+				if (enabled) {
+					getModel().insertEvent(event);
+					System.out.printf("new %s are logged\n", event.toString());
+				}
 			} catch (IllegalStateException e) {
 				if (showError && e.getCause() instanceof RemoteConnectionException) {
 					boolean answer = MessageDialog.open(MessageDialog.QUESTION, null, "Unexpected error during logging",
@@ -39,6 +42,10 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 			}
 			isUsed = false;
 		}
+	}
+
+	public static void enable() {
+		ActivityMonitorControl.enabled  = true;
 	}
 
 }
