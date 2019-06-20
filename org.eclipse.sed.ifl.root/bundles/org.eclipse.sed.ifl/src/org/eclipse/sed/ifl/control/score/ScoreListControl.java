@@ -22,6 +22,7 @@ import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -40,7 +41,6 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-import org.eclipse.sed.ifl.view.CustomInputDialog;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -219,16 +219,17 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		SideEffect effect = event.getChoise().getSideEffect();
+		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
+			System.out.println("size of userfeedback list: " + event.getSubjects().size());
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas.",
-					event.getSubjects());
+					getElementNames(event));
 			if (dialog.open() == InputDialog.OK) {
 				confirmed = true;
 			} else {
@@ -287,4 +288,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					+ "You can set the filters to show more or less items.", SWT.NONE);
 		}
 	};
+
+	private List<String> getElementNames(IUserFeedback event) {
+		List<String> rvList = new ArrayList<String>(event.getSubjects().size());
+		for(int i=0; i<event.getSubjects().size(); i++) {
+			rvList.add(event.getSubjects().get(i).getId().getName());
+		}
+		return rvList;
+	}
 }

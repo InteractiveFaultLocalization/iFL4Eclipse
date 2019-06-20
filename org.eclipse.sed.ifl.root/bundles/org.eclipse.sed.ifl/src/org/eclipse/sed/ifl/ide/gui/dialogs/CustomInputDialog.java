@@ -1,13 +1,13 @@
-package org.eclipse.sed.ifl.view;
+package org.eclipse.sed.ifl.ide.gui.dialogs;
 
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +33,15 @@ public class CustomInputDialog extends Dialog {
 	private TableColumn nameColumn;
 	private TableColumn typeNameColumn;
 	
-	private List <IMethodDescription> list;
+	private List <String> list;
 	private List <Text> typedTextList = new ArrayList<Text>();
 		
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage,
-			List<IMethodDescription> methodDescription) {
+			List<String> elementNames) {
 		super(parentShell);
 		this.title = dialogTitle;
 		this.message = dialogMessage;
-		this.list = methodDescription;
+		this.list = elementNames;
 	}
 	
 	@Override
@@ -74,7 +75,7 @@ public class CustomInputDialog extends Dialog {
 		table.setLayoutData(gd_table);
 		
 		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
+		table.setHeaderVisible(false);
 		
 		createTableColumns();
 		
@@ -86,9 +87,9 @@ public class CustomInputDialog extends Dialog {
 
 	
 	private void setTableContents() {
-		for(IMethodDescription methodName : list) {
+		for(String elementName : list) {
 			TableItem item = new TableItem(table, SWT.NULL);
-			item.setText(table.indexOf(nameColumn), methodName.getId().getName());
+			item.setText(table.indexOf(nameColumn), elementName);
 			
 			TableEditor editor = new TableEditor(table);
 			Text text = new Text(table, SWT.NONE);
@@ -109,14 +110,14 @@ public class CustomInputDialog extends Dialog {
 	}
 
 	private void createTableColumns() {
-		nameColumn = new TableColumn(table, SWT.CENTER);
+		nameColumn = new TableColumn(table, SWT.LEFT);
 		nameColumn.setWidth(270);
-		nameColumn.setText("Name");
+		nameColumn.setText("");
 		nameColumn.setResizable(false);
 		
-		typeNameColumn = new TableColumn(table, SWT.CENTER);
+		typeNameColumn = new TableColumn(table, SWT.LEFT);
 		typeNameColumn.setWidth(270);
-		typeNameColumn.setText("Type name");
+		typeNameColumn.setText("");
 		typeNameColumn.setResizable(false);
 	}
 	
@@ -125,9 +126,11 @@ public class CustomInputDialog extends Dialog {
 		boolean rValue = true;
 		
 		for(int i=0; i<list.size(); i++) {
-			if(!list.get(i).getId().getName().equals(typedTextList.get(i).getText())) {
+			if(!list.get(i).equals(typedTextList.get(i).getText())) {
 				rValue = false;
-				break;
+				typedTextList.get(i).setBackground(new Color(null, 255,102,102));     
+			} else {
+				typedTextList.get(i).setBackground(new Color(null, 178,255,102));
 			}
 		}
 		
