@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,13 +72,24 @@ public class ScoreListUI extends Composite {
 	}
 	
 	private void requestNavigateToContextSelection() {
+		List<IMethodDescription> contextList = new ArrayList<IMethodDescription>();
+		
 		for (TableItem selected : table.getSelection()) {
-			String path = selected.getText(table.indexOf(pathColumn));
-			int offset = Integer.parseInt(selected.getText(table.indexOf(positionColumn)));
-			System.out.println("navigation requested to: " + path + ":" + offset);
 			IMethodDescription entry = (IMethodDescription) selected.getData();
-			navigateToContext.invoke(entry);
+			List<MethodIdentity> context = entry.getContext();
+			for (TableItem item : table.getItems()) {
+				for (MethodIdentity target : context) {
+					if (item.getData() instanceof IMethodDescription &&
+						target.equals(((IMethodDescription)item.getData()).getId())) {
+						contextList.add((IMethodDescription) item.getData());
+						String path = item.getText(table.indexOf(pathColumn));
+						int offset = Integer.parseInt(item.getText(table.indexOf(positionColumn)));
+						System.out.println("navigation requested to: " + path + ":" + offset);
+					}
+				}
+			}
 		}
+		navigateToContext.invoke(contextList);
 	}
 
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
@@ -457,9 +469,9 @@ public class ScoreListUI extends Composite {
 		return navigateToRequired;
 	}
 	
-	private NonGenericListenerCollection<IMethodDescription> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<IMethodDescription> eventNavigateToContext() {
+	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	

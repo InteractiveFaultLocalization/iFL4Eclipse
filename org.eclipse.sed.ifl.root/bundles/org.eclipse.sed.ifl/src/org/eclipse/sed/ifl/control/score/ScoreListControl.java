@@ -300,9 +300,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		activityMonitor.log(new NavigationEvent(event));
 	};
 	
-	private IListener<IMethodDescription> navigateToContextListener = event -> {
-		editor.open(event.getLocation().getAbsolutePath(), 0);
-		activityMonitor.log(new NavigationEvent(event));
+	private IListener<List<IMethodDescription>> navigateToContextListener = event -> {
+		for(IMethodDescription method : event) {
+			editor.open(method.getLocation().getAbsolutePath(), method.getLocation().getBegining().getOffset());
+			activityMonitor.log(new NavigationEvent(method));
+		}
 	};
 	
 	private static final int TOP_SCORE_LIMIT = 9;

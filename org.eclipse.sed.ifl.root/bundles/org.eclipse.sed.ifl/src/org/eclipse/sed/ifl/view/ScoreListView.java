@@ -113,13 +113,13 @@ public class ScoreListView extends View {
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
-	private NonGenericListenerCollection<IMethodDescription> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<IMethodDescription> eventNavigateToContext() {
+	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	
-	private IListener<IMethodDescription> navigateToContextListener = navigateToContext::invoke;
+	private IListener<List<IMethodDescription>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);
