@@ -3,11 +3,13 @@ package org.eclipse.sed.ifl.ide.gui;
 import javax.inject.Inject;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -19,6 +21,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.wb.swt.ResourceManager;
 
 import swing2swt.layout.BorderLayout;
 
@@ -100,8 +103,12 @@ public class MainPart extends ViewPart {
 	private Action hideUndefinedAction;
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(loadScoreAction);
-		manager.add(hideUndefinedAction);
+		ActionContributionItem loadScore = new ActionContributionItem(loadScoreAction);
+		loadScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(loadScore);
+		ActionContributionItem hideUndefined = new ActionContributionItem(hideUndefinedAction);
+		hideUndefined.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(hideUndefined);
 	}
 
 	private void makeActions() {
@@ -115,6 +122,11 @@ public class MainPart extends ViewPart {
 			@Override
 			public String getText() {
 				return "Load scores...";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/load-button-icon.png"));
 			}
 		};
 		hideUndefinedAction = new Action() {
@@ -132,6 +144,11 @@ public class MainPart extends ViewPart {
 			@Override
 			public String getText() {
 				return "Hide undefined";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/hide-undefined-icon.png"));
 			}
 		};
 	}

@@ -31,6 +31,7 @@ public class CustomWarningDialog extends Dialog {
         newShell.setText(title);
     }
 	
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		createMessageArea(parent);
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -38,7 +39,7 @@ public class CustomWarningDialog extends Dialog {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		composite.setLayout(layout);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.horizontalSpan = 2;
 		composite.setLayoutData(data);
 		return composite;
@@ -49,7 +50,7 @@ public class CustomWarningDialog extends Dialog {
 		image.setBackground(imageLabel.getBackground());
 		imageLabel.setImage(image);
 
-		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.BEGINNING).applyTo(imageLabel);
+		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.BEGINNING).applyTo(imageLabel);
 		
 		Label messageLabel = new Label(composite, SWT.NONE);
 		messageLabel.setText(message);

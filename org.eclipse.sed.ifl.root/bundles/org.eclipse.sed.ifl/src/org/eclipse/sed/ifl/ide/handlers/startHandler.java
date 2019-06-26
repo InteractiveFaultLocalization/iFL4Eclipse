@@ -37,7 +37,7 @@ public class startHandler extends AbstractHandler {
 			PartAccessor partAccessor = new PartAccessor(event);
 			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
 			if (Activator.getDefault().isSessionActive()) {
-				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session already active", "You already started an Interactive fault localization session. Check the iFL panel for further details.");
+				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session already active", "You already started an Interactive Fault Localization session. Check the iFL panel for further details.");
 				dialog.open();
 				//MessageDialog.open(MessageDialog.WARNING, null, "iFL session already active", "You already started an Interactive Fault Localization session. Consult with the iFL panel for further details.", SWT.NONE);			
 			}
