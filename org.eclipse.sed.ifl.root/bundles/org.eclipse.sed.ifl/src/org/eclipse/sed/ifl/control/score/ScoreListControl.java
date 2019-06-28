@@ -32,6 +32,7 @@ import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -43,6 +44,7 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -52,6 +54,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	
+	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(new ScoreHistoryModel(), new ScoreHistoryView());
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
@@ -60,6 +64,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		this.addSubControl(activityMonitor);
+		this.addSubControl(scoreHistory);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -99,6 +104,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
 		activityMonitor = null;
+		scoreHistory = null;
 	}
 
 	// TODO: Yoda-mode :) split or move it to view
