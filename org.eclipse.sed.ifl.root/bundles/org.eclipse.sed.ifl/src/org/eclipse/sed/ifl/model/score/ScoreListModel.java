@@ -33,10 +33,36 @@ public class ScoreListModel extends EmptyModel {
 		.collect(Collectors.collectingAndThen(Collectors.toMap(e -> e.getKey(), e -> (Defineable<Double>)e.getValue()),Collections::unmodifiableMap));
 	}
 
-	public void updateScore(Map<IMethodDescription, Score> newScores) {
+	public class ScoreChange {
+		private Score oldScore;
+		private Score newScore;
+		
+		public Score getOldScore() {
+			return oldScore;
+		}
+		public Score getNewScore() {
+			return newScore;
+		}
+		
+		public ScoreChange(Score oldScore, Score newScore) {
+			super();
+			this.oldScore = oldScore;
+			this.newScore = newScore;
+		}		
+	}
+	
+	/**
+	 * This method has to replace old score objects with new ones. 
+	 * @param newScores
+	 * @return The old scores which was updated.
+	 */
+	public Map<IMethodDescription, ScoreChange> updateScore(Map<IMethodDescription, Score> newScores) {
+		Map<IMethodDescription, ScoreChange> changes = new HashMap<>();
 		for (Entry<IMethodDescription, Score> entry : newScores.entrySet()) {
 			Score newScore = entry.getValue();
 			Score oldScore = scores.get(entry.getKey());
+			assert newScore != oldScore;
+			changes.put(entry.getKey(), new ScoreChange(oldScore, newScore));
 			if (oldScore != null) {
 				if (oldScore.isDefinit()) {
 					newScore.updateStatus(oldScore.getValue());
@@ -45,6 +71,7 @@ public class ScoreListModel extends EmptyModel {
 			scores.put(entry.getKey(), newScore);
 		}
 		scoreUpdated.invoke(new EmptyEvent());
+		return changes;
 	}
 	
 	public int loadScore(Map<ScoreLoaderControl.Entry, Score> rawScores) {

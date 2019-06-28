@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
@@ -281,13 +282,17 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
 
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = event -> {
-		getModel().updateScore(
-			event.entrySet().stream()
+	private IListener<MethodScoreHandler.ScoreUpdateArgs> scoreRecalculatedListener = event -> {
+		Map<IMethodDescription, ScoreListModel.ScoreChange> changes = getModel().updateScore(
+			event.getNewScores().entrySet().stream()
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
 					i -> new Score(i.getValue(), true))));
+		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
+			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
+		}
+		return;
 	};
 
 	private SortingArg sorting;

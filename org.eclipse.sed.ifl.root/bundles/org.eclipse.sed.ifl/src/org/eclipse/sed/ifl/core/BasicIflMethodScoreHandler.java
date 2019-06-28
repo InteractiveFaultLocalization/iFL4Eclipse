@@ -27,7 +27,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		if (!feedback.getChoise().getId().equals("YES")) {
 			for (Option possibility : options) {
 				if (feedback.getChoise().equals(possibility)) {
-					this.scoreUpdated.invoke(possibility.apply(feedback, methodsScoreMap));
+					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
 				}
 			}
 		}

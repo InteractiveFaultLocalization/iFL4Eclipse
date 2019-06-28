@@ -7,7 +7,6 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
-import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 
 public class ScoreHistoryModel extends EmptyModel {
 	private List<Monument<Score, IMethodDescription, IUserFeedback>> steps = new ArrayList<>();
