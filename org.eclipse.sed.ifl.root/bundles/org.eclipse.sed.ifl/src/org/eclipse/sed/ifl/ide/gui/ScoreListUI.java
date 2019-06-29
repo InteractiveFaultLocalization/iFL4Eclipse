@@ -157,6 +157,8 @@ public class ScoreListUI extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
 				scale.setEnabled(enabledCheckButton.getSelection());
+				manualText.setEnabled(enabledCheckButton.getSelection());
+				manualButton.setEnabled(enabledCheckButton.getSelection());
 			}
 			
 			@Override
@@ -484,6 +486,8 @@ public class ScoreListUI extends Composite {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
+		enabledCheckButton.setSelection(true);
+		lowerScoreLimitEnabled.invoke(true);
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
