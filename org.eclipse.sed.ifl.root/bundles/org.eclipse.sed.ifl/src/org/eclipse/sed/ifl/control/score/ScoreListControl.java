@@ -2,7 +2,6 @@ package org.eclipse.sed.ifl.control.score;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
@@ -25,6 +23,7 @@ import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -246,25 +245,22 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		SideEffect effect = event.getChoise().getSideEffect();
+		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			for (IMethodDescription subject : event.getSubjects()) {
-				String pass = subject.getId().getName();
-				InputDialog dialog = new InputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
-						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name bellow.",
-						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.");
-				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
-					confirmed = true;
-				} else {
-					confirmed = false;
-					activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), Arrays.asList(subject), event.getUser())));
-					break;
-				}
+			System.out.println("size of userfeedback list: " + event.getSubjects().size());
+			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas.",
+					getElementNames(event));
+			if (dialog.open() == InputDialog.OK) {
+				confirmed = true;
+			} else {
+				confirmed = false;
+				activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), event.getSubjects(), event.getUser())));
 			}
 			if (confirmed) {
 				activityMonitor.log(new ConfirmEvent(event));
@@ -318,4 +314,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					+ "You can set the filters to show more or less items.", SWT.NONE);
 		}
 	};
+
+	private List<String> getElementNames(IUserFeedback event) {
+		List<String> rvList = new ArrayList<String>(event.getSubjects().size());
+		for(int i=0; i<event.getSubjects().size(); i++) {
+			rvList.add(event.getSubjects().get(i).getId().getName());
+		}
+		return rvList;
+	}
 }

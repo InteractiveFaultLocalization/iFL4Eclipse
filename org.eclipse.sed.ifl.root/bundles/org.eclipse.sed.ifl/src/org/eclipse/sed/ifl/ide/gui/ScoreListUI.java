@@ -33,7 +33,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -145,7 +145,7 @@ public class ScoreListUI extends Composite {
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
 		contextSizeComposite.setLayout(new GridLayout(10, false));
-		
+
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
 		enabledCheckButton.setEnabled(false);
@@ -284,7 +284,7 @@ public class ScoreListUI extends Composite {
 			}
 			
 		});
-		
+
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
 		contextMenu = new Menu(table);
 		nonInteractiveContextMenu = new Menu(table);
@@ -498,7 +498,7 @@ public class ScoreListUI extends Composite {
 			updateScoreFilterLimit(current);
 		}
 	}
-		
+
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);

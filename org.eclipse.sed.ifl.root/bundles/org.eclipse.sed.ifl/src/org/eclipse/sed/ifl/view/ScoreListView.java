@@ -31,7 +31,6 @@ public class ScoreListView extends View {
 	public Composite getUI() {
 		return ui;
 	}
-	
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {
 		ui.clearMethodScores();
