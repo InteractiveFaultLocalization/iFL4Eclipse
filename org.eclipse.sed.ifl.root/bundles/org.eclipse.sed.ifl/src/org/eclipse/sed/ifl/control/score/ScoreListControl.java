@@ -26,6 +26,7 @@ import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -56,7 +57,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 	
-	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(new ScoreHistoryModel(), new ScoreHistoryView());
+	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
+			new ScoreHistoryModel(),
+			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI(), SWT.NONE)));
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
@@ -106,21 +109,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		super.teardown();
 		activityMonitor = null;
 		scoreHistory = null;
-	}
-
-	// TODO: Yoda-mode :) split or move it to view
-	public enum ScoreStatus {
-		NONE(null), INCREASED("icons/up_arrow16.png"), DECREASED("icons/down_arrow16.png"), UNDEFINED("icons/undef16.png");
-
-		private final String iconPath;
-
-		ScoreStatus(String iconPath) {
-			this.iconPath = iconPath;
-		}
-
-		public String getIconPath() {
-			return iconPath;
-		}
 	}
 
 	private void updateScore() {

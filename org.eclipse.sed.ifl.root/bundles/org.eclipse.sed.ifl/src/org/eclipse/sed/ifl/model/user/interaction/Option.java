@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.model.user.interaction;
 
 import java.util.Map;
 
+import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
@@ -9,27 +10,31 @@ public class Option {
 	private String id;
 	private String title;
 	private String description;
-	private SideEffect sideEffect; 
+	private SideEffect sideEffect;
 
-	public Option(String id, String title, String description, SideEffect sideEffect, String iconPath) {
+	public Option(String id, String title, String description, SideEffect sideEffect, OptionKind kind) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.sideEffect = sideEffect;
-		this.iconPath = iconPath;
+		this.kind = kind;
 	}
 	
 	public Option(String id, String title, String description, SideEffect sideEffect) {
 		this(id, title, description, sideEffect, null);
 	}
 	
-	public Option(String id, String title, String description, String iconPath) {
-		this(id, title, description, SideEffect.NOTHING, iconPath);
+	public Option(String id, String title, String description, OptionKind kind) {
+		this(id, title, description, SideEffect.NOTHING, kind);
 	}
 
 	public Option(String id, String title, String description) {
 		this(id, title, description, SideEffect.NOTHING, null);
+	}
+
+	public OptionKind getKind() {
+		return kind;
 	}
 
 	public SideEffect getSideEffect() {
@@ -73,12 +78,8 @@ public class Option {
 		return true;
 	}
 
-	private String iconPath; 
+	private OptionKind kind; 
 	
-	public String getIconPath() {
-		return iconPath;
-	}
- 
 	public Map<IMethodDescription, Defineable<Double>> apply(IUserFeedback feedback, Map<IMethodDescription, Defineable<Double>> allScores) { 
 		throw new UnsupportedOperationException();
 	}

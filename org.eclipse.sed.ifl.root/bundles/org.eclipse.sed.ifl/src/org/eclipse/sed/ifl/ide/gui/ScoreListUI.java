@@ -623,8 +623,8 @@ public class ScoreListUI extends Composite {
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setToolTipText(option.getDescription());
 			item.setData(option);
-			if (option.getIconPath() != null) {
-				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getIconPath()));
+			if (option.getKind().getIconPath() != null) {
+				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getKind().getIconPath()));
 			}
 			item.addSelectionListener(new SelectionListener() {
 

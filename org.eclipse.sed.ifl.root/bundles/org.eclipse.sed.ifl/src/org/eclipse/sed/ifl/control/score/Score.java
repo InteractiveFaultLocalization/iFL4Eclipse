@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
-import org.eclipse.sed.ifl.control.score.ScoreListControl.ScoreStatus;
+import org.eclipse.sed.ifl.ide.gui.icon.IconSet;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class Score extends Defineable<Double> {
@@ -29,9 +30,9 @@ public class Score extends Defineable<Double> {
 		return interactive;
 	}
 
-	private ScoreStatus status = ScoreStatus.UNDEFINED;
+	private IconSet status = ScoreStatus.UNDEFINED;
 	
-	public ScoreStatus getStatus() {
+	public IconSet getStatus() {
 		return status;
 	}
 	

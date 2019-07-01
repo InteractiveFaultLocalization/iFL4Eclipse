@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+
+import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
@@ -28,11 +30,11 @@ public class ContextBasedOption extends Option {
 	}
 
 	public ContextBasedOption(
-		String id, String title, String description, SideEffect sideEffect, String iconPath,
+		String id, String title, String description, SideEffect sideEffect, OptionKind kind,
 		Function<IMethodDescription, Defineable<Double>> updateSelected,
 		Function<IMethodDescription, Defineable<Double>> updateContext,
 		Function<IMethodDescription, Defineable<Double>> updateOthers) {
-		super(id, title, description, sideEffect, iconPath);
+		super(id, title, description, sideEffect, kind);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
 		this.updateOther = updateOthers;
@@ -50,11 +52,11 @@ public class ContextBasedOption extends Option {
 	}
 
 	public ContextBasedOption(
-		String id, String title, String description, String iconPath,
+		String id, String title, String description, OptionKind kind,
 		Function<IMethodDescription, Defineable<Double>> updateSelected,
 		Function<IMethodDescription, Defineable<Double>> updateContext,
 		Function<IMethodDescription, Defineable<Double>> updateOthers) {
-		super(id, title, description, iconPath);
+		super(id, title, description, kind);
 		this.updateSelected = updateSelected;
 		this.updateContext = updateContext;
 		this.updateOther = updateOthers;
