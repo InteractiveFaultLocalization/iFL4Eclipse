@@ -31,4 +31,8 @@ public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistory
 			}
 		}
 	}
+	
+	public Monument<Score,IMethodDescription,IUserFeedback> getLastOf(IMethodDescription subject) {
+		return getModel().getLastOf(subject);
+	}
 }

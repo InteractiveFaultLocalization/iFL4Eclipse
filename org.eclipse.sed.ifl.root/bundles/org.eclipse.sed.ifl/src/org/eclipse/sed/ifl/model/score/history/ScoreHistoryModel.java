@@ -21,4 +21,14 @@ public class ScoreHistoryModel extends EmptyModel {
 				.filter(m -> m.getSubject().equals(subject))
 				.collect(Collectors.toList());
 	}
+
+	public Monument<Score, IMethodDescription, IUserFeedback> getLastOf(IMethodDescription subject) {
+		for (int i = steps.size() - 1; i >= 0; i--) {
+			Monument<Score, IMethodDescription, IUserFeedback> step = steps.get(i);
+			if (step.getSubject().equals(subject)) {
+				return step;
+			}
+		}
+		return null;
+	}
 }

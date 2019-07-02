@@ -34,6 +34,8 @@ import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
+import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
@@ -112,14 +114,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private void updateScore() {
-		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
-		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
-		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
-		if (min.isPresent() && max.isPresent()) {
-			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
-		}
-		handler.loadMethodsScoreMap(rawScores);
-		refreshView();
 	}
 	
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
@@ -215,6 +209,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
+		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
+			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
+			entry.getValue().setLastAction(last);
+		}
 		getView().refreshScores(toDisplay);
 		if (toDisplay.isEmpty()) {
 			MessageDialog.open(
@@ -271,10 +269,21 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	};
 
-	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
+	private IListener<Map<IMethodDescription, ScoreChange>> scoreUpdatedListener = event -> {
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
+		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+		}
+		handler.loadMethodsScoreMap(rawScores);
+		//TODO: history-saving-bug history should be saved here but we do not have the cause, since this event come from the model,
+		// which do not need to know about it.
+		refreshView();
+	};
 
 	private IListener<MethodScoreHandler.ScoreUpdateArgs> scoreRecalculatedListener = event -> {
-		Map<IMethodDescription, ScoreListModel.ScoreChange> changes = getModel().updateScore(
+		Map<IMethodDescription, ScoreChange> changes = getModel().updateScore(
 			event.getNewScores().entrySet().stream()
 			.collect(
 				Collectors.toMap(
@@ -283,6 +292,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
 			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
 		}
+		//TODO: this is a redundant refresh since the event listener of scoreUpdatedListener already refreshed it,
+		// but the history do not contains the monuments requested to display. Search history-saving-bug for more.
+		refreshView();
 	};
 
 	private SortingArg sorting;

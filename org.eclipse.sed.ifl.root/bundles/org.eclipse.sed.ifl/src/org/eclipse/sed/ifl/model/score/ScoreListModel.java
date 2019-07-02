@@ -54,6 +54,7 @@ public class ScoreListModel extends EmptyModel {
 	/**
 	 * This method has to replace old score objects with new ones. 
 	 * @param newScores
+	 * @return 
 	 * @return The old scores which was updated.
 	 */
 	public Map<IMethodDescription, ScoreChange> updateScore(Map<IMethodDescription, Score> newScores) {
@@ -63,14 +64,9 @@ public class ScoreListModel extends EmptyModel {
 			Score oldScore = scores.get(entry.getKey());
 			assert newScore != oldScore;
 			changes.put(entry.getKey(), new ScoreChange(oldScore, newScore));
-			if (oldScore != null) {
-				if (oldScore.isDefinit()) {
-					newScore.updateStatus(oldScore.getValue());
-				}
-			}
 			scores.put(entry.getKey(), newScore);
 		}
-		scoreUpdated.invoke(new EmptyEvent());
+		scoreUpdated.invoke(changes);
 		return changes;
 	}
 	
@@ -98,9 +94,9 @@ public class ScoreListModel extends EmptyModel {
 		return scoreLoaded;
 	}
 
-	private NonGenericListenerCollection<EmptyEvent> scoreUpdated = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Map<IMethodDescription, ScoreChange>> scoreUpdated = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<EmptyEvent> eventScoreUpdated() {
+	public INonGenericListenerCollection<Map<IMethodDescription, ScoreChange>> eventScoreUpdated() {
 		return scoreUpdated;
 	}
 }
