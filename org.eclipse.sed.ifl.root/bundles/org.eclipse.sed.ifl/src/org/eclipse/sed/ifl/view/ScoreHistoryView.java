@@ -25,4 +25,12 @@ public class ScoreHistoryView extends View {
 	public void clearMonuments() {
 		ui.clearRow();
 	}
+	
+	public void hide() {
+		ui.setVisible(false);
+	}
+	
+	public void show() {
+		ui.setVisible(true);
+	}
 }

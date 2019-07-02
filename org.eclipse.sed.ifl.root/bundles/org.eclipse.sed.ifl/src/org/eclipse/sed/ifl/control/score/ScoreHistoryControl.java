@@ -20,10 +20,15 @@ public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistory
 	}
 	
 	public void display(IMethodDescription subject) {
-		List<Monument<Score,IMethodDescription,IUserFeedback>> monuments = getModel().getMonumentsFor(subject);
 		getView().clearMonuments();
-		for (Monument<Score,IMethodDescription,IUserFeedback> monument : monuments) {
-			getView().addMonument(monument.getCause().getChoise().getKind(), monument.getCreation());
+		List<Monument<Score,IMethodDescription,IUserFeedback>> monuments = getModel().getMonumentsFor(subject);
+		if (monuments.isEmpty()) {
+			getView().hide();
+		} else {
+			getView().show();
+			for (Monument<Score,IMethodDescription,IUserFeedback> monument : monuments) {
+				getView().addMonument(monument.getCause().getChoise().getKind(), monument.getCreation());
+			}
 		}
 	}
 }

@@ -28,14 +28,11 @@ public class ScoreHistoryUI extends Composite {
 		
 		monumentRow = new Composite(this, SWT.NONE);
 		monumentRow.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		//for test only
-		putInRow(OptionKind.CONTEXT_00X, LocalDateTime.now());
 	}
 	
 	public void putInRow(OptionKind kind, LocalDateTime creation) {
 		Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", kind.getIconPath());
-		MonumentUI monument = new MonumentUI(monumentRow, SWT.NONE, icon, creation);
+		new MonumentUI(monumentRow, SWT.NONE, icon, creation);
 		monumentRow.requestLayout();
 	}
 	

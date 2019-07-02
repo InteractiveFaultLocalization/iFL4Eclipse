@@ -24,6 +24,7 @@ public class MonumentUI extends Composite {
 		iconLabel.setAlignment(SWT.CENTER);
 		iconLabel.setImage(icon);
 		Label timeLabel = new Label(this, SWT.CENTER);
+		timeLabel.setFont(SWTResourceManager.getFont("Segoe UI", 7, SWT.NORMAL));
 		timeLabel.setAlignment(SWT.CENTER);
 		timeLabel.setText(creation.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
 	}
