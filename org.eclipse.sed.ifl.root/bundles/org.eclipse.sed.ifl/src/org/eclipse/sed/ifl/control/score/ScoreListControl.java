@@ -231,6 +231,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			context.addAll(item.getContext());
 		}
 		getView().highlight(context);
+		if (event.size() == 1) {
+			scoreHistory.display(event.get(0));
+		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
 
@@ -280,7 +283,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
 			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
 		}
-		return;
 	};
 
 	private SortingArg sorting;
