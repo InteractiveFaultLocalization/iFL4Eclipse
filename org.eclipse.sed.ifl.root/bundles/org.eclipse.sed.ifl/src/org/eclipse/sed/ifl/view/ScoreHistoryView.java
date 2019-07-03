@@ -13,6 +13,12 @@ public class ScoreHistoryView extends View {
 	public Composite getUI() {
 		return ui;
 	}
+	
+	@Override
+	public void init() {
+		super.init();
+		hide();
+	}
 
 	public ScoreHistoryView(ScoreHistoryUI ui) {
 		this.ui = ui;

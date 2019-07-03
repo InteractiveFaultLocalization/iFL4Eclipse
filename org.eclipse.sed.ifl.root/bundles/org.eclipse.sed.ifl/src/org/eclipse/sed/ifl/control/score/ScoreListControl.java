@@ -113,9 +113,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		scoreHistory = null;
 	}
 
-	private void updateScore() {
-	}
-	
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
 		new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
 	};
