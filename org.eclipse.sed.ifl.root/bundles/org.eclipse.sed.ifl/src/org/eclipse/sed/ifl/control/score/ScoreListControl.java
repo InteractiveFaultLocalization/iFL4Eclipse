@@ -152,19 +152,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Name:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getName().compareTo(b.getKey().getId().getName()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Signature:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature().compareTo(b.getKey().getId().getSignature()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature().compareToIgnoreCase(b.getKey().getId().getSignature()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case ParentType:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType().compareTo(b.getKey().getId().getParentType()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType().compareToIgnoreCase(b.getKey().getId().getParentType()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Path:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath().compareTo(b.getKey().getLocation().getAbsolutePath()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath().compareToIgnoreCase(b.getKey().getLocation().getAbsolutePath()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case ContextSize:
