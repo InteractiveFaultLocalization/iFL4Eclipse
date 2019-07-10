@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -489,8 +490,8 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
-	private static final double SLIDER_PRECISION = 1000.0;
-	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.000");
+	private static final double SLIDER_PRECISION = 10000.0;
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000");
 	
 	private static int toScale(double value) {
 		return Double.valueOf(value * SLIDER_PRECISION).intValue();
@@ -506,11 +507,14 @@ public class ScoreListUI extends Composite {
 	public void setScoreFilter(Double min, Double max) {
 		minValue = min;
 		maxValue = max;
-		maxLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(max))));
+		maxLabel.setText(LIMIT_FORMAT.format((max)));
 		maxLabel.requestLayout();
-		minLabel.setText(LIMIT_FORMAT.format(fromScale(toScale(min))));
+		minLabel.setText(LIMIT_FORMAT.format((min)));
 		minLabel.requestLayout();
 		scale.setMaximum(toScale(max));
+		System.out.println("Maximum value: " + max);
+		System.out.println("Scale maximum selection set: " + toScale(max));
+		System.out.println("Scale maximum selection allowed: " + scale.getMaximum());
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
 		enabledCheckButton.setSelection(true);
@@ -539,7 +543,10 @@ public class ScoreListUI extends Composite {
 				item.setImage(table.indexOf(iconColumn), icon);
 			}
 			if (entry.getValue().isDefinit()) {
-				item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
+				//item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
+				LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+				item.setText(table.indexOf(scoreColumn), LIMIT_FORMAT.format(entry.getValue().getValue()));
+				System.out.println("Entry score value is: " + entry.getValue().getValue());
 			} else {
 				item.setText(table.indexOf(scoreColumn), "undefined");
 			}
