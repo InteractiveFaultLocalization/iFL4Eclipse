@@ -89,8 +89,17 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					"iFL score loading",
 					updatedCount + " scores are loaded from the " + recordCount + " records of " + event,
 					SWT.NONE);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				MessageDialog.open(
+					MessageDialog.ERROR, null,
+					"Error during iFL score loading",
+					"The score value for some elements are invalid.\n"
+					+ "All scores in the '" + SCORE_HEADER + "' column should be numbers between 0 and 1.",
+				SWT.NONE);
 			} catch (Exception e) {
-				MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", e.getMessage(), SWT.NONE);
+				e.printStackTrace();
+				MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "iFL was unable to process the source file containing the code elements and their scores. Please check the CSV source file.", SWT.NONE);
 			}
 			System.out.println(watch);
 		}
