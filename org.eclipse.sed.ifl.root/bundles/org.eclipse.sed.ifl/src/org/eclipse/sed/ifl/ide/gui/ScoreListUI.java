@@ -628,7 +628,7 @@ public class ScoreListUI extends Composite {
 
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
-		noFeedback.setText("(User feedback is disabled.)");
+		noFeedback.setText("(User feedback is disabled)");
 		noFeedback.setToolTipText("User feedback is disabled for some of the selected items. Remove these items from the selection to reenable it.");
 		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);
