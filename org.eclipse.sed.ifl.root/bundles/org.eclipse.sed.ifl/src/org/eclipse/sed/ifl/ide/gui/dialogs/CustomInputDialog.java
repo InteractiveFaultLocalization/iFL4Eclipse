@@ -106,7 +106,7 @@ public class CustomInputDialog extends Dialog {
 			editor.horizontalAlignment = SWT.CENTER;
 			editor.setEditor(text, item, 1);
 		}
-		
+		typedTextList.get(0).setFocus();
 	}
 
 	private void createTableColumns() {
