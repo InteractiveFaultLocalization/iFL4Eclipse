@@ -222,13 +222,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
 		getView().refreshScores(toDisplay);
-		if (toDisplay.isEmpty()) {
-			MessageDialog.open(
-				MessageDialog.WARNING, null,
-				"iFL Score List",
-				"There are no source code items to display.\n"
-				+ "Please check if you have set the filters in a way that hides all items.", SWT.NONE);
-		}
+		getView().showNoItemsLabel(toDisplay.isEmpty());
 	}
 
 	private IListener<List<IMethodDescription>> selectionChangedListener = event -> {

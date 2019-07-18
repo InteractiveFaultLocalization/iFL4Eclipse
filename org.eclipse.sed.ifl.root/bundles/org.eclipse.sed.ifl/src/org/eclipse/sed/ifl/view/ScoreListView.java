@@ -132,6 +132,10 @@ public class ScoreListView extends View {
 		ui.setScoreFilter(min, max);
 	}
 	
+	public void showNoItemsLabel(boolean show) {
+		ui.showNoItemsLabel(show);
+	}
+	
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {

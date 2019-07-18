@@ -59,6 +59,7 @@ public class ScoreListUI extends Composite {
 	private TableColumn pathColumn;
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
+	private Label noItemsToDisplayLabel;
 	
 
 	private void requestNavigateToAllSelection() {
@@ -307,7 +308,13 @@ public class ScoreListUI extends Composite {
 			}
 			
 		});
-
+		
+		noItemsToDisplayLabel = new Label(this, SWT.NONE);
+		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
+		GridData gd_label = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+		noItemsToDisplayLabel.setLayoutData(gd_label);
+		noItemsToDisplayLabel.setVisible(false);
+		
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
 		contextMenu = new Menu(table);
 		nonInteractiveContextMenu = new Menu(table);
@@ -690,6 +697,11 @@ public class ScoreListUI extends Composite {
 		}
 	}
 
+	public void showNoItemsLabel(boolean show) {
+		table.setVisible(!show);
+		noItemsToDisplayLabel.setVisible(show);
+	}
+	
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 	private Composite composite;
 	private Composite contextSizeComposite;
