@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.ui.ISelectionService;
@@ -148,18 +149,20 @@ public class CodeEntityAccessor {
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
+		
 		Map<IMethodBinding, IMethod> resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
+		.filter(x -> x!= null)
 		.map(method -> (IMethodBinding)method)
 		.collect(Collectors.collectingAndThen(Collectors.toMap(
 				method -> method,
 				method -> {
-					IJavaElement element = method.getJavaElement();
-					if (element instanceof IMethod) {
-						return (IMethod)element;
-					}
-					else {
-						return null;
-					}
+				IJavaElement element = method.getJavaElement();
+				if (element instanceof IMethod) {
+					return (IMethod)element;
+				}
+				else {
+					return null;					
+				}
 				}),Collections::unmodifiableMap));
 		return resolveds;
 	}
