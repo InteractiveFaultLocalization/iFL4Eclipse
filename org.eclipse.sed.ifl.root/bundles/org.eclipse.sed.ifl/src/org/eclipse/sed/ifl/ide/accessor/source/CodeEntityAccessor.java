@@ -142,28 +142,30 @@ public class CodeEntityAccessor {
 		.filter(method -> method.getValue().getDeclaringType().equals(me.getValue().getDeclaringType()))
 		.collect(Collectors.collectingAndThen(Collectors.toMap(method -> method.getKey(), method -> method.getValue()),Collections::unmodifiableMap));
 	}
-
+	
 	private Map<IMethodBinding, IMethod> resolve(IJavaProject project, List<IMethod> methods) {
 		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setProject(project);
 		IMethod[] ms = new IMethod[methods.size()];
 		methods.toArray(ms);
-		
+
 		Map<IMethodBinding, IMethod> resolveds = Stream.of(parser.createBindings(ms, new NullProgressMonitor()))
-		.filter(x -> x!= null)
+		.filter(x -> x != null)
 		.map(method -> (IMethodBinding)method)
 		.collect(Collectors.collectingAndThen(Collectors.toMap(
 				method -> method,
 				method -> {
-				IJavaElement element = method.getJavaElement();
-				if (element instanceof IMethod) {
-					return (IMethod)element;
-				}
-				else {
-					return null;					
-				}
+					IJavaElement element = method.getJavaElement();
+					if (element instanceof IMethod) {
+						return (IMethod)element;
+					}
+					else {
+						return null;					
+					}
 				}),Collections::unmodifiableMap));
+		System.out.println("Number of all code elements: " + methods.size());
+		System.out.println("Number of unresolved code elements: " + (methods.size() - resolveds.size()));
 		return resolveds;
 	}
 	
