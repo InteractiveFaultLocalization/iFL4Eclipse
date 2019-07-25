@@ -78,7 +78,7 @@ To access all aviable features of iFL for Eclipse please copy the `key` file nex
 
 ## Contact us
 
-<img src="/media/szte.png" alt="szte" width="200px"/>
+<img src="/media/szte.png" alt="szte" width="150px"/>
 
 iFL for Eclipse are developed and maintained during the iFL research of [University of Szeged, Department of Software Engineering](http://www.sed.inf.u-szeged.hu/).
 
