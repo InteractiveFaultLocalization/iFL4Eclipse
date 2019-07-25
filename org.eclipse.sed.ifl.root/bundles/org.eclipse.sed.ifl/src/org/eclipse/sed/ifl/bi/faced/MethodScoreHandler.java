@@ -30,11 +30,26 @@ public abstract class MethodScoreHandler {
 
 	public abstract Iterable<Option> getProvidedOptions();
 
-	// Just call this.scoreUpdated.invoke(Map<IMethodDescription, Double>) to raise
-	// the event.
-	protected NonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> scoreUpdated = new NonGenericListenerCollection<>();
+	public class ScoreUpdateArgs {
+		private Map<IMethodDescription, Defineable<Double>> newScores;
+		private IUserFeedback cause;
+		
+		public Map<IMethodDescription, Defineable<Double>> getNewScores() {
+			return newScores;
+		}
+		public IUserFeedback getCause() {
+			return cause;
+		}
+		public ScoreUpdateArgs(Map<IMethodDescription, Defineable<Double>> newScores, IUserFeedback cause) {
+			super();
+			this.newScores = newScores;
+			this.cause = cause;
+		}
+	}
+	
+	protected NonGenericListenerCollection<ScoreUpdateArgs> scoreUpdated = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Map<IMethodDescription, Defineable<Double>>> eventScoreUpdated() {
+	public INonGenericListenerCollection<ScoreUpdateArgs> eventScoreUpdated() {
 		return scoreUpdated;
 	}
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
+import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -27,7 +28,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		if (!feedback.getChoise().getId().equals("YES")) {
 			for (Option possibility : options) {
 				if (feedback.getChoise().equals(possibility)) {
-					this.scoreUpdated.invoke(possibility.apply(feedback, methodsScoreMap));
+					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
 				}
 			}
 		}
@@ -53,32 +54,32 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			"Selected items seem faulty",
 			"I think that the selected items are faulty, hence I found the bug.",
 			SideEffect.FOUND,
-			"icons/option_F--.png"),
+			OptionKind.CONTEXT_FXX),
 		new ContextBasedOption("SELECTED_NOT_SUSPICIOUS",
 			"Selected items seem not suspicious",
 			"Currently, I think that the selected items are not suspicious",
-			"icons/option_0--.png",
+			OptionKind.CONTEXT_0XX,
 			item -> new Defineable<Double>(0.0),
 			null,
 			null),
 		new ContextBasedOption("SELECTED_AND_CONTEXT_NOT_SUSPICIOUS",
 			"Context (including selected items) seem not suspicious",
 			"Currently, I think that the selected items and its context are not suspicious.",
-			"icons/option_00-.png",
+			OptionKind.CONTEXT_00X,
 			item -> new Defineable<Double>(0.0),
 			item -> new Defineable<Double>(0.0),
 			null),
 		new ContextBasedOption("CONTEXT_SUSPICIOUS",
 			"Only the context (excluding selected items) seems suspicious",
 			"Currently, I think that the selected items are not but only their context are suspicious.",
-			"icons/option_0-0.png",
+			OptionKind.CONTEXT_0X0,
 			item -> new Defineable<Double>(0.0),
 			null,
 			item -> new Defineable<Double>(0.0)),
 		new ContextBasedOption("SELECTED_AND_CONTEXT_SUSPICIOUS",
 			"Only the context (including selected items) seems suspicious",
 			"Currently, I think that only the selected items and their context are suspicious.",
-			"icons/option_--0.png",
+			OptionKind.CONTEXT_XX0,
 			null,
 			null,
 			item -> new Defineable<Double>(0.0)));

@@ -2,7 +2,6 @@ package org.eclipse.sed.ifl.control.score;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,17 +12,20 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
+import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -31,6 +33,9 @@ import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
+import org.eclipse.sed.ifl.model.score.history.Monument;
+import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -42,6 +47,7 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -51,6 +57,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	
+	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
+			new ScoreHistoryModel(),
+			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI(), SWT.NONE)));
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
@@ -59,7 +69,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		this.addSubControl(activityMonitor);
-
+		this.addSubControl(scoreHistory);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -68,10 +78,15 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		filters.add(hideUndefinedFilter);
 		filters.add(lessOrEqualFilter);
+		filters.add(contextSizeFilter);
 		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		getView().eventcontextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
+		getView().eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
+		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
+		getView().eventNavigateToContext().add(navigateToContextListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
@@ -85,49 +100,35 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
+		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
+		getView().eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
+		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
 		activityMonitor = null;
+		scoreHistory = null;
 	}
 
-	// TODO: Yoda-mode :) split or move it to view
-	public enum ScoreStatus {
-		NONE(null), INCREASED("icons/up_arrow16.png"), DECREASED("icons/down_arrow16.png"), UNDEFINED("icons/undef16.png");
-
-		private final String iconPath;
-
-		ScoreStatus(String iconPath) {
-			this.iconPath = iconPath;
-		}
-
-		public String getIconPath() {
-			return iconPath;
-		}
-	}
-
-	private void updateScore() {
-		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
-		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
-		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
-		if (min.isPresent() && max.isPresent()) {
-			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
-		}
-		handler.loadMethodsScoreMap(rawScores);
-		refreshView();
-	}
-	
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
-		new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+		try {
+			new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+		} catch (RuntimeException e) {
+			MessageDialog.open(MessageDialog.ERROR, Display.getCurrent().getActiveShell(), "Error opening details", "The details link can not be opened. Please check if the CSV file provides a working details link.", SWT.NONE);
+		}
+		
 	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
 
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
+	
+	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(false);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -142,19 +143,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Name:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getName().compareTo(b.getKey().getId().getName()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Signature:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature().compareTo(b.getKey().getId().getSignature()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature().compareToIgnoreCase(b.getKey().getId().getSignature()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case ParentType:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType().compareTo(b.getKey().getId().getParentType()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType().compareToIgnoreCase(b.getKey().getId().getParentType()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case Path:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath().compareTo(b.getKey().getLocation().getAbsolutePath()))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath().compareToIgnoreCase(b.getKey().getLocation().getAbsolutePath()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case ContextSize:
@@ -191,17 +192,32 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		lessOrEqualFilter.setEnabled(enabled);
 		refreshView();
 	};
+	
+	private IListener<Boolean> contextSizeLimitEnabledListener = enabled -> {
+		contextSizeFilter.setEnabled(enabled);
+		refreshView();
+	};
+	
+	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
+		contextSizeFilter.setLimit(limit);
+		System.out.println("Context size filter limit changed to: " + limit);
+		refreshView();
+	};
+	
+	private IListener<String> contextSizeRelationChangedListener = relation -> {
+		contextSizeFilter.setRelation(relation);
+		System.out.println("Context size filter relation changed to: " + relation);
+		refreshView();
+	};
 
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
-		getView().refreshScores(toDisplay);
-		if (toDisplay.isEmpty()) {
-			MessageDialog.open(
-				MessageDialog.WARNING, null,
-				"iFL Score List",
-				"There are no source code items to display.\n"
-				+ "Please check that you do not set the filters to hide all items.", SWT.NONE);
+		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
+			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
+			entry.getValue().setLastAction(last);
 		}
+		getView().refreshScores(toDisplay);
+		getView().showNoItemsLabel(toDisplay.isEmpty());
 	}
 
 	private IListener<List<IMethodDescription>> selectionChangedListener = event -> {
@@ -210,6 +226,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			context.addAll(item.getContext());
 		}
 		getView().highlight(context);
+		if (event.size() == 1) {
+			scoreHistory.display(event.get(0));
+		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
 
@@ -220,25 +239,22 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		SideEffect effect = event.getChoise().getSideEffect();
+		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			for (IMethodDescription subject : event.getSubjects()) {
-				String pass = subject.getId().getName();
-				InputDialog dialog = new InputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
-						"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-								+ "Please confim that you intend to mark the selected code element '" + pass + "', by typing its name bellow.",
-						"name of item", input -> pass.equals(input) ? null : "Type the name of the item or select cancel to abort.");
-				if (dialog.open() == InputDialog.OK && pass.equals(dialog.getValue())) {
-					confirmed = true;
-				} else {
-					confirmed = false;
-					activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), Arrays.asList(subject), event.getUser())));
-					break;
-				}
+			System.out.println("size of userfeedback list: " + event.getSubjects().size());
+			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
+					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
+					getElementNames(event));
+			if (dialog.open() == InputDialog.OK) {
+				confirmed = true;
+			} else {
+				confirmed = false;
+				activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), event.getSubjects(), event.getUser())));
 			}
 			if (confirmed) {
 				activityMonitor.log(new ConfirmEvent(event));
@@ -247,15 +263,32 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	};
 
-	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
+	private IListener<Map<IMethodDescription, ScoreChange>> scoreUpdatedListener = event -> {
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
+		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+		}
+		handler.loadMethodsScoreMap(rawScores);
+		//TODO: history-saving-bug history should be saved here but we do not have the cause, since this event come from the model,
+		// which do not need to know about it.
+		refreshView();
+	};
 
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = event -> {
-		getModel().updateScore(
-			event.entrySet().stream()
+	private IListener<MethodScoreHandler.ScoreUpdateArgs> scoreRecalculatedListener = event -> {
+		Map<IMethodDescription, ScoreChange> changes = getModel().updateScore(
+			event.getNewScores().entrySet().stream()
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
 					i -> new Score(i.getValue(), true))));
+		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
+			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
+		}
+		//TODO: this is a redundant refresh since the event listener of scoreUpdatedListener already refreshed it,
+		// but the history do not contains the monuments requested to display. Search history-saving-bug for more.
+		refreshView();
 	};
 
 	private SortingArg sorting;
@@ -270,6 +303,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private IListener<IMethodDescription> navigateToListener = event -> {
 		editor.open(event.getLocation().getAbsolutePath(), event.getLocation().getBegining().getOffset());
 		activityMonitor.log(new NavigationEvent(event));
+	};
+	
+	private IListener<List<IMethodDescription>> navigateToContextListener = event -> {
+		for(IMethodDescription method : event) {
+			editor.open(method.getLocation().getAbsolutePath(), method.getLocation().getBegining().getOffset());
+			activityMonitor.log(new NavigationEvent(method));
+		}
 	};
 	
 	private static final int TOP_SCORE_LIMIT = 9;
@@ -292,4 +332,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					+ "You can set the filters to show more or less items.", SWT.NONE);
 		}
 	};
+
+	private List<String> getElementNames(IUserFeedback event) {
+		List<String> rvList = new ArrayList<String>(event.getSubjects().size());
+		for(int i=0; i<event.getSubjects().size(); i++) {
+			rvList.add(event.getSubjects().get(i).getId().getName());
+		}
+		return rvList;
+	}
 }
