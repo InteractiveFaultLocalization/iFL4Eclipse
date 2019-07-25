@@ -7,7 +7,7 @@
 
 ## Interactive Fault Localization for Eclipse
 
-<img src="https://git.sed.hu/geryxyz/iFL-eclipse-plugin/raw/dev/org.eclipse.sed.ifl/icons/logo.png" alt="logo" width="200px"/>
+<img src="/media/logo.png" alt="logo" width="200px"/>
 
 Fault localization is a debugging activity which is, by definition, part of a programmer's work in which she has to interact with the source code of the software being debugged.
 It follows that this can be performed most effectively through the IDE itself; hence the most logical form of supporting tools is when they are integrated into the IDE. 
@@ -29,16 +29,21 @@ In this section we will briefly elaborate the key features of our plug-in.
 
 You can also watch our [demo video](https://youtu.be/ADeK5ibnqSY) or our [promo poster](), in which we showcase a previous version of our plug-in.
 
+<img src="/media/screen_shot/menu.png" alt="menu" width="400px"/>
+
+The fault localization (FL) process executed as a session in iFL for Eclipse. You could either start the session from the toolbar or from the iFL menu after selecting the target project or any files of it.
 
 ### Showing suspiciousness scores for methods
 
-The fault localization (FL) process executed as a session in iFL for Eclipse. You could either start the session from the toolbar or from the iFL menu after selecting the target project or any files of it.
+<img src="/media/screen_shot/main.png" alt="main" width="400px"/>
 
 The main view of the plug-in is a table, which display the methods in the target project and their main properties. All common shorting and column rearranging features are available. 
 
 ### Loading scores from external source
 
 You are able to load scores from external sources by pressing the load score button. External score data has to be in CSV format with a header, using semicolon (;) as separator and double quotes (" ") for string literals. It could contain the following columns (any other columns will be ignored).
+
+<img src="/media/screen_shot/load.png" alt="load" width="400px"/>
 
 - `name`: (mandatory string) the fully qualified name of the methods, e.g. `dgdg.bla.removeAll(Ljava/util/Collection<*>;)Z`
 - `score`: (mandatory double) the suspiciousness values of the methods
@@ -48,6 +53,8 @@ You are able to load scores from external sources by pressing the load score but
 ### Providing user feedback about code elements
 
 You could use the context menu of the table to provide various user feedback about the selected items. **Interactivity should not be disabled for any selected item to use this feature.**
+
+<img src="/media/screen_shot/context_menu.png" alt="context_menu" width="400px"/>
 
 Feedback will change the score for one or more items. The effect of the feedback categorised according their target.
 
