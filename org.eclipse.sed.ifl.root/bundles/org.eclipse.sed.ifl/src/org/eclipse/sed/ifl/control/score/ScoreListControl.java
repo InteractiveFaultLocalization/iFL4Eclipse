@@ -261,7 +261,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			System.out.println("size of userfeedback list: " + event.getSubjects().size());
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
-					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas.",
+					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
 					getElementNames(event));
 			if (dialog.open() == InputDialog.OK) {
 				confirmed = true;
