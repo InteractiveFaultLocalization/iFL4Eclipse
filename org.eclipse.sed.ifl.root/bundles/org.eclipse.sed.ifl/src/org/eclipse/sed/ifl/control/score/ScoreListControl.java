@@ -129,7 +129,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 	
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
-		new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+		try {
+			new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+		} catch (RuntimeException e) {
+			MessageDialog.open(MessageDialog.ERROR, Display.getCurrent().getActiveShell(), "Error opening details", "The details link can not be opened. Please check if the CSV file provides a working details link.", SWT.NONE);
+		}
+		
 	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
