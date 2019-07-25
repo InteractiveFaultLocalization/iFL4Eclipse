@@ -2,7 +2,8 @@
 <site>
 
 
-   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="1.8">
+
+   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="1.9">
 
       <category name="iFL for Eclipse"/>
    </feature>
