@@ -396,8 +396,8 @@ public class ScoreListUI extends Composite {
 
 	private void createColumns() {
 		iconColumn = new TableColumn(table, SWT.NONE);
-		iconColumn.setWidth(32);
 		iconColumn.setResizable(false);
+		iconColumn.setText("Last action");
 
 		scoreColumn = new TableColumn(table, SWT.NONE);
 		scoreColumn.setMoveable(true);
@@ -547,10 +547,12 @@ public class ScoreListUI extends Composite {
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
-			String iconPath = entry.getValue().getStatus().getIconPath();
-			if (iconPath != null) {
-				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
-				item.setImage(table.indexOf(iconColumn), icon);
+			if (entry.getValue().getLastAction() != null) {
+				String iconPath = entry.getValue().getLastAction().getCause().getChoise().getKind().getIconPath();
+				if (iconPath != null) {
+					Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
+					item.setImage(table.indexOf(iconColumn), icon);
+				}
 			}
 			if (entry.getValue().isDefinit()) {
 				//item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
@@ -685,8 +687,8 @@ public class ScoreListUI extends Composite {
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setToolTipText(option.getDescription());
 			item.setData(option);
-			if (option.getIconPath() != null) {
-				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getIconPath()));
+			if (option.getKind().getIconPath() != null) {
+				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getKind().getIconPath()));
 			}
 			item.addSelectionListener(new SelectionListener() {
 

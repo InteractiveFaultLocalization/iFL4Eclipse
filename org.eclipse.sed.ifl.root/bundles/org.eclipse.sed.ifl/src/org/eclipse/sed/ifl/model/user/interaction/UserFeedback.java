@@ -20,7 +20,7 @@ public class UserFeedback implements IUserFeedback {
 		this.subjects.addAll(subjects);
 		this.user = user;
 	}
-
+	
 	private IUser user;
 	
 	@Override
@@ -41,5 +41,4 @@ public class UserFeedback implements IUserFeedback {
 	public List<IMethodDescription> getSubjects() {
 		return Collections.unmodifiableList(subjects);
 	}
-
 }

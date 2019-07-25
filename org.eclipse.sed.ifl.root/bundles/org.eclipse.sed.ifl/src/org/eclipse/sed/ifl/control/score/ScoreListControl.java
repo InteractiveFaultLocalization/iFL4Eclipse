@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
@@ -24,6 +25,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -31,6 +33,9 @@ import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
+import org.eclipse.sed.ifl.model.score.history.Monument;
+import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -42,6 +47,7 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -51,6 +57,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	
+	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
+			new ScoreHistoryModel(),
+			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI(), SWT.NONE)));
 
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
@@ -59,6 +69,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	@Override
 	public void init() {
 		this.addSubControl(activityMonitor);
+		this.addSubControl(scoreHistory);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -100,34 +111,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
 		activityMonitor = null;
+		scoreHistory = null;
 	}
 
-	// TODO: Yoda-mode :) split or move it to view
-	public enum ScoreStatus {
-		NONE(null), INCREASED("icons/up_arrow16.png"), DECREASED("icons/down_arrow16.png"), UNDEFINED("icons/undef16.png");
-
-		private final String iconPath;
-
-		ScoreStatus(String iconPath) {
-			this.iconPath = iconPath;
-		}
-
-		public String getIconPath() {
-			return iconPath;
-		}
-	}
-
-	private void updateScore() {
-		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
-		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
-		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
-		if (min.isPresent() && max.isPresent()) {
-			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
-		}
-		handler.loadMethodsScoreMap(rawScores);
-		refreshView();
-	}
-	
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
 		try {
 			new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
@@ -226,6 +212,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
+		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
+			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
+			entry.getValue().setLastAction(last);
+		}
 		getView().refreshScores(toDisplay);
 		getView().showNoItemsLabel(toDisplay.isEmpty());
 	}
@@ -236,6 +226,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			context.addAll(item.getContext());
 		}
 		getView().highlight(context);
+		if (event.size() == 1) {
+			scoreHistory.display(event.get(0));
+		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
 
@@ -270,15 +263,32 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 	};
 
-	private IListener<EmptyEvent> scoreUpdatedListener = __ -> updateScore();
+	private IListener<Map<IMethodDescription, ScoreChange>> scoreUpdatedListener = event -> {
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore();
+		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+		if (min.isPresent() && max.isPresent()) {
+			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+		}
+		handler.loadMethodsScoreMap(rawScores);
+		//TODO: history-saving-bug history should be saved here but we do not have the cause, since this event come from the model,
+		// which do not need to know about it.
+		refreshView();
+	};
 
-	private IListener<Map<IMethodDescription, Defineable<Double>>> scoreRecalculatedListener = event -> {
-		getModel().updateScore(
-			event.entrySet().stream()
+	private IListener<MethodScoreHandler.ScoreUpdateArgs> scoreRecalculatedListener = event -> {
+		Map<IMethodDescription, ScoreChange> changes = getModel().updateScore(
+			event.getNewScores().entrySet().stream()
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
 					i -> new Score(i.getValue(), true))));
+		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
+			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
+		}
+		//TODO: this is a redundant refresh since the event listener of scoreUpdatedListener already refreshed it,
+		// but the history do not contains the monuments requested to display. Search history-saving-bug for more.
+		refreshView();
 	};
 
 	private SortingArg sorting;
