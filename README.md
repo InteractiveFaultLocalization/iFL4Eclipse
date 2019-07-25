@@ -7,7 +7,9 @@
 
 ## Interactive Fault Localization for Eclipse
 
-<img src="/media/logo.png" alt="logo" width="200px"/>
+<img src="/media/dev.gif" alt="dev_mascot" height="100px"/>
+<img src="/media/logo.png" alt="logo" height="100px"/>
+<img src="/media/alg.gif" alt="alg_mascot" height="100px"/>
 
 Fault localization is a debugging activity which is, by definition, part of a programmer's work in which she has to interact with the source code of the software being debugged.
 It follows that this can be performed most effectively through the IDE itself; hence the most logical form of supporting tools is when they are integrated into the IDE. 
@@ -27,15 +29,15 @@ In this section we will briefly elaborate the key features of our plug-in.
 
 **Please note that iFL for Eclipse only supports inspection of Java projects, i.e. projects associated with [Java Nature](https://www.vogella.com/tutorials/EclipseProjectNatures/article.html) and which do not contain any compilation error.**
 
-You can also watch our [demo video](https://youtu.be/ADeK5ibnqSY) or our [promo poster](), in which we showcase a previous version of our plug-in.
+You can also watch our [demo video](https://youtu.be/ADeK5ibnqSY) or our [promo poster](/media/poster.pdf), in which we showcase a previous version of our plug-in.
 
-<img src="/media/screen_shot/menu.png" alt="menu" width="400px"/>
+<img src="/media/screen_shot/menu.png" alt="menu" width="600px"/>
 
 The fault localization (FL) process executed as a session in iFL for Eclipse. You could either start the session from the toolbar or from the iFL menu after selecting the target project or any files of it.
 
 ### Showing suspiciousness scores for methods
 
-<img src="/media/screen_shot/main.png" alt="main" width="400px"/>
+<img src="/media/screen_shot/main.png" alt="main" width="600px"/>
 
 The main view of the plug-in is a table, which display the methods in the target project and their main properties. All common shorting and column rearranging features are available. 
 
@@ -43,7 +45,7 @@ The main view of the plug-in is a table, which display the methods in the target
 
 You are able to load scores from external sources by pressing the load score button. External score data has to be in CSV format with a header, using semicolon (;) as separator and double quotes (" ") for string literals. It could contain the following columns (any other columns will be ignored).
 
-<img src="/media/screen_shot/load.png" alt="load" width="400px"/>
+<img src="/media/screen_shot/load.png" alt="load" width="600px"/>
 
 - `name`: (mandatory string) the fully qualified name of the methods, e.g. `dgdg.bla.removeAll(Ljava/util/Collection<*>;)Z`
 - `score`: (mandatory double) the suspiciousness values of the methods
@@ -54,7 +56,7 @@ You are able to load scores from external sources by pressing the load score but
 
 You could use the context menu of the table to provide various user feedback about the selected items. **Interactivity should not be disabled for any selected item to use this feature.**
 
-<img src="/media/screen_shot/context_menu.png" alt="context_menu" width="400px"/>
+<img src="/media/screen_shot/context_menu.png" alt="context_menu" width="600px"/>
 
 Feedback will change the score for one or more items. The effect of the feedback categorised according their target.
 
@@ -75,3 +77,11 @@ At first you have to download the content of our update site and unzip it into a
 You are able to install our plug-in directly from Eclipse IDE. Please use the [Install New Software wizard](https://help.eclipse.org/2018-09/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Ftasks%2Ftasks-124.htm) which allows you to add new software to your Eclipse installation.
 
 To access all aviable features of iFL for Eclipse please copy the `key` file next to your Eclipse executable. For further details see the description of selected version.
+
+## Contact us
+
+<img src="/media/szte.png" alt="szte" width="200px"/>
+
+iFL for Eclipse are developed and maintained during the iFL research of [University of Szeged, Department of Software Engineering](http://www.sed.inf.u-szeged.hu/).
+
+If you have any question or suggestion feel free to [submit an issue](https://github.com/sed-szeged/iFL4Eclipse/issues/new/choose), or [write an e-mail](mailto:geryxyz@inf.u-szeged.hu?cc=beszedes@inf.u-szeged.hu&subject=%5BiFL4Eclipse%5D).
