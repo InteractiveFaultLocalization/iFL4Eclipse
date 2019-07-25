@@ -22,11 +22,13 @@ import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.WrongSelectionException;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
+import org.eclipse.sed.ifl.ide.gui.dialogs.CustomWarningDialog;
 import org.eclipse.sed.ifl.model.monitor.LogOnlyModeModel;
 import org.eclipse.sed.ifl.model.monitor.PartMonitorModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 
 public class startHandler extends AbstractHandler {
 
@@ -36,7 +38,8 @@ public class startHandler extends AbstractHandler {
 			PartAccessor partAccessor = new PartAccessor(event);
 			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
 			if (Activator.getDefault().isSessionActive()) {
-				MessageDialog.open(MessageDialog.WARNING, null, "iFL session already active", "You already started an Interactive fault localization session. Consult with the iFL panel for further details.", SWT.NONE);			
+				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session already active", "You already started an Interactive Fault Localization session. Check the iFL panel for further details.");
+				dialog.open();
 			}
 			else {
 				if (isKeyFilePresent("log.key", "enabled")) {
