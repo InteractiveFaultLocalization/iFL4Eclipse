@@ -7,9 +7,7 @@
 
 ## Interactive Fault Localization for Eclipse
 
-<img src="/media/dev.gif" alt="dev_mascot" height="100px"/>
-<img src="/media/logo.png" alt="logo" height="100px"/>
-<img src="/media/alg.gif" alt="alg_mascot" height="100px"/>
+<img src="/media/dev.gif" alt="dev_mascot" height="150px"/><img src="/media/logo.png" alt="logo" height="150px"/><img src="/media/alg.gif" alt="alg_mascot" height="150px"/>
 
 Fault localization is a debugging activity which is, by definition, part of a programmer's work in which she has to interact with the source code of the software being debugged.
 It follows that this can be performed most effectively through the IDE itself; hence the most logical form of supporting tools is when they are integrated into the IDE. 
