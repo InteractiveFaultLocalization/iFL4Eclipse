@@ -3,7 +3,8 @@
 
 
 
-   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="1.9">
+
+   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="1.10">
 
       <category name="iFL for Eclipse"/>
    </feature>
