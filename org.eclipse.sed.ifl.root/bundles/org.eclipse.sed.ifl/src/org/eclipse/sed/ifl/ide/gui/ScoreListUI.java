@@ -707,6 +707,24 @@ public class ScoreListUI extends Composite {
 				}
 			});
 		}
+		MenuItem item = new MenuItem(contextMenu, SWT.None);
+		item.setText("Custom feedback...");
+		item.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				List<IMethodDescription> subjects = Stream.of(table.getSelection())
+						.map(selection -> (IMethodDescription)selection.getData())
+						.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+				customOptionSelected.invoke(subjects);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+		
 	}
 
 	public void showNoItemsLabel(boolean show) {
@@ -715,6 +733,18 @@ public class ScoreListUI extends Composite {
 	}
 	
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
+		return optionSelected;
+	}
+
+	private NonGenericListenerCollection<List<IMethodDescription>> customOptionSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
+		return customOptionSelected;
+	}
+
+	
 	private Composite composite;
 	private Composite contextSizeComposite;
 	private Combo contextSizeCombo;
@@ -724,10 +754,6 @@ public class ScoreListUI extends Composite {
 	private Scale scale;
 	private Text manualText;
 	private Button manualButton;
-
-	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
-		return optionSelected;
-	}
 
 	public void highlight(List<MethodIdentity> context) {
 		for (TableItem item : table.getItems()) {

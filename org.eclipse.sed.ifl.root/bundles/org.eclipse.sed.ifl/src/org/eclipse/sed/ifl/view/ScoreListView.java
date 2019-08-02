@@ -44,6 +44,7 @@ public class ScoreListView extends View {
 	@Override
 	public void init() {
 		ui.eventOptionSelected().add(optionSelectedListener);
+		ui.eventCustomOptionSelected().add(customOptionSelectedListener);
 		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
 		ui.eventNavigateToContext().add(navigateToContextListener);
@@ -60,6 +61,7 @@ public class ScoreListView extends View {
 	@Override
 	public void teardown() {
 		ui.eventOptionSelected().remove(optionSelectedListener);
+		ui.eventCustomOptionSelected().remove(customOptionSelectedListener);
 		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
 		ui.eventNavigateToContext().remove(navigateToContextListener);
@@ -95,6 +97,14 @@ public class ScoreListView extends View {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = optionSelected::invoke;
+
+	private NonGenericListenerCollection<List<IMethodDescription>> customOptionSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
+		return customOptionSelected;
+	}
+
+	private IListener<List<IMethodDescription>> customOptionSelectedListener = customOptionSelected::invoke;
 
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
