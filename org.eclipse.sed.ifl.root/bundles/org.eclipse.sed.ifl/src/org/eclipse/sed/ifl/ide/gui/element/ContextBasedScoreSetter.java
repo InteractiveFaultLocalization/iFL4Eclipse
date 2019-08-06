@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -17,6 +18,8 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.layout.GridData;
 
 public class ContextBasedScoreSetter extends Composite {
 
@@ -39,15 +42,25 @@ public class ContextBasedScoreSetter extends Composite {
 	private double upperLimit = 1.0;
 	
 	private double ratioOf(double ratio) {
-		double temp = lowerLimit * (1.0 - ratio) + upperLimit * ratio;
-		System.out.println(temp);
-		return temp;
+		return lowerLimit * (1.0 - ratio) + upperLimit * ratio;
 	}
 	
 	private List<Double> dataPoints;
 	
 	public void setDataPoints(List<Double> points) {
 		dataPoints = new ArrayList<>(points);
+		Random random = new Random();
+		for (Double point : points) {
+			Label label = new Label(distribution, SWT.NONE);
+			label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+			label.setAlignment(SWT.CENTER);
+			label.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+			label.setBounds(
+				new Double(3 + 10 * random.nextDouble()).intValue(),
+				new Double(250 - 250 * point).intValue(),
+				4, 4);
+			label.setText("");
+		}
 	}
 	
 	private double getMin() {
@@ -66,55 +79,65 @@ public class ContextBasedScoreSetter extends Composite {
 		rowLayout.fill = true;
 		setLayout(rowLayout);
 		
-		Composite mainSector = new Composite(this, SWT.NONE);
-		RowLayout rl_mainSector = new RowLayout(SWT.VERTICAL);
-		rl_mainSector.center = true;
-		rl_mainSector.justify = true;
-		mainSector.setLayout(rl_mainSector);
+		Composite mainSection = new Composite(this, SWT.NONE);
+		RowLayout rl_mainSection = new RowLayout(SWT.VERTICAL);
+		rl_mainSection.center = true;
+		rl_mainSection.justify = true;
+		mainSection.setLayout(rl_mainSection);
 		
-		title = new Label(mainSector, SWT.NONE);
+		title = new Label(mainSection, SWT.NONE);
 		title.setAlignment(SWT.CENTER);
 		title.setText("(noname)");
 
-		Button active = new Button(mainSector, SWT.CHECK);
+		Button active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
-		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSector, active.getSelection()));
+		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSection, active.getSelection()));
 		active.setSelection(true);
 		
-		settingSector = new Composite(mainSector, SWT.NONE);
-		RowLayout rl_settingSector = new RowLayout(SWT.VERTICAL);
-		rl_settingSector.center = true;
-		rl_settingSector.justify = true;
-		settingSector.setLayout(rl_settingSector);
+		settingSection = new Composite(mainSection, SWT.NONE);
+		RowLayout rl_settingSection = new RowLayout(SWT.VERTICAL);
+		rl_settingSection.center = true;
+		rl_settingSection.justify = true;
+		settingSection.setLayout(rl_settingSection);
 		
-		Button setUpper = new Button(settingSector, SWT.CENTER);
+		Button setUpper = new Button(settingSection, SWT.CENTER);
 		setUpper.setText("Set to 1");
 		setUpper.addListener(SWT.Selection, event -> { scale.setSelection(toScale(upperLimit)); updateDisplay(); });
 		
-		Button setMax = new Button(settingSector, SWT.NONE);
+		Button setMax = new Button(settingSection, SWT.NONE);
 		setMax.setText("Set to max");
 		setMax.addListener(SWT.Selection, event -> { scale.setSelection(toScale(getMax())); updateDisplay(); });
 		
-		Composite middleSection = new Composite(settingSector, SWT.NONE);
-		middleSection.setLayout(new GridLayout(3, false));
+		Composite middleSection = new Composite(settingSection, SWT.NONE);
+		middleSection.setLayout(new GridLayout(4, false));
 		
 		Composite valuesSection = new Composite(middleSection, SWT.NONE);
-		valuesSection.setBounds(0, 0, 64, 64);
 		valuesSection.setLayout(new RowLayout(SWT.HORIZONTAL));
+		valuesSection.update();
 		
 		newScore = new Text(valuesSection, SWT.BORDER);
 		newScore.setLayoutData(new RowData(25, SWT.DEFAULT));
 		
 		scale = new Scale(middleSection, SWT.VERTICAL);
-		scale.setSize(52, 200);
+		GridData gd_scale = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_scale.heightHint = 250;
+		gd_scale.widthHint = 50;
+		scale.setLayoutData(gd_scale);
 		scale.setMaximum(toScale(1.0 - upperLimit));
 		scale.setMinimum(toScale(1.0 - lowerLimit));
 		scale.addListener(SWT.Selection, event -> { valueChanged.invoke(fromScale(scale.getSelection())); updateDisplay(); });
 		scale.setSelection(toScale((upperLimit + lowerLimit) / 2.0));
 		updateDisplay();
+
+		distribution = new Composite(middleSection, SWT.NONE);
+		distribution.setLayout(null);
+		GridData gd_distribution = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
+		gd_distribution.heightHint = 250;
+		gd_distribution.widthHint = 20;
+		distribution.setLayoutData(gd_distribution);
+		distribution.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 		
 		Composite presetSection = new Composite(middleSection, SWT.NONE);
-		presetSection.setBounds(0, 0, 64, 64);
 		presetSection.setLayout(new RowLayout(SWT.VERTICAL));
 		
 		Button upThird = new Button(presetSection, SWT.NONE);
@@ -123,13 +146,17 @@ public class ContextBasedScoreSetter extends Composite {
 		
 		Button lowThird = new Button(presetSection, SWT.NONE);
 		lowThird.setText("Set to 1/3 %");
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
 		lowThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/3.0))); updateDisplay(); });
 		
-		Button setMin = new Button(settingSector, SWT.NONE);
+		Button setMin = new Button(settingSection, SWT.NONE);
 		setMin.setText("Set to min");
 		setMin.addListener(SWT.Selection, event -> { scale.setSelection(toScale(getMin())); updateDisplay(); });
 		
-		Button setLower = new Button(settingSector, SWT.NONE);
+		Button setLower = new Button(settingSection, SWT.NONE);
 		setLower.setText("Set to 0.0");
 		setLower.addListener(SWT.Selection, event -> { scale.setSelection(toScale(lowerLimit)); updateDisplay(); });
 	}
@@ -143,7 +170,8 @@ public class ContextBasedScoreSetter extends Composite {
 	}
 	
 	private NonGenericListenerCollection<Double> valueChanged = new NonGenericListenerCollection<>();
-	private Composite settingSector;
+	private Composite settingSection;
+	private Composite distribution;
 	
 	public INonGenericListenerCollection<Double> eventValueChanged() {
 		return valueChanged;

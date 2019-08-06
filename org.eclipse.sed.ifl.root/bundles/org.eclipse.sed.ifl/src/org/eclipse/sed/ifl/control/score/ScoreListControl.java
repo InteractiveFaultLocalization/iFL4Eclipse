@@ -48,6 +48,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
@@ -274,7 +275,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 	
 	private IListener<List<IMethodDescription>> customOptionSelectedListener = event -> {
-		contextBasedOptionCreator.createNewOption();
+		Map<IMethodDescription, Defineable<Double>> all = getModel().getRawScore();
+		List<IMethodDescription> selected = event;
+		List<IMethodDescription> context = IMethodDescriptionCollectionUtil.collectContext(selected, all);
+		List<IMethodDescription> others = IMethodDescriptionCollectionUtil.collectOther(all, selected, context);
+		contextBasedOptionCreator.createNewOption(selected, context, others, all);
 	};
 
 	private IListener<Map<IMethodDescription, ScoreChange>> scoreUpdatedListener = event -> {

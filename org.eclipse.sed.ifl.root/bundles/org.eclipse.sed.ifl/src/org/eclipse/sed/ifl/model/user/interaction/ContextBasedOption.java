@@ -1,15 +1,13 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class ContextBasedOption extends Option {
@@ -81,7 +79,7 @@ public class ContextBasedOption extends Option {
 			newScores.putAll(applyAll(updateSelected, selected));
 		}
 		if (updateContext != null) {
-			context = collectContext(feedback, allScores);
+			context = IMethodDescriptionCollectionUtil.collectContext(feedback.getSubjects(), allScores);
 			newScores.putAll(applyAll(updateContext, context));
 		}
 		if (updateOther != null) {
@@ -89,36 +87,11 @@ public class ContextBasedOption extends Option {
 				selected = feedback.getSubjects();
 			}
 			if (context == null) {
-				context = collectContext(feedback, allScores);
+				context = IMethodDescriptionCollectionUtil.collectContext(feedback.getSubjects(), allScores);
 			}
-			other = collectOther(allScores, selected, context);
+			other = IMethodDescriptionCollectionUtil.collectOther(allScores, selected, context);
 			newScores.putAll(applyAll(updateOther, other));
 		}
 		return newScores;
-	}
-
-	private List<IMethodDescription> collectOther(Map<IMethodDescription, Defineable<Double>> allScores,
-			List<IMethodDescription> selected, List<IMethodDescription> context) {
-		Set<IMethodDescription> other = new HashSet<>();
-		other.addAll(allScores.keySet());
-		other.removeAll(selected);
-		other.removeAll(context);
-		return new ArrayList<>(other);
-	}
-
-	private List<IMethodDescription> collectContext(IUserFeedback feedback,
-			Map<IMethodDescription, Defineable<Double>> allScores) {
-		Set<IMethodDescription> context = new HashSet<>();
-		feedback.getSubjects().stream()
-			.flatMap(subject -> subject.getContext().stream())
-			.forEach(id -> {
-				for (IMethodDescription desc : allScores.keySet()) {
-					if (desc.getId().equals(id)) {
-						context.add(desc);
-						break;
-					}
-				}
-			});
-		return new ArrayList<>(context);
 	}
 }
