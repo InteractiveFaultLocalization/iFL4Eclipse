@@ -27,8 +27,8 @@ public class ContextBasedScoreSetter extends Composite {
 	private Text newScore;
 	private Scale scale;
 	
-	private static final double SLIDER_PRECISION = 10000.0;
-	private static final DecimalFormat FORMAT = new DecimalFormat("#0.00");
+	private static final double SLIDER_PRECISION = 100.0;
+	private static final DecimalFormat FORMAT = new DecimalFormat("#0%");
 	
 	private int toScale(double value) {
 		return Double.valueOf((upperLimit - value) * SLIDER_PRECISION).intValue();
@@ -38,7 +38,7 @@ public class ContextBasedScoreSetter extends Composite {
 		return upperLimit - value / SLIDER_PRECISION;
 	}
 	
-	private double lowerLimit = 0.0;
+	private double lowerLimit = -1.0;
 	private double upperLimit = 1.0;
 	
 	private double ratioOf(double ratio) {
@@ -123,8 +123,8 @@ public class ContextBasedScoreSetter extends Composite {
 		gd_scale.heightHint = 250;
 		gd_scale.widthHint = 50;
 		scale.setLayoutData(gd_scale);
-		scale.setMaximum(toScale(1.0 - upperLimit));
-		scale.setMinimum(toScale(1.0 - lowerLimit));
+		scale.setMaximum(200);
+		scale.setMinimum(0);
 		scale.addListener(SWT.Selection, event -> { valueChanged.invoke(fromScale(scale.getSelection())); updateDisplay(); });
 		scale.setSelection(toScale((upperLimit + lowerLimit) / 2.0));
 		updateDisplay();
@@ -140,18 +140,26 @@ public class ContextBasedScoreSetter extends Composite {
 		Composite presetSection = new Composite(middleSection, SWT.NONE);
 		presetSection.setLayout(new RowLayout(SWT.VERTICAL));
 		
-		Button upThird = new Button(presetSection, SWT.NONE);
-		upThird.setText("Set to 2/3 %");
+		Button upFourth = new Button(presetSection, SWT.RADIO);
+		upFourth.setText("Set to 3/4");
+		upFourth.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(3.0/4.0))); updateDisplay(); });
+		
+		Button upThird = new Button(presetSection, SWT.RADIO);
+		upThird.setText("Set to 2/3");
 		upThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(2.0/3.0))); updateDisplay(); });
 		
-		Button lowThird = new Button(presetSection, SWT.NONE);
-		lowThird.setText("Set to 1/3 %");
-		new Label(middleSection, SWT.NONE);
-		new Label(middleSection, SWT.NONE);
-		new Label(middleSection, SWT.NONE);
-		new Label(middleSection, SWT.NONE);
-		lowThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/3.0))); updateDisplay(); });
+		Button middle = new Button(presetSection, SWT.RADIO);
+		middle.setText("Set to 1/2");
+		middle.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/2.0))); updateDisplay(); });
 		
+		Button lowThird = new Button(presetSection, SWT.RADIO);
+		lowThird.setText("Set to 1/3");
+		lowThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/3.0))); updateDisplay(); });
+
+		Button lowFourth = new Button(presetSection, SWT.RADIO);
+		lowFourth.setText("Set to 1/4");
+		lowFourth.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/4.0))); updateDisplay(); });
+
 		Button setMin = new Button(settingSection, SWT.NONE);
 		setMin.setText("Set to min");
 		setMin.addListener(SWT.Selection, event -> { scale.setSelection(toScale(getMin())); updateDisplay(); });
