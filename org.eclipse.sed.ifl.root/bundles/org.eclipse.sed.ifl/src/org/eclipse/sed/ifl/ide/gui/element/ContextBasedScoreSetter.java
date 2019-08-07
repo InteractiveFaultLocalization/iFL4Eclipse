@@ -3,8 +3,10 @@ package org.eclipse.sed.ifl.ide.gui.element;
 import org.eclipse.swt.widgets.Composite;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -27,24 +29,27 @@ public class ContextBasedScoreSetter extends Composite {
 	private Text newScore;
 	private Scale scale;
 	
-	private static final double SLIDER_PRECISION = 100.0;
-	private static final DecimalFormat FORMAT = new DecimalFormat("#0%");
+	private static final DecimalFormat FORMAT = new DecimalFormat("#0'%'");
 	
-	private int toScale(double value) {
-		return Double.valueOf((upperLimit - value) * SLIDER_PRECISION).intValue();
+	private int toScale(int value) {
+		return 100 - value;
 	}
 	
-	private double fromScale(int value) {
-		return upperLimit - value / SLIDER_PRECISION;
+	private int fromScale(int value) {
+		return 100 - value;
 	}
 	
 	private double lowerLimit = -1.0;
 	private double upperLimit = 1.0;
-	
-	private double ratioOf(double ratio) {
-		return lowerLimit * (1.0 - ratio) + upperLimit * ratio;
+		
+	public void setLowerLimit(double lowerLimit) {
+		this.lowerLimit = lowerLimit;
 	}
-	
+
+	public void setUpperLimit(double upperLimit) {
+		this.upperLimit = upperLimit;
+	}
+
 	private List<Double> dataPoints;
 	
 	public void setDataPoints(List<Double> points) {
@@ -63,14 +68,8 @@ public class ContextBasedScoreSetter extends Composite {
 		}
 	}
 	
-	private double getMin() {
-		return Collections.min(dataPoints);
-	}
-
-	private double getMax() {
-		return Collections.max(dataPoints);
-	}
-
+	private Map<Integer, Button> presets = new HashMap<>(); 
+	
 	public ContextBasedScoreSetter(Composite parent, int style) {
 		super(parent, style);
 		RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
@@ -100,15 +99,17 @@ public class ContextBasedScoreSetter extends Composite {
 		rl_settingSection.justify = true;
 		settingSection.setLayout(rl_settingSection);
 		
-		Button setUpper = new Button(settingSection, SWT.CENTER);
+		Button setUpper = new Button(settingSection, SWT.TOGGLE);
 		setUpper.setText("Set to 1");
-		setUpper.addListener(SWT.Selection, event -> { scale.setSelection(toScale(upperLimit)); updateDisplay(); });
+		setUpper.addListener(SWT.Selection, event -> {
+			//TODO: provide outfeed event
+			Setter.RecursiveEnable(middleSection, !(setUpper.getSelection() || setLower.getSelection()));
+			if (setUpper.getSelection()) {
+				setLower.setSelection(false);
+			}
+		});
 		
-		Button setMax = new Button(settingSection, SWT.NONE);
-		setMax.setText("Set to max");
-		setMax.addListener(SWT.Selection, event -> { scale.setSelection(toScale(getMax())); updateDisplay(); });
-		
-		Composite middleSection = new Composite(settingSection, SWT.NONE);
+		middleSection = new Composite(settingSection, SWT.NONE);
 		middleSection.setLayout(new GridLayout(4, false));
 		
 		Composite valuesSection = new Composite(middleSection, SWT.NONE);
@@ -125,8 +126,14 @@ public class ContextBasedScoreSetter extends Composite {
 		scale.setLayoutData(gd_scale);
 		scale.setMaximum(200);
 		scale.setMinimum(0);
-		scale.addListener(SWT.Selection, event -> { valueChanged.invoke(fromScale(scale.getSelection())); updateDisplay(); });
-		scale.setSelection(toScale((upperLimit + lowerLimit) / 2.0));
+		scale.addListener(SWT.Selection, event -> {
+			valueChanged.invoke(fromScale(scale.getSelection()) / 100.0);
+			if (presets.containsKey(fromScale(scale.getSelection()))) {
+				presets.get(scale.getSelection()).setSelection(true);
+			}
+			updateDisplay();
+		});
+		scale.setSelection(0);
 		updateDisplay();
 
 		distribution = new Composite(middleSection, SWT.NONE);
@@ -140,33 +147,31 @@ public class ContextBasedScoreSetter extends Composite {
 		Composite presetSection = new Composite(middleSection, SWT.NONE);
 		presetSection.setLayout(new RowLayout(SWT.VERTICAL));
 		
-		Button upFourth = new Button(presetSection, SWT.RADIO);
-		upFourth.setText("Set to 3/4");
-		upFourth.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(3.0/4.0))); updateDisplay(); });
+		presets.put(66, new Button(presetSection, SWT.RADIO));
+		presets.put(50, new Button(presetSection, SWT.RADIO));
+		presets.put(33, new Button(presetSection, SWT.RADIO));
+		presets.put(0 , new Button(presetSection, SWT.RADIO));
+		presets.put(-33, new Button(presetSection, SWT.RADIO));
+		presets.put(-50, new Button(presetSection, SWT.RADIO));
+		presets.put(-66, new Button(presetSection, SWT.RADIO));
 		
-		Button upThird = new Button(presetSection, SWT.RADIO);
-		upThird.setText("Set to 2/3");
-		upThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(2.0/3.0))); updateDisplay(); });
+		for (Entry<Integer, Button> entry : presets.entrySet()) {
+			presets.get(entry.getKey()).setText(entry.getKey() + "%");
+			presets.get(entry.getKey()).addListener(SWT.Selection, event -> {
+				scale.setSelection(toScale(entry.getKey()));
+				updateDisplay();
+			});
+		}
 		
-		Button middle = new Button(presetSection, SWT.RADIO);
-		middle.setText("Set to 1/2");
-		middle.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/2.0))); updateDisplay(); });
-		
-		Button lowThird = new Button(presetSection, SWT.RADIO);
-		lowThird.setText("Set to 1/3");
-		lowThird.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/3.0))); updateDisplay(); });
-
-		Button lowFourth = new Button(presetSection, SWT.RADIO);
-		lowFourth.setText("Set to 1/4");
-		lowFourth.addListener(SWT.Selection, event -> { scale.setSelection(toScale(ratioOf(1.0/4.0))); updateDisplay(); });
-
-		Button setMin = new Button(settingSection, SWT.NONE);
-		setMin.setText("Set to min");
-		setMin.addListener(SWT.Selection, event -> { scale.setSelection(toScale(getMin())); updateDisplay(); });
-		
-		Button setLower = new Button(settingSection, SWT.NONE);
+		setLower = new Button(settingSection, SWT.TOGGLE);
 		setLower.setText("Set to 0.0");
-		setLower.addListener(SWT.Selection, event -> { scale.setSelection(toScale(lowerLimit)); updateDisplay(); });
+		setLower.addListener(SWT.Selection, event -> {
+			//TODO: provide outfeed event
+			Setter.RecursiveEnable(middleSection, !(setUpper.getSelection() || setLower.getSelection()));
+			if (setLower.getSelection()) {
+				setUpper.setSelection(false);
+			}
+		});
 	}
 
 	private void updateDisplay() {
@@ -180,6 +185,8 @@ public class ContextBasedScoreSetter extends Composite {
 	private NonGenericListenerCollection<Double> valueChanged = new NonGenericListenerCollection<>();
 	private Composite settingSection;
 	private Composite distribution;
+	private Composite middleSection;
+	private Button setLower;
 	
 	public INonGenericListenerCollection<Double> eventValueChanged() {
 		return valueChanged;
