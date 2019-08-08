@@ -19,14 +19,13 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.layout.GridData;
 
 public class ContextBasedScoreSetter extends Composite {
 
 	private Label title;
-	private Text newScore;
+	private Label newScore;
 	private Scale scale;
 	
 	private static final DecimalFormat FORMAT = new DecimalFormat("#0'%'");
@@ -84,11 +83,14 @@ public class ContextBasedScoreSetter extends Composite {
 		rl_mainSection.justify = true;
 		mainSection.setLayout(rl_mainSection);
 		
-		title = new Label(mainSection, SWT.NONE);
+		headerSection = new Composite(mainSection, SWT.NONE);
+		headerSection.setLayout(new RowLayout(SWT.HORIZONTAL));
+		
+		title = new Label(headerSection, SWT.NONE);
 		title.setAlignment(SWT.CENTER);
 		title.setText("(noname)");
 
-		Button active = new Button(mainSection, SWT.CHECK);
+		Button active = new Button(headerSection, SWT.CHECK);
 		active.setText("active");
 		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSection, active.getSelection()));
 		active.setSelection(true);
@@ -116,7 +118,7 @@ public class ContextBasedScoreSetter extends Composite {
 		valuesSection.setLayout(new RowLayout(SWT.HORIZONTAL));
 		valuesSection.update();
 		
-		newScore = new Text(valuesSection, SWT.BORDER);
+		newScore = new Label(valuesSection, SWT.NONE);
 		newScore.setLayoutData(new RowData(25, SWT.DEFAULT));
 		
 		scale = new Scale(middleSection, SWT.VERTICAL);
@@ -128,12 +130,15 @@ public class ContextBasedScoreSetter extends Composite {
 		scale.setMinimum(0);
 		scale.addListener(SWT.Selection, event -> {
 			valueChanged.invoke(fromScale(scale.getSelection()) / 100.0);
+			for (Button item : presets.values()) {
+				item.setSelection(false);
+			}
 			if (presets.containsKey(fromScale(scale.getSelection()))) {
-				presets.get(scale.getSelection()).setSelection(true);
+				presets.get(fromScale(scale.getSelection())).setSelection(true);
 			}
 			updateDisplay();
 		});
-		scale.setSelection(0);
+		scale.setSelection(fromScale(0));
 		updateDisplay();
 
 		distribution = new Composite(middleSection, SWT.NONE);
@@ -187,6 +192,7 @@ public class ContextBasedScoreSetter extends Composite {
 	private Composite distribution;
 	private Composite middleSection;
 	private Button setLower;
+	private Composite headerSection;
 	
 	public INonGenericListenerCollection<Double> eventValueChanged() {
 		return valueChanged;
