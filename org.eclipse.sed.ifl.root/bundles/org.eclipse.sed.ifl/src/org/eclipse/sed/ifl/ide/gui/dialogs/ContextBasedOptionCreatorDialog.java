@@ -4,41 +4,42 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.sed.ifl.ide.gui.element.ContextBasedScoreSetter;
+import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.ScoreSetterView;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 
 public class ContextBasedOptionCreatorDialog extends Dialog {
 
-	public ContextBasedOptionCreatorDialog(Shell parentShell) {
+	public ContextBasedOptionCreatorDialog(
+			Shell parentShell,
+			ScoreSetterView selected,
+			ScoreSetterView context,
+			ScoreSetterView other) {
 		super(parentShell);
+		this.selectedSetter = selected;
+		this.contextSetter = context;
+		this.otherSetter = other;
 	}
 	
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(new GridLayout(3, false));
-		selectedSetter = new ContextBasedScoreSetter(composite, SWT.NONE);
-		selectedSetter.setTitle("selected");
-		selectedSetter.setDataPoints(selected);
-		contextSetter = new ContextBasedScoreSetter(composite, SWT.NONE);
-		contextSetter.setTitle("context");
-		contextSetter.setDataPoints(context);
-		otherSetter = new ContextBasedScoreSetter(composite, SWT.NONE);
-		otherSetter.setTitle("other");
-		otherSetter.setDataPoints(other);
+		selectedSetter.setParent(composite);
+		contextSetter.setParent(composite);
+		otherSetter.setParent(composite);
 		return composite;
 	}
 	
-	private ContextBasedScoreSetter selectedSetter;
+	private ScoreSetterView selectedSetter;
 
-	private ContextBasedScoreSetter contextSetter;
+	private ScoreSetterView contextSetter;
 
-	private ContextBasedScoreSetter otherSetter;
+	private ScoreSetterView otherSetter;
 
 	private List<Double> selected;
 

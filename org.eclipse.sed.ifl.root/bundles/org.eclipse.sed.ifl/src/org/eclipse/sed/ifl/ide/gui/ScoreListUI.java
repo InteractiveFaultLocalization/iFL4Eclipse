@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Scale;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -154,8 +155,12 @@ public class ScoreListUI extends Composite {
 		return returnValue;
 	}
 	
-	public ScoreListUI(Composite parent, int style) {
-		super(parent, style);
+	public ScoreListUI() {
+		this(new Shell());
+	}
+	
+	public ScoreListUI(Composite parent) {
+		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
 		setLayout(new GridLayout(1, false));
 		

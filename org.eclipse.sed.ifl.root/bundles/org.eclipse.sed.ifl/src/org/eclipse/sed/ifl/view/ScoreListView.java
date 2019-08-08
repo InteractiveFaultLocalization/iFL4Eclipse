@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
@@ -19,17 +20,12 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 
-public class ScoreListView extends View {
-	ScoreListUI ui;
-
-	public ScoreListView(ScoreListUI ui) {
-		super();
-		this.ui = ui;
-	}
+public class ScoreListView extends View implements IEmbeddable {
+	ScoreListUI ui = new ScoreListUI();
 
 	@Override
-	public Composite getUI() {
-		return ui;
+	public void setParent(Composite parent) {
+		ui.setParent(parent);
 	}
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {

@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.view;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -11,7 +12,7 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartService;
 import org.eclipse.ui.IWorkbenchPart;
 
-public class SessionView extends View {
+public class SessionView extends View implements IEmbeddable {
 	private MainPart part;
 	
 	public SessionView(MainPart part) {
@@ -19,8 +20,8 @@ public class SessionView extends View {
 	}
 
 	@Override
-	public Composite getUI() {
-		return part.getUI();
+	public void setParent(Composite parent) {
+		part.setParent(parent);
 	}
 	
 	@Override

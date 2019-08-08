@@ -4,16 +4,16 @@ import java.util.List;
 
 import org.eclipse.sed.ifl.ide.gui.dialogs.ContextBasedOptionCreatorDialog;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class ContextBasedOptionCreatorView extends View {
 
-	ContextBasedOptionCreatorDialog dialog = new ContextBasedOptionCreatorDialog(Display.getCurrent().getActiveShell());
+	private ContextBasedOptionCreatorDialog dialog;
 	
-	@Override
-	public Composite getUI() {
-		return null;
+	public ContextBasedOptionCreatorView(ScoreSetterView selected, ScoreSetterView context, ScoreSetterView other) {
+		dialog = new ContextBasedOptionCreatorDialog(
+			Display.getCurrent().getActiveShell(),
+			selected, context, other);
 	}
 	
 	public void display(
@@ -25,5 +25,4 @@ public class ContextBasedOptionCreatorView extends View {
 		dialog.setOthers(scoresOfOthers);
 		dialog.open();
 	}
-
 }

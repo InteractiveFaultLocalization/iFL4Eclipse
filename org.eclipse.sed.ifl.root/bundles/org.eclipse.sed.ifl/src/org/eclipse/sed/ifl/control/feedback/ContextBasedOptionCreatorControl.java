@@ -12,8 +12,26 @@ import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 
 public class ContextBasedOptionCreatorControl extends Control<ContextBasedOptionCreatorModel, ContextBasedOptionCreatorView> {
 
-	public ContextBasedOptionCreatorControl(ContextBasedOptionCreatorModel model, ContextBasedOptionCreatorView view) {
+	ScoreSetterControl selected;
+	
+	ScoreSetterControl context;
+	
+	ScoreSetterControl other;
+	
+	public ContextBasedOptionCreatorControl(ContextBasedOptionCreatorModel model, ContextBasedOptionCreatorView view,
+			ScoreSetterControl selected, ScoreSetterControl context, ScoreSetterControl other) {
 		super(model, view);
+		this.selected = selected;
+		this.context = context;
+		this.other = other;
+	}
+	
+	@Override
+	public void init() {
+		addSubControl(selected);
+		addSubControl(context);
+		addSubControl(other);
+		super.init();
 	}
 	
 	public void createNewOption(

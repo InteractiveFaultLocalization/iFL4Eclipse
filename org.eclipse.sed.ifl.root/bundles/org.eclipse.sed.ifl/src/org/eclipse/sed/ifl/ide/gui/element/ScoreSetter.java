@@ -16,13 +16,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Scale;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.layout.GridData;
 
-public class ContextBasedScoreSetter extends Composite {
+public class ScoreSetter extends Composite {
 
 	private Label title;
 	private Label newScore;
@@ -69,8 +70,12 @@ public class ContextBasedScoreSetter extends Composite {
 	
 	private Map<Integer, Button> presets = new HashMap<>(); 
 	
-	public ContextBasedScoreSetter(Composite parent, int style) {
-		super(parent, style);
+	public ScoreSetter() {
+		this(new Shell());
+	}
+	
+	public ScoreSetter(Composite parent) {
+		super(parent, SWT.NONE);
 		RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
 		rowLayout.center = true;
 		rowLayout.justify = true;

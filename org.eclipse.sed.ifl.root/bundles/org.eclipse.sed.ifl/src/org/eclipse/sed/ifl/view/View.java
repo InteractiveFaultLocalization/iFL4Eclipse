@@ -9,5 +9,4 @@ public abstract class View implements IView {
 	@Override
 	public void teardown() {
 	}
-
 }

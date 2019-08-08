@@ -17,6 +17,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
+import org.eclipse.sed.ifl.control.feedback.ScoreSetterControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
@@ -26,6 +27,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
 import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
@@ -41,6 +43,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -53,6 +56,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
+import org.eclipse.sed.ifl.view.ScoreSetterView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
@@ -64,18 +68,29 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
 			new ScoreHistoryModel(),
-			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI(), SWT.NONE)));
+			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI())));
 
-	private ContextBasedOptionCreatorControl contextBasedOptionCreator = new ContextBasedOptionCreatorControl(
-			new ContextBasedOptionCreatorModel(),
-			new ContextBasedOptionCreatorView()); 
+	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
 	
 	public ScoreListControl(ScoreListModel model, ScoreListView view) {
 		super(model, view);
+		
+		
+		ScoreSetterView selectedView = new ScoreSetterView();
+		ScoreSetterView contextView = new ScoreSetterView();
+		ScoreSetterView otherView = new ScoreSetterView();
+		ScoreSetterControl selected = new ScoreSetterControl(new ScoreSetterModel(), selectedView);
+		ScoreSetterControl context = new ScoreSetterControl(new ScoreSetterModel(), contextView);
+		ScoreSetterControl other = new ScoreSetterControl(new ScoreSetterModel(), otherView);
+		ContextBasedOptionCreatorView contextBasedOptionCreatorView = new ContextBasedOptionCreatorView(selectedView, contextView, otherView);
+		contextBasedOptionCreator = new ContextBasedOptionCreatorControl(
+			new ContextBasedOptionCreatorModel(), contextBasedOptionCreatorView,
+			selected, context, other);
 	}
 
 	@Override
 	public void init() {
+		this.addSubControl(contextBasedOptionCreator);
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
 		this.addSubControl(contextBasedOptionCreator);

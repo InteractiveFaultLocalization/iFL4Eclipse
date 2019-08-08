@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
+import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
@@ -16,11 +17,6 @@ public class ScoreLoaderView extends View {
 		dialog.setFilterExtensions(new String[] {"*.csv"});
 	}
 	
-	@Override
-	public Composite getUI() {
-		return null;
-	}
-
 	private NonGenericListenerCollection<String> fileSelected = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<String> eventFileSelected() {

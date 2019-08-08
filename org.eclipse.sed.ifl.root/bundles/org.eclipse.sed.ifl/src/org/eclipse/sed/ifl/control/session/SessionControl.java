@@ -100,7 +100,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
+		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI())));
 		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
