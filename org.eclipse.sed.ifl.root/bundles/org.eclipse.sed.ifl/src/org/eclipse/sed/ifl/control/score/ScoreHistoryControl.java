@@ -11,10 +11,6 @@ import org.eclipse.sed.ifl.view.ScoreHistoryView;
 
 public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistoryView> {
 
-	public ScoreHistoryControl(ScoreHistoryModel model, ScoreHistoryView view) {
-		super(model, view);
-	}
-	
 	public void store(Score newScore, Score oldScore, IMethodDescription subject, IUserFeedback cause) {
 		getModel().store(new Monument<>(newScore, oldScore, subject, cause));
 	}

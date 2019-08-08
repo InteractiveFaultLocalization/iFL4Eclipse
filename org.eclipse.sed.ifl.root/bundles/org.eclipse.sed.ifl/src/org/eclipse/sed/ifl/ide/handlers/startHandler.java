@@ -49,7 +49,11 @@ public class startHandler extends AbstractHandler {
 				if (isKeyFilePresent("key", "dza tan kaho adz")) {
 					try {
 						IJavaProject selected = sourceAccessor.getSelectedProject();
-						SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected, new PartMonitorControl(new PartMonitorModel(), partAccessor));
+						PartMonitorControl partMonitor = new PartMonitorControl(partAccessor);
+						partMonitor.setModel(new PartMonitorModel());
+						SessionControl session = new SessionControl(selected, partMonitor);
+						session.setModel(new SessionModel());
+						session.setView(new SessionView((MainPart) partAccessor.getPart(MainPart.ID)));
 						session.init(); 
 						Activator.getDefault().setSession(session);
 					} catch (WrongSelectionException e) {
@@ -59,7 +63,8 @@ public class startHandler extends AbstractHandler {
 				else {
 					if (!Activator.getDefault().isLogOnlyModeActive()) {
 						MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Log-only mode activated.", SWT.NONE);
-						LogOnlyModeControl mode = new LogOnlyModeControl(new LogOnlyModeModel(), partAccessor);
+						LogOnlyModeControl mode = new LogOnlyModeControl(partAccessor);
+						mode.setModel(new LogOnlyModeModel());
 						mode.init();
 						Activator.getDefault().setLogOnlyMode(mode);
 					}

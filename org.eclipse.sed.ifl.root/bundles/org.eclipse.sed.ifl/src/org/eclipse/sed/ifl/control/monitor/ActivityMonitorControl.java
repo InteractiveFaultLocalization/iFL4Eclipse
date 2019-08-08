@@ -11,10 +11,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 
 	private static boolean isUsed = false;
 
-	public ActivityMonitorControl(ActivityMonitorModel model) {
-		super(model);
-	}
-
 	private static Boolean showError = true;
 	private static boolean enabled = false;
 

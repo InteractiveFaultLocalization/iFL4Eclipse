@@ -64,28 +64,30 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
-	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private ActivityMonitorControl activityMonitor;
 	
-	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
-			new ScoreHistoryModel(),
-			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI())));
+	private ScoreHistoryControl scoreHistory;
 
 	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
 	
-	public ScoreListControl(ScoreListModel model, ScoreListView view) {
-		super(model, view);
+	public ScoreListControl() {
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
 		
+		scoreHistory = new ScoreHistoryControl();
+		scoreHistory.setModel(new ScoreHistoryModel());
+		scoreHistory.setView(new ScoreHistoryView(new ScoreHistoryUI(getView().getUI())));
 		
-		ScoreSetterView selectedView = new ScoreSetterView();
-		ScoreSetterView contextView = new ScoreSetterView();
-		ScoreSetterView otherView = new ScoreSetterView();
-		ScoreSetterControl selected = new ScoreSetterControl(new ScoreSetterModel(), selectedView);
-		ScoreSetterControl context = new ScoreSetterControl(new ScoreSetterModel(), contextView);
-		ScoreSetterControl other = new ScoreSetterControl(new ScoreSetterModel(), otherView);
-		ContextBasedOptionCreatorView contextBasedOptionCreatorView = new ContextBasedOptionCreatorView(selectedView, contextView, otherView);
-		contextBasedOptionCreator = new ContextBasedOptionCreatorControl(
-			new ContextBasedOptionCreatorModel(), contextBasedOptionCreatorView,
-			selected, context, other);
+		ScoreSetterControl selected = new ScoreSetterControl();
+		selected.setModel(new ScoreSetterModel());
+		selected.setView(new ScoreSetterView());
+		ScoreSetterControl context = new ScoreSetterControl();
+		context.setModel(new ScoreSetterModel());
+		context.setView(new ScoreSetterView());
+		ScoreSetterControl other = new ScoreSetterControl();
+		other.setModel(new ScoreSetterModel());
+		other.setView(new ScoreSetterView());
+		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 	}
 
 	@Override

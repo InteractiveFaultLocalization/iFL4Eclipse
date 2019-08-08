@@ -18,9 +18,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	
 	ScoreSetterControl other;
 	
-	public ContextBasedOptionCreatorControl(ContextBasedOptionCreatorModel model, ContextBasedOptionCreatorView view,
-			ScoreSetterControl selected, ScoreSetterControl context, ScoreSetterControl other) {
-		super(model, view);
+	public ContextBasedOptionCreatorControl(ScoreSetterControl selected, ScoreSetterControl context, ScoreSetterControl other) {
 		this.selected = selected;
 		this.context = context;
 		this.other = other;

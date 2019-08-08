@@ -1,10 +1,8 @@
 package org.eclipse.sed.ifl.view;
 
-import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 

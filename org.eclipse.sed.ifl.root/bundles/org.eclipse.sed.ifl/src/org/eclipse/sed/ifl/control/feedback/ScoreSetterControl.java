@@ -6,7 +6,4 @@ import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterView> {
 
-	public ScoreSetterControl(ScoreSetterModel model, ScoreSetterView view) {
-		super(model, view);
-	}
 }

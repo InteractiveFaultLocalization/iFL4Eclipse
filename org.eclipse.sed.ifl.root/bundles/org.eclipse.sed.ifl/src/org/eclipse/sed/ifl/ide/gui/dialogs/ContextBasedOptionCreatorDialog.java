@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 import org.eclipse.swt.widgets.Composite;

@@ -47,13 +47,15 @@ import org.eclipse.ui.IWorkbenchPart;
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
 	
-	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private ActivityMonitorControl activityMonitor;
 	private PartMonitorControl partMonitor;
 	
-	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject, PartMonitorControl partMonitor) {
-		super(model, view);
+	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
+		
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
 	}
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
@@ -100,8 +102,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI())));
-		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
+		scoreListControl = new ScoreListControl();
+		scoreListControl.setModel(model);
+		scoreListControl.setView(new ScoreListView(new ScoreListUI(getView().getUI())));
+		scoreLoaderControl = new ScoreLoaderControl();
+		scoreLoaderControl.setModel(model);
+		scoreLoaderControl.setView(new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		System.out.println(watch);
