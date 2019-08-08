@@ -27,8 +27,6 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
-import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
-import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -41,7 +39,6 @@ import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
-import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
@@ -53,7 +50,6 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
@@ -76,7 +72,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		
 		scoreHistory = new ScoreHistoryControl();
 		scoreHistory.setModel(new ScoreHistoryModel());
-		scoreHistory.setView(new ScoreHistoryView(new ScoreHistoryUI(getView().getUI())));
+		ScoreHistoryView scoreHistoryView = new ScoreHistoryView();
+		//TODO: getView it null in the ctor
+		getView().embed(scoreHistoryView);
+		scoreHistory.setView(scoreHistoryView);
 		
 		ScoreSetterControl selected = new ScoreSetterControl();
 		selected.setModel(new ScoreSetterModel());
@@ -87,7 +86,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		ScoreSetterControl other = new ScoreSetterControl();
 		other.setModel(new ScoreSetterModel());
 		other.setView(new ScoreSetterView());
-		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
+		//TODO contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 	}
 
 	@Override

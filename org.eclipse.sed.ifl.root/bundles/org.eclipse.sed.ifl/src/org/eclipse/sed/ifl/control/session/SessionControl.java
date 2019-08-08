@@ -21,7 +21,6 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
-import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -41,7 +40,6 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
@@ -104,7 +102,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListModel model = new ScoreListModel(methods);
 		scoreListControl = new ScoreListControl();
 		scoreListControl.setModel(model);
-		scoreListControl.setView(new ScoreListView(new ScoreListUI(getView().getUI())));
+		ScoreListView scoreListView = new ScoreListView();
+		getView().embed(scoreListView);
+		scoreListControl.setView(scoreListView);
 		scoreLoaderControl = new ScoreLoaderControl();
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
