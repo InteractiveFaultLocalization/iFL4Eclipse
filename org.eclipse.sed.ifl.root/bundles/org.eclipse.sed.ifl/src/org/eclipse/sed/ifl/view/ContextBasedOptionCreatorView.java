@@ -2,19 +2,15 @@ package org.eclipse.sed.ifl.view;
 
 import java.util.List;
 
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.dialogs.ContextBasedOptionCreatorDialog;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.widgets.Display;
 
-public class ContextBasedOptionCreatorView extends View {
+public class ContextBasedOptionCreatorView extends View implements IEmbedee {
 
-	private ContextBasedOptionCreatorDialog dialog;
-	
-	public ContextBasedOptionCreatorView(ScoreSetterView selected, ScoreSetterView context, ScoreSetterView other) {
-		dialog = new ContextBasedOptionCreatorDialog(
-			Display.getCurrent().getActiveShell(),
-			selected, context, other);
-	}
+	private ContextBasedOptionCreatorDialog dialog = new ContextBasedOptionCreatorDialog(Display.getCurrent().getActiveShell());
 	
 	public void display(
 			List<Defineable<Double>> scoresOfSelected,
@@ -24,5 +20,10 @@ public class ContextBasedOptionCreatorView extends View {
 		dialog.setContext(scoresOfContext);
 		dialog.setOthers(scoresOfOthers);
 		dialog.open();
+	}
+
+	@Override
+	public void embed(IEmbeddable embedded) {
+		dialog.embed(embedded);
 	}
 }

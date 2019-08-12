@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
+import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
+import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 public class ContextBasedOptionCreatorControl extends Control<ContextBasedOptionCreatorModel, ContextBasedOptionCreatorView> {
 
@@ -18,14 +20,26 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	
 	ScoreSetterControl other;
 	
-	public ContextBasedOptionCreatorControl(ScoreSetterControl selected, ScoreSetterControl context, ScoreSetterControl other) {
-		this.selected = selected;
-		this.context = context;
-		this.other = other;
-	}
-	
 	@Override
 	public void init() {
+		ScoreSetterControl selected = new ScoreSetterControl("selected");
+		selected.setModel(new ScoreSetterModel());
+		ScoreSetterView selectedView = new ScoreSetterView();
+		selected.setView(selectedView);
+		getView().embed(selectedView);
+		
+		ScoreSetterControl context = new ScoreSetterControl("context");
+		context.setModel(new ScoreSetterModel());
+		ScoreSetterView contextView = new ScoreSetterView();
+		context.setView(contextView);
+		getView().embed(contextView);
+		
+		ScoreSetterControl other = new ScoreSetterControl("other");
+		other.setModel(new ScoreSetterModel());
+		ScoreSetterView otherView = new ScoreSetterView();
+		other.setView(otherView);
+		getView().embed(otherView);
+		
 		addSubControl(selected);
 		addSubControl(context);
 		addSubControl(other);

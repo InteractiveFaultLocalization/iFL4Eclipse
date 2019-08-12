@@ -13,4 +13,8 @@ public class ScoreSetterView extends View implements IEmbeddable {
 		ui.setParent(parent);
 	}
 
+	public void setTitle(String name) {
+		ui.setTitle(name);
+	}
+
 }

@@ -22,7 +22,6 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
-import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
@@ -562,7 +561,7 @@ public class ScoreListUI extends Composite {
 				//item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
 				LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 				item.setText(table.indexOf(scoreColumn), LIMIT_FORMAT.format(entry.getValue().getValue()));
-				System.out.println("Entry score value is: " + entry.getValue().getValue());
+				//System.out.println("Entry score value is: " + entry.getValue().getValue());
 			} else {
 				item.setText(table.indexOf(scoreColumn), "undefined");
 			}

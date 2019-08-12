@@ -1,45 +1,34 @@
 package org.eclipse.sed.ifl.ide.gui.dialogs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-import org.eclipse.sed.ifl.view.ScoreSetterView;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 
-public class ContextBasedOptionCreatorDialog extends Dialog {
+public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee {
 
-	public ContextBasedOptionCreatorDialog(
-			Shell parentShell,
-			ScoreSetterView selected,
-			ScoreSetterView context,
-			ScoreSetterView other) {
+	public ContextBasedOptionCreatorDialog(Shell parentShell) {
 		super(parentShell);
-		this.selectedSetter = selected;
-		this.contextSetter = context;
-		this.otherSetter = other;
 	}
 	
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(new GridLayout(3, false));
-		selectedSetter.setParent(composite);
-		contextSetter.setParent(composite);
-		otherSetter.setParent(composite);
+		for (IEmbeddable embedded : contents) {
+			embedded.setParent(composite);
+		}
 		return composite;
 	}
 	
-	private ScoreSetterView selectedSetter;
-
-	private ScoreSetterView contextSetter;
-
-	private ScoreSetterView otherSetter;
-
 	private List<Double> selected;
 
 	private List<Double> context;
@@ -65,5 +54,12 @@ public class ContextBasedOptionCreatorDialog extends Dialog {
 		.filter(item -> item.isDefinit())
 		.map(item -> item.getValue())
 		.collect(Collectors.toList());
+	}
+
+	private List<IEmbeddable> contents = new ArrayList<>();
+	
+	@Override
+	public void embed(IEmbeddable embedded) {
+		contents.add(embedded);
 	}
 }
