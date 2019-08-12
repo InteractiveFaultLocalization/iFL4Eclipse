@@ -22,6 +22,7 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
+import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
@@ -322,8 +323,6 @@ public class ScoreListUI extends Composite {
 		noItemsToDisplayLabel.setVisible(false);
 		
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
-		contextMenu = new Menu(table);
-		nonInteractiveContextMenu = new Menu(table);
 		GridData gd_table = new GridData(SWT.FILL);
 		gd_table.grabExcessVerticalSpace = true;
 		gd_table.grabExcessHorizontalSpace = true;
@@ -595,6 +594,11 @@ public class ScoreListUI extends Composite {
 	Menu nonInteractiveContextMenu;
 	
 	public void createContexMenu(Iterable<Option> options) {
+		//It sets the parent of popup menu on the given !!parent's shell!!,
+		//because the late parent setters it is not possible to instantiate these before.
+		contextMenu = new Menu(table);
+		nonInteractiveContextMenu = new Menu(table);
+		
 		table.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);

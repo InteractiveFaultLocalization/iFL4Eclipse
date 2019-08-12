@@ -29,6 +29,7 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 	
 	@Override
 	public void init() {
+		System.out.println("begin (viewless) init of " + this.getClass().getName());
 		for (IViewlessControl<? extends IModel> control : subControls) {
 			control.init();
 		}
@@ -36,6 +37,7 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 			throw new ModelNotSetException();
 		}
 		model.init();
+		System.out.println("end (viewless) init of " + this.getClass().getName());
 	}
 
 	@Override

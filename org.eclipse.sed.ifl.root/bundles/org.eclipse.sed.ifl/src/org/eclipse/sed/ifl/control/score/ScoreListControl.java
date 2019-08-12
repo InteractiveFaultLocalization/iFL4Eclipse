@@ -65,15 +65,15 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private ScoreHistoryControl scoreHistory;
 
 	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
-	
-	public ScoreListControl() {
+
+	@Override
+	public void init() {
 		activityMonitor = new ActivityMonitorControl();
 		activityMonitor.setModel(new ActivityMonitorModel());
 		
 		scoreHistory = new ScoreHistoryControl();
 		scoreHistory.setModel(new ScoreHistoryModel());
 		ScoreHistoryView scoreHistoryView = new ScoreHistoryView();
-		//TODO: getView it null in the ctor
 		getView().embed(scoreHistoryView);
 		scoreHistory.setView(scoreHistoryView);
 		
@@ -87,14 +87,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		other.setModel(new ScoreSetterModel());
 		other.setView(new ScoreSetterView());
 		//TODO contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
-	}
+		//this.addSubControl(contextBasedOptionCreator);
 
-	@Override
-	public void init() {
-		this.addSubControl(contextBasedOptionCreator);
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
-		this.addSubControl(contextBasedOptionCreator);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());

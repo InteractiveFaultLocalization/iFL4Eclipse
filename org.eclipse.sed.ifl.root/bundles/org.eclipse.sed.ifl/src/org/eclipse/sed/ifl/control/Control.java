@@ -17,11 +17,13 @@ public class Control<TModel extends IModel, TView extends IView> extends Viewles
 	
 	@Override
 	public void init() {
+		System.out.println("begin init of " + this.getClass().getName());
 		super.init();
 		if (view == null) {
 			throw new ModelNotSetException();
 		}
 		view.init();
+		System.out.println("end init of " + this.getClass().getName());
 	}
 	
 	@Override

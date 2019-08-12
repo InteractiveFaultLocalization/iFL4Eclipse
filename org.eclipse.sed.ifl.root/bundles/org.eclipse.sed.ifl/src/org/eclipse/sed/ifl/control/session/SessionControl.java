@@ -51,9 +51,6 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
-		
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
 	}
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
@@ -140,6 +137,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
+
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
 
