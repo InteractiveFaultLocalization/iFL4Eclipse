@@ -14,35 +14,35 @@ import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 public class ContextBasedOptionCreatorControl extends Control<ContextBasedOptionCreatorModel, ContextBasedOptionCreatorView> {
 
-	ScoreSetterControl selected;
+	private ScoreSetterControl selectedSetter;
 	
-	ScoreSetterControl context;
+	private ScoreSetterControl contextSetter;
 	
-	ScoreSetterControl other;
+	private ScoreSetterControl otherSetter;
 	
 	@Override
 	public void init() {
-		ScoreSetterControl selected = new ScoreSetterControl("selected");
-		selected.setModel(new ScoreSetterModel());
+		selectedSetter = new ScoreSetterControl("selected");
+		selectedSetter.setModel(new ScoreSetterModel());
 		ScoreSetterView selectedView = new ScoreSetterView();
-		selected.setView(selectedView);
+		selectedSetter.setView(selectedView);
 		getView().embed(selectedView);
 		
-		ScoreSetterControl context = new ScoreSetterControl("context");
-		context.setModel(new ScoreSetterModel());
+		contextSetter = new ScoreSetterControl("context");
+		contextSetter.setModel(new ScoreSetterModel());
 		ScoreSetterView contextView = new ScoreSetterView();
-		context.setView(contextView);
+		contextSetter.setView(contextView);
 		getView().embed(contextView);
 		
-		ScoreSetterControl other = new ScoreSetterControl("other");
-		other.setModel(new ScoreSetterModel());
+		otherSetter = new ScoreSetterControl("other");
+		otherSetter.setModel(new ScoreSetterModel());
 		ScoreSetterView otherView = new ScoreSetterView();
-		other.setView(otherView);
+		otherSetter.setView(otherView);
 		getView().embed(otherView);
 		
-		addSubControl(selected);
-		addSubControl(context);
-		addSubControl(other);
+		addSubControl(selectedSetter);
+		addSubControl(contextSetter);
+		addSubControl(otherSetter);
 		super.init();
 	}
 	
@@ -55,15 +55,21 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		.filter(entry -> selected.contains(entry.getKey()))
 		.map(entry -> entry.getValue())
 		.collect(Collectors.toList());
+		selectedSetter.setCurrentRelatedScores(scoresOfSelected);
+		
 		List<Defineable<Double>> scoresOfContext = all.entrySet().stream()
 		.filter(entry -> context.contains(entry.getKey()))
 		.map(entry -> entry.getValue())
 		.collect(Collectors.toList());
+		contextSetter.setCurrentRelatedScores(scoresOfContext);
+		
 		List<Defineable<Double>> scoresOfOthers = all.entrySet().stream()
 		.filter(entry -> others.contains(entry.getKey()))
 		.map(entry -> entry.getValue())
 		.collect(Collectors.toList());
-		getView().display(scoresOfSelected, scoresOfContext, scoresOfOthers);
+		otherSetter.setCurrentRelatedScores(scoresOfOthers);
+		
+		getView().display();
 	}
 	
 }
