@@ -1,7 +1,9 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
 import org.eclipse.swt.widgets.Composite;
-import java.util.ArrayList;
+import org.eclipse.swt.widgets.Control;
+
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.ui.Setter;
+import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -46,26 +49,29 @@ public class ScoreSetter extends Composite {
 	public void setUpperLimit(double upperLimit) {
 		this.upperLimit = upperLimit;
 	}
-
-	private List<Double> dataPoints;
 	
-	public void setDataPoints(List<Double> points) {
-		dataPoints = new ArrayList<>(points);
+	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
+		for (Control control : distribution.getChildren()) {
+			control.dispose();
+		}
+		
 		Random random = new Random();
-		for (Double point : points) {
-			Label label = new Label(distribution, SWT.NONE);
-			label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-			label.setAlignment(SWT.CENTER);
-			label.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
-			label.setBounds(
-				new Double(3 + 10 * random.nextDouble()).intValue(),
-				new Double(250 - 250 * point).intValue(),
-				4, 4);
-			label.setText("");
+		for (Projection<Double> point : points) {
+			Label glyph = new Label(distribution, SWT.NONE);
+			glyph.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+			glyph.setBounds(
+				new Double((displayWidth - glyphSize) * random.nextDouble()).intValue(),
+				new Double(displayHeight - displayHeight * point.getOriginal()).intValue(),
+				glyphSize, glyphSize);
+			glyph.setText("");
+			if (point.getProjected().isDefinit()) {
+				
+			}
 		}
 	}
 	
-	private Map<Integer, Button> presets = new HashMap<>(); 
+	private Map<Integer, Button> presets = new HashMap<>();
+	private Composite ruler; 
 	
 	public ScoreSetter() {
 		this(new Shell());
@@ -94,6 +100,7 @@ public class ScoreSetter extends Composite {
 		
 		newScore = new Label(mainSection, SWT.NONE);
 
+		//TODO move action logic to Control
 		Button active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
 		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSection, active.getSelection()));
@@ -118,26 +125,7 @@ public class ScoreSetter extends Composite {
 		});
 		
 		middleSection = new Composite(settingSection, SWT.NONE);
-		middleSection.setLayout(new GridLayout(3, false));
-		
-		scale = new Scale(middleSection, SWT.VERTICAL);
-		GridData gd_scale = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_scale.heightHint = 250;
-		gd_scale.widthHint = 50;
-		scale.setLayoutData(gd_scale);
-		scale.setMaximum(200);
-		scale.setMinimum(0);
-		scale.addListener(SWT.Selection, event -> {
-			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
-		});
-
-		distribution = new Composite(middleSection, SWT.NONE);
-		distribution.setLayout(null);
-		GridData gd_distribution = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
-		gd_distribution.heightHint = 250;
-		gd_distribution.widthHint = 20;
-		distribution.setLayoutData(gd_distribution);
-		distribution.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		middleSection.setLayout(new GridLayout(4, false));
 		
 		Composite presetSection = new Composite(middleSection, SWT.NONE);
 		presetSection.setLayout(new RowLayout(SWT.VERTICAL));
@@ -157,6 +145,54 @@ public class ScoreSetter extends Composite {
 			});
 		}
 		
+		Composite scaleSection = new Composite(middleSection, SWT.NONE);
+		RowLayout rl_scaleSection = new RowLayout(SWT.VERTICAL);
+		rl_scaleSection.center = true;
+		scaleSection.setLayout(rl_scaleSection);
+		
+		Label maxRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);
+		maxRelativePercentDisplayer.setAlignment(SWT.CENTER);
+		maxRelativePercentDisplayer.setText("+100%");
+		
+		scale = new Scale(scaleSection, SWT.VERTICAL);
+		scale.setMaximum(200);
+		scale.setMinimum(0);
+		scale.addListener(SWT.Selection, event -> {
+			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
+		});
+
+		Label minRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);
+		minRelativePercentDisplayer.setAlignment(SWT.CENTER);
+		minRelativePercentDisplayer.setText("-100%");
+
+		displayHeight = 250;
+		displayWidth = 50;
+		rulerWidth = 20;
+		glyphSize = 4;
+
+		ruler = new Composite(middleSection, SWT.NONE);
+		ruler.setLayout(null);
+		GridData gd_ruler = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
+		gd_ruler.heightHint = displayHeight;
+		gd_ruler.widthHint = rulerWidth;
+		ruler.setLayoutData(gd_ruler);
+		
+		int markCount = 10;
+		for (int y = 0; y < markCount; y += 1) {
+			Label label = new Label(ruler, SWT.NONE);
+			Double mark = (1.0 / markCount) * y;
+			label.setText(new DecimalFormat("#0.0").format(1.0 - mark));
+			label.setBounds(0, new Double(displayHeight * mark).intValue(), rulerWidth, 15);
+		}
+
+		distribution = new Composite(middleSection, SWT.NONE);
+		distribution.setLayout(null);
+		GridData gd_distribution = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
+		gd_distribution.heightHint = displayHeight;
+		gd_distribution.widthHint = displayWidth;
+		distribution.setLayoutData(gd_distribution);
+		distribution.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+
 		setLower = new Button(settingSection, SWT.TOGGLE);
 		setLower.setText("Set to 0.0");
 		setLower.addListener(SWT.Selection, event -> {
@@ -192,6 +228,10 @@ public class ScoreSetter extends Composite {
 	}
 	
 	private NonGenericListenerCollection<EmptyEvent> absoluteScoreSettingDisabled = new NonGenericListenerCollection<>();
+	private int displayHeight;
+	private int displayWidth;
+	private int rulerWidth;
+	private int glyphSize;
 
 	public INonGenericListenerCollection<EmptyEvent> eventAbsoluteScoreSettingDisabled() {
 		return absoluteScoreSettingDisabled;

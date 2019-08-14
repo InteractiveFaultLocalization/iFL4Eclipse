@@ -30,7 +30,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	}
 
 	public void setCurrentRelatedScores(List<Defineable<Double>> scores) {
-		getView().setDataPoints(
+		getView().displayCurrentScoreDistribution(
 			scores.stream()
 			.filter(entry -> entry.isDefinit())
 			.map(entry -> entry.getValue())
