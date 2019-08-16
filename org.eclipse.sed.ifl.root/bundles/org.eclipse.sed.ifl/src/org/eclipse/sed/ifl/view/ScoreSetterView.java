@@ -1,8 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -12,7 +10,7 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.widgets.Composite;
 
-public class ScoreSetterView extends View implements IEmbeddable, IDataPointsDisplayer {
+public class ScoreSetterView extends View implements IEmbeddable {
 
 	private ScoreSetter ui = new ScoreSetter();
 	
@@ -41,12 +39,8 @@ public class ScoreSetterView extends View implements IEmbeddable, IDataPointsDis
 		ui.setTitle(name);
 	}
 
-	@Override
-	public void displayCurrentScoreDistribution(List<Double> points) {
-		ui.displayCurrentScoreDistribution(
-			points.stream()
-			.map(entry -> new Projection<>(entry))
-			.collect(Collectors.toList()));
+	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
+		ui.displayCurrentScoreDistribution(points);
 	}
 	
 	public void setDeltaPercent(int delta) {

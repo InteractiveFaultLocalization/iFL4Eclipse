@@ -49,25 +49,22 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	public void createNewOption(
 			List<IMethodDescription> selected,
 			List<IMethodDescription> context,
-			List<IMethodDescription> others,
+			List<IMethodDescription> other,
 			Map<IMethodDescription, Defineable<Double>> all) {
-		List<Defineable<Double>> scoresOfSelected = all.entrySet().stream()
+		Map<IMethodDescription, Defineable<Double>> scoresOfSelected = all.entrySet().stream()
 		.filter(entry -> selected.contains(entry.getKey()))
-		.map(entry -> entry.getValue())
-		.collect(Collectors.toList());
+		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		selectedSetter.setCurrentRelatedScores(scoresOfSelected);
 		
-		List<Defineable<Double>> scoresOfContext = all.entrySet().stream()
+		Map<IMethodDescription, Defineable<Double>> scoresOfContext = all.entrySet().stream()
 		.filter(entry -> context.contains(entry.getKey()))
-		.map(entry -> entry.getValue())
-		.collect(Collectors.toList());
+		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		contextSetter.setCurrentRelatedScores(scoresOfContext);
 		
-		List<Defineable<Double>> scoresOfOthers = all.entrySet().stream()
-		.filter(entry -> others.contains(entry.getKey()))
-		.map(entry -> entry.getValue())
-		.collect(Collectors.toList());
-		otherSetter.setCurrentRelatedScores(scoresOfOthers);
+		Map<IMethodDescription, Defineable<Double>> scoresOfOther = all.entrySet().stream()
+		.filter(entry -> other.contains(entry.getKey()))
+		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+		otherSetter.setCurrentRelatedScores(scoresOfOther);
 		
 		getView().display();
 	}

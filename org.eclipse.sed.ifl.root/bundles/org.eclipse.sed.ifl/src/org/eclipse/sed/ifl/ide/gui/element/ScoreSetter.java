@@ -4,7 +4,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,24 +52,41 @@ public class ScoreSetter extends Composite {
 		this.upperLimit = upperLimit;
 	}
 	
+	private List<Double> jitter = new ArrayList<>();
+	
 	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
 		for (Control control : distribution.getChildren()) {
 			control.dispose();
 		}
 		
-		Random random = new Random();
+		random = new Random();
+		while (jitter.size() < points.size()) {
+			System.out.println("new jitt generated");
+			jitter.add(random.nextDouble());
+		}
+		
+		Iterator<Double> index = jitter.iterator();
 		for (Projection<Double> point : points) {
-			Label glyph = new Label(distribution, SWT.NONE);
-			glyph.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-			glyph.setBounds(
-				new Double((displayWidth - glyphSize) * random.nextDouble()).intValue(),
-				new Double(displayHeight - displayHeight * point.getOriginal()).intValue(),
-				glyphSize, glyphSize);
-			glyph.setText("");
+			double x = index.next();
+			createGlyph(SWT.COLOR_BLACK, x, point.getOriginal());
+		}
+		index = jitter.iterator();
+		for (Projection<Double> point : points) {
+			double x = index.next();
 			if (point.getProjected().isDefinit()) {
-				
+				createGlyph(SWT.COLOR_RED, x, point.getProjected().getValue());
 			}
 		}
+	}
+
+	private void createGlyph(int color, double x, double y) {
+		Label glyph = new Label(distribution, SWT.NONE);
+		glyph.setBackground(SWTResourceManager.getColor(color));
+		glyph.setBounds(
+			new Double((displayWidth - glyphSize) * x).intValue(),
+			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
+			glyphSize, glyphSize);
+		glyph.setText("");
 	}
 	
 	private Map<Integer, Button> presets = new HashMap<>();
@@ -232,6 +251,7 @@ public class ScoreSetter extends Composite {
 	private int displayWidth;
 	private int rulerWidth;
 	private int glyphSize;
+	private Random random;
 
 	public INonGenericListenerCollection<EmptyEvent> eventAbsoluteScoreSettingDisabled() {
 		return absoluteScoreSettingDisabled;
