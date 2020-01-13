@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
 
-   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="2.0">
+   <feature url="features/org.eclipse.sed.ifl.feature.jar" id="org.eclipse.sed.ifl.feature" version="2.0.43.1">
 
       <category name="iFL for Eclipse"/>
    </feature>

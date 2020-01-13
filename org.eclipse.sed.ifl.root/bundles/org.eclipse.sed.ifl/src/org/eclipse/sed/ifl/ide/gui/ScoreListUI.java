@@ -121,6 +121,10 @@ public class ScoreListUI extends Composite {
 	private void updateContextSizeRelation(String text) {
 		contextSizeRelationChanged.invoke(text);
 	}
+	
+	private void updateNameFilter(String text) {
+		nameFilterChanged.invoke(text);
+	}
 
 	public double userInputTextValidator(String input) {
 		double returnValue;
@@ -324,7 +328,7 @@ public class ScoreListUI extends Composite {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
-				System.out.println(nameFilterText.getSize());
+				updateNameFilter(nameFilterText.getText());
 				
 			}
 			
@@ -539,6 +543,12 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
+	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventNameFilterChanged() {
+		return nameFilterChanged;
+	}
+	
 	private static final double SLIDER_PRECISION = 10000.0;
 	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000");
 	
@@ -599,7 +609,6 @@ public class ScoreListUI extends Composite {
 				//item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
 				LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 				item.setText(table.indexOf(scoreColumn), LIMIT_FORMAT.format(entry.getValue().getValue()));
-				System.out.println("Entry score value is: " + entry.getValue().getValue());
 			} else {
 				item.setText(table.indexOf(scoreColumn), "undefined");
 			}

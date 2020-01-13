@@ -53,6 +53,7 @@ public class ScoreListView extends View {
 		ui.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
 		ui.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
 		ui.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
+		ui.eventNameFilterChanged().add(nameFilterChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		super.init();
 	}
@@ -69,6 +70,7 @@ public class ScoreListView extends View {
 		ui.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
 		ui.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
 		ui.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
+		ui.eventNameFilterChanged().remove(nameFilterChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		super.teardown();
 	}
@@ -183,4 +185,15 @@ public class ScoreListView extends View {
 	}
 	
 	IListener<IMethodDescription> openDetailsRequiredListener = openDetailsRequired::invoke;
+	
+private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventNameFilterChanged() {
+		return nameFilterChanged;
+	}
+	
+	private IListener<String> nameFilterChangedListener = nameFilterChanged::invoke;
+	
+	
+	
 }
