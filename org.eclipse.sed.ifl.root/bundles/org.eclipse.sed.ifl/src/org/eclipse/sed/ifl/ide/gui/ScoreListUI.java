@@ -25,6 +25,8 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
@@ -169,6 +171,11 @@ public class ScoreListUI extends Composite {
 		contextSizeComposite.setSize(0, 100);
 		contextSizeComposite.setLayout(new GridLayout(10, false));
 
+		nameFilterComposite = new Composite(this, SWT.NONE);
+		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		nameFilterComposite.setSize(0, 100);
+		nameFilterComposite.setLayout(new GridLayout(2, false));
+		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
 		enabledCheckButton.setEnabled(false);
@@ -300,6 +307,38 @@ public class ScoreListUI extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				int value = contextSizeSpinner.getSelection();
 				updateContextSizeLimit(value);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
+		nameFilterText.setMessage("filter by name...");
+		nameFilterText.setEnabled(false);
+		nameFilterText.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				System.out.println(nameFilterText.getSize());
+				
+			}
+			
+		});
+		
+		nameFilterClearButton = new Button(nameFilterComposite, SWT.NONE);
+		nameFilterClearButton.setText("Clear");
+		nameFilterClearButton.setEnabled(false);
+		nameFilterClearButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nameFilterText.setText("");
+				
 			}
 
 			@Override
@@ -533,6 +572,8 @@ public class ScoreListUI extends Composite {
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
 		contextSizeCheckBox.setEnabled(true);
+		nameFilterText.setEnabled(true);
+		nameFilterClearButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -717,6 +758,7 @@ public class ScoreListUI extends Composite {
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
 	private Composite composite;
 	private Composite contextSizeComposite;
+	private Composite nameFilterComposite;
 	private Combo contextSizeCombo;
 	private Button contextSizeCheckBox;
 	private Spinner contextSizeSpinner;
@@ -724,7 +766,9 @@ public class ScoreListUI extends Composite {
 	private Scale scale;
 	private Text manualText;
 	private Button manualButton;
-
+	private Text nameFilterText;
+	private Button nameFilterClearButton;
+	
 	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
 		return optionSelected;
 	}
