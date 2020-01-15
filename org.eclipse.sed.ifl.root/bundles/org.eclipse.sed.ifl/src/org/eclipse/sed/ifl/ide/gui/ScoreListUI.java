@@ -699,6 +699,7 @@ public class ScoreListUI extends Composite {
 							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
+					System.out.println(table.getSelection());
 				}
 
 				@Override

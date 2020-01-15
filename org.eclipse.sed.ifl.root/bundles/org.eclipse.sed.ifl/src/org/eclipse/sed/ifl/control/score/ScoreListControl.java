@@ -241,6 +241,17 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
+			/*for(IMethodDescription method : event.getSubjects()) {
+				if(!method.isInteractive()) {
+					event.getSubjects().remove(method);
+					MessageDialog.open(
+							MessageDialog.WARNING, null,
+							"Non-interactive methods removed",
+							"Your selection or the context of it contains a non-interactive element."
+							+ "The score of non-interactive elements will not be affected by your feedback."
+							, SWT.NONE);
+				}
+			}*/
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
@@ -282,7 +293,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
-					i -> new Score(i.getValue(), true))));
+					i -> new Score(i.getValue(), i.getKey().isInteractive()))));
 		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
 			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
 		}

@@ -14,4 +14,8 @@ public interface IMethodDescription {
 	public void setDetailsLink(String link);
 	
 	public boolean hasDetailsLink();
+	
+	public boolean isInteractive();
+	
+	public void setInteractivity(boolean interactivity);
 }

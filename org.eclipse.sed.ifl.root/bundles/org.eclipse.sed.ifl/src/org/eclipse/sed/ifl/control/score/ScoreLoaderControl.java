@@ -38,11 +38,13 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	public class Entry {
 		private String name;
 		private String detailsLink;
+		private boolean interactivity;
 		
-		public Entry(String name, String detailsLink) {
+		public Entry(String name, String detailsLink, boolean interactivity) {
 			super();
 			this.name = name;
 			this.detailsLink = detailsLink;
+			this.interactivity = interactivity;
 		}
 
 		public String getName() {
@@ -51,6 +53,10 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 
 		public String getDetailsLink() {
 			return detailsLink;
+		}
+		
+		public boolean isInteractive() {
+			return interactivity;
 		}
 	}
 	
@@ -78,7 +84,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 						return;
 					}
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null);
+					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					Score score = new Score(value, interactivity);
 					loadedScores.put(entry, score);
 				}
