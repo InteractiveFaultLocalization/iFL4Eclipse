@@ -23,6 +23,11 @@ public class Method implements IMethodDescription {
 		this.context.addAll(context);
 	}
 	
+	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context, Boolean interactivity) {
+		this(id, location, context);
+		this.interactivity = interactivity;
+	}
+	
 	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink) {
 		this(id, location);
 		this.detailsLink = detailsLink;

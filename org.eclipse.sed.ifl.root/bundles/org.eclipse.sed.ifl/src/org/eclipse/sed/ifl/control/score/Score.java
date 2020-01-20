@@ -7,28 +7,20 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class Score extends Defineable<Double> {
 	
-	public Score(boolean interactive) {
+	public Score() {
 		super();
-		this.interactive = interactive;
 	}
 
-	public Score(Double value, boolean interactive) {
+	public Score(Double value) {
 		super(value);
-		this.interactive = interactive;
 	}
 	
-	public Score(Defineable<Double> score, boolean interactive) {
+	public Score(Defineable<Double> score) {
 		if (score.isDefinit()) {
 			this.setValue(score.getValue());
 		}
-		this.interactive = interactive;
 	}
 	
-	private boolean interactive = true;
-	
-	public boolean isInteractive() {
-		return interactive;
-	}
 	
 	private Monument<Score, IMethodDescription, IUserFeedback> lastAction;
 

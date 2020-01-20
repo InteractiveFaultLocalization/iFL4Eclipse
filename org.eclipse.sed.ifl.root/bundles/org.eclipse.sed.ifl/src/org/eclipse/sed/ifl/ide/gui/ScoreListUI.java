@@ -347,7 +347,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Boolean interactivity = Stream.of(table.getSelection())
-						.map(selection -> ((Score)selection.getData("score")).isInteractive())
+						.map(selection -> ((IMethodDescription)(selection.getData())).isInteractive())
 						.reduce((Boolean t, Boolean u) -> t && u).get();
 				if (interactivity) {
 					table.setMenu(contextMenu);
@@ -569,7 +569,7 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
-			if (!entry.getValue().isInteractive()) {
+			if (!entry.getKey().isInteractive()) {
 				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
 			} else {

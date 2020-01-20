@@ -18,7 +18,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
 		for (IMethodDescription method : methods) {
-			scores.put(method, new Score(method.isInteractive()));
+			scores.put(method, new Score());
 		}
 	}
 
