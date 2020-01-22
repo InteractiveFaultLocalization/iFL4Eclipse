@@ -76,6 +76,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().add(optionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
+		handler.eventHighLightRequested().add(highlightRequestListener);;
 		filters.add(hideUndefinedFilter);
 		filters.add(lessOrEqualFilter);
 		filters.add(contextSizeFilter);
@@ -98,6 +99,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
+		handler.eventHighLightRequested().remove(highlightRequestListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
@@ -208,6 +210,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		contextSizeFilter.setRelation(relation);
 		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
+	};
+	
+	private IListener<List<IMethodDescription>> highlightRequestListener = list -> {
+		getView().highlightRequest(list);
 	};
 
 	private void refreshView() {

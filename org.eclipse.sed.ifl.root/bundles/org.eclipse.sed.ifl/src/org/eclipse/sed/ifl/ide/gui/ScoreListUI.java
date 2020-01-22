@@ -743,5 +743,20 @@ public class ScoreListUI extends Composite {
 			}
 		}
 	}
+	
+	public void highlightNonInteractiveContext(List<IMethodDescription> context) {
+		for (TableItem item : table.getItems()) {
+			item.setBackground(null);
+		}
+		for (TableItem item : table.getItems()) {
+			for (IMethodDescription target : context) {
+				if (item.getData() instanceof IMethodDescription &&
+					target.getId().equals(((IMethodDescription)item.getData()).getId())) {
+					item.setBackground(new Color(item.getDisplay(), 225,125,125));
+				}
+			}
+		}
+	}
+	
 
 }

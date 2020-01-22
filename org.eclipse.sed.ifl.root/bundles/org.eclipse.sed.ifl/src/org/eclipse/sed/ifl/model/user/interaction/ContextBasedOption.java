@@ -20,6 +20,12 @@ public class ContextBasedOption extends Option {
 	private Function<IMethodDescription, Defineable<Double>> updateContext;
 	private Function<IMethodDescription, Defineable<Double>> updateOther;
 	
+	private List<IMethodDescription> nonInteractiveContextList;
+	
+	public List<IMethodDescription> getNonInteractiveContext(){
+		return nonInteractiveContextList;
+	}
+	
 	public ContextBasedOption(
 		String id, String title, String description,
 		Function<IMethodDescription, Defineable<Double>> updateSelected,
@@ -110,7 +116,7 @@ public class ContextBasedOption extends Option {
 
 	private List<IMethodDescription> collectContext(IUserFeedback feedback,
 			Map<IMethodDescription, Defineable<Double>> allScores){
-		List<String> nonInteractiveMethods = new ArrayList<String>(); 
+		nonInteractiveContextList = new ArrayList<IMethodDescription>(); 
 		Set<IMethodDescription> context = new HashSet<>();
 		feedback.getSubjects().stream()
 			.flatMap(subject -> subject.getContext().stream())
@@ -118,7 +124,7 @@ public class ContextBasedOption extends Option {
 				for (IMethodDescription desc : allScores.keySet()) {
 					if (desc.getId().equals(id)) {
 						if(!desc.isInteractive()) {
-							nonInteractiveMethods.add(desc.getId().getName());
+							nonInteractiveContextList.add(desc);
 						} else {
 							context.add(desc);
 							break;
@@ -126,15 +132,19 @@ public class ContextBasedOption extends Option {
 					}
 				}
 			});
-		if(!nonInteractiveMethods.isEmpty()) {
-			MessageDialog.open(
-					MessageDialog.WARNING, null,
+		if(!nonInteractiveContextList.isEmpty()) {
+			boolean highLightRequest = MessageDialog.open(
+					MessageDialog.QUESTION, null,
 					"Non-interactive methods removed",
 					"Your selection or the context of it contains non-interactive elements. "
 					+ "The score of non-interactive elements will not be affected by your feedback. "
-					+ "Currently selected non-interactive elements:\n" + nonInteractiveMethods
+					+ "Would you like to highlight the affected non-interactive methods?"
 					, SWT.NONE);
+			if (!highLightRequest) {
+				nonInteractiveContextList.clear();
+			}
 		}
+		
 		return new ArrayList<>(context);
 	}
 }
