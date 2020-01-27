@@ -235,6 +235,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
+				System.out.println("Scale value: " + value);
 				updateScoreFilterLimit(value);
 			}
 
@@ -745,14 +746,16 @@ public class ScoreListUI extends Composite {
 	}
 	
 	public void highlightNonInteractiveContext(List<IMethodDescription> context) {
-		for (TableItem item : table.getItems()) {
-			item.setBackground(null);
-		}
-		for (TableItem item : table.getItems()) {
-			for (IMethodDescription target : context) {
-				if (item.getData() instanceof IMethodDescription &&
-					target.getId().equals(((IMethodDescription)item.getData()).getId())) {
-					item.setBackground(new Color(item.getDisplay(), 225,125,125));
+		if(context != null) {
+			for (TableItem item : table.getItems()) {
+				item.setBackground(null);
+			}
+			for (TableItem item : table.getItems()) {
+				for (IMethodDescription target : context) {
+					if (item.getData() instanceof IMethodDescription &&
+						target.getId().equals(((IMethodDescription)item.getData()).getId())) {
+						item.setBackground(new Color(item.getDisplay(), 225,125,125));
+					}
 				}
 			}
 		}
