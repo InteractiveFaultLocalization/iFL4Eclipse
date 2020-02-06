@@ -3,9 +3,11 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.awt.BorderLayout;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -106,7 +108,7 @@ public class ScoreListUI extends Composite {
 	private void updateScoreFilterLimit(double value) {
 		scale.setSelection(toScale(value));
 		String formattedValue = LIMIT_FORMAT.format(value);
-		manualText.setText(formattedValue.replaceAll(",", "."));
+		manualText.setText(formattedValue);
 		enabledCheckButton.setText("Filter scores <= ");
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
@@ -123,10 +125,10 @@ public class ScoreListUI extends Composite {
 	public double userInputTextValidator(String input) {
 		double returnValue;
 		try {
-			input.replaceAll(",","." );
+			//input.replaceAll(",","." );
 			returnValue = Double.parseDouble(input);
 		} catch (NumberFormatException e) {
-			returnValue = minValue;
+			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
 			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
 			"User provided upper score limit is not a number." + System.lineSeparator() + 
 			"Your input " + input + " could not be interpreted as a number." + System.lineSeparator() +
@@ -137,19 +139,19 @@ public class ScoreListUI extends Composite {
 			
 	public double userInputRangeValidator(double input) {
 		double returnValue = input;
-		if (input < minValue) {
-			returnValue = minValue;
+		if (input < Double.valueOf(LIMIT_FORMAT.format(minValue))) {
+			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
 			MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
 			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
 			" is lesser than " + LIMIT_FORMAT.format(minValue) + " minimum value." + System.lineSeparator() + 
 			"Upper score limit has been set to minimum value.", SWT.NONE);
 		}
-		if (input > maxValue) {
-			returnValue = minValue;
+		if (input > Double.valueOf(LIMIT_FORMAT.format(maxValue))) {
+			returnValue = Double.valueOf(LIMIT_FORMAT.format(maxValue));
 			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
 			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
 			" is greater than " + LIMIT_FORMAT.format(maxValue) + " maximum value." + System.lineSeparator() + 
-			"Upper score limit has been set to minimum value.", SWT.NONE);
+			"Upper score limit has been set to maximum value.", SWT.NONE);
 		}
 		return returnValue;
 	}
@@ -502,7 +504,8 @@ public class ScoreListUI extends Composite {
 	}
 	
 	private static final double SLIDER_PRECISION = 10000.0;
-	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000");
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
 	
 	private static int toScale(double value) {
 		return Double.valueOf(value * SLIDER_PRECISION).intValue();
@@ -516,6 +519,7 @@ public class ScoreListUI extends Composite {
 	private double maxValue;
 	
 	public void setScoreFilter(Double min, Double max) {
+		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		minValue = min;
 		maxValue = max;
 		maxLabel.setText(LIMIT_FORMAT.format((max)));
@@ -527,6 +531,9 @@ public class ScoreListUI extends Composite {
 		System.out.println("Scale maximum selection set: " + toScale(max));
 		System.out.println("Scale maximum selection allowed: " + scale.getMaximum());
 		scale.setMinimum(toScale(min));
+		System.out.println("Minimum value: " + min);
+		System.out.println("Scale minimum selection set: " + toScale(min));
+		System.out.println("Scale minimum selection allowed: " + scale.getMinimum());
 		enabledCheckButton.setEnabled(true);
 		enabledCheckButton.setSelection(true);
 		lowerScoreLimitEnabled.invoke(true);
