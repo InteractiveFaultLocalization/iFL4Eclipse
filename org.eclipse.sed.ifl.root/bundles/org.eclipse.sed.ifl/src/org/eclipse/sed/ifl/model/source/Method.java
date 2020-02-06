@@ -9,6 +9,7 @@ public class Method implements IMethodDescription {
 	private MethodIdentity id;
 	private CodeChunkLocation location;
 	private List<MethodIdentity> context = new ArrayList<>();
+	private boolean interactivity = true;
 	
 	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink, List<MethodIdentity> context) {
 		this(id, location, context);
@@ -20,6 +21,11 @@ public class Method implements IMethodDescription {
 		this.id = id;
 		this.location = location;
 		this.context.addAll(context);
+	}
+	
+	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context, Boolean interactivity) {
+		this(id, location, context);
+		this.interactivity = interactivity;
 	}
 	
 	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink) {
@@ -91,5 +97,13 @@ public class Method implements IMethodDescription {
 	@Override
 	public void setDetailsLink(String link) {
 		this.detailsLink = link;
+	}
+
+	public boolean isInteractive() {
+		return interactivity;
+	}
+
+	public void setInteractivity(boolean interactivity) {
+		this.interactivity = interactivity;
 	}
 }

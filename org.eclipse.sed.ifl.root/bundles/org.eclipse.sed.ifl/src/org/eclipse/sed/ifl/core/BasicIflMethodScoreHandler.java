@@ -10,6 +10,8 @@ import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
@@ -29,9 +31,17 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			for (Option possibility : options) {
 				if (feedback.getChoise().equals(possibility)) {
 					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
+					this.highLightRequested.invoke(((ContextBasedOption) (feedback.getChoise())).getNonInteractiveContext());
+					}
 				}
 			}
 		}
+	
+	
+	protected NonGenericListenerCollection<List<IMethodDescription>> highLightRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<IMethodDescription>> eventHighLightRequested() {
+		return highLightRequested;
 	}
 
 	@Override

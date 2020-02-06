@@ -85,17 +85,19 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		NanoWatch watch = new NanoWatch("starting session");
 		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
 		
+		Random r = new Random();
+		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), r.nextBoolean()))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
-		Random r = new Random();
-		Map<String, Score> sampleScores = methods.stream()
-		.map(method -> method.getId().toCSVKey())
+		
+		Map<IMethodDescription, Score> sampleScores = methods.stream()
+		.map(method -> method)
 		.collect(
 			Collectors.collectingAndThen(
-				Collectors.toMap(id -> id, id -> new Score(r.nextDouble(), r.nextBoolean())),
+				Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
 				Collections::unmodifiableMap));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 

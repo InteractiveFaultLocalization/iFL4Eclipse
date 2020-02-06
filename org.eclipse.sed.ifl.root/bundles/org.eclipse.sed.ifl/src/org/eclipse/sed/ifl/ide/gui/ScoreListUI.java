@@ -235,6 +235,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
+				System.out.println("Scale value: " + value);
 				updateScoreFilterLimit(value);
 			}
 
@@ -347,7 +348,7 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Boolean interactivity = Stream.of(table.getSelection())
-						.map(selection -> ((Score)selection.getData("score")).isInteractive())
+						.map(selection -> ((IMethodDescription)(selection.getData())).isInteractive())
 						.reduce((Boolean t, Boolean u) -> t && u).get();
 				if (interactivity) {
 					table.setMenu(contextMenu);
@@ -569,7 +570,7 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
 			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
-			if (!entry.getValue().isInteractive()) {
+			if (!entry.getKey().isInteractive()) {
 				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
 			} else {
@@ -699,6 +700,7 @@ public class ScoreListUI extends Composite {
 							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
+					System.out.println(table.getSelection());
 				}
 
 				@Override
@@ -742,5 +744,25 @@ public class ScoreListUI extends Composite {
 			}
 		}
 	}
+	
+	public void highlightNonInteractiveContext(List<IMethodDescription> context) {
+		if(context != null) {
+			for (TableItem item : table.getItems()) {
+				item.setBackground(null);
+			}
+			List<TableItem> elementList = new ArrayList<TableItem>();
+			for (TableItem item : table.getItems()) {
+				for (IMethodDescription target : context) {
+					if (item.getData() instanceof IMethodDescription &&
+						target.getId().equals(((IMethodDescription)item.getData()).getId())) {
+						elementList.add(item);
+					}
+				}
+			}
+			TableItem[] elementArray = new TableItem[elementList.size()];
+			table.setSelection(elementList.toArray(elementArray));
+		}
+	}
+	
 
 }

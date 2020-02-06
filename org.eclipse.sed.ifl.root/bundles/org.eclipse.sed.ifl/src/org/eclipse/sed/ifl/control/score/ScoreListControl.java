@@ -76,6 +76,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventOptionSelected().add(optionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
+		handler.eventHighLightRequested().add(highlightRequestListener);;
 		filters.add(hideUndefinedFilter);
 		filters.add(lessOrEqualFilter);
 		filters.add(contextSizeFilter);
@@ -98,6 +99,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
+		handler.eventHighLightRequested().remove(highlightRequestListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
@@ -209,6 +211,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
 	};
+	
+	private IListener<List<IMethodDescription>> highlightRequestListener = list -> {
+		getView().highlightRequest(list);
+	};
 
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
@@ -282,7 +288,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
-					i -> new Score(i.getValue(), true))));
+					i -> new Score(i.getValue()))));
 		for (Entry<IMethodDescription, ScoreListModel.ScoreChange> entry : changes.entrySet()) {
 			scoreHistory.store(entry.getValue().getNewScore(), entry.getValue().getOldScore(), entry.getKey(), event.getCause());
 		}

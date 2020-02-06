@@ -37,6 +37,10 @@ public class ScoreListView extends View {
 		ui.setMethodScore(scores);
 	}
 
+	public void highlightRequest(List<IMethodDescription> list) {
+		ui.highlightNonInteractiveContext(list);
+	}
+	
 	public void createOptionsMenu(Iterable<Option> options) {
 		ui.createContexMenu(options);
 	}

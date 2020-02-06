@@ -18,7 +18,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
 		for (IMethodDescription method : methods) {
-			scores.put(method, new Score(true));
+			scores.put(method, new Score());
 		}
 	}
 
@@ -78,6 +78,7 @@ public class ScoreListModel extends EmptyModel {
 				if (entry.getKey().getId().toCSVKey().equals(raw.getKey().getName())) {
 					entries.put(entry.getKey(), raw.getValue());
 					entry.getKey().setDetailsLink(raw.getKey().getDetailsLink());
+					entry.getKey().setInteractivity(raw.getKey().isInteractive());
 					count++;
 				}
 			}
