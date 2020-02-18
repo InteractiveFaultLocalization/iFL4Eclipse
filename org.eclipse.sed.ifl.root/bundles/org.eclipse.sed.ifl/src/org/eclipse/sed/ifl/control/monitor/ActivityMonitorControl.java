@@ -21,6 +21,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
+			System.out.println("event: " + event.toString());
 			try {
 				if (enabled) {
 					getModel().insertEvent(event);
