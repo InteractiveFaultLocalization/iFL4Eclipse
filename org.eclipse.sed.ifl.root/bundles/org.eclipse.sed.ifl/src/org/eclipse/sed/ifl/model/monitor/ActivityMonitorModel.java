@@ -31,6 +31,23 @@ public class ActivityMonitorModel extends EmptyModel {
 		}
 	}
 
+	public void insertId(IdNode idNode) {
+		synchronized (ActivityMonitorModel.class) {
+			if(!idExists(idNode)) {
+				idNode.createNode(g);
+				System.out.println("new ID node created: " + idNode);
+			}
+		}
+	}
+	
+	private boolean idExists(IdNode idNode) {
+		synchronized(ActivityMonitorModel.class) {
+			boolean rValue = false;
+			
+			return rValue;
+		}
+	}
+	
 	private Vertex findLastEvent() {
 		synchronized (ActivityMonitorModel.class) {
 			List<Vertex> lastEvents = g.V().hasLabel("event").not(__.out("follow")).toList();

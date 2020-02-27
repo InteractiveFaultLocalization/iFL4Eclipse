@@ -22,7 +22,13 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 	}
-
+	
+	public void detectEclipseStart() {
+		
+		System.out.println("itt vagyok\n");
+	}
+	
+	
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
