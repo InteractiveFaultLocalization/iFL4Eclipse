@@ -12,16 +12,16 @@ import org.eclipse.swt.widgets.Display;
 
 public class IdNode extends Node {
 	
-	private String macAdress;
-	private String userId;
+	private static String macAddress;
+	private static String userId;
+	private static String fileId = null;
 	
 	public IdNode(Map<String, Object> properties) {
 		super(Maps.<String, Object>builder()
 				.put("mac", determineMacAddress())
-				.put("userID", getUserId())
+				.put("userID", determineUserId())
+				.put("fileID", fileId)
 				.build());
-		this.macAdress = determineMacAddress();
-		this.userId = getUserId();
 	}
 	
 	@Override
@@ -29,23 +29,35 @@ public class IdNode extends Node {
 		// TODO Auto-generated method stub
 		return "id";
 	}
+	
+	public String getMacAddress() {
+		return macAddress;
+	}
 		
+	public String getUserId() {
+		return userId;
+	}
+	
+	public String getFileId() {
+		return fileId;
+	}
+	
 	private static String determineMacAddress() {
-		byte[] macAddress = null;
+		byte[] macAddressByte = null;
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
-			macAddress = ni.getHardwareAddress();
+			macAddressByte = ni.getHardwareAddress();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not determine ip address\n");
 		} catch (SocketException e) {
 			System.out.println("Could not access Socket\n");
 		}
-		return new String(macAddress);
+		macAddress = new String(macAddressByte);
+		return macAddress;
 	}
 	
-	private static String getUserId() {
-		String userId = null;
+	private static String determineUserId() {
 		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
 	            "Enter user ID", "Please enter your user ID.", "User ID", null);
 	        if (dlg.open() == Window.OK) {
@@ -57,7 +69,9 @@ public class IdNode extends Node {
 	@Override
 	public String toString() {
 		return String.format("Event [getType()=%s, getCreation()=%s, macAddress=%s, userId=%s]"
-				,getType(), getCreation(), this.macAdress, this.userId);
+				,getType(), getCreation(), macAddress, userId);
 	}
+
+	
 	
 }

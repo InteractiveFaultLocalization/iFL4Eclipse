@@ -43,7 +43,16 @@ public class ActivityMonitorModel extends EmptyModel {
 	private boolean idExists(IdNode idNode) {
 		synchronized(ActivityMonitorModel.class) {
 			boolean rValue = false;
-			
+			String macAddress = idNode.getMacAddress();
+			String userId = idNode.getUserId();
+			String fileId = idNode.getFileId(); 
+			List<Vertex> ids = g.V().hasLabel("id").toList();
+			for(Vertex v : ids) {
+				if(v.value("mac").toString().equals(macAddress) && v.value("userID").toString().equals(userId) &&
+					v.value("fileID").toString().equals(fileId)) {
+					rValue = true;
+				}
+			}
 			return rValue;
 		}
 	}
