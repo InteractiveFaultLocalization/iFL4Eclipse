@@ -1,9 +1,9 @@
 package org.eclipse.sed.ifl.model.monitor.event;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.eclipse.sed.ifl.model.monitor.Node;
@@ -38,5 +38,13 @@ public abstract class Event extends Node {
 		return String.format("Event [getType()=%s, getCreation()=%s]", getType(), getCreation());
 	}
 	
+	public Vertex getIdNode(GraphTraversalSource g) {
+		List <Vertex> idNode = g.V(this).out().hasLabel("id").toList();
+		if(!idNode.isEmpty()) {
+			return idNode.get(0);
+		} else {
+		return null;
+		}
+	}
 	
 }

@@ -15,6 +15,10 @@ import org.eclipse.sed.ifl.util.exception.EU;
 
 public class ActivityMonitorModel extends EmptyModel {
 	private GraphTraversalSource g;
+	private static String macAddress;
+	private static String userId;
+	private static String fileId;
+	
 	
 	@Override
 	public void init() {
@@ -31,21 +35,23 @@ public class ActivityMonitorModel extends EmptyModel {
 		}
 	}
 
-	public void insertId(IdNode idNode) {
+	public Vertex insertId(IdNode idNode) {
 		synchronized (ActivityMonitorModel.class) {
+			Vertex id = null;
 			if(!idExists(idNode)) {
-				idNode.createNode(g);
+				id = idNode.createNode(g);
 				System.out.println("new ID node created: " + idNode);
 			}
+			return id;
 		}
 	}
 	
 	private boolean idExists(IdNode idNode) {
 		synchronized(ActivityMonitorModel.class) {
 			boolean rValue = false;
-			String macAddress = idNode.getMacAddress();
-			String userId = idNode.getUserId();
-			String fileId = idNode.getFileId(); 
+			macAddress = idNode.getMacAddress();
+			userId = idNode.getUserId();
+			fileId = idNode.getFileId(); 
 			List<Vertex> ids = g.V().hasLabel("id").toList();
 			for(Vertex v : ids) {
 				if(v.value("mac").toString().equals(macAddress) && v.value("userID").toString().equals(userId) &&
@@ -59,17 +65,21 @@ public class ActivityMonitorModel extends EmptyModel {
 	
 	private Vertex findLastEvent() {
 		synchronized (ActivityMonitorModel.class) {
-			List<Vertex> lastEvents = g.V().hasLabel("event").not(__.out("follow")).toList();
-			Vertex lastEvent;
-			if (lastEvents.size() == 1) {
-				lastEvent = lastEvents.get(0);
-			}
-			else {
-				if (!lastEvents.isEmpty()) {
-					g.V().drop().toList();
+			Vertex idNode = null;
+			List<Vertex> idNodes = g.V().hasLabel("event").not(__.out("follow")).out("doneBy").toList();
+			for(Vertex id : idNodes) {
+				if(id.value("mac").toString().equals(macAddress) &&
+					id.value("userID").toString().equals(userId)&&
+					id.value("fileID").toString().equals(fileId)) {
+					idNode = id;
+				} else {
+					idNode = insertId(new IdNode(null));
+					System.out.println("new id node created: " + idNode);
 				}
-				lastEvent = g.addV("event").property("type", "init").next();
 			}
+			Vertex lastEvent = g.V(idNode).inV().not(__.out("follow")).next();
+			Edge doneBy = g.V(lastEvent).addE("doneBy").to(idNode).next();
+			System.out.println("new event linked to id: " + doneBy);
 			return lastEvent;
 		}
 	}
