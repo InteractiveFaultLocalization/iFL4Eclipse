@@ -138,7 +138,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	public void init() {
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
-
+		
 		initUIStateListeners();
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
