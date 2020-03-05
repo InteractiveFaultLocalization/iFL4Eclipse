@@ -39,7 +39,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
-			System.out.println("event: " + event.toString());
 			try {
 				if (enabled) {
 					getModel().insertEvent(event);
@@ -87,7 +86,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		    }
 		    return sb.toString();
 	    }
-		return null;
+		return "";
 	}
 	
 	private String determineUserId() {
@@ -105,13 +104,14 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	
 	private String determineScenarioId() {
 		StringBuilder fileContentBuilder = new StringBuilder();
-	    try (Stream<String> stream = Files.lines( Paths.get("IdFile"), StandardCharsets.UTF_8)) 
+	    try (Stream<String> stream = Files.lines( Paths.get("ScenarioIdFile"), StandardCharsets.UTF_8)) 
 	    {
 	        stream.forEach(s -> fileContentBuilder.append(s).append("\n"));
 	    }
 	    catch (IOException e) 
 	    {
 	        System.out.println("Scenario ID file not found.");
+	        return "";
 	    }
 	    return fileContentBuilder.toString();
 	}

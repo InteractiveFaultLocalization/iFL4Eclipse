@@ -55,8 +55,10 @@ public class ActivityMonitorModel extends EmptyModel {
 		synchronized (ActivityMonitorModel.class) {
 			Vertex lastEvent = findLastEvent();
 			Vertex newEvent = event.createNode(g);
+			System.out.println("new event vertex: " + newEvent);
 			Vertex idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).next();
-			Edge doneBy = g.V(lastEvent).addE("doneBy").to(idNode).next();
+			System.out.println("id vertex of new event: " + idNode);
+			Edge doneBy = g.V(newEvent).addE("doneBy").to(idNode).next();
 			System.out.println("new event linked to id: " + doneBy);
 			if(lastEvent != null) {
 				Edge arrowOfTime = g.V(lastEvent).addE("follow").to(newEvent).next();
@@ -67,52 +69,25 @@ public class ActivityMonitorModel extends EmptyModel {
 
 	public Vertex insertId(IdNode idNode) {
 		synchronized (ActivityMonitorModel.class) {
-			Vertex id = null;
-			if(!idExists(idNode)) {
-				id = idNode.createNode(g);
-				System.out.println("new ID node created: " + idNode);
-			}
+			Vertex id = idNode.createNode(g);
+			System.out.println("new ID node created: " + idNode);
 			return id;
 		}
 	}
-	
-	private boolean idExists(IdNode idNode) {
-		synchronized(ActivityMonitorModel.class) {
-			boolean rValue = false; 
-			List<Vertex> ids = g.V().hasLabel("id").toList();
-			for(Vertex v : ids) {
-				if(v.value("mac").toString().equals(macAddress) && v.value("userID").toString().equals(userId) &&
-					v.value("fileID").toString().equals(scenarioId)) {
-					rValue = true;
-				}
-			}
-			return rValue;
-		}
-	}
-	
+		
 	private Vertex findLastEvent() {
 		synchronized (ActivityMonitorModel.class) {
 			Vertex idNode = null;
-			List<Vertex> idNodes = g.V().hasLabel("id").toList();
+			List<Vertex> idNodes = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).toList();
+			System.out.println("id list size: " + idNodes.size());
 			if(!idNodes.isEmpty()) {
-				for(Vertex id : idNodes) {
-					if(id.value("mac").toString().equals(macAddress) &&
-						id.value("userID").toString().equals(userId)&&
-						id.value("fileID").toString().equals(scenarioId)) {
-						idNode = id;
-						break;
-					} else {
-						idNode = insertId(new IdNode(macAddress, userId, scenarioId));
-						System.out.println("new id node created: " + idNode);
-						return null;
-					}
-				}
+				idNode = idNodes.get(0);
 			} else {
 				idNode = insertId(new IdNode(macAddress, userId, scenarioId));
 				System.out.println("new id node created: " + idNode);
 				return null;
 			}
-			Vertex lastEvent = g.V(idNode).inV().not(__.out("follow")).next();
+			Vertex lastEvent = g.V(idNode).in().not(__.out("follow")).next();
 			return lastEvent;
 		}
 	}
