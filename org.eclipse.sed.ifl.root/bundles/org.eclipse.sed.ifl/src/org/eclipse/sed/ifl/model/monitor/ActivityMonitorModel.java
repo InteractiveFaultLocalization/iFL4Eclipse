@@ -19,7 +19,8 @@ public class ActivityMonitorModel extends EmptyModel {
 	private String macAddress;
 	private String userId;
 	private String scenarioId;
-	
+	private String host;
+	private String port;
 	
 	public String getMacAddress() {
 		return macAddress;
@@ -45,9 +46,25 @@ public class ActivityMonitorModel extends EmptyModel {
 		this.scenarioId = scenarioId;
 	}
 
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+	
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+	
 	@Override
 	public void init() {
-		g = traversal().withRemote(DriverRemoteConnection.using("localhost", 8182, "g"));
+		g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
 		super.init();
 	}
 	

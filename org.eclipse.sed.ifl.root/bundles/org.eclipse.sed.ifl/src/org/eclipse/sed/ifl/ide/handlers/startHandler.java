@@ -77,7 +77,7 @@ public class startHandler extends AbstractHandler {
 		return null;
 	}
 
-	private boolean isKeyFilePresent(String fileName, String content) {
+	public boolean isKeyFilePresent(String fileName, String content) {
 		File key = new File(fileName);
 		System.out.println("looking for key file at: " + key.getAbsolutePath());
 		if (key.canRead()) {

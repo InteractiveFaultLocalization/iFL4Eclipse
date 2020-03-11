@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.ide.Activator;
+import org.eclipse.sed.ifl.ide.gui.dialogs.HostAndPortInputDialog;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.swt.SWT;
@@ -27,6 +28,9 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 
 	public ActivityMonitorControl(ActivityMonitorModel model) {
 		super(model);
+		determineHostAndPort();
+		model.setHost(host);
+		model.setPort(port);
 		model.setMacAddress(determineMacAddress());
 		model.setUserId(determineUserId());
 		model.setScenarioId(determineScenarioId());
@@ -36,6 +40,9 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private static Boolean showError = true;
 	private static boolean enabled = false;
 
+	private String host;
+	private String port;
+	
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
@@ -114,6 +121,21 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	        return "";
 	    }
 	    return fileContentBuilder.toString();
+	}
+	
+	private void determineHostAndPort() {
+		host = Activator.getDefault().getPreferenceStore().getString("host").equals("") ? null : Activator.getDefault().getPreferenceStore().getString("host");
+		port = Activator.getDefault().getPreferenceStore().getString("port").equals("") ? null : Activator.getDefault().getPreferenceStore().getString("port");
+		if (host == null || port == null) {
+			HostAndPortInputDialog dlg = new HostAndPortInputDialog(Display.getCurrent().getActiveShell());
+			dlg.create();
+			if(dlg.open() == Window.OK) {
+				host = dlg.getHost();
+				Activator.getDefault().getPreferenceStore().setValue("host", host);
+				port = dlg.getPort();
+				Activator.getDefault().getPreferenceStore().setValue("port", port);
+			}
+		}
 	}
 	
 }

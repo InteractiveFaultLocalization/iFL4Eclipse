@@ -62,9 +62,13 @@ public class IFLPreferencePage
 		addField(userIdField);
 		userIdField.setEnabled(false, getFieldEditorParent());
 		
-		BooleanFieldEditor eclipseRunningField = new BooleanFieldEditor("eclipseRunning", "Eclipse running", getFieldEditorParent());
-		addField(eclipseRunningField);
-		eclipseRunningField.setEnabled(false, getFieldEditorParent());
+		StringFieldEditor hostField = new StringFieldEditor("host", "Host: ", getFieldEditorParent());
+		addField(hostField);
+		hostField.setEnabled(false, getFieldEditorParent());
+		
+		StringFieldEditor portField = new StringFieldEditor("port", "Port: ", getFieldEditorParent());
+		addField(portField);
+		portField.setEnabled(false, getFieldEditorParent());
 	}
 
 	/* (non-Javadoc)
