@@ -20,9 +20,11 @@ import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
+import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.EclipseEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
@@ -143,6 +145,15 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
+		
+		if(!Activator.getDefault().getPreferenceStore().getBoolean("eclipseRunning")){
+			activityMonitor.log(EclipseEvent.stop());
+			System.out.println("Eclispe stop event logged.");
+			activityMonitor.log(EclipseEvent.start());
+			System.out.println("Eclispe start event logged.");
+			Activator.getDefault().getPreferenceStore().setValue("eclipseRunning", true);
+		}
+		
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
 	

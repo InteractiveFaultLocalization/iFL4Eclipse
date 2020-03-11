@@ -58,7 +58,13 @@ public class IFLPreferencePage
 		addField(
 			new StringFieldEditor(PreferenceConstants.P_STRING, "A &text preference:", getFieldEditorParent()));
 		
-		addField(new StringFieldEditor("userId", "User ID: ", getFieldEditorParent()));
+		StringFieldEditor userIdField = new StringFieldEditor("userId", "User ID: ", getFieldEditorParent());
+		addField(userIdField);
+		userIdField.setEnabled(false, getFieldEditorParent());
+		
+		BooleanFieldEditor eclipseRunningField = new BooleanFieldEditor("eclipseRunning", "Eclipse running", getFieldEditorParent());
+		addField(eclipseRunningField);
+		eclipseRunningField.setEnabled(false, getFieldEditorParent());
 	}
 
 	/* (non-Javadoc)

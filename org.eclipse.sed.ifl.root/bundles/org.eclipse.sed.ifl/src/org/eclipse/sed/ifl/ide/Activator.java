@@ -21,10 +21,14 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		System.out.println("Activator start method runs");
+		Activator.getDefault().getPreferenceStore().setToDefault("userId");
 	}
 	
 	public void stop(BundleContext context) throws Exception {
+		Activator.getDefault().getPreferenceStore().setValue("eclipseRunning", false);
 		plugin = null;
+		System.out.println("Activator stop method runs");
 		super.stop(context);
 		if (session != null) {
 			deactivateSession();
