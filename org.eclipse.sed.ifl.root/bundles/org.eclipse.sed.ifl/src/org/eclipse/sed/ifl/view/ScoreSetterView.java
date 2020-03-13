@@ -40,6 +40,7 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	}
 
 	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
+		ui = new ScoreSetter();
 		ui.displayCurrentScoreDistribution(points);
 	}
 	
