@@ -9,6 +9,7 @@ public class ContextBasedOptionCreatorView extends View implements IEmbedee {
 
 	private ContextBasedOptionCreatorDialog dialog = new ContextBasedOptionCreatorDialog(Display.getCurrent().getActiveShell());
 	
+	
 	public void display() {
 		dialog.open();
 	}

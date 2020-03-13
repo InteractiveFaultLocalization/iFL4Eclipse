@@ -55,13 +55,13 @@ public class ScoreSetter extends Composite {
 	private List<Double> jitter = new ArrayList<>();
 	
 	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
-		/*for (Control control : distribution.getChildren()) {
+		for (Control control : distribution.getChildren()) {
 			control.dispose();
 		}
-		*/
+		
 		random = new Random();
 		while (jitter.size() < points.size()) {
-			System.out.println("new jitt generated");
+			//System.out.println("new jitt generated");
 			jitter.add(random.nextDouble());
 		}
 		

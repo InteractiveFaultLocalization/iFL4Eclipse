@@ -40,11 +40,16 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	}
 
 	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
-		ui = new ScoreSetter();
 		ui.displayCurrentScoreDistribution(points);
 	}
 	
 	public void setDeltaPercent(int delta) {
+		ui.displayDeltaPercent(delta);
+	}
+	
+	public void refreshView(String name, int delta) {
+		ui = new ScoreSetter();
+		ui.setTitle(name);
 		ui.displayDeltaPercent(delta);
 	}
 	
