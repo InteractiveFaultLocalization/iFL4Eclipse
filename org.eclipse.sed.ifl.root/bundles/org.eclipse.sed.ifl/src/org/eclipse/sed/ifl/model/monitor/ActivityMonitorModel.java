@@ -9,6 +9,8 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -19,8 +21,6 @@ public class ActivityMonitorModel extends EmptyModel {
 	private String macAddress;
 	private String userId;
 	private String scenarioId;
-	private String host;
-	private String port;
 	
 	public String getMacAddress() {
 		return macAddress;
@@ -45,25 +45,12 @@ public class ActivityMonitorModel extends EmptyModel {
 	public void setScenarioId(String scenarioId) {
 		this.scenarioId = scenarioId;
 	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-	
-	public String getPort() {
-		return port;
-	}
-
-	public void setPort(String port) {
-		this.port = port;
-	}
 	
 	@Override
 	public void init() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		String host = store.getString("host");
+		String port = store.getString("port");
 		g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
 		super.init();
 	}

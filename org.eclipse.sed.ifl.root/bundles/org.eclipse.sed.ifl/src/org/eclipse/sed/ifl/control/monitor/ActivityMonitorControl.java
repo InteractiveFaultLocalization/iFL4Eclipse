@@ -11,16 +11,17 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import org.apache.tinkerpop.gremlin.process.remote.RemoteConnectionException;
-import org.eclipse.jface.dialogs.InputDialog;
+
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
+import org.eclipse.jface.preference.IPreferenceStore;
+
 import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.ide.Activator;
-import org.eclipse.sed.ifl.ide.gui.dialogs.HostAndPortInputDialog;
+
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
+
 
 public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel> {
 
@@ -29,19 +30,14 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	public ActivityMonitorControl(ActivityMonitorModel model) {
 		super(model);
 		determineHostAndPort();
-		model.setHost(host);
-		model.setPort(port);
-		model.setMacAddress(determineMacAddress());
 		model.setUserId(determineUserId());
+		model.setMacAddress(determineMacAddress());
 		model.setScenarioId(determineScenarioId());
 		System.out.println("mac: " + model.getMacAddress() + ", user id: " + model.getUserId() + ", scenario id: " + model.getScenarioId());
 	}
 
 	private static Boolean showError = true;
 	private static boolean enabled = false;
-
-	private String host;
-	private String port;
 	
 	public void log(Event event) {
 		if (!isUsed) {
@@ -99,13 +95,11 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private String determineUserId() {
 		String userId = Activator.getDefault().getPreferenceStore().getString("userId");
 		if (userId.equals("")) {
-			InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
-		            "Enter user ID", "Please enter your user ID.", "User ID", null);
-		        if (dlg.open() == Window.OK) {
-		        	userId = dlg.getValue();
-		        	Activator.getDefault().getPreferenceStore().setValue("userId", userId);
+			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
+					"You have not provided a user ID for logging. If you whish to use logging, "
+					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
+			enabled = false;
 		        }
-		}
 		return userId;
 	}
 	
@@ -124,18 +118,15 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private void determineHostAndPort() {
-		host = Activator.getDefault().getPreferenceStore().getString("host").equals("") ? null : Activator.getDefault().getPreferenceStore().getString("host");
-		port = Activator.getDefault().getPreferenceStore().getString("port").equals("") ? null : Activator.getDefault().getPreferenceStore().getString("port");
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		String host = store.getString("host").equals("") ? null : store.getString("host");
+		String port = store.getString("port").equals("") ? null : store.getString("port");
 		if (host == null || port == null) {
-			HostAndPortInputDialog dlg = new HostAndPortInputDialog(Display.getCurrent().getActiveShell());
-			dlg.create();
-			if(dlg.open() == Window.OK) {
-				host = dlg.getHost();
-				Activator.getDefault().getPreferenceStore().setValue("host", host);
-				port = dlg.getPort();
-				Activator.getDefault().getPreferenceStore().setValue("port", port);
+			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
+					"You have not provided a host name or a port number for logging. If you whish to use logging, "
+					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
+			enabled = false;
 			}
-		}
 	}
 	
 }
