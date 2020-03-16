@@ -32,6 +32,7 @@ public class ScoreSetter extends Composite {
 	private Label title;
 	private Label newScore;
 	private Scale scale;
+	private Button active;
 	
 	private int toScale(int value) {
 		return 100 - value;
@@ -120,7 +121,7 @@ public class ScoreSetter extends Composite {
 		newScore = new Label(mainSection, SWT.NONE);
 
 		//TODO move action logic to Control
-		Button active = new Button(mainSection, SWT.CHECK);
+		active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
 		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSection, active.getSelection()));
 		active.setSelection(true);
@@ -131,7 +132,7 @@ public class ScoreSetter extends Composite {
 		rl_settingSection.justify = true;
 		settingSection.setLayout(rl_settingSection);
 		
-		Button setUpper = new Button(settingSection, SWT.TOGGLE);
+		setUpper = new Button(settingSection, SWT.TOGGLE);
 		setUpper.setText("Set to 1");
 		setUpper.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(upperLimit);
@@ -233,6 +234,7 @@ public class ScoreSetter extends Composite {
 	private Composite distribution;
 	private Composite middleSection;
 	private Button setLower;
+	private Button setUpper;
 	
 	private NonGenericListenerCollection<Integer> deltaPercentChanged = new NonGenericListenerCollection<>();
 
@@ -282,6 +284,20 @@ public class ScoreSetter extends Composite {
 
 	public void enableRelativeScoreSetting() {
 		Setter.RecursiveEnable(middleSection, true);
+	}
+	
+	public double collectUserFeedback() {
+		int feedback = 0;
+		if(active.getSelection()) {
+			if(setUpper.getSelection()) {
+				feedback = 1;
+			} else if (setLower.getSelection()) {
+				feedback = 0;
+			} else {
+				feedback = ( fromScale(scale.getSelection()));
+			}
+		}
+		return feedback;
 	}
 	
 }

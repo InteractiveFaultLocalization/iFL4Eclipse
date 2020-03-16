@@ -60,4 +60,8 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 					return projected;
 				})));
 	};
+	
+	public double getUserFeedback() {
+		return getView().getUi().collectUserFeedback();
+	}
 }

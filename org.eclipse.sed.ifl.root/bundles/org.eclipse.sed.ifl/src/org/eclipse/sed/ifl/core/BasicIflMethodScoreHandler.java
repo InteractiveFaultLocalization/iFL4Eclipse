@@ -2,6 +2,8 @@ package org.eclipse.sed.ifl.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
@@ -34,6 +36,10 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		}
 	}
 
+	public void updateScore(Map<IMethodDescription, Defineable<Double>> customFeedback) {
+		this.scoreUpdated.invoke(new ScoreUpdateArgs(customFeedback));
+	}
+	
 	@Override
 	public void updateMethod(IMethodDescription method) {
 		new UnsupportedOperationException("Not implemented yet");

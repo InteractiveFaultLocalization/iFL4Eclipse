@@ -14,6 +14,10 @@ public class ScoreSetterView extends View implements IEmbeddable {
 
 	private ScoreSetter ui = new ScoreSetter();
 	
+	public ScoreSetter getUi() {
+		return ui;
+	}
+
 	@Override
 	public void init() {
 		ui.eventDeltaPercentChanged().add(deltaPercentChangedListener);
@@ -44,12 +48,6 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	}
 	
 	public void setDeltaPercent(int delta) {
-		ui.displayDeltaPercent(delta);
-	}
-	
-	public void refreshView(String name, int delta) {
-		ui = new ScoreSetter();
-		ui.setTitle(name);
 		ui.displayDeltaPercent(delta);
 	}
 	

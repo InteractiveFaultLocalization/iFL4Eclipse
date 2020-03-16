@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.control.feedback;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,9 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
+import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
@@ -19,6 +23,10 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	private ScoreSetterControl contextSetter;
 	
 	private ScoreSetterControl otherSetter;
+	
+	private List<IMethodDescription> selected;
+	private List<IMethodDescription> context;
+	private List<IMethodDescription> other;
 	
 	@Override
 	public void init() {
@@ -43,6 +51,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		addSubControl(selectedSetter);
 		addSubControl(contextSetter);
 		addSubControl(otherSetter);
+		getView().eventCustomOptionDialog().add(customFeedbackOptionListener);
 		super.init();
 	}
 	
@@ -51,6 +60,9 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			List<IMethodDescription> context,
 			List<IMethodDescription> other,
 			Map<IMethodDescription, Defineable<Double>> all) {
+		this.selected = selected;
+		this.context = context;
+		this.other = other;
 		Map<IMethodDescription, Defineable<Double>> scoresOfSelected = all.entrySet().stream()
 		.filter(entry -> selected.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
@@ -69,4 +81,36 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		getView().display();
 	}
 	
+	public Map<IMethodDescription, Defineable<Double>> collectCustomUserFeedback(Map<IMethodDescription, Defineable<Double>> all) {
+		Map<IMethodDescription, Defineable<Double>> changes = new HashMap<IMethodDescription, Defineable<Double>>();
+		
+
+		Map<IMethodDescription, Defineable<Double>> selectedMap = all.entrySet().stream()
+				.filter(entry -> selected.contains(entry.getKey()))
+				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+				new Defineable<Double>(entry.getValue().getValue() * (selectedSetter.getUserFeedback()/1))));
+		changes.putAll(selectedMap);
+		
+		Map<IMethodDescription, Defineable<Double>> contextMap = all.entrySet().stream()
+				.filter(entry -> context.contains(entry.getKey()))
+				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+				new Defineable<Double>(entry.getValue().getValue() * (contextSetter.getUserFeedback()/1))));
+		changes.putAll(contextMap);
+		
+		Map<IMethodDescription, Defineable<Double>> otherMap = all.entrySet().stream()
+				.filter(entry -> other.contains(entry.getKey()))
+				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+				new Defineable<Double>(entry.getValue().getValue() * (otherSetter.getUserFeedback()/1))));
+		changes.putAll(otherMap);
+		
+		return changes;
+	}
+	
+	private NonGenericListenerCollection<Boolean> customFeedbackOption = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Boolean> eventCustomFeedbackOption() {
+		return customFeedbackOption;
+	}
+	
+	private IListener<Boolean> customFeedbackOptionListener = customFeedbackOption::invoke;
 }

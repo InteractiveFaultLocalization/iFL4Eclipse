@@ -83,6 +83,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
+		contextBasedOptionCreator.eventCustomFeedbackOption().add(customFeedbackListener);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -252,6 +253,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
 		return terminationRequested;
 	}
+	
+	private IListener<Boolean> customFeedbackListener = event -> {
+		handler.updateScore(contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
+	};
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		

@@ -7,6 +7,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -31,7 +33,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				parent.getDisplay().getActiveShell().setVisible(false);
-				
+				customFeedbackSelected.invoke(true);
 			}
 
 			@Override
@@ -81,5 +83,10 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 		contents.add(embedded);
 	}
 	
+	private NonGenericListenerCollection<Boolean> customFeedbackSelected = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Boolean> eventCustomFeedbackSelected() {
+		return customFeedbackSelected;
+	}
 	
 }
