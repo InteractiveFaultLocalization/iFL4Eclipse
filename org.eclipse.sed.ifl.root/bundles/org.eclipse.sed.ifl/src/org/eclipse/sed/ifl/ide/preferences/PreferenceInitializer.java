@@ -16,9 +16,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 */
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault("userId", "");
-		store.setDefault("host", "");
-		store.setDefault("port", "");
+		store.setDefault("userId", "User");
+		store.setDefault("host", "localhost");
+		store.setDefault("port", "8182");
 	}
 
 }
