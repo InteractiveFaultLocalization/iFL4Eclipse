@@ -179,6 +179,7 @@ public class ScoreSetter extends Composite {
 		scale.setMinimum(0);
 		scale.addListener(SWT.Selection, event -> {
 			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
+			System.out.println(fromScale(scale.getSelection()));
 		});
 
 		Label minRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);
@@ -287,14 +288,14 @@ public class ScoreSetter extends Composite {
 	}
 	
 	public double collectUserFeedback() {
-		int feedback = 0;
+		double feedback = -300;
 		if(active.getSelection()) {
 			if(setUpper.getSelection()) {
 				feedback = 1;
 			} else if (setLower.getSelection()) {
 				feedback = 0;
 			} else {
-				feedback = ( fromScale(scale.getSelection()));
+				feedback = (0.01 * fromScale(scale.getSelection()));
 			}
 		}
 		return feedback;

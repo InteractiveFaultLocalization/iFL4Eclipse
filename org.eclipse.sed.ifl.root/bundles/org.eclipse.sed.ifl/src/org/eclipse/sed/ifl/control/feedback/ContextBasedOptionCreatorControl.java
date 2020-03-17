@@ -84,26 +84,52 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	public Map<IMethodDescription, Defineable<Double>> collectCustomUserFeedback(Map<IMethodDescription, Defineable<Double>> all) {
 		Map<IMethodDescription, Defineable<Double>> changes = new HashMap<IMethodDescription, Defineable<Double>>();
 		
-
-		Map<IMethodDescription, Defineable<Double>> selectedMap = all.entrySet().stream()
-				.filter(entry -> selected.contains(entry.getKey()))
-				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-				new Defineable<Double>(entry.getValue().getValue() * (selectedSetter.getUserFeedback()/1))));
-		changes.putAll(selectedMap);
+		double selectedFeedback = selectedSetter.getUserFeedback();
+		double contextFeedback = contextSetter.getUserFeedback();
+		double otherFeedback = otherSetter.getUserFeedback();
 		
-		Map<IMethodDescription, Defineable<Double>> contextMap = all.entrySet().stream()
-				.filter(entry -> context.contains(entry.getKey()))
-				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-				new Defineable<Double>(entry.getValue().getValue() * (contextSetter.getUserFeedback()/1))));
-		changes.putAll(contextMap);
+		if (selectedFeedback != -300) {
+			Map<IMethodDescription, Defineable<Double>> selectedMap = all.entrySet().stream()
+					.filter(entry -> selected.contains(entry.getKey()))
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), selectedFeedback))));
 		
-		Map<IMethodDescription, Defineable<Double>> otherMap = all.entrySet().stream()
-				.filter(entry -> other.contains(entry.getKey()))
-				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-				new Defineable<Double>(entry.getValue().getValue() * (otherSetter.getUserFeedback()/1))));
-		changes.putAll(otherMap);
+			changes.putAll(selectedMap);
+		}
+		
+		if (contextFeedback != -300) {
+			Map<IMethodDescription, Defineable<Double>> contextMap = all.entrySet().stream()
+					.filter(entry -> context.contains(entry.getKey()))
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), contextFeedback))));
+			changes.putAll(contextMap);
+		}
+		
+		if (otherFeedback != -300) {
+			Map<IMethodDescription, Defineable<Double>> otherMap = all.entrySet().stream()
+					.filter(entry -> other.contains(entry.getKey()))
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
+					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), otherFeedback))));
+			changes.putAll(otherMap);
+		}
 		
 		return changes;
+	}
+	
+	private double customFeedbackValueSetter(double entry, double feedback) {
+		double rValue = 0;
+		
+		if (entry == -300) {
+			rValue = entry;
+		} else if (entry == 1) {
+			rValue = 1.0;
+		} else if (entry == 0) {
+			rValue = 0.0;
+		} else {
+			rValue = entry + (entry * feedback);
+		}
+		
+		return rValue;
 	}
 	
 	private NonGenericListenerCollection<Boolean> customFeedbackOption = new NonGenericListenerCollection<>();
