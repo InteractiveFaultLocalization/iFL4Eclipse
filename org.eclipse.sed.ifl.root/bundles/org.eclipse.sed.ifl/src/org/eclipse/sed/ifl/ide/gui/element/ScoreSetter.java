@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.ui.Setter;
+import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -123,7 +123,10 @@ public class ScoreSetter extends Composite {
 		//TODO move action logic to Control
 		active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
-		active.addListener(SWT.Selection, event -> Setter.RecursiveEnable(settingSection, active.getSelection()));
+		active.addListener(SWT.Selection, event -> {	
+		Setter.RecursiveEnable(settingSection, active.getSelection());
+		collectCustomValue.invoke(createCustomValue());
+		});
 		active.setSelection(true);
 		
 		settingSection = new Composite(mainSection, SWT.NONE);
@@ -136,6 +139,7 @@ public class ScoreSetter extends Composite {
 		setUpper.setText("Set to 1");
 		setUpper.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(upperLimit);
+			collectCustomValue.invoke(createCustomValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -179,6 +183,7 @@ public class ScoreSetter extends Composite {
 		scale.setMinimum(0);
 		scale.addListener(SWT.Selection, event -> {
 			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
+			collectCustomValue.invoke(createCustomValue());
 			System.out.println(fromScale(scale.getSelection()));
 		});
 
@@ -218,6 +223,7 @@ public class ScoreSetter extends Composite {
 		setLower.setText("Set to 0.0");
 		setLower.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(lowerLimit);
+			collectCustomValue.invoke(createCustomValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -287,18 +293,26 @@ public class ScoreSetter extends Composite {
 		Setter.RecursiveEnable(middleSection, true);
 	}
 	
-	public double collectUserFeedback() {
-		double feedback = -300;
-		if(active.getSelection()) {
+	
+	private CustomValue createCustomValue() {
+		boolean isActive = active.getSelection();
+		int scaleValue = fromScale(scale.getSelection());
+		boolean isAbsoluteValue = (setUpper.getSelection() || setLower.getSelection());
+		int absoluteValue = 0;
+		if(isAbsoluteValue) {
 			if(setUpper.getSelection()) {
-				feedback = 1;
-			} else if (setLower.getSelection()) {
-				feedback = 0;
+				absoluteValue = 1;
 			} else {
-				feedback = (0.01 * fromScale(scale.getSelection()));
+				absoluteValue = 0;
 			}
-		}
-		return feedback;
+		} 
+		return new CustomValue(isActive, scaleValue, isAbsoluteValue, absoluteValue);
+	}
+	
+	private NonGenericListenerCollection<CustomValue> collectCustomValue = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<CustomValue> eventCollectUserFeedback() {
+		return collectCustomValue;
 	}
 	
 }

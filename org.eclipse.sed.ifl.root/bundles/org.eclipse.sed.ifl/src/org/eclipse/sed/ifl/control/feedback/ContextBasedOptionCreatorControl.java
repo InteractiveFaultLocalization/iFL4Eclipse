@@ -13,6 +13,7 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 
@@ -55,6 +56,10 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		super.init();
 	}
 	
+	@Override
+	public void teardown() {
+		super.teardown();
+	}
 	public void createNewOption(
 			List<IMethodDescription> selected,
 			List<IMethodDescription> context,
@@ -84,11 +89,11 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	public Map<IMethodDescription, Defineable<Double>> collectCustomUserFeedback(Map<IMethodDescription, Defineable<Double>> all) {
 		Map<IMethodDescription, Defineable<Double>> changes = new HashMap<IMethodDescription, Defineable<Double>>();
 		
-		double selectedFeedback = selectedSetter.getUserFeedback();
-		double contextFeedback = contextSetter.getUserFeedback();
-		double otherFeedback = otherSetter.getUserFeedback();
+		CustomValue selectedFeedback = selectedSetter.customValueProvider();
+		CustomValue contextFeedback = contextSetter.customValueProvider();
+		CustomValue otherFeedback = otherSetter.customValueProvider();
 		
-		if (selectedFeedback != -300) {
+		if (selectedFeedback.isActive()) {
 			Map<IMethodDescription, Defineable<Double>> selectedMap = all.entrySet().stream()
 					.filter(entry -> selected.contains(entry.getKey()))
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
@@ -97,7 +102,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			changes.putAll(selectedMap);
 		}
 		
-		if (contextFeedback != -300) {
+		if (contextFeedback.isActive()) {
 			Map<IMethodDescription, Defineable<Double>> contextMap = all.entrySet().stream()
 					.filter(entry -> context.contains(entry.getKey()))
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
@@ -105,7 +110,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			changes.putAll(contextMap);
 		}
 		
-		if (otherFeedback != -300) {
+		if (otherFeedback.isActive()) {
 			Map<IMethodDescription, Defineable<Double>> otherMap = all.entrySet().stream()
 					.filter(entry -> other.contains(entry.getKey()))
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
@@ -116,20 +121,11 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		return changes;
 	}
 	
-	private double customFeedbackValueSetter(double entry, double feedback) {
-		double rValue = 0;
-		
-		if (entry == -300) {
-			rValue = entry;
-		} else if (entry == 1) {
-			rValue = 1.0;
-		} else if (entry == 0) {
-			rValue = 0.0;
-		} else {
-			rValue = entry + (entry * feedback);
+	private double customFeedbackValueSetter(double entry, CustomValue feedback) {
+		if(feedback.isAbsoluteValue()) {
+			return feedback.getAbsoluteValue();
 		}
-		
-		return rValue;
+		return entry * feedback.getScaleValue();
 	}
 	
 	private NonGenericListenerCollection<Boolean> customFeedbackOption = new NonGenericListenerCollection<>();

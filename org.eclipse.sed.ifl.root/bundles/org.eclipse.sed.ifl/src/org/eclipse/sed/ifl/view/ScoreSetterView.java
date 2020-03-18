@@ -7,6 +7,7 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.widgets.Composite;
 
@@ -20,6 +21,7 @@ public class ScoreSetterView extends View implements IEmbeddable {
 
 	@Override
 	public void init() {
+		ui.eventCollectUserFeedback().add(customValueSetListener);
 		ui.eventDeltaPercentChanged().add(deltaPercentChangedListener);
 		ui.eventAbsoluteScoreSetted().add(absoluteScoreSettedListener);
 		ui.eventAbsoluteScoreSettingDisabled().add(absoluteScoreSettingDisabledListener);
@@ -28,6 +30,7 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	
 	@Override
 	public void teardown() {
+		ui.eventCollectUserFeedback().remove(customValueSetListener);
 		ui.eventDeltaPercentChanged().remove(deltaPercentChangedListener);
 		ui.eventAbsoluteScoreSetted().remove(absoluteScoreSettedListener);
 		ui.eventAbsoluteScoreSettingDisabled().remove(absoluteScoreSettingDisabledListener);
@@ -61,6 +64,16 @@ public class ScoreSetterView extends View implements IEmbeddable {
 		ui.activatePreset(event);
 		ui.displayDeltaPercent(event);
 		deltaPercentChanged.invoke(event);
+	};
+	
+	private NonGenericListenerCollection<CustomValue> customValueSet = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<CustomValue> eventCustomValueSet() {
+		return customValueSet;
+	}
+	
+	private IListener<CustomValue> customValueSetListener = customValue -> {
+		customValueSet.invoke(customValue);
 	};
 	
 	private NonGenericListenerCollection<Double> absoluteScoreSetted = new NonGenericListenerCollection<>();

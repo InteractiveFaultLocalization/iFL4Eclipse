@@ -7,7 +7,10 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
@@ -29,6 +32,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().setTitle(getName());
 		getView().setDeltaPercent(0);
 		getView().eventDeltaPercentChanged().add(deltaPercentChangedListener);
+		getView().eventCustomValueSet().add(customValueSetListener);
 		
 		getModel().eventRelatedChanged().add(relatedChangeListener);
 		super.init();
@@ -36,6 +40,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	
 	@Override
 	public void teardown() {
+		getView().eventCustomValueSet().remove(customValueSetListener);
 		getModel().eventRelatedChanged().remove(relatedChangeListener);
 		super.teardown();
 	}
@@ -48,6 +53,21 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().displayCurrentScoreDistribution(getModel().getProjection());
 	};
 
+	private IListener<CustomValue> customValueSetListener = customValue -> {
+		getModel().setCustomValue(customValue);
+	};
+	
+	private NonGenericListenerCollection<CustomValue> customValueProvided = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<CustomValue> eventCustomValueProvided() {
+		return customValueProvided;
+	}
+	
+	public CustomValue customValueProvider() {
+		return getModel().getCustomValue();
+	};
+	
+	
 	private IListener<Integer> deltaPercentChangedListener = event -> {
 		double ratio = event / 100.0;
 		getModel().updateSubjects(getModel().getSubjects().entrySet().stream()
@@ -60,8 +80,4 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 					return projected;
 				})));
 	};
-	
-	public double getUserFeedback() {
-		return getView().getUi().collectUserFeedback();
-	}
 }

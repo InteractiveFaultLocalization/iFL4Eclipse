@@ -18,8 +18,19 @@ public class ContextBasedOptionCreatorView extends View implements IEmbedee {
 		return dialog;
 	}
 
-	public void display() {
+	@Override
+	public void init() {
 		dialog.eventCustomFeedbackSelected().add(customOptionDialogListener);
+		super.init();
+	}
+	
+	@Override
+	public void teardown() {
+		dialog.eventCustomFeedbackSelected().remove(customOptionDialogListener);
+		super.teardown();
+	}
+	
+	public void display() {
 		dialog.open();
 	}
 
