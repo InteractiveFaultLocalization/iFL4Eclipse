@@ -17,7 +17,7 @@ import org.eclipse.sed.ifl.util.wrapper.Projection;
 public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;
 	
-	private CustomValue customValue;
+	private CustomValue customValue = new CustomValue(false, 0, false, 0);
 	
 	public void setCustomValue(CustomValue customValue) {
 		this.customValue = customValue;

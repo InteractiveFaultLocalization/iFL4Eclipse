@@ -2,13 +2,14 @@ package org.eclipse.sed.ifl.core;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
+import org.eclipse.sed.ifl.model.user.interaction.CustomOption;
+import org.eclipse.sed.ifl.model.user.interaction.CustomUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
@@ -30,15 +31,21 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		if (!feedback.getChoise().getId().equals("YES")) {
 			for (Option possibility : options) {
 				if (feedback.getChoise().equals(possibility)) {
+					if(feedback.getChoise().getId().equals("CUSTOM_FEEDBACK")) {
+						this.scoreUpdated.invoke(new ScoreUpdateArgs(((CustomUserFeedback)feedback).getCustomFeedback(), feedback));
+						break;
+					}
 					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
 				}
 			}
 		}
 	}
 
+	/*
 	public void updateScore(Map<IMethodDescription, Defineable<Double>> customFeedback) {
 		this.scoreUpdated.invoke(new ScoreUpdateArgs(customFeedback));
 	}
+	*/
 	
 	@Override
 	public void updateMethod(IMethodDescription method) {
@@ -88,7 +95,15 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			OptionKind.CONTEXT_XX0,
 			null,
 			null,
-			item -> new Defineable<Double>(0.0)));
+			item -> new Defineable<Double>(0.0)),
+		new CustomOption("CUSTOM_FEEDBACK",
+			"Custom feedback",
+			"Individually change the scores of selected, context and other items.",
+			OptionKind.CUSTOM,
+			//TODO implement this in a meaningful way
+			item -> null,
+			item -> null,
+			item -> null));
 	
 	@Override
 	public Iterable<Option> getProvidedOptions() {

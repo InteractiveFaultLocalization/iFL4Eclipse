@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.util.wrapper;
 
-public class CustomValue {
+public class CustomValue extends Defineable<Double>{
 
 	public CustomValue(boolean isActive, int scaleValue, boolean isAbsoluteValue, int absoluteValue) {
 		this.isActive = isActive;

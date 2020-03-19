@@ -16,6 +16,18 @@ public class ContextBasedOption extends Option {
 	private Function<IMethodDescription, Defineable<Double>> updateContext;
 	private Function<IMethodDescription, Defineable<Double>> updateOther;
 	
+	public void setUpdateSelected(Function<IMethodDescription, Defineable<Double>> updateSelected) {
+		this.updateSelected = updateSelected;
+	}
+
+	public void setUpdateContext(Function<IMethodDescription, Defineable<Double>> updateContext) {
+		this.updateContext = updateContext;
+	}
+
+	public void setUpdateOther(Function<IMethodDescription, Defineable<Double>> updateOther) {
+		this.updateOther = updateOther;
+	}
+
 	public ContextBasedOption(
 		String id, String title, String description,
 		Function<IMethodDescription, Defineable<Double>> updateSelected,

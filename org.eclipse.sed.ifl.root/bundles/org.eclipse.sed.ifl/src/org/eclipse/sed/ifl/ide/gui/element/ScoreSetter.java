@@ -184,7 +184,6 @@ public class ScoreSetter extends Composite {
 		scale.addListener(SWT.Selection, event -> {
 			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
 			collectCustomValue.invoke(createCustomValue());
-			System.out.println(fromScale(scale.getSelection()));
 		});
 
 		Label minRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);

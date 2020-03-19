@@ -29,6 +29,7 @@ import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
+import org.eclipse.sed.ifl.model.monitor.event.CustomUserFeedbackEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
@@ -39,7 +40,9 @@ import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
+import org.eclipse.sed.ifl.model.user.interaction.CustomUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -254,8 +257,22 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		return terminationRequested;
 	}
 	
+	private Option getCustomOption(Iterable<Option> options) {
+		Option rValue = null;
+		for (Option option : options) {
+			if (option.getId().equals("CUSTOM_FEEDBACK")){
+				rValue = option;
+				break;
+			}
+		}
+		return rValue;
+	}
+	
 	private IListener<Boolean> customFeedbackListener = event -> {
-		handler.updateScore(contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
+		Option option = getCustomOption(handler.getProvidedOptions());
+		CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
+		handler.updateScore(feedback);
+		activityMonitor.log(new CustomUserFeedbackEvent(feedback));
 	};
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {

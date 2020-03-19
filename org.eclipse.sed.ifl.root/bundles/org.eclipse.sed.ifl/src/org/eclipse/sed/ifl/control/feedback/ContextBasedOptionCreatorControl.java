@@ -122,10 +122,16 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	}
 	
 	private double customFeedbackValueSetter(double entry, CustomValue feedback) {
+		double rValue = entry + (entry * (feedback.getScaleValue() * 0.01));
 		if(feedback.isAbsoluteValue()) {
 			return feedback.getAbsoluteValue();
 		}
-		return entry * feedback.getScaleValue();
+		if (rValue > 1) {
+			return 1.0;
+		} else if (rValue < 0) {
+			return 0.0;
+		}
+		return rValue;
 	}
 	
 	private NonGenericListenerCollection<Boolean> customFeedbackOption = new NonGenericListenerCollection<>();

@@ -1,58 +1,28 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.user.identification.IUser;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
-public class CustomUserFeedback implements IUserFeedback {
+public class CustomUserFeedback extends UserFeedback {
+
+	private Map<IMethodDescription, Defineable<Double>> customFeedback;
 	
-	public CustomUserFeedback(int selectedPercent, int contextPercent, int otherPercent, List<IMethodDescription> subjects, IUser user) {
-		super();
-		this.selectedPercent = selectedPercent;
-		this.contextPercent = contextPercent;
-		this.otherPercent = otherPercent;
-		this.subjects.addAll(subjects);
-		this.user = user;
+	public void setCustomFeedback(Map<IMethodDescription, Defineable<Double>> customFeedback) {
+		this.customFeedback = customFeedback;
 	}
 
-	private int selectedPercent;
-	public int getSelectedPercent() {
-		return selectedPercent;
+	public CustomUserFeedback(Option option, Map<IMethodDescription, Defineable<Double>> subjects) {
+		super(option, subjects.keySet().stream()
+				.collect(Collectors.toList()));
+		this.customFeedback = subjects;
 	}
 
-	public int getContextPercent() {
-		return contextPercent;
+	public Map<IMethodDescription, Defineable<Double>> getCustomFeedback(){
+		return this.customFeedback;
 	}
-
-	public int getOtherPercent() {
-		return otherPercent;
-	}
-
-	private int contextPercent;
-	private int otherPercent;
 	
-	private IUser user;
-	
-	@Override
-	public IUser getUser() {
-
-		return user;
-	}
-
-	@Override
-	public Option getChoise() {
-
-		return null;
-	}
-
-	private List<IMethodDescription> subjects = new ArrayList<>();
-	
-	@Override
-	public List<IMethodDescription> getSubjects() {
-		return Collections.unmodifiableList(subjects);
-	}
-
 }

@@ -696,6 +696,9 @@ public class ScoreListUI extends Composite {
 
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
+			if(option.getId().equals("CUSTOM_FEEDBACK")) {
+				continue;
+			}
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setToolTipText(option.getDescription());
