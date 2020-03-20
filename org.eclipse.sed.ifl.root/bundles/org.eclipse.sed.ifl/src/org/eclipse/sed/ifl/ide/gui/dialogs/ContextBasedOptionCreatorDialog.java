@@ -34,6 +34,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 			public void widgetSelected(SelectionEvent e) {
 				parent.getDisplay().getActiveShell().setVisible(false);
 				customFeedbackSelected.invoke(true);
+				refreshUi.invoke(true);
 			}
 
 			@Override
@@ -48,7 +49,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				parent.getDisplay().getActiveShell().setVisible(false);
-				
+				refreshUi.invoke(true);
 			}
 
 			@Override
@@ -63,6 +64,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 	@Override
 	public boolean close() {
 		this.getShell().setVisible(false);
+		refreshUi.invoke(true);
 		return this.getShell().getVisible();
 	}
 
@@ -87,6 +89,12 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 
 	public INonGenericListenerCollection<Boolean> eventCustomFeedbackSelected() {
 		return customFeedbackSelected;
+	}
+	
+	private NonGenericListenerCollection<Boolean> refreshUi = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Boolean> eventRefreshUi() {
+		return refreshUi;
 	}
 	
 }

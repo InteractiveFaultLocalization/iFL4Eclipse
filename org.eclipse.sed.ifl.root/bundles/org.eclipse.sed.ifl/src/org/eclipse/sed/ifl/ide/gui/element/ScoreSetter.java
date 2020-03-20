@@ -42,6 +42,15 @@ public class ScoreSetter extends Composite {
 		return 100 - value;
 	}
 	
+	public void refreshView() {
+		active.setSelection(true);
+		Setter.RecursiveEnable(settingSection, active.getSelection());
+		setUpper.setSelection(false);
+		setLower.setSelection(false);
+		scale.setSelection(100);
+		newScore.setText("");
+	}
+	
 	private double lowerLimit = -1.0;
 	private double upperLimit = 1.0;
 		
@@ -124,8 +133,8 @@ public class ScoreSetter extends Composite {
 		active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
 		active.addListener(SWT.Selection, event -> {	
-		Setter.RecursiveEnable(settingSection, active.getSelection());
-		collectCustomValue.invoke(createCustomValue());
+			Setter.RecursiveEnable(settingSection, active.getSelection());
+			collectCustomValue.invoke(createCustomValue());
 		});
 		active.setSelection(true);
 		

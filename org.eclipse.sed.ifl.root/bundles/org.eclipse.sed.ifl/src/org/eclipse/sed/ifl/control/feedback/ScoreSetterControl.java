@@ -67,6 +67,9 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		return getModel().getCustomValue();
 	};
 	
+	public void refreshUi() {
+		getView().refreshUi();
+	}
 	
 	private IListener<Integer> deltaPercentChangedListener = event -> {
 		double ratio = event / 100.0;

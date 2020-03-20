@@ -29,7 +29,6 @@ import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
-import org.eclipse.sed.ifl.model.monitor.event.CustomUserFeedbackEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
@@ -272,7 +271,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Option option = getCustomOption(handler.getProvidedOptions());
 		CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
 		handler.updateScore(feedback);
-		activityMonitor.log(new CustomUserFeedbackEvent(feedback));
 	};
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {

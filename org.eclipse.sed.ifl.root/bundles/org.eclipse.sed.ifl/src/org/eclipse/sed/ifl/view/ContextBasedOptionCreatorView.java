@@ -21,12 +21,14 @@ public class ContextBasedOptionCreatorView extends View implements IEmbedee {
 	@Override
 	public void init() {
 		dialog.eventCustomFeedbackSelected().add(customOptionDialogListener);
+		dialog.eventRefreshUi().add(refreshUiListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
 		dialog.eventCustomFeedbackSelected().remove(customOptionDialogListener);
+		dialog.eventRefreshUi().remove(refreshUiListener);
 		super.teardown();
 	}
 	
@@ -46,4 +48,12 @@ public class ContextBasedOptionCreatorView extends View implements IEmbedee {
 	}
 
 	private IListener<Boolean> customOptionDialogListener = customOptionDialog::invoke;
+	
+	private NonGenericListenerCollection<Boolean> refreshUi = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Boolean> eventRefreshUi() {
+		return refreshUi;
+	}
+
+	private IListener<Boolean> refreshUiListener = refreshUi::invoke;
 }

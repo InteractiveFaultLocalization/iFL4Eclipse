@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
+import org.eclipse.sed.ifl.model.monitor.event.CustomUserFeedbackEvent;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
@@ -29,8 +32,14 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	private List<IMethodDescription> context;
 	private List<IMethodDescription> other;
 	
+	
+	private ActivityMonitorControl activityMonitor;
+	
 	@Override
 	public void init() {
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
+		this.addSubControl(activityMonitor);
 		selectedSetter = new ScoreSetterControl("selected");
 		selectedSetter.setModel(new ScoreSetterModel());
 		ScoreSetterView selectedView = new ScoreSetterView();
@@ -53,11 +62,15 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		addSubControl(contextSetter);
 		addSubControl(otherSetter);
 		getView().eventCustomOptionDialog().add(customFeedbackOptionListener);
+		getView().eventRefreshUi().add(refreshUiListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
+		getView().eventCustomOptionDialog().remove(customFeedbackOptionListener);
+		getView().eventRefreshUi().remove(refreshUiListener);
+		activityMonitor = null;
 		super.teardown();
 	}
 	public void createNewOption(
@@ -100,6 +113,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), selectedFeedback))));
 		
 			changes.putAll(selectedMap);
+			activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
 		}
 		
 		if (contextFeedback.isActive()) {
@@ -108,6 +122,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
 					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), contextFeedback))));
 			changes.putAll(contextMap);
+			activityMonitor.log(new CustomUserFeedbackEvent(context, contextFeedback, "context"));
 		}
 		
 		if (otherFeedback.isActive()) {
@@ -116,6 +131,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
 					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), otherFeedback))));
 			changes.putAll(otherMap);
+			activityMonitor.log(new CustomUserFeedbackEvent(other, otherFeedback, "other"));
 		}
 		
 		return changes;
@@ -141,4 +157,10 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	}
 	
 	private IListener<Boolean> customFeedbackOptionListener = customFeedbackOption::invoke;
+	
+	private IListener<Boolean> refreshUiListener = event -> {
+		selectedSetter.refreshUi();
+		contextSetter.refreshUi();
+		otherSetter.refreshUi();
+	};
 }

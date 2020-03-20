@@ -4,12 +4,11 @@ import java.util.function.Function;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class CustomOption extends ContextBasedOption {
 
-	private CustomValue customValue;
+	//private CustomValue customValue;
 
 	public CustomOption(String id, String title, String description, OptionKind kind,
 			Function<IMethodDescription, Defineable<Double>> updateSelected,
