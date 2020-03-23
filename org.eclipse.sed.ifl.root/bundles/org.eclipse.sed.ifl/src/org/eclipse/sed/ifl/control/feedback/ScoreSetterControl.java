@@ -33,6 +33,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().setDeltaPercent(0);
 		getView().eventDeltaPercentChanged().add(deltaPercentChangedListener);
 		getView().eventCustomValueSet().add(customValueSetListener);
+		//getView().setColumnTitle(getName());
 		
 		getModel().eventRelatedChanged().add(relatedChangeListener);
 		super.init();
@@ -49,8 +50,12 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getModel().setSubjects(scores);
 	}
 
+	public void setTableContents(){
+		getView().setTableContents(getModel().getSubjects());
+	}
+	
 	private IListener<EmptyEvent> relatedChangeListener = event -> {
-		getView().displayCurrentScoreDistribution(getModel().getProjection());
+		getView().displayCurrentScoreDistribution(getModel().getSubjects());
 	};
 
 	private IListener<CustomValue> customValueSetListener = customValue -> {

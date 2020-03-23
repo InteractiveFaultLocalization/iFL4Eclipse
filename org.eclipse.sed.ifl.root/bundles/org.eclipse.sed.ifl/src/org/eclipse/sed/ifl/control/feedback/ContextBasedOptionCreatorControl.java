@@ -85,16 +85,19 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		.filter(entry -> selected.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		selectedSetter.setCurrentRelatedScores(scoresOfSelected);
+		selectedSetter.setTableContents();
 		
 		Map<IMethodDescription, Defineable<Double>> scoresOfContext = all.entrySet().stream()
 		.filter(entry -> context.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		contextSetter.setCurrentRelatedScores(scoresOfContext);
+		contextSetter.setTableContents();
 		
 		Map<IMethodDescription, Defineable<Double>> scoresOfOther = all.entrySet().stream()
 		.filter(entry -> other.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		otherSetter.setCurrentRelatedScores(scoresOfOther);
+		otherSetter.setTableContents();
 		
 		getView().display();
 	}

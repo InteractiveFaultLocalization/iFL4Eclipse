@@ -1,8 +1,10 @@
 package org.eclipse.sed.ifl.view;
 
-import java.util.List;
+import java.util.Map;
+
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -46,12 +48,20 @@ public class ScoreSetterView extends View implements IEmbeddable {
 		ui.refreshView();
 	}
 	
+	public void setColumnTitle(String name) {
+		ui.setColumnTitle(name);
+	}
+	
 	public void setTitle(String name) {
 		ui.setTitle(name);
 	}
 
-	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
+	public void displayCurrentScoreDistribution(Map<IMethodDescription ,Projection<Double>> points) {
 		ui.displayCurrentScoreDistribution(points);
+	}
+	
+	public void setTableContents(Map<IMethodDescription, Projection<Double>> subjects) {
+		ui.setTableContents(subjects);
 	}
 	
 	public void setDeltaPercent(int delta) {

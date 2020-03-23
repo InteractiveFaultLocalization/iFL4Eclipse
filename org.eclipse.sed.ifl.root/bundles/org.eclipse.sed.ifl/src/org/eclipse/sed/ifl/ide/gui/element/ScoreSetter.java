@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -18,10 +20,15 @@ import org.eclipse.sed.ifl.util.ui.Setter;
 import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -33,6 +40,8 @@ public class ScoreSetter extends Composite {
 	private Label newScore;
 	private Scale scale;
 	private Button active;
+	private Table table;
+	private TableColumn nameColumn;
 	
 	private int toScale(int value) {
 		return 100 - value;
@@ -64,10 +73,12 @@ public class ScoreSetter extends Composite {
 	
 	private List<Double> jitter = new ArrayList<>();
 	
-	public void displayCurrentScoreDistribution(List<Projection<Double>> points) {
+	public void displayCurrentScoreDistribution(Map<IMethodDescription, Projection<Double>> subjects) {
 		for (Control control : distribution.getChildren()) {
 			control.dispose();
 		}
+		
+		ArrayList<Projection<Double>> points = new ArrayList<Projection<Double>>(subjects.values());
 		
 		random = new Random();
 		while (jitter.size() < points.size()) {
@@ -75,21 +86,23 @@ public class ScoreSetter extends Composite {
 			jitter.add(random.nextDouble());
 		}
 		
+		
+		
 		Iterator<Double> index = jitter.iterator();
-		for (Projection<Double> point : points) {
+		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
 			double x = index.next();
-			createGlyph(SWT.COLOR_BLACK, x, point.getOriginal());
+			createGlyph(SWT.COLOR_BLACK, x, entry.getValue().getOriginal(), entry.getKey());
 		}
 		index = jitter.iterator();
-		for (Projection<Double> point : points) {
+		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
 			double x = index.next();
-			if (point.getProjected().isDefinit()) {
-				createGlyph(SWT.COLOR_RED, x, point.getProjected().getValue());
+			if (entry.getValue().getProjected().isDefinit()) {
+				createGlyph(SWT.COLOR_RED, x, entry.getValue().getProjected().getValue(), entry.getKey());
 			}
 		}
 	}
 
-	private void createGlyph(int color, double x, double y) {
+	private void createGlyph(int color, double x, double y, IMethodDescription data) {
 		Label glyph = new Label(distribution, SWT.NONE);
 		glyph.setBackground(SWTResourceManager.getColor(color));
 		glyph.setBounds(
@@ -97,6 +110,32 @@ public class ScoreSetter extends Composite {
 			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
 			glyphSize, glyphSize);
 		glyph.setText("");
+		glyph.setData(data);
+		glyph.addMouseTrackListener(new MouseTrackListener() {
+
+			@Override
+			public void mouseEnter(MouseEvent e) {
+				for (TableItem item : table.getItems()) {
+					if(item.getData().toString().equals(glyph.getData().toString())){
+						glyph.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+						table.setSelection(item);
+					}
+				}
+			}
+
+			@Override
+			public void mouseExit(MouseEvent e) {
+				glyph.setBackground(SWTResourceManager.getColor(color));
+				
+			}
+
+			@Override
+			public void mouseHover(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 	
 	private Map<Integer, Button> presets = new HashMap<>();
@@ -239,8 +278,44 @@ public class ScoreSetter extends Composite {
 				setUpper.setSelection(false);
 			}
 		});
+		
+		tableSection = new Composite(mainSection, SWT.NONE);
+		tableSection.setLayout(new GridLayout());
+		
+		table = new Table(tableSection, SWT.V_SCROLL | SWT.H_SCROLL);
+		
+		GridData gd_table = new GridData(SWT.FILL);
+		gd_table.grabExcessVerticalSpace = true;
+		gd_table.grabExcessHorizontalSpace = true;
+		gd_table.verticalAlignment = SWT.FILL;
+		gd_table.horizontalAlignment = SWT.FILL;
+		gd_table.heightHint = 100;
+		table.setLayoutData(gd_table);
+		
+		table.setLinesVisible(true);
+		table.setHeaderVisible(false);
+
 	}
 
+	public void setTableContents(Map<IMethodDescription, Projection<Double>> subjects) {
+		// TODO Auto-generated method stub
+		for (TableItem item : table.getItems()) {
+			item.dispose();
+		}
+		
+		for (IMethodDescription method : subjects.keySet()) {
+			TableItem item = new TableItem(table, SWT.NULL);
+			item.setText(method.getId().getName());
+			item.setData(method);
+		}
+		
+		
+	}
+
+	public void setColumnTitle(String title) {
+		this.nameColumn.setText(title);
+	}
+	
 	public void setTitle(String title) {
 		this.title.setText(title);
 	}
@@ -248,6 +323,7 @@ public class ScoreSetter extends Composite {
 	private Composite settingSection;
 	private Composite distribution;
 	private Composite middleSection;
+	private Composite tableSection;
 	private Button setLower;
 	private Button setUpper;
 	
