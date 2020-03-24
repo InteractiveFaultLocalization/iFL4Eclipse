@@ -20,8 +20,12 @@ import org.eclipse.sed.ifl.util.ui.Setter;
 import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Scale;
@@ -57,7 +61,7 @@ public class ScoreSetter extends Composite {
 		setUpper.setSelection(false);
 		setLower.setSelection(false);
 		scale.setSelection(100);
-		newScore.setText("");
+		newScore.setText("will change by 0%");
 	}
 	
 	private double lowerLimit = -1.0;
@@ -110,29 +114,37 @@ public class ScoreSetter extends Composite {
 			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
 			glyphSize, glyphSize);
 		glyph.setText("");
-		glyph.setData(data);
+		glyph.setData("method", data);
+		glyph.setData("color", color);
 		glyph.addMouseTrackListener(new MouseTrackListener() {
 
 			@Override
 			public void mouseEnter(MouseEvent e) {
+				glyph.setBackground(SWTResourceManager.getColor(color));
 				for (TableItem item : table.getItems()) {
-					if(item.getData().toString().equals(glyph.getData().toString())){
-						glyph.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+					if(item.getData().toString().equals(glyph.getData("method").toString())){
 						table.setSelection(item);
+					}
+				}
+				for (Control control : distribution.getChildren()) {
+					if(!control.getData("method").toString().equals(glyph.getData("method").toString())) {
+						control.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+					} else {
+						control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
 					}
 				}
 			}
 
 			@Override
 			public void mouseExit(MouseEvent e) {
-				glyph.setBackground(SWTResourceManager.getColor(color));
-				
+				table.deselectAll();
+				for (Control control: distribution.getChildren()) {
+					control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
+				}
 			}
 
 			@Override
-			public void mouseHover(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
+			public void mouseHover(MouseEvent e) {				
 			}
 			
 		});
@@ -282,7 +294,7 @@ public class ScoreSetter extends Composite {
 		tableSection = new Composite(mainSection, SWT.NONE);
 		tableSection.setLayout(new GridLayout());
 		
-		table = new Table(tableSection, SWT.V_SCROLL | SWT.H_SCROLL);
+		table = new Table(tableSection, SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
 		
 		GridData gd_table = new GridData(SWT.FILL);
 		gd_table.grabExcessVerticalSpace = true;
@@ -294,18 +306,51 @@ public class ScoreSetter extends Composite {
 		
 		table.setLinesVisible(true);
 		table.setHeaderVisible(false);
+		table.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				table.deselectAll();
+				for (Control control: distribution.getChildren()) {
+					control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
+				}
+			}
+
+		});
+		table.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TableItem[] selected = table.getSelection();
+				for (Control control : distribution.getChildren()) {
+					if(!selected[0].getData().toString().equals(control.getData("method").toString())) {
+						control.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+					} else {
+						control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
+					}
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 	}
 
 	public void setTableContents(Map<IMethodDescription, Projection<Double>> subjects) {
-		// TODO Auto-generated method stub
 		for (TableItem item : table.getItems()) {
 			item.dispose();
 		}
 		
 		for (IMethodDescription method : subjects.keySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
-			item.setText(method.getId().getName());
+			item.setText(method.getId().getSignature());
 			item.setData(method);
 		}
 		
