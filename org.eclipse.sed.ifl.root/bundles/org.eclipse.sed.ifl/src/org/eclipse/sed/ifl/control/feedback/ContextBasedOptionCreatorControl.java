@@ -1,16 +1,18 @@
 package org.eclipse.sed.ifl.control.feedback;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
-import org.eclipse.sed.ifl.model.monitor.event.CustomUserFeedbackEvent;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
+import org.eclipse.sed.ifl.model.user.interaction.CustomOption;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -27,11 +29,6 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	private ScoreSetterControl contextSetter;
 	
 	private ScoreSetterControl otherSetter;
-	
-	private List<IMethodDescription> selected;
-	private List<IMethodDescription> context;
-	private List<IMethodDescription> other;
-	
 	
 	private ActivityMonitorControl activityMonitor;
 	
@@ -78,9 +75,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			List<IMethodDescription> context,
 			List<IMethodDescription> other,
 			Map<IMethodDescription, Defineable<Double>> all) {
-		this.selected = selected;
-		this.context = context;
-		this.other = other;
+		
 		Map<IMethodDescription, Defineable<Double>> scoresOfSelected = all.entrySet().stream()
 		.filter(entry -> selected.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
@@ -101,58 +96,45 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		
 		getView().display();
 	}
-	
-	public Map<IMethodDescription, Defineable<Double>> collectCustomUserFeedback(Map<IMethodDescription, Defineable<Double>> all) {
-		Map<IMethodDescription, Defineable<Double>> changes = new HashMap<IMethodDescription, Defineable<Double>>();
+	//TODO legyen event
+	public CustomOption createCustomOption() {
 		
-		CustomValue selectedFeedback = selectedSetter.customValueProvider();
-		CustomValue contextFeedback = contextSetter.customValueProvider();
-		CustomValue otherFeedback = otherSetter.customValueProvider();
+		CustomValue selectedValue = selectedSetter.customValueProvider();
+		CustomValue contextValue = contextSetter.customValueProvider();
+		CustomValue otherValue = otherSetter.customValueProvider();
 		
-		if (selectedFeedback.isActive()) {
-			Map<IMethodDescription, Defineable<Double>> selectedMap = all.entrySet().stream()
-					.filter(entry -> selected.contains(entry.getKey()))
-					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), selectedFeedback))));
+			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> selectedFunction =
+			 selectedValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(selectedValue, item.getValue().getValue()));
+			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
 		
-			changes.putAll(selectedMap);
-			activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
-		}
+			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> contextFunction =
+			 contextValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(contextValue, item.getValue().getValue()));
+			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
+					 
+			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
+			 otherValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(otherValue, item.getValue().getValue()));
+			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
+			 
+		CustomOption customOption = new CustomOption("CUSTOM_FEEDBACK",
+				"Custom feedback",
+				"Individually change the scores of selected, context and other items.",
+				OptionKind.CUSTOM,
+				selectedFunction,
+				contextFunction,
+				otherFunction);
 		
-		if (contextFeedback.isActive()) {
-			Map<IMethodDescription, Defineable<Double>> contextMap = all.entrySet().stream()
-					.filter(entry -> context.contains(entry.getKey()))
-					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), contextFeedback))));
-			changes.putAll(contextMap);
-			activityMonitor.log(new CustomUserFeedbackEvent(context, contextFeedback, "context"));
-		}
-		
-		if (otherFeedback.isActive()) {
-			Map<IMethodDescription, Defineable<Double>> otherMap = all.entrySet().stream()
-					.filter(entry -> other.contains(entry.getKey()))
-					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> 
-					new Defineable<Double>(customFeedbackValueSetter(entry.getValue().getValue(), otherFeedback))));
-			changes.putAll(otherMap);
-			activityMonitor.log(new CustomUserFeedbackEvent(other, otherFeedback, "other"));
-		}
-		
-		return changes;
+		return customOption;
 	}
 	
-	private double customFeedbackValueSetter(double entry, CustomValue feedback) {
-		double rValue = entry + (entry * (feedback.getScaleValue() * 0.01));
-		if(feedback.isAbsoluteValue()) {
-			return feedback.getAbsoluteValue();
+	private double customFeedbackValueSetter(CustomValue customValue, double previousValue) {
+		if(customValue.isAbsolute()) {
+			return customValue.getValue();
+		} else {
+			return previousValue + (previousValue * (customValue.getValue() * 0.01));
 		}
-		if (rValue > 1) {
-			return 1.0;
-		} else if (rValue < 0) {
-			return 0.0;
-		}
-		return rValue;
 	}
-	
+		
+	//TODO boolean helyett itt adja át a user választását
 	private NonGenericListenerCollection<Boolean> customFeedbackOption = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Boolean> eventCustomFeedbackOption() {

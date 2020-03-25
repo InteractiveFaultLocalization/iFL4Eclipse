@@ -302,6 +302,7 @@ public class ScoreSetter extends Composite {
 		gd_table.verticalAlignment = SWT.FILL;
 		gd_table.horizontalAlignment = SWT.FILL;
 		gd_table.heightHint = 100;
+		gd_table.widthHint = 150;
 		table.setLayoutData(gd_table);
 		
 		table.setLinesVisible(true);
@@ -327,7 +328,9 @@ public class ScoreSetter extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				TableItem[] selected = table.getSelection();
 				for (Control control : distribution.getChildren()) {
-					if(!selected[0].getData().toString().equals(control.getData("method").toString())) {
+					assert selected[0].getData() instanceof IMethodDescription;
+					IMethodDescription desc = (IMethodDescription)(selected[0].getData());
+					if(!desc.toString().equals(control.getData("method").toString())) {
 						control.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 					} else {
 						control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
@@ -340,7 +343,26 @@ public class ScoreSetter extends Composite {
 			}
 			
 		});
+		table.addMouseTrackListener(new MouseTrackListener() {
 
+			@Override
+			public void mouseEnter(MouseEvent e) {	
+			}
+
+			@Override
+			public void mouseExit(MouseEvent e) {
+				table.deselectAll();
+				for (Control control: distribution.getChildren()) {
+					control.setBackground(SWTResourceManager.getColor(Integer.parseInt(control.getData("color").toString())));
+				}
+			}
+
+			@Override
+			public void mouseHover(MouseEvent e) {
+				
+			}
+			
+		});
 	}
 
 	public void setTableContents(Map<IMethodDescription, Projection<Double>> subjects) {
@@ -425,17 +447,19 @@ public class ScoreSetter extends Composite {
 	
 	private CustomValue createCustomValue() {
 		boolean isActive = active.getSelection();
-		int scaleValue = fromScale(scale.getSelection());
-		boolean isAbsoluteValue = (setUpper.getSelection() || setLower.getSelection());
-		int absoluteValue = 0;
-		if(isAbsoluteValue) {
-			if(setUpper.getSelection()) {
-				absoluteValue = 1;
-			} else {
-				absoluteValue = 0;
-			}
-		} 
-		return new CustomValue(isActive, scaleValue, isAbsoluteValue, absoluteValue);
+		if(isActive) {
+			int value = fromScale(scale.getSelection());
+			boolean isAbsolute = (setUpper.getSelection() || setLower.getSelection());
+			if(isAbsolute) {
+				if(setUpper.getSelection()) {
+					value = 1;
+				} else {
+					value = 0;
+				}
+			} 
+			return new CustomValue(isAbsolute, value);
+		}
+		return null;
 	}
 	
 	private NonGenericListenerCollection<CustomValue> collectCustomValue = new NonGenericListenerCollection<>();

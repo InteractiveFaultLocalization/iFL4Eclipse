@@ -57,7 +57,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	private IListener<EmptyEvent> relatedChangeListener = event -> {
 		getView().displayCurrentScoreDistribution(getModel().getSubjects());
 	};
-
+//TODO customValue map, lehet üres is
 	private IListener<CustomValue> customValueSetListener = customValue -> {
 		getModel().setCustomValue(customValue);
 	};

@@ -1,33 +1,22 @@
 package org.eclipse.sed.ifl.util.wrapper;
 
-public class CustomValue extends Defineable<Double>{
-
-	public CustomValue(boolean isActive, int scaleValue, boolean isAbsoluteValue, int absoluteValue) {
-		this.isActive = isActive;
-		this.scaleValue = scaleValue;
-		this.isAbsoluteValue = isAbsoluteValue;
-		this.absoluteValue = absoluteValue;
+public class CustomValue {
+//TODO engedjük el a UI-t
+//TODO +1 adattag defineable-höz képest: abszolút-e vagy sem
+//TODO átnevezni (ne feltétlen származzon a defineable-bõl)
+	public CustomValue(boolean isAbsolute, int value) {
+		this.isAbsolute = isAbsolute;
+		this.value = value;
 	}
 
-	public int getScaleValue() {
-		return scaleValue;
+	public boolean isAbsolute() {
+		return isAbsolute;
 	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public boolean isAbsoluteValue() {
-		return isAbsoluteValue;
-	}
-
-	public int getAbsoluteValue() {
-		return absoluteValue;
-	}
-
-	private int scaleValue;
-	private boolean isActive;
-	private boolean isAbsoluteValue;
-	private int absoluteValue;
 	
+	public int getValue() {
+		return this.value;
+	}
+	
+	private boolean isAbsolute;
+	private int value;
 }

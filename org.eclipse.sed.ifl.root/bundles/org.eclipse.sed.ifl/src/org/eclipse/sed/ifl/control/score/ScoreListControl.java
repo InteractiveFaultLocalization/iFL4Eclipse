@@ -268,8 +268,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 	
 	private IListener<Boolean> customFeedbackListener = event -> {
-		Option option = getCustomOption(handler.getProvidedOptions());
-		CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
+		Option option = contextBasedOptionCreator.createCustomOption();
+		//TODO new customfeedbackoption itt jöjjön létre, felparaméterezés itt lehet
+		//TODO itt csak a 4 érték kell: selected context other; halmaz
+		//TODO contextbasedoptioncreator gyártsa le az option-t magát
+		//TODO esetleg! teljes customuserfeedback legyártása a contextbasedoptioncreator-ben
+		//CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
 		handler.updateScore(feedback);
 	};
 
