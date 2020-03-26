@@ -13,6 +13,8 @@ import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.CustomOption;
+import org.eclipse.sed.ifl.model.user.interaction.CustomUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -97,22 +99,22 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		getView().display();
 	}
 	//TODO legyen event
-	public CustomOption createCustomOption() {
+	public IUserFeedback createCustomOption() {
 		
 		CustomValue selectedValue = selectedSetter.customValueProvider();
 		CustomValue contextValue = contextSetter.customValueProvider();
 		CustomValue otherValue = otherSetter.customValueProvider();
 		
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> selectedFunction =
-			 selectedValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(selectedValue, item.getValue().getValue()));
+			 selectedValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(selectedValue, item.getValue().getValue()));
 			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
 		
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> contextFunction =
-			 contextValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(contextValue, item.getValue().getValue()));
+			 contextValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(contextValue, item.getValue().getValue()));
 			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
 					 
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
-			 otherValue == null ? item -> null : item -> new Defineable<Double>(customFeedbackValueSetter(otherValue, item.getValue().getValue()));
+			 otherValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(otherValue, item.getValue().getValue()));
 			//activityMonitor.log(new CustomUserFeedbackEvent(selected, selectedFeedback, "selected"));
 			 
 		CustomOption customOption = new CustomOption("CUSTOM_FEEDBACK",
@@ -123,7 +125,9 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 				contextFunction,
 				otherFunction);
 		
-		return customOption;
+		IUserFeedback feedback = new CustomUserFeedback(customOption, selectedSetter.getOriginalSubjects());
+		
+		return feedback;
 	}
 	
 	private double customFeedbackValueSetter(CustomValue customValue, double previousValue) {

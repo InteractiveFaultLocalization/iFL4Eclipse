@@ -39,9 +39,7 @@ import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
-import org.eclipse.sed.ifl.model.user.interaction.CustomUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
-import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -256,19 +254,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		return terminationRequested;
 	}
 	
-	private Option getCustomOption(Iterable<Option> options) {
-		Option rValue = null;
-		for (Option option : options) {
-			if (option.getId().equals("CUSTOM_FEEDBACK")){
-				rValue = option;
-				break;
-			}
-		}
-		return rValue;
-	}
-	
 	private IListener<Boolean> customFeedbackListener = event -> {
-		Option option = contextBasedOptionCreator.createCustomOption();
+		IUserFeedback feedback= contextBasedOptionCreator.createCustomOption();
+		
 		//TODO new customfeedbackoption itt jöjjön létre, felparaméterezés itt lehet
 		//TODO itt csak a 4 érték kell: selected context other; halmaz
 		//TODO contextbasedoptioncreator gyártsa le az option-t magát

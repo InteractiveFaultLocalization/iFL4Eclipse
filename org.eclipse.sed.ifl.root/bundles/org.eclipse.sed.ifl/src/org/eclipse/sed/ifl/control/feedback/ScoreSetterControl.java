@@ -54,6 +54,10 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().setTableContents(getModel().getSubjects());
 	}
 	
+	public Map<IMethodDescription, Defineable<Double>> getOriginalSubjects(){
+		return getModel().getOriginalSubjects();
+	}
+	
 	private IListener<EmptyEvent> relatedChangeListener = event -> {
 		getView().displayCurrentScoreDistribution(getModel().getSubjects());
 	};

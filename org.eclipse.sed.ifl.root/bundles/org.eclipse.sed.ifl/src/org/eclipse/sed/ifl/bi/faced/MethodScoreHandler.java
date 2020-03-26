@@ -45,11 +45,6 @@ public abstract class MethodScoreHandler {
 			this.newScores = newScores;
 			this.cause = cause;
 		}
-		public ScoreUpdateArgs(Map<IMethodDescription, Defineable<Double>> newScores) {
-			super();
-			this.newScores = newScores;
-			//this.cause =;
-		}
 	}
 	
 	protected NonGenericListenerCollection<ScoreUpdateArgs> scoreUpdated = new NonGenericListenerCollection<>();

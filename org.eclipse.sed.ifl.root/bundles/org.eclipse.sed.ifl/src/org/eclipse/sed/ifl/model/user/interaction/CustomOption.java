@@ -1,7 +1,6 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -52,15 +51,15 @@ public class CustomOption extends Option {
 			newScores.putAll(applyAll(updateSelected, selected));
 		}
 		if (updateContext != null) {
-			context = IMethodDescriptionCollectionUtil.collectContext(feedback.getSubjects(), allScores);
+			context = IMethodDescriptionCollectionUtil.collectContext(((CustomUserFeedback)(feedback)).getSubjectMap(), allScores);
 			newScores.putAll(applyAll(updateContext, context));
 		}
 		if (updateOther != null) {
 			if (selected == null) {
-				selected = feedback.getSubjects();
+				selected = ((CustomUserFeedback)(feedback)).getSubjectMap();
 			}
 			if (context == null) {
-				context = IMethodDescriptionCollectionUtil.collectContext(feedback.getSubjects(), allScores);
+				context = IMethodDescriptionCollectionUtil.collectContext(((CustomUserFeedback)(feedback)).getSubjectMap(), allScores);
 			}
 			other = IMethodDescriptionCollectionUtil.collectOther(allScores, selected, context);
 			newScores.putAll(applyAll(updateOther, other));

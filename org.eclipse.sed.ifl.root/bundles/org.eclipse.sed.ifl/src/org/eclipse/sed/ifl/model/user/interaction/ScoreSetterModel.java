@@ -16,6 +16,7 @@ import org.eclipse.sed.ifl.util.wrapper.Projection;
 
 public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;
+	private Map<IMethodDescription, Defineable<Double>> originalSubjects;
 	
 	private CustomValue customValue = null;
 	
@@ -31,7 +32,12 @@ public class ScoreSetterModel extends EmptyModel {
 		return subjects;
 	}
 
+	public Map<IMethodDescription, Defineable<Double>> getOriginalSubjects(){
+		return this.originalSubjects;
+	}
+	
 	public void setSubjects(Map<IMethodDescription, Defineable<Double>> scores) {
+		this.originalSubjects = scores;
 		this.subjects = scores.entrySet().stream()
 			.filter(entry -> entry.getValue().isDefinit())
 			.collect(Collectors.toMap(
