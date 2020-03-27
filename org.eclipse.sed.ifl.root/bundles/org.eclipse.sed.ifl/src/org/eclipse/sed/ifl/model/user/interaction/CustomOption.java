@@ -31,7 +31,10 @@ public class CustomOption extends Option {
 		this.updateContext = updateContext;
 		this.updateOther = updateOthers;
 	}
-
+//TODO átnevezni contextbasedoption-re, a korábbi kuka
+	//customfeedback -> rendes feedback (score marad, de csúnyán nézünk rá, késõbbi párhuzamosításnál problémát okozhat)
+	//this is faulty marad
+	//többi optiont kiváltja ez
 	private Map<IMethodDescription, Defineable<Double>> applyAll(Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> function, Map<IMethodDescription, Defineable<Double>> items) {
 		Map<IMethodDescription, Defineable<Double>> result = new HashMap<>();
 		for (Entry<IMethodDescription, Defineable<Double>> item : items.entrySet()) {
@@ -47,7 +50,7 @@ public class CustomOption extends Option {
 		Map<IMethodDescription, Defineable<Double>> context = null;
 		Map<IMethodDescription, Defineable<Double>> other = null;
 		if (updateSelected != null) {
-			selected = ((CustomUserFeedback) (feedback)).getSubjectMap();
+			selected = ((CustomUserFeedback) feedback).getSubjectMap();
 			newScores.putAll(applyAll(updateSelected, selected));
 		}
 		if (updateContext != null) {

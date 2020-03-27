@@ -62,6 +62,9 @@ public class ScoreSetter extends Composite {
 		setLower.setSelection(false);
 		scale.setSelection(100);
 		newScore.setText("will change by 0%");
+		for (Button item : presets.values()) {
+			item.setSelection(false);
+		}
 	}
 	
 	private double lowerLimit = -1.0;
@@ -226,6 +229,7 @@ public class ScoreSetter extends Composite {
 			presets.get(entry.getKey()).setText(entry.getKey() + "%");
 			presets.get(entry.getKey()).addListener(SWT.Selection, event -> {
 				deltaPercentChanged.invoke(entry.getKey());
+				collectCustomValue.invoke(createCustomValue());
 			});
 		}
 		
@@ -302,7 +306,7 @@ public class ScoreSetter extends Composite {
 		gd_table.verticalAlignment = SWT.FILL;
 		gd_table.horizontalAlignment = SWT.FILL;
 		gd_table.heightHint = 100;
-		gd_table.widthHint = 150;
+		gd_table.widthHint = 250;
 		table.setLayoutData(gd_table);
 		
 		table.setLinesVisible(true);

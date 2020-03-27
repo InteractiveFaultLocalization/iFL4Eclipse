@@ -33,6 +33,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
 				} else if (feedback instanceof CustomUserFeedback) {
 					this.scoreUpdated.invoke(new ScoreUpdateArgs(feedback.getChoise().apply(feedback, methodsScoreMap), feedback));
+					break;
 				}
 			}
 		}

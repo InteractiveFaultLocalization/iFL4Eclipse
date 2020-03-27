@@ -83,7 +83,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
-		contextBasedOptionCreator.eventCustomFeedbackOption().add(customFeedbackListener);
+		contextBasedOptionCreator.eventCustomFeedbackOption().add(optionSelectedListener);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -110,6 +110,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	@Override
 	public void teardown() {
+		contextBasedOptionCreator.eventCustomFeedbackOption().remove(optionSelectedListener);
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		getView().eventCustomOptionSelected().remove(customOptionSelectedListener);
@@ -253,18 +254,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
 		return terminationRequested;
 	}
-	
-	private IListener<Boolean> customFeedbackListener = event -> {
-		IUserFeedback feedback= contextBasedOptionCreator.createCustomOption();
-		
+	/*
+	private IListener<IUserFeedback> customFeedbackListener = event -> {
 		//TODO new customfeedbackoption itt jöjjön létre, felparaméterezés itt lehet
 		//TODO itt csak a 4 érték kell: selected context other; halmaz
 		//TODO contextbasedoptioncreator gyártsa le az option-t magát
 		//TODO esetleg! teljes customuserfeedback legyártása a contextbasedoptioncreator-ben
 		//CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
-		handler.updateScore(feedback);
+		handler.updateScore(event);
 	};
-
+*/
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
