@@ -10,9 +10,9 @@ import org.eclipse.sed.ifl.util.Maps;
 import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
-public class CustomUserFeedbackEvent extends Event {
+public class ContextBasedUserFeedbackEvent extends Event {
 
-	public CustomUserFeedbackEvent(Map<IMethodDescription, Defineable<Double>> subjects, CustomValue customValue, String selection) {
+	public ContextBasedUserFeedbackEvent(Map<IMethodDescription, Defineable<Double>> subjects, CustomValue customValue, String selection) {
 		super(Maps.<String, Object>builder()
 				.put("selection", selection)
 				.put("isAbsolute", customValue.isAbsolute() ? "yes" : "no")

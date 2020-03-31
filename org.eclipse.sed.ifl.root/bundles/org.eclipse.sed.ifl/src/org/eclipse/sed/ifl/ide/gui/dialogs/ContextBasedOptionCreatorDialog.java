@@ -19,6 +19,9 @@ import org.eclipse.swt.layout.GridLayout;
 
 public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee {
 
+	private static int OK_BUTTON_ID = 1600;
+	private static int CANCEL_BUTTON_ID = 1601;
+	
 	public ContextBasedOptionCreatorDialog(Shell parentShell) {
 		super(parentShell);
 		
@@ -26,9 +29,9 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 	
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, 1600, IDialogConstants.OK_LABEL, true);
-		createButton(parent, 1601, IDialogConstants.CANCEL_LABEL, false);
-		getButton(1600).addSelectionListener(new SelectionListener() {
+		createButton(parent, OK_BUTTON_ID, IDialogConstants.OK_LABEL, true);
+		createButton(parent, CANCEL_BUTTON_ID, IDialogConstants.CANCEL_LABEL, false);
+		getButton(OK_BUTTON_ID).addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -44,7 +47,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 			}
 			
 		});
-		getButton(1601).addSelectionListener(new SelectionListener() {
+		getButton(CANCEL_BUTTON_ID).addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {

@@ -31,7 +31,6 @@ import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
-import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
 import org.eclipse.sed.ifl.model.score.history.Monument;
@@ -254,21 +253,12 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
 		return terminationRequested;
 	}
-	/*
-	private IListener<IUserFeedback> customFeedbackListener = event -> {
-		//TODO new customfeedbackoption itt jöjjön létre, felparaméterezés itt lehet
-		//TODO itt csak a 4 érték kell: selected context other; halmaz
-		//TODO contextbasedoptioncreator gyártsa le az option-t magát
-		//TODO esetleg! teljes customuserfeedback legyártása a contextbasedoptioncreator-ben
-		//CustomUserFeedback feedback = new CustomUserFeedback(option, contextBasedOptionCreator.collectCustomUserFeedback(getModel().getRawScore()));
-		handler.updateScore(event);
-	};
-*/
+	
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
-			activityMonitor.log(new UserFeedbackEvent(event));
+			//activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
 			System.out.println("size of userfeedback list: " + event.getSubjects().size());
@@ -369,8 +359,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private List<String> getElementNames(IUserFeedback event) {
 		List<String> rvList = new ArrayList<String>(event.getSubjects().size());
-		for(int i=0; i<event.getSubjects().size(); i++) {
-			rvList.add(event.getSubjects().get(i).getId().getName());
+		for(IMethodDescription method : event.getSubjects().keySet()) {
+			rvList.add(method.getId().getName());
 		}
 		return rvList;
 	}

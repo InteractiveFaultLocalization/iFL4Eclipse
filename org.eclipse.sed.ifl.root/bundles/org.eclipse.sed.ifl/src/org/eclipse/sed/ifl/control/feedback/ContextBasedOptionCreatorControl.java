@@ -10,13 +10,13 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
-import org.eclipse.sed.ifl.model.monitor.event.CustomUserFeedbackEvent;
+import org.eclipse.sed.ifl.model.monitor.event.ContextBasedUserFeedbackEvent;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
-import org.eclipse.sed.ifl.model.user.interaction.CustomOption;
-import org.eclipse.sed.ifl.model.user.interaction.CustomUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
+import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -118,7 +118,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			 otherValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(otherValue, item.getValue().getValue()));
 			
 			 
-		CustomOption customOption = new CustomOption("CUSTOM_FEEDBACK",
+		ContextBasedOption customOption = new ContextBasedOption("CUSTOM_FEEDBACK",
 				"Custom feedback",
 				"Individually change the scores of selected, context and other items.",
 				OptionKind.CUSTOM,
@@ -126,16 +126,16 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 				contextFunction,
 				otherFunction);
 		
-		IUserFeedback feedback = new CustomUserFeedback(customOption, selectedSetter.getOriginalSubjects());
+		IUserFeedback feedback = new UserFeedback(customOption, selectedSetter.getOriginalSubjects());
 		
 		if(!(selectedValue == null)) {
-			activityMonitor.log(new CustomUserFeedbackEvent(selectedSetter.getOriginalSubjects(), selectedValue, "selected"));
+			activityMonitor.log(new ContextBasedUserFeedbackEvent(selectedSetter.getOriginalSubjects(), selectedValue, "selected"));
 		}
 		if(!(contextValue == null)) {
-			activityMonitor.log(new CustomUserFeedbackEvent(contextSetter.getOriginalSubjects(), contextValue, "context"));
+			activityMonitor.log(new ContextBasedUserFeedbackEvent(contextSetter.getOriginalSubjects(), contextValue, "context"));
 		}
 		if(!(otherValue == null)) {
-			activityMonitor.log(new CustomUserFeedbackEvent(otherSetter.getOriginalSubjects(), otherValue, "other"));
+			activityMonitor.log(new ContextBasedUserFeedbackEvent(otherSetter.getOriginalSubjects(), otherValue, "other"));
 		}
 		
 		
@@ -143,9 +143,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	}
 	
 	private double customFeedbackValueSetter(CustomValue customValue, double previousValue) {
-		System.out.println("custom value" + customValue.getValue());
 		if(customValue.isAbsolute()) {
-			System.out.println("absolute value: " + customValue.getValue());
 			return customValue.getValue();
 		} else {
 			double newValue = previousValue + (previousValue * (customValue.getValue() * 0.01));
@@ -155,7 +153,6 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 			if(newValue <= 0) {
 				newValue = 0.0;
 			}
-			System.out.println("scale value: " + newValue);
 			return newValue;
 		}
 	}

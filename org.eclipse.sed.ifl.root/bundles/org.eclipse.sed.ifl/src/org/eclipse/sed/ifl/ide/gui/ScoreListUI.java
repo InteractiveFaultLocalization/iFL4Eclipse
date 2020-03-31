@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +24,7 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
@@ -586,6 +589,7 @@ public class ScoreListUI extends Composite {
 			}
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
+			item.setData("entry", entry);
 		}
 		iconColumn.pack();
 	}
@@ -708,11 +712,16 @@ public class ScoreListUI extends Composite {
 			}
 			item.addSelectionListener(new SelectionListener() {
 
+				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					List<IMethodDescription> subjects = Stream.of(table.getSelection())
-							.map(selection -> (IMethodDescription)selection.getData())
-							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+					Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
+					List<TableItem> itemList = Arrays.asList(table.getSelection());
+					for(TableItem tableItem : itemList) {
+						assert tableItem.getData("entry") instanceof Entry<?, ?>;
+						subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
+								new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+					}
 					UserFeedback feedback = new UserFeedback(option, subjects);					
 					optionSelected.invoke(feedback);
 				}
@@ -724,7 +733,8 @@ public class ScoreListUI extends Composite {
 			});
 		}
 		MenuItem item = new MenuItem(contextMenu, SWT.None);
-		item.setText("Custom feedback...");
+		item.setText("Context based feedback...");
+		item.setToolTipText("Individually change the scores of selected, context and other items.");
 		item.addSelectionListener(new SelectionListener() {
 			
 			@Override
