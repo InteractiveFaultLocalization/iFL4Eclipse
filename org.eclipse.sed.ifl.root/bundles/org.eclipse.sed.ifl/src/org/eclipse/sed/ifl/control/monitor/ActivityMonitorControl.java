@@ -29,11 +29,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 
 	public ActivityMonitorControl(ActivityMonitorModel model) {
 		super(model);
-		determineHostAndPort();
-		model.setUserId(determineUserId());
 		model.setMacAddress(determineMacAddress());
-		model.setScenarioId(determineScenarioId());
-		System.out.println("mac: " + model.getMacAddress() + ", user id: " + model.getUserId() + ", scenario id: " + model.getScenarioId());
 	}
 
 	private static Boolean showError = true;
@@ -44,8 +40,10 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 			isUsed = true;
 			try {
 				if (enabled) {
-					getModel().insertEvent(event);
-					System.out.printf("new %s are logged\n", event.toString());
+					if(checkUserProvidedInformation()) {
+						getModel().insertEvent(event);
+						System.out.printf("new %s are logged\n", event.toString());	
+					}
 				}
 			} catch (IllegalStateException e) {
 				if (showError && e.getCause() instanceof RemoteConnectionException) {
@@ -63,6 +61,10 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 			}
 			isUsed = false;
 		}
+	}
+
+	private boolean checkUserProvidedInformation() {
+		return checkUserId() && checkScenarioId() && checkHostAndPort();
 	}
 
 	public static void enable() {
@@ -87,23 +89,26 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		            sb.append('-');
 		        sb.append(String.format("%02x", b));
 		    }
-		    return sb.toString();
-	    }
+		    return(sb.toString());
+	    } else {
 		return "";
+	    }
 	}
 	
-	private String determineUserId() {
+	private boolean checkUserId() {
 		String userId = Activator.getDefault().getPreferenceStore().getString("userId");
 		if (userId.equals("")) {
 			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
 					"You have not provided a user ID for logging. If you whish to use logging, "
 					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
-			enabled = false;
-		        }
-		return userId;
+			return false;
+		 } else { 
+		getModel().setUserId(userId);
+		return true;
+		 }
 	}
 	
-	private String determineScenarioId() {
+	private boolean checkScenarioId() {
 		StringBuilder fileContentBuilder = new StringBuilder();
 	    try (Stream<String> stream = Files.lines( Paths.get("ScenarioIdFile"), StandardCharsets.UTF_8)) 
 	    {
@@ -112,21 +117,30 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	    catch (IOException e) 
 	    {
 	        System.out.println("Scenario ID file not found.");
-	        return "";
+	        MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
+					"You have not provided a scenario file for logging. If you whish to use logging, "
+					+ "place an appropriate scenario file next to eclipse.exe. Logging disabled.", SWT.NONE);
+	        return false;
 	    }
-	    return fileContentBuilder.toString();
+	    getModel().setScenarioId(fileContentBuilder.toString());
+	    return true;
 	}
 	
-	private void determineHostAndPort() {
+	private boolean checkHostAndPort() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String host = store.getString("host").equals("") ? null : store.getString("host");
-		String port = store.getString("port").equals("") ? null : store.getString("port");
-		if (host == null || port == null) {
+		String host = store.getString("host");
+		String port = store.getString("port");
+		if (host.equals("") || port.equals("")) {
 			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
 					"You have not provided a host name or a port number for logging. If you whish to use logging, "
 					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
-			enabled = false;
-			}
+			return false;
+		} else {
+			getModel().setHostName(host);
+			getModel().setPortNumber(port);
+			getModel().setG();
+			return true;
+		}
 	}
 	
 }

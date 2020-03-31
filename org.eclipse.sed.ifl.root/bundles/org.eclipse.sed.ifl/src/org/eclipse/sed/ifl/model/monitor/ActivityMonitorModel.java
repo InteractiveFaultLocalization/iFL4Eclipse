@@ -18,10 +18,36 @@ import org.eclipse.sed.ifl.util.exception.EU;
 public class ActivityMonitorModel extends EmptyModel {
 	private GraphTraversalSource g;
 	
+	public GraphTraversalSource getG() {
+		return g;
+	}
+
+	public void setG() {
+		g = traversal().withRemote(DriverRemoteConnection.using(hostName, Integer.parseInt(portNumber), "g"));
+	}
+
 	private String macAddress;
 	private String userId;
 	private String scenarioId;
+	private String hostName;
+	private String portNumber;
 	
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
+	}
+
+	public String getPortNumber() {
+		return portNumber;
+	}
+
+	public void setPortNumber(String portNumber) {
+		this.portNumber = portNumber;
+	}
+
 	public String getMacAddress() {
 		return macAddress;
 	}
@@ -51,7 +77,7 @@ public class ActivityMonitorModel extends EmptyModel {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String host = store.getString("host");
 		String port = store.getString("port");
-		g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
+		//g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
 		super.init();
 	}
 	
