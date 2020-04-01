@@ -15,13 +15,14 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.ScoreSetterModel;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 
@@ -99,23 +100,24 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		
 		getView().display();
 	}
-	//TODO legyen event
-	public IUserFeedback createCustomUserFeedback() {
+	
+	//option példányt kap paraméterként -> visszaadja a beállított custom optiont
+	public IUserFeedback createContextBasedUserFeedback(Option contextBasedOption) {
 		
-		CustomValue selectedValue = selectedSetter.customValueProvider();
-		CustomValue contextValue = contextSetter.customValueProvider();
-		CustomValue otherValue = otherSetter.customValueProvider();
+		Relativeable<Defineable<Double>> selectedValue = selectedSetter.relativeableValueProvider();
+		Relativeable<Defineable<Double>> contextValue = contextSetter.relativeableValueProvider();
+		Relativeable<Defineable<Double>> otherValue = otherSetter.relativeableValueProvider();
 		
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> selectedFunction =
-			 selectedValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(selectedValue, item.getValue().getValue()));
+			 selectedValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(selectedValue, item.getValue());
 			
 		
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> contextFunction =
-			 contextValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(contextValue, item.getValue().getValue()));
+			 contextValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(contextValue, item.getValue());
 		
 					 
 			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
-			 otherValue == null ? null : item -> new Defineable<Double>(customFeedbackValueSetter(otherValue, item.getValue().getValue()));
+			 otherValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(otherValue, item.getValue());
 			
 			 
 		ContextBasedOption customOption = new ContextBasedOption("CUSTOM_FEEDBACK",
@@ -128,6 +130,9 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		
 		IUserFeedback feedback = new UserFeedback(customOption, selectedSetter.getOriginalSubjects());
 		
+		//TODO ScoreModificationEvent legyen
+		//if-ek nem fognak kelleni, csak az új map-et kell összerakni
+		//két userfeedback event között csak 1 scoremodificationevent lehet (de nem szükségszerû)
 		if(!(selectedValue == null)) {
 			activityMonitor.log(new ContextBasedUserFeedbackEvent(selectedSetter.getOriginalSubjects(), selectedValue, "selected"));
 		}
@@ -142,19 +147,23 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		return feedback;
 	}
 	
-	private double customFeedbackValueSetter(CustomValue customValue, double previousValue) {
-		if(customValue.isAbsolute()) {
-			return customValue.getValue();
-		} else {
-			double newValue = previousValue + (previousValue * (customValue.getValue() * 0.01));
-			if(newValue >= 1) {
-				newValue = 1.0;
+	private Defineable<Double> contextBasedFeedbackValueSetter(Relativeable<Defineable<Double>> relativeableValue, Defineable<Double> previousValue) {
+		Defineable<Double> newValue = new Defineable<Double>();
+
+		if(relativeableValue.getValue().isDefinit()) {
+			if(!relativeableValue.isRelative()) {
+				newValue = relativeableValue.getValue();
+			} else {
+				double newDoubleValue = previousValue.getValue() + (previousValue.getValue() * (relativeableValue.getValue().getValue() * 0.01));
+				if(newDoubleValue > 1.0) {
+					newDoubleValue = 1.0;
+				} else if(newDoubleValue < 0.0) {
+					newDoubleValue = 0.0;
+				}
+				newValue = new Defineable<Double>(newDoubleValue);
 			}
-			if(newValue <= 0) {
-				newValue = 0.0;
-			}
-			return newValue;
 		}
+		return newValue;
 	}
 		
 	//TODO boolean helyett itt adja át a user választását
@@ -165,7 +174,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	}
 	//TODO az eredeti listener kezelje le a ScoreListControlban
 	private IListener<Boolean> customFeedbackOptionListener = event ->{
-		customFeedbackOption.invoke(createCustomUserFeedback());
+		//customFeedbackOption.invoke(createContextBasedUserFeedback());
 	};
 	
 	private IListener<Boolean> refreshUiListener = event -> {

@@ -732,6 +732,7 @@ public class ScoreListUI extends Composite {
 				}
 			});
 		}
+		//TODO ne legyen külön menü elem, hanem a basiciflmethodscorehandler option-jébe 
 		MenuItem item = new MenuItem(contextMenu, SWT.None);
 		item.setText("Context based feedback...");
 		item.setToolTipText("Individually change the scores of selected, context and other items.");

@@ -9,8 +9,9 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.swt.widgets.Composite;
 
 public class ScoreSetterView extends View implements IEmbeddable {
@@ -23,7 +24,7 @@ public class ScoreSetterView extends View implements IEmbeddable {
 
 	@Override
 	public void init() {
-		ui.eventCollectUserFeedback().add(customValueSetListener);
+		ui.eventCollectRelativeableValue().add(relativeableValueSetListener);
 		ui.eventDeltaPercentChanged().add(deltaPercentChangedListener);
 		ui.eventAbsoluteScoreSetted().add(absoluteScoreSettedListener);
 		ui.eventAbsoluteScoreSettingDisabled().add(absoluteScoreSettingDisabledListener);
@@ -32,7 +33,7 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	
 	@Override
 	public void teardown() {
-		ui.eventCollectUserFeedback().remove(customValueSetListener);
+		ui.eventCollectRelativeableValue().remove(relativeableValueSetListener);
 		ui.eventDeltaPercentChanged().remove(deltaPercentChangedListener);
 		ui.eventAbsoluteScoreSetted().remove(absoluteScoreSettedListener);
 		ui.eventAbsoluteScoreSettingDisabled().remove(absoluteScoreSettingDisabledListener);
@@ -80,14 +81,14 @@ public class ScoreSetterView extends View implements IEmbeddable {
 		deltaPercentChanged.invoke(event);
 	};
 	
-	private NonGenericListenerCollection<CustomValue> customValueSet = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Relativeable<Defineable<Double>>> relativeableValueSet = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<CustomValue> eventCustomValueSet() {
-		return customValueSet;
+	public INonGenericListenerCollection<Relativeable<Defineable<Double>>> eventRelativeableValueSet() {
+		return relativeableValueSet;
 	}
 	
-	private IListener<CustomValue> customValueSetListener = customValue -> {
-		customValueSet.invoke(customValue);
+	private IListener<Relativeable<Defineable<Double>>> relativeableValueSetListener = relativeableValue -> {
+		relativeableValueSet.invoke(relativeableValue);
 	};
 	
 	private NonGenericListenerCollection<Double> absoluteScoreSetted = new NonGenericListenerCollection<>();

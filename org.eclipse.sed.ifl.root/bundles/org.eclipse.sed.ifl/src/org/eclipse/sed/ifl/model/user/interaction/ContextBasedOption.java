@@ -9,7 +9,9 @@ import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
-
+//TODO ebbõl származtatni relative and absolute contextbased option -> konstruktora várja a customfeedbackvalue settert ->
+//konstruktor össze tudja rakni a lambdát
+// lambdák összeálításához használt paraméterek belepakolása az új osztályba adattagokként -> setter
 public class ContextBasedOption extends Option {
 
 	private Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> updateSelected;
@@ -31,10 +33,7 @@ public class ContextBasedOption extends Option {
 		this.updateContext = updateContext;
 		this.updateOther = updateOthers;
 	}
-//TODO átnevezni contextbasedoption-re, a korábbi kuka
-	//customfeedback -> rendes feedback (score marad, de csúnyán nézünk rá, késõbbi párhuzamosításnál problémát okozhat)
-	//this is faulty marad
-	//többi optiont kiváltja ez
+
 	private Map<IMethodDescription, Defineable<Double>> applyAll(Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> function, Map<IMethodDescription, Defineable<Double>> items) {
 		Map<IMethodDescription, Defineable<Double>> result = new HashMap<>();
 		for (Entry<IMethodDescription, Defineable<Double>> item : items.entrySet()) {

@@ -17,8 +17,9 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.ui.Setter;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -188,7 +189,7 @@ public class ScoreSetter extends Composite {
 		active.setText("active");
 		active.addListener(SWT.Selection, event -> {	
 			Setter.RecursiveEnable(settingSection, active.getSelection());
-			collectCustomValue.invoke(createCustomValue());
+			collectRelativeableValue.invoke(createRelativeableValue());
 		});
 		active.setSelection(true);
 		
@@ -202,7 +203,7 @@ public class ScoreSetter extends Composite {
 		setUpper.setText("Set to 1");
 		setUpper.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(upperLimit);
-			collectCustomValue.invoke(createCustomValue());
+			collectRelativeableValue.invoke(createRelativeableValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -229,7 +230,7 @@ public class ScoreSetter extends Composite {
 			presets.get(entry.getKey()).setText(entry.getKey() + "%");
 			presets.get(entry.getKey()).addListener(SWT.Selection, event -> {
 				deltaPercentChanged.invoke(entry.getKey());
-				collectCustomValue.invoke(createCustomValue());
+				collectRelativeableValue.invoke(createRelativeableValue());
 			});
 		}
 		
@@ -247,7 +248,7 @@ public class ScoreSetter extends Composite {
 		scale.setMinimum(0);
 		scale.addListener(SWT.Selection, event -> {
 			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
-			collectCustomValue.invoke(createCustomValue());
+			collectRelativeableValue.invoke(createRelativeableValue());
 		});
 
 		Label minRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);
@@ -286,7 +287,7 @@ public class ScoreSetter extends Composite {
 		setLower.setText("Set to 0.0");
 		setLower.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(lowerLimit);
-			collectCustomValue.invoke(createCustomValue());
+			collectRelativeableValue.invoke(createRelativeableValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -449,27 +450,26 @@ public class ScoreSetter extends Composite {
 	}
 	
 	
-	private CustomValue createCustomValue() {
+	private Relativeable<Defineable<Double>> createRelativeableValue() {
 		boolean isActive = active.getSelection();
+		boolean isRelative = (setUpper.getSelection() || setLower.getSelection());
+		
+		Defineable<Double> value;
+		
 		if(isActive) {
-			int value = fromScale(scale.getSelection());
-			boolean isAbsolute = (setUpper.getSelection() || setLower.getSelection());
-			if(isAbsolute) {
-				if(setUpper.getSelection()) {
-					value = 1;
-				} else {
-					value = 0;
-				}
-			} 
-			return new CustomValue(isAbsolute, value);
+			double scaleValue = fromScale(scale.getSelection());
+			value = new Defineable<Double>(scaleValue);
+		} else {
+			value = new Defineable<Double>();
 		}
-		return null;
+		
+		return new Relativeable<Defineable<Double>>(isRelative, value);
 	}
 	
-	private NonGenericListenerCollection<CustomValue> collectCustomValue = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Relativeable<Defineable<Double>>> collectRelativeableValue = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<CustomValue> eventCollectUserFeedback() {
-		return collectCustomValue;
+	public INonGenericListenerCollection<Relativeable<Defineable<Double>>> eventCollectRelativeableValue() {
+		return collectRelativeableValue;
 	}
 	
 }

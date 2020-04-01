@@ -10,22 +10,28 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 
 public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;
 	private Map<IMethodDescription, Defineable<Double>> originalSubjects;
 	
-	private CustomValue customValue = null;
+	//relativeable generikus osztály
+	//scale-bõl Relativeable<Defineable<Double>> double-t tároljon
+	//relatív vagy sem boolean + lekérdezés hozzá
+	//Tvalue generikus típus -> setter nincs hozzá, immutable
+	//defineable -> megadja, h aktív-e vagy sem
+	//probléma: null-nak ne legyen extra jelentése
+	private Relativeable<Defineable<Double>> relativeableValue;
 	
-	public void setCustomValue(CustomValue customValue) {
-		this.customValue = customValue;
+	public void setRelativeableValue(Relativeable<Defineable<Double>> relativeableValue) {
+		this.relativeableValue = relativeableValue;
 	}
 	
-	public CustomValue getCustomValue() {
-		return this.customValue;
+	public Relativeable<Defineable<Double>> getRelativeableValue() {
+		return this.relativeableValue;
 	}
 	
 	public Map<IMethodDescription, Projection<Double>> getSubjects() {

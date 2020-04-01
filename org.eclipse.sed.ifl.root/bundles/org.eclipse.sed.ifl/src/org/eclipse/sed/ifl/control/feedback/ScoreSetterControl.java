@@ -10,9 +10,9 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterView> {
@@ -32,7 +32,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().setTitle(getName());
 		getView().setDeltaPercent(0);
 		getView().eventDeltaPercentChanged().add(deltaPercentChangedListener);
-		getView().eventCustomValueSet().add(customValueSetListener);
+		getView().eventRelativeableValueSet().add(relativeableValueSetListener);
 		//getView().setColumnTitle(getName());
 		
 		getModel().eventRelatedChanged().add(relatedChangeListener);
@@ -41,7 +41,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	
 	@Override
 	public void teardown() {
-		getView().eventCustomValueSet().remove(customValueSetListener);
+		getView().eventRelativeableValueSet().remove(relativeableValueSetListener);
 		getModel().eventRelatedChanged().remove(relatedChangeListener);
 		super.teardown();
 	}
@@ -61,19 +61,19 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	private IListener<EmptyEvent> relatedChangeListener = event -> {
 		getView().displayCurrentScoreDistribution(getModel().getSubjects());
 	};
-//TODO customValue map, lehet üres is
-	private IListener<CustomValue> customValueSetListener = customValue -> {
-		getModel().setCustomValue(customValue);
+	
+	private IListener<Relativeable<Defineable<Double>>> relativeableValueSetListener = relativeableValue -> {
+		getModel().setRelativeableValue(relativeableValue);
 	};
 	
-	private NonGenericListenerCollection<CustomValue> customValueProvided = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Relativeable<Defineable<Double>>> relativeableValueProvided = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<CustomValue> eventCustomValueProvided() {
-		return customValueProvided;
+	public INonGenericListenerCollection<Relativeable<Defineable<Double>>> eventrelativeableValueProvided() {
+		return relativeableValueProvided;
 	}
 	
-	public CustomValue customValueProvider() {
-		return getModel().getCustomValue();
+	public Relativeable<Defineable<Double>> relativeableValueProvider() {
+		return getModel().getRelativeableValue();
 	};
 	
 	public void refreshUi() {

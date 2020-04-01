@@ -9,10 +9,12 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.Maps;
 import org.eclipse.sed.ifl.util.wrapper.CustomValue;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 
 public class ContextBasedUserFeedbackEvent extends Event {
-
-	public ContextBasedUserFeedbackEvent(Map<IMethodDescription, Defineable<Double>> subjects, CustomValue customValue, String selection) {
+//TODO subject lehetne egy másik map újMap<String,régiMap<>>
+	//resources put-nál a subject string lenne a selection
+	public ContextBasedUserFeedbackEvent(Map<IMethodDescription, Defineable<Double>> subjects, Relativeable<Defineable<Double>> relativeableValue, String selection) {
 		super(Maps.<String, Object>builder()
 				.put("selection", selection)
 				.put("isAbsolute", customValue.isAbsolute() ? "yes" : "no")

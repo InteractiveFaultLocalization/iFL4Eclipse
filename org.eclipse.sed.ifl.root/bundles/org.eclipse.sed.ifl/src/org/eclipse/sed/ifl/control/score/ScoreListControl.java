@@ -31,6 +31,7 @@ import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
 import org.eclipse.sed.ifl.model.monitor.event.NavigationEvent;
 import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
+import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
 import org.eclipse.sed.ifl.model.score.history.Monument;
@@ -53,6 +54,7 @@ import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.neo4j.codegen.bytecode.If;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -255,10 +257,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 	
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
+		if(event.getChoise() == handler.getProvidedOptions().iterator().next()) {
+			System.out.println("yes");
+		} else {
+			System.out.println("no");
+
+		}
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
-			//activityMonitor.log(new UserFeedbackEvent(event));
+			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
 			System.out.println("size of userfeedback list: " + event.getSubjects().size());
