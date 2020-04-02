@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.control.feedback;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,7 +11,7 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
-import org.eclipse.sed.ifl.model.monitor.event.ContextBasedUserFeedbackEvent;
+import org.eclipse.sed.ifl.model.monitor.event.ScoreModifiedEvent;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
@@ -133,16 +134,13 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		//TODO ScoreModificationEvent legyen
 		//if-ek nem fognak kelleni, csak az új map-et kell összerakni
 		//két userfeedback event között csak 1 scoremodificationevent lehet (de nem szükségszerû)
-		if(!(selectedValue == null)) {
-			activityMonitor.log(new ContextBasedUserFeedbackEvent(selectedSetter.getOriginalSubjects(), selectedValue, "selected"));
-		}
-		if(!(contextValue == null)) {
-			activityMonitor.log(new ContextBasedUserFeedbackEvent(contextSetter.getOriginalSubjects(), contextValue, "context"));
-		}
-		if(!(otherValue == null)) {
-			activityMonitor.log(new ContextBasedUserFeedbackEvent(otherSetter.getOriginalSubjects(), otherValue, "other"));
-		}
 		
+		Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap = new HashMap<>();
+		loggingMap.put(selectedValue, selectedSetter.getOriginalSubjects());
+		loggingMap.put(contextValue, contextSetter.getOriginalSubjects());
+		loggingMap.put(otherValue, otherSetter.getOriginalSubjects());
+		
+		activityMonitor.log(new ScoreModifiedEvent(loggingMap));
 		
 		return feedback;
 	}
@@ -174,7 +172,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	}
 	//TODO az eredeti listener kezelje le a ScoreListControlban
 	private IListener<Boolean> customFeedbackOptionListener = event ->{
-		//customFeedbackOption.invoke(createContextBasedUserFeedback());
+		customFeedbackOption.invoke(createContextBasedUserFeedback(null));
 	};
 	
 	private IListener<Boolean> refreshUiListener = event -> {

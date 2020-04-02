@@ -49,7 +49,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			"I think that the selected items are faulty, hence I found the bug.",
 			SideEffect.FOUND,
 			OptionKind.CONTEXT_FXX),
-		new ContextBasedOption("CUSTOM_FEEDBACK",
+		new ContextBasedOption("CONTEXT_BASED_FEEDBACK",
 				"Custom feedback",
 				"Individually change the scores of selected, context and other items.",
 				OptionKind.CUSTOM,

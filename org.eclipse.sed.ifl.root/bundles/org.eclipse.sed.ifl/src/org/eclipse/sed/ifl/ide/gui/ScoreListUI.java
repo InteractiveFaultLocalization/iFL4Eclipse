@@ -700,9 +700,6 @@ public class ScoreListUI extends Composite {
 
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
-			if(option.getId().equals("CUSTOM_FEEDBACK")) {
-				continue;
-			}
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
 			item.setText(option.getTitle() + (option.getSideEffect()!=SideEffect.NOTHING ? " (terminal choice)" : ""));
 			item.setToolTipText(option.getDescription());
@@ -715,15 +712,23 @@ public class ScoreListUI extends Composite {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
-					List<TableItem> itemList = Arrays.asList(table.getSelection());
-					for(TableItem tableItem : itemList) {
-						assert tableItem.getData("entry") instanceof Entry<?, ?>;
-						subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
-								new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+					if(option.getId().equals("CONTEXT_BASED_FEEDBACK")) {
+						List<IMethodDescription> subjects = Stream.of(table.getSelection())
+								.map(selection -> (IMethodDescription)selection.getData())
+								.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+						customOptionSelected.invoke(subjects);
+					} else {
+						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
+						List<TableItem> itemList = Arrays.asList(table.getSelection());
+						for(TableItem tableItem : itemList) {
+							assert tableItem.getData("entry") instanceof Entry<?, ?>;
+							subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
+									new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+						}
+						
+						UserFeedback feedback = new UserFeedback(option, subjects);
+						optionSelected.invoke(feedback);
 					}
-					UserFeedback feedback = new UserFeedback(option, subjects);					
-					optionSelected.invoke(feedback);
 				}
 
 				@Override
@@ -733,7 +738,7 @@ public class ScoreListUI extends Composite {
 			});
 		}
 		//TODO ne legyen külön menü elem, hanem a basiciflmethodscorehandler option-jébe 
-		MenuItem item = new MenuItem(contextMenu, SWT.None);
+		/*MenuItem item = new MenuItem(contextMenu, SWT.None);
 		item.setText("Context based feedback...");
 		item.setToolTipText("Individually change the scores of selected, context and other items.");
 		item.addSelectionListener(new SelectionListener() {
@@ -751,7 +756,7 @@ public class ScoreListUI extends Composite {
 				
 			}
 		});
-		
+		*/
 	}
 
 	public void showNoItemsLabel(boolean show) {

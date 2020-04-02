@@ -66,6 +66,7 @@ public class ScoreSetter extends Composite {
 		for (Button item : presets.values()) {
 			item.setSelection(false);
 		}
+		collectRelativeableValue.invoke(createRelativeableValue());
 	}
 	
 	private double lowerLimit = -1.0;
@@ -462,8 +463,8 @@ public class ScoreSetter extends Composite {
 		} else {
 			value = new Defineable<Double>();
 		}
-		
-		return new Relativeable<Defineable<Double>>(isRelative, value);
+		System.out.println("Title: " + title.getText());
+		return new Relativeable<Defineable<Double>>(isRelative, value, title.getText());
 	}
 	
 	private NonGenericListenerCollection<Relativeable<Defineable<Double>>> collectRelativeableValue = new NonGenericListenerCollection<>();
