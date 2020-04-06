@@ -103,4 +103,8 @@ public class ScoreSetterView extends View implements IEmbeddable {
 	};
 	
 	private IListener<EmptyEvent> absoluteScoreSettingDisabledListener = event -> ui.enableRelativeScoreSetting();
+
+	public void invokeRelativeableCollection() {
+		ui.invokeRelativeableCollection();
+	}
 }

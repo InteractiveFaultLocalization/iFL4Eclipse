@@ -7,7 +7,6 @@ import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
@@ -49,13 +48,10 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 			"I think that the selected items are faulty, hence I found the bug.",
 			SideEffect.FOUND,
 			OptionKind.CONTEXT_FXX),
-		new ContextBasedOption("CONTEXT_BASED_FEEDBACK",
-				"Custom feedback",
-				"Individually change the scores of selected, context and other items.",
-				OptionKind.CUSTOM,
-				null,
-				null,
-				null)
+		new Option("CONTEXT_BASED_OPTION",
+			"Context based feedback",
+			"Individually change the scores of selected, context and other items.",
+			OptionKind.CONTEXT_BASED)
 		);
 	
 	@Override

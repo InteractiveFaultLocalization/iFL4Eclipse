@@ -453,17 +453,22 @@ public class ScoreSetter extends Composite {
 	
 	private Relativeable<Defineable<Double>> createRelativeableValue() {
 		boolean isActive = active.getSelection();
-		boolean isRelative = (setUpper.getSelection() || setLower.getSelection());
+		boolean isRelative = !(setUpper.getSelection() || setLower.getSelection());
 		
 		Defineable<Double> value;
 		
 		if(isActive) {
+			if(setUpper.getSelection()) {
+				value = new Defineable<Double>(1.0);
+			} else if(setLower.getSelection()) {
+				value = new Defineable<Double>(0.0);
+			} else {
 			double scaleValue = fromScale(scale.getSelection());
 			value = new Defineable<Double>(scaleValue);
+			}
 		} else {
 			value = new Defineable<Double>();
 		}
-		System.out.println("Title: " + title.getText());
 		return new Relativeable<Defineable<Double>>(isRelative, value, title.getText());
 	}
 	
@@ -473,4 +478,7 @@ public class ScoreSetter extends Composite {
 		return collectRelativeableValue;
 	}
 	
+	public void invokeRelativeableCollection() {
+		collectRelativeableValue.invoke(createRelativeableValue());
+	}
 }

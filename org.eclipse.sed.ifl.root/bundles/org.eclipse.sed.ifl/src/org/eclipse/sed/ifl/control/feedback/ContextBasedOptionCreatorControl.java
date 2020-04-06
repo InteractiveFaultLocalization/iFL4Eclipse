@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
-import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.ScoreModifiedEvent;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
+import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionLambdaSetter;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
@@ -36,6 +36,8 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	private ScoreSetterControl otherSetter;
 	
 	private ActivityMonitorControl activityMonitor;
+	
+	private ContextBasedOptionLambdaSetter lambdaSetter;
 	
 	@Override
 	public void init() {
@@ -63,14 +65,14 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		addSubControl(selectedSetter);
 		addSubControl(contextSetter);
 		addSubControl(otherSetter);
-		getView().eventCustomOptionDialog().add(customFeedbackOptionListener);
+		getView().eventCustomOptionDialog().add(contextBasedFeedbackOptionListener);
 		getView().eventRefreshUi().add(refreshUiListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
-		getView().eventCustomOptionDialog().remove(customFeedbackOptionListener);
+		getView().eventCustomOptionDialog().remove(contextBasedFeedbackOptionListener);
 		getView().eventRefreshUi().remove(refreshUiListener);
 		activityMonitor = null;
 		super.teardown();
@@ -86,54 +88,53 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		selectedSetter.setCurrentRelatedScores(scoresOfSelected);
 		selectedSetter.setTableContents();
+		selectedSetter.invokeRelativeableCollection();
 		
 		Map<IMethodDescription, Defineable<Double>> scoresOfContext = all.entrySet().stream()
 		.filter(entry -> context.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		contextSetter.setCurrentRelatedScores(scoresOfContext);
 		contextSetter.setTableContents();
+		contextSetter.invokeRelativeableCollection();
 		
 		Map<IMethodDescription, Defineable<Double>> scoresOfOther = all.entrySet().stream()
 		.filter(entry -> other.contains(entry.getKey()))
 		.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		otherSetter.setCurrentRelatedScores(scoresOfOther);
 		otherSetter.setTableContents();
+		otherSetter.invokeRelativeableCollection();
 		
 		getView().display();
 	}
 	
 	//option példányt kap paraméterként -> visszaadja a beállított custom optiont
-	public IUserFeedback createContextBasedUserFeedback(Option contextBasedOption) {
+	public void createContextBasedUserFeedback(Option option) {
 		
 		Relativeable<Defineable<Double>> selectedValue = selectedSetter.relativeableValueProvider();
 		Relativeable<Defineable<Double>> contextValue = contextSetter.relativeableValueProvider();
 		Relativeable<Defineable<Double>> otherValue = otherSetter.relativeableValueProvider();
 		
-			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> selectedFunction =
-			 selectedValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(selectedValue, item.getValue());
+		lambdaSetter = new ContextBasedOptionLambdaSetter(selectedValue);
+		Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> selectedFunction =
+		lambdaSetter.setLambda();
 			
+		lambdaSetter = new ContextBasedOptionLambdaSetter(contextValue);
+		Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> contextFunction =
+		lambdaSetter.setLambda();
 		
-			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> contextFunction =
-			 contextValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(contextValue, item.getValue());
-		
-					 
-			Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
-			 otherValue.getValue().isDefinit() ? null : item -> contextBasedFeedbackValueSetter(otherValue, item.getValue());
-			
+		lambdaSetter = new ContextBasedOptionLambdaSetter(otherValue);
+		Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
+		lambdaSetter.setLambda();
 			 
-		ContextBasedOption customOption = new ContextBasedOption("CUSTOM_FEEDBACK",
-				"Custom feedback",
-				"Individually change the scores of selected, context and other items.",
-				OptionKind.CUSTOM,
-				selectedFunction,
-				contextFunction,
-				otherFunction);
+		ContextBasedOption contextBasedOption = new ContextBasedOption(option.getId(),
+			option.getTitle(),
+			option.getDescription(),
+			option.getKind(),
+			selectedFunction,
+			contextFunction,
+			otherFunction);
 		
-		IUserFeedback feedback = new UserFeedback(customOption, selectedSetter.getOriginalSubjects());
-		
-		//TODO ScoreModificationEvent legyen
-		//if-ek nem fognak kelleni, csak az új map-et kell összerakni
-		//két userfeedback event között csak 1 scoremodificationevent lehet (de nem szükségszerû)
+		IUserFeedback feedback = new UserFeedback(contextBasedOption, selectedSetter.getOriginalSubjects());
 		
 		Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap = new HashMap<>();
 		loggingMap.put(selectedValue, selectedSetter.getOriginalSubjects());
@@ -141,39 +142,27 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		loggingMap.put(otherValue, otherSetter.getOriginalSubjects());
 		
 		activityMonitor.log(new ScoreModifiedEvent(loggingMap));
+		contextBasedFeedbackOption.invoke(feedback);
+		//return feedback;
+	}
 		
-		return feedback;
+	private NonGenericListenerCollection<IUserFeedback> contextBasedFeedbackOption = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<IUserFeedback> eventContextBasedFeedbackOption() {
+		return contextBasedFeedbackOption;
 	}
 	
-	private Defineable<Double> contextBasedFeedbackValueSetter(Relativeable<Defineable<Double>> relativeableValue, Defineable<Double> previousValue) {
-		Defineable<Double> newValue = new Defineable<Double>();
-
-		if(relativeableValue.getValue().isDefinit()) {
-			if(!relativeableValue.isRelative()) {
-				newValue = relativeableValue.getValue();
-			} else {
-				double newDoubleValue = previousValue.getValue() + (previousValue.getValue() * (relativeableValue.getValue().getValue() * 0.01));
-				if(newDoubleValue > 1.0) {
-					newDoubleValue = 1.0;
-				} else if(newDoubleValue < 0.0) {
-					newDoubleValue = 0.0;
-				}
-				newValue = new Defineable<Double>(newDoubleValue);
-			}
-		}
-		return newValue;
+	private NonGenericListenerCollection<Boolean> contextBasedOptionNeeded = new NonGenericListenerCollection<>();
+	public INonGenericListenerCollection<Boolean> eventContextBasedOptionNeeded() {
+		return contextBasedOptionNeeded;
 	}
-		
-	//TODO boolean helyett itt adja át a user választását
-	private NonGenericListenerCollection<IUserFeedback> customFeedbackOption = new NonGenericListenerCollection<>();
+	private IListener<Boolean> contextBasedFeedbackOptionListener = contextBasedOptionNeeded::invoke;
+	
+	private NonGenericListenerCollection<Option> contextBasedOptionProvided = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<IUserFeedback> eventCustomFeedbackOption() {
-		return customFeedbackOption;
+	public INonGenericListenerCollection<Option> eventContextBasedOptionProvided() {
+		return contextBasedOptionProvided;
 	}
-	//TODO az eredeti listener kezelje le a ScoreListControlban
-	private IListener<Boolean> customFeedbackOptionListener = event ->{
-		customFeedbackOption.invoke(createContextBasedUserFeedback(null));
-	};
 	
 	private IListener<Boolean> refreshUiListener = event -> {
 		selectedSetter.refreshUi();

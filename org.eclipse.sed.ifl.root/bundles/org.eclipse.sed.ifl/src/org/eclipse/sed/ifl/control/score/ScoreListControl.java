@@ -40,6 +40,7 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -54,7 +55,6 @@ import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.neo4j.codegen.bytecode.If;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
@@ -84,7 +84,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
-		contextBasedOptionCreator.eventCustomFeedbackOption().add(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
@@ -111,7 +112,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	@Override
 	public void teardown() {
-		contextBasedOptionCreator.eventCustomFeedbackOption().remove(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedFeedbackOption().remove(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedOptionNeeded().remove(contextBasedOptionProviderListener);
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
 		getView().eventCustomOptionSelected().remove(customOptionSelectedListener);
@@ -256,13 +258,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		return terminationRequested;
 	}
 	
-	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		if(event.getChoise() == handler.getProvidedOptions().iterator().next()) {
-			System.out.println("yes");
-		} else {
-			System.out.println("no");
-
+	private IListener<Boolean> contextBasedOptionProviderListener = event -> {
+		for(Option option : handler.getProvidedOptions()) {
+			if(option.getId().equals("CONTEXT_BASED_OPTION")) {
+				contextBasedOptionCreator.createContextBasedUserFeedback(option);
+				break;
+			}
 		}
+	};
+	
+	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);

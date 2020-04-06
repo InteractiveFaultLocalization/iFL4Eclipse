@@ -712,7 +712,7 @@ public class ScoreListUI extends Composite {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					if(option.getId().equals("CONTEXT_BASED_FEEDBACK")) {
+					if(option.getId().equals("CONTEXT_BASED_OPTION")) {
 						List<IMethodDescription> subjects = Stream.of(table.getSelection())
 								.map(selection -> (IMethodDescription)selection.getData())
 								.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));

@@ -80,6 +80,10 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 		getView().refreshUi();
 	}
 	
+	public void invokeRelativeableCollection() {
+		getView().invokeRelativeableCollection();
+	}
+	
 	private IListener<Integer> deltaPercentChangedListener = event -> {
 		double ratio = event / 100.0;
 		getModel().updateSubjects(getModel().getSubjects().entrySet().stream()

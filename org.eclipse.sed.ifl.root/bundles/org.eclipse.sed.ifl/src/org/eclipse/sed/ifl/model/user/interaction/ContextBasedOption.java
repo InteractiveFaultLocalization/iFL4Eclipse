@@ -11,7 +11,7 @@ import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 //TODO ebbõl származtatni relative and absolute contextbased option -> konstruktora várja a customfeedbackvalue settert ->
 //konstruktor össze tudja rakni a lambdát
-// lambdák összeálításához használt paraméterek belepakolása az új osztályba adattagokként -> setter
+// lambdák összeállításához használt paraméterek belepakolása az új osztályba adattagokként -> setter
 public class ContextBasedOption extends Option {
 
 	private Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> updateSelected;
@@ -37,6 +37,7 @@ public class ContextBasedOption extends Option {
 	private Map<IMethodDescription, Defineable<Double>> applyAll(Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> function, Map<IMethodDescription, Defineable<Double>> items) {
 		Map<IMethodDescription, Defineable<Double>> result = new HashMap<>();
 		for (Entry<IMethodDescription, Defineable<Double>> item : items.entrySet()) {
+			//System.out.println("Old score: " + item.getValue().getValue() + ", new score: " + function.apply(item));
 			result.put(item.getKey(), function.apply(item));
 		}
 		return result;
