@@ -24,8 +24,12 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 	
 	public ContextBasedOptionCreatorDialog(Shell parentShell) {
 		super(parentShell);
-		
 	}
+	
+	protected void configureShell(Shell shell) {
+	      super.configureShell(shell);
+	      shell.setText("Context based feedback");
+	   }
 	
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
