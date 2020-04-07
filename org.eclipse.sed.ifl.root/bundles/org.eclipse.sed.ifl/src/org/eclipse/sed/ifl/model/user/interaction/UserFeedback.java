@@ -31,7 +31,7 @@ public class UserFeedback implements IUserFeedback {
 	private Option option;
 	
 	@Override
-	public Option getChoise() {
+	public Option getChoice() {
 		return option;
 	}
 

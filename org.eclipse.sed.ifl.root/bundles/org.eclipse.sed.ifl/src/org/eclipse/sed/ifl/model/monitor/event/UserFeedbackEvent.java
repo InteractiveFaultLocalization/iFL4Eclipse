@@ -13,7 +13,7 @@ public class UserFeedbackEvent extends Event {
 	public UserFeedbackEvent(IUserFeedback feedback) {
 		super(new HashMap<>());
 		resources.put(new User(feedback.getUser().getUserID()), "user");
-		resources.put(new Option(feedback.getChoise().getId(), feedback.getChoise().getTitle()), "choise");
+		resources.put(new Option(feedback.getChoice().getId(), feedback.getChoice().getTitle()), "choise");
 		for (IMethodDescription subject : feedback.getSubjects()) {
 			resources.put(new CodeElement(subject.getId().getKey()), "subject");
 		}

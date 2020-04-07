@@ -245,14 +245,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
-		SideEffect effect = event.getChoise().getSideEffect();		
+		SideEffect effect = event.getChoice().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
 			handler.updateScore(event);
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
 			System.out.println("size of userfeedback list: " + event.getSubjects().size());
-			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoise().getTitle(),
+			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoice().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
 					getElementNames(event));
@@ -260,7 +260,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				confirmed = true;
 			} else {
 				confirmed = false;
-				activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoise(), event.getSubjects(), event.getUser())));
+				activityMonitor.log(new AbortEvent(new UserFeedback(event.getChoice(), event.getSubjects(), event.getUser())));
 			}
 			if (confirmed) {
 				activityMonitor.log(new ConfirmEvent(event));

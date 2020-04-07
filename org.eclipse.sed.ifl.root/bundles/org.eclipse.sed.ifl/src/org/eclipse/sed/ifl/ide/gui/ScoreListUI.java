@@ -556,7 +556,7 @@ public class ScoreListUI extends Composite {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (entry.getValue().getLastAction() != null) {
-				String iconPath = entry.getValue().getLastAction().getCause().getChoise().getKind().getIconPath();
+				String iconPath = entry.getValue().getLastAction().getCause().getChoice().getKind().getIconPath();
 				if (iconPath != null) {
 					Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 					item.setImage(table.indexOf(iconColumn), icon);

@@ -8,7 +8,7 @@ import org.eclipse.sed.ifl.model.user.identification.IUser;
 public interface IUserFeedback {
 	public IUser getUser();
 	
-	public Option getChoise();
+	public Option getChoice();
 	
 	public List<IMethodDescription> getSubjects();
 }

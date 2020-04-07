@@ -34,16 +34,23 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 
 	private static Boolean showError = true;
 	private static boolean enabled = false;
+	private static boolean showMissingInfo = true;
 	
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
 			try {
+				checkUserProvidedInformation();
 				if (enabled) {
-					if(checkUserProvidedInformation()) {
 						getModel().insertEvent(event);
 						System.out.printf("new %s are logged\n", event.toString());	
-					}
+						showMissingInfo = true;
+				} else {
+					if(showMissingInfo)
+					MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
+							"You have not provided one or more necessary information for logging. If you whish to use logging, "
+							+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
+					showMissingInfo = false;
 				}
 			} catch (IllegalStateException e) {
 				if (showError && e.getCause() instanceof RemoteConnectionException) {
@@ -63,8 +70,8 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		}
 	}
 
-	private boolean checkUserProvidedInformation() {
-		return checkUserId() && checkScenarioId() && checkHostAndPort();
+	private void checkUserProvidedInformation() {
+		enabled = checkUserId() && checkScenarioId() && checkHostAndPort();
 	}
 
 	public static void enable() {
@@ -91,20 +98,17 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		    }
 		    return(sb.toString());
 	    } else {
-		return "";
+		return "Could not determine";
 	    }
 	}
 	
 	private boolean checkUserId() {
 		String userId = Activator.getDefault().getPreferenceStore().getString("userId");
 		if (userId.equals("")) {
-			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
-					"You have not provided a user ID for logging. If you whish to use logging, "
-					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
 			return false;
 		 } else { 
-		getModel().setUserId(userId);
-		return true;
+			 getModel().setUserId(userId);
+			 return true;
 		 }
 	}
 	
@@ -113,17 +117,14 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	    try (Stream<String> stream = Files.lines( Paths.get("ScenarioIdFile"), StandardCharsets.UTF_8)) 
 	    {
 	        stream.forEach(s -> fileContentBuilder.append(s).append("\n"));
+		    getModel().setScenarioId(fileContentBuilder.toString());
+		    return true;
 	    }
 	    catch (IOException e) 
 	    {
 	        System.out.println("Scenario ID file not found.");
-	        MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
-					"You have not provided a scenario file for logging. If you whish to use logging, "
-					+ "place an appropriate scenario file next to eclipse.exe. Logging disabled.", SWT.NONE);
 	        return false;
 	    }
-	    getModel().setScenarioId(fileContentBuilder.toString());
-	    return true;
 	}
 	
 	private boolean checkHostAndPort() {
@@ -131,9 +132,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		String host = store.getString("host");
 		String port = store.getString("port");
 		if (host.equals("") || port.equals("")) {
-			MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
-					"You have not provided a host name or a port number for logging. If you whish to use logging, "
-					+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
 			return false;
 		} else {
 			getModel().setHostName(host);

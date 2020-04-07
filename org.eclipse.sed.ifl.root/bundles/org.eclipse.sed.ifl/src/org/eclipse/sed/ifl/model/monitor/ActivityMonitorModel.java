@@ -77,7 +77,9 @@ public class ActivityMonitorModel extends EmptyModel {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String host = store.getString("host");
 		String port = store.getString("port");
-		//g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
+		if(!(host.equals("") && port.equals(""))) {
+			g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
+		}
 		super.init();
 	}
 	
@@ -124,7 +126,9 @@ public class ActivityMonitorModel extends EmptyModel {
 	
 	@Override
 	public void teardown() {
-		EU.tryUnchecked(g::close);
+		if (g != null) {
+			EU.tryUnchecked(g::close);
+		}
 		super.teardown();
 	}
 }

@@ -42,11 +42,11 @@ public class startHandler extends AbstractHandler {
 				dialog.open();
 			}
 			else {
-				if (isKeyFilePresent("log.key", "enabled")) {
+				if (isLogKeyEnabled()) {
 					ActivityMonitorControl.enable();
 					MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Activity log enabled.", SWT.NONE);
 				}
-				if (isKeyFilePresent("key", "dza tan kaho adz")) {
+				if (isKeyEnabled()) {
 					try {
 						IJavaProject selected = sourceAccessor.getSelectedProject();
 						SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected, new PartMonitorControl(new PartMonitorModel(), partAccessor));
@@ -77,6 +77,14 @@ public class startHandler extends AbstractHandler {
 		return null;
 	}
 
+	private boolean isKeyEnabled() {
+		return Activator.getDefault().getPreferenceStore().getBoolean("log");
+	}
+	
+	private boolean isLogKeyEnabled() {
+		return Activator.getDefault().getPreferenceStore().getBoolean("logKey");
+	}
+	
 	public boolean isKeyFilePresent(String fileName, String content) {
 		File key = new File(fileName);
 		System.out.println("looking for key file at: " + key.getAbsolutePath());

@@ -27,11 +27,11 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateScore(IUserFeedback feedback) {
-		if (!feedback.getChoise().getId().equals("YES")) {
+		if (!feedback.getChoice().getId().equals("YES")) {
 			for (Option possibility : options) {
-				if (feedback.getChoise().equals(possibility)) {
+				if (feedback.getChoice().equals(possibility)) {
 					this.scoreUpdated.invoke(new ScoreUpdateArgs(possibility.apply(feedback, methodsScoreMap), feedback));
-					this.highLightRequested.invoke(((ContextBasedOption) (feedback.getChoise())).getNonInteractiveContext());
+					this.highLightRequested.invoke(((ContextBasedOption) (feedback.getChoice())).getNonInteractiveContext());
 					}
 				}
 			}

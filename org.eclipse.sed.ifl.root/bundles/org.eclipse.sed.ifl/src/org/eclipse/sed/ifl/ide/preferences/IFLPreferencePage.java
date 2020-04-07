@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.preferences;
 
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -25,7 +26,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 public class IFLPreferencePage
 	extends FieldEditorPreferencePage
 	implements IWorkbenchPreferencePage {
-
+	
 	public IFLPreferencePage() {
 		super(GRID);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
@@ -40,18 +41,20 @@ public class IFLPreferencePage
 	 */
 	public void createFieldEditors() {
 		
+		BooleanFieldEditor logField = new BooleanFieldEditor("log", "Log file present", getFieldEditorParent());
+		addField(logField);
+
+		BooleanFieldEditor logKeyField = new BooleanFieldEditor("logKey", "Log key: ", getFieldEditorParent());
+		addField(logKeyField);
 		
 		StringFieldEditor userIdField = new StringFieldEditor("userId", "User ID: ", getFieldEditorParent());
 		addField(userIdField);
-
 		
 		StringFieldEditor hostField = new StringFieldEditor("host", "Host: ", getFieldEditorParent());
 		addField(hostField);
-
 		
 		StringFieldEditor portField = new StringFieldEditor("port", "Port: ", getFieldEditorParent());
 		addField(portField);
-
 	}
 
 	/* (non-Javadoc)
