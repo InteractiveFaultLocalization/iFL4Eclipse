@@ -40,15 +40,20 @@ public class IFLPreferencePage
 	 * restore itself.
 	 */
 	public void createFieldEditors() {
+		//tároljuk el a userID, MAC, scenarioID konkatenált stringjét (MD5 esetleg) az ID node-ba
+		//módosítás esetén újragenerálni
+		//legyen kimásolható mezõbe ezek alatt
 		
-		BooleanFieldEditor logField = new BooleanFieldEditor("log", "Log file present", getFieldEditorParent());
-		addField(logField);
-
-		BooleanFieldEditor logKeyField = new BooleanFieldEditor("logKey", "Log key: ", getFieldEditorParent());
+		//szerver tesztelés gomb
+		
+		BooleanFieldEditor logKeyField = new BooleanFieldEditor("logKey", "Enable logging", getFieldEditorParent());
 		addField(logKeyField);
 		
 		StringFieldEditor userIdField = new StringFieldEditor("userId", "User ID: ", getFieldEditorParent());
 		addField(userIdField);
+		
+		StringFieldEditor scenarioIdField = new StringFieldEditor("scenarioId", "Scenario ID: ", getFieldEditorParent());
+		addField(scenarioIdField);
 		
 		StringFieldEditor hostField = new StringFieldEditor("host", "Host: ", getFieldEditorParent());
 		addField(hostField);

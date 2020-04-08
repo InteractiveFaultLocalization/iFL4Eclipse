@@ -1,14 +1,9 @@
 package org.eclipse.sed.ifl.control.monitor;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 import org.apache.tinkerpop.gremlin.process.remote.RemoteConnectionException;
 
@@ -40,7 +35,12 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		if (!isUsed) {
 			isUsed = true;
 			try {
+				
+				if(Activator.getDefault().getPreferenceStore().getBoolean("logKey")) {
 				checkUserProvidedInformation();
+				} else {
+					enabled = false;
+				}
 				if (enabled) {
 						getModel().insertEvent(event);
 						System.out.printf("new %s are logged\n", event.toString());	
@@ -48,8 +48,8 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 				} else {
 					if(showMissingInfo)
 					MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
-							"You have not provided one or more necessary information for logging. If you whish to use logging, "
-							+ "open the iFL preference page and provide the missing information. Logging disabled.", SWT.NONE);
+							"You have disabled or have not provided one or more necessary information for logging. If you wish to use logging, "
+							+ "open the iFL preference page, activate logging and provide the missing information.", SWT.NONE);
 					showMissingInfo = false;
 				}
 			} catch (IllegalStateException e) {
@@ -78,6 +78,9 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		ActivityMonitorControl.enabled  = true;
 	}
 
+	//alapból mac
+	//ha nincs mac, akkor ip
+	//ha az se, akkor unknown
 	private String determineMacAddress() {
 		byte[] macAddressByte = null;
 		try {
@@ -113,18 +116,14 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private boolean checkScenarioId() {
-		StringBuilder fileContentBuilder = new StringBuilder();
-	    try (Stream<String> stream = Files.lines( Paths.get("ScenarioIdFile"), StandardCharsets.UTF_8)) 
-	    {
-	        stream.forEach(s -> fileContentBuilder.append(s).append("\n"));
-		    getModel().setScenarioId(fileContentBuilder.toString());
-		    return true;
-	    }
-	    catch (IOException e) 
-	    {
-	        System.out.println("Scenario ID file not found.");
-	        return false;
-	    }
+		
+		String scenarioId = Activator.getDefault().getPreferenceStore().getString("scenarioId");
+		if (scenarioId.equals("")) {
+			return false;
+		 } else { 
+			 getModel().setScenarioId(scenarioId);
+			 return true;
+		 }
 	}
 	
 	private boolean checkHostAndPort() {

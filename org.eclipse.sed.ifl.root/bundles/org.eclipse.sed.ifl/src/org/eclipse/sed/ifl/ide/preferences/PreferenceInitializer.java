@@ -22,7 +22,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				//activityMonitor.log(new PreferencePropertyChangedEvent());
+				activityMonitor.log(new PreferencePropertyChangedEvent( event.getProperty(), event.getOldValue(), event.getNewValue()));
 			}
 			
 		});
@@ -34,9 +34,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
-		store.setDefault("log", true);
-		store.setDefault("logKey", true);
-		store.setDefault("userId", "User");
+		store.setDefault("logKey", false);
+		store.setDefault("scenarioId", "");
+		store.setDefault("userId", "");
 		store.setDefault("host", "localhost");
 		store.setDefault("port", "8182");
 	}

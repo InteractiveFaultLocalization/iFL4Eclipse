@@ -26,10 +26,16 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 		super(model, view);
 	}
 
+	public ScoreLoaderControl(ScoreListModel model, ScoreLoaderView scoreLoaderView, boolean interactivity) {
+		this(model, scoreLoaderView);
+		this.interactivity = interactivity;
+	}
+
 	public void load() {
 		getView().select();
 	}
 	
+	private boolean interactivity;
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
 	private static final String INTERACTIVITY_HEADER = "interactive";
@@ -84,7 +90,14 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 							SWT.NONE);
 						return;
 					}
-					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
+					//konstruktorba random érték
+					//ez a sor maradjon kikommentezve
+					//random érték legyen ez
+					//interactivityEvent is kell hozzá -> true v false
+					//messageDialog usernek -> true v false
+					//1 session alatt maradjon ugyan az az interactivity
+					
+					//boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					Score score = new Score(value);
 					loadedScores.put(entry, score);

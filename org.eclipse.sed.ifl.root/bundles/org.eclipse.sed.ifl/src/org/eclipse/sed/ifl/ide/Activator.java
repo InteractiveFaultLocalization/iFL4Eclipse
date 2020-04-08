@@ -27,17 +27,10 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		//activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		System.out.println("Activator start method runs");
-		//activityMonitor.init();
-		//activityMonitor.log(EclipseEvent.start());
 	}
 	
 	public void stop(BundleContext context) throws Exception {
-		//activityMonitor.log(EclipseEvent.stop());
-		Activator.getDefault().getPreferenceStore().setValue("host", "");
-		Activator.getDefault().getPreferenceStore().setValue("port", "");
-		Activator.getDefault().getPreferenceStore().setValue("userId", "");
 		plugin = null;
 		System.out.println("Activator stop method runs");
 		super.stop(context);
