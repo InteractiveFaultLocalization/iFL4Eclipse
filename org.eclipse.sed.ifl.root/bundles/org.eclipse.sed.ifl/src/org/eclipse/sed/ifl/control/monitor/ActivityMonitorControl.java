@@ -71,7 +71,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 
 	private void checkUserProvidedInformation() {
-		enabled = checkUserId() && checkScenarioId() && checkHostAndPort();
+		enabled = checkUserId() && checkScenarioId() && checkHostAndPort() && checkGeneratedId();
 	}
 
 	public static void enable() {
@@ -140,4 +140,14 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		}
 	}
 	
+	private boolean checkGeneratedId() {
+		
+		String generatedId = Activator.getDefault().getPreferenceStore().getString("generatedId");
+		if (generatedId.equals("")) {
+			return false;
+		 } else { 
+			 getModel().setGeneratedId(generatedId);
+			 return true;
+		 }
+	}
 }

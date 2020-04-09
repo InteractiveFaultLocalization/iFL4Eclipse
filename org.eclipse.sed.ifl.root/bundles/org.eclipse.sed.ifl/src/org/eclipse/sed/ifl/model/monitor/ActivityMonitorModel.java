@@ -31,6 +31,15 @@ public class ActivityMonitorModel extends EmptyModel {
 	private String scenarioId;
 	private String hostName;
 	private String portNumber;
+	private String generatedId;
+	
+	public String getGeneratedId() {
+		return generatedId;
+	}
+	
+	public void setGeneratedId(String generatedId) {
+		this.generatedId = generatedId;
+	}
 	
 	public String getHostName() {
 		return hostName;
@@ -115,7 +124,7 @@ public class ActivityMonitorModel extends EmptyModel {
 			if(!idNodes.isEmpty()) {
 				idNode = idNodes.get(0);
 			} else {
-				idNode = insertId(new IdNode(macAddress, userId, scenarioId));
+				idNode = insertId(new IdNode(macAddress, userId, scenarioId, generatedId));
 				System.out.println("new id node created: " + idNode);
 				return null;
 			}

@@ -6,11 +6,12 @@ import org.eclipse.sed.ifl.util.Maps;
 
 public class IdNode extends Node {
 	
-	public IdNode(String macAddress, String userId, String scenarioId) {
+	public IdNode(String macAddress, String userId, String scenarioId, String generatedId) {
 		super(Maps.<String, Object>builder()
 				.put("mac", macAddress)
 				.put("userID", userId)
 				.put("scenarioID", scenarioId)
+				.put("generatedID", generatedId)
 				.build());
 	}
 	
