@@ -183,7 +183,12 @@ public class IFLPreferencePage
 	}
 	
 	private String generateId() {
-		String generatedId = scenarioIdField.getStringValue().concat(userIdField.getStringValue());
+		String generatedId;
+		if(!getPreferenceStore().getString("macAddress").equals("")) {
+			generatedId = scenarioIdField.getStringValue().concat(userIdField.getStringValue()).concat(getPreferenceStore().getString("macAddress"));
+		} else {
+			generatedId = scenarioIdField.getStringValue().concat(userIdField.getStringValue()).concat(getPreferenceStore().getString("ipAddress"));
+		}
 		byte[] mdBytes = generatedId.getBytes(StandardCharsets.UTF_8);
 		
 		try {

@@ -85,7 +85,9 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		byte[] macAddressByte = null;
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
+			Activator.getDefault().getPreferenceStore().setValue("ipAddress", ip.toString());
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
+			System.out.println("ip address: " + ip.toString());
 			macAddressByte = ni.getHardwareAddress();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not determine ip address\n");
@@ -99,6 +101,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		            sb.append('-');
 		        sb.append(String.format("%02x", b));
 		    }
+		    Activator.getDefault().getPreferenceStore().setValue("macAddress", sb.toString());
 		    return(sb.toString());
 	    } else {
 		return "Could not determine";

@@ -97,7 +97,12 @@ public class ActivityMonitorModel extends EmptyModel {
 			Vertex lastEvent = findLastEvent();
 			Vertex newEvent = event.createNode(g);
 			System.out.println("new event vertex: " + newEvent);
-			Vertex idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).next();
+			Vertex idNode;
+			if(!Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
+				idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).next();
+			} else {
+				idNode = g.V().hasLabel("id").has("mac", Activator.getDefault().getPreferenceStore().getString("ipAddress")).has("userID", userId).has("scenarioID", scenarioId).next();
+			}
 			System.out.println("id vertex of new event: " + idNode);
 			Edge doneBy = g.V(newEvent).addE("doneBy").to(idNode).next();
 			System.out.println("new event linked to id: " + doneBy);
@@ -119,6 +124,9 @@ public class ActivityMonitorModel extends EmptyModel {
 	private Vertex findLastEvent() {
 		synchronized (ActivityMonitorModel.class) {
 			Vertex idNode = null;
+			if(Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
+				macAddress = Activator.getDefault().getPreferenceStore().getString("ipAddress");
+			}
 			List<Vertex> idNodes = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).toList();
 			System.out.println("id list size: " + idNodes.size());
 			if(!idNodes.isEmpty()) {
