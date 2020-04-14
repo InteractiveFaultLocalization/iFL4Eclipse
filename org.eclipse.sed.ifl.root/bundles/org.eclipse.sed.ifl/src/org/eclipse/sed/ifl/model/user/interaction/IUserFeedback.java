@@ -9,7 +9,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 public interface IUserFeedback {
 	public IUser getUser();
 	
-	public Option getChoise();
+	public Option getChoice();
 	
 	public Map<IMethodDescription,Defineable<Double>> getSubjects();
 }

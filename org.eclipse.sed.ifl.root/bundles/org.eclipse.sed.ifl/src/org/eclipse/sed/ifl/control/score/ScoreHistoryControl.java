@@ -23,11 +23,7 @@ public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistory
 		} else {
 			getView().show();
 			for (Monument<Score,IMethodDescription,IUserFeedback> monument : monuments) {
-				try {
-					getView().addMonument(monument.getCause().getChoise().getKind(), monument.getCreation());
-				} catch (NullPointerException e){
-					
-				}
+				getView().addMonument(monument.getCause().getChoice().getKind(), monument.getCreation());
 			}
 		}
 	}

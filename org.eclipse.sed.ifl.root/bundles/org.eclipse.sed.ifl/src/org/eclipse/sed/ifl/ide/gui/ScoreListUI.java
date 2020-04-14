@@ -618,12 +618,7 @@ public class ScoreListUI extends Composite {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (entry.getValue().getLastAction() != null) {
-				String iconPath = null;
-				try {
-				iconPath = entry.getValue().getLastAction().getCause().getChoise().getKind().getIconPath();
-				} catch (NullPointerException e) {
-					
-				}
+				String iconPath = entry.getValue().getLastAction().getCause().getChoice().getKind().getIconPath();
 				if (iconPath != null) {
 					Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 					item.setImage(table.indexOf(iconColumn), icon);
@@ -771,27 +766,13 @@ public class ScoreListUI extends Composite {
 			}
 			item.addSelectionListener(new SelectionListener() {
 
-				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-
-					if(option.getId().equals("CONTEXT_BASED_OPTION")) {
-						List<IMethodDescription> subjects = Stream.of(table.getSelection())
-								.map(selection -> (IMethodDescription)selection.getData())
-								.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-						customOptionSelected.invoke(subjects);
-					} else {
-						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
-						List<TableItem> itemList = Arrays.asList(table.getSelection());
-						for(TableItem tableItem : itemList) {
-							assert tableItem.getData("entry") instanceof Entry<?, ?>;
-							subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
-									new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
-						}
-						
-						UserFeedback feedback = new UserFeedback(option, subjects);
-						optionSelected.invoke(feedback);
-					}
+					List<IMethodDescription> subjects = Stream.of(table.getSelection())
+							.map(selection -> (IMethodDescription)selection.getData())
+							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+					UserFeedback feedback = new UserFeedback(option, subjects);					
+					optionSelected.invoke(feedback);
 				}
 
 				@Override

@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
@@ -53,6 +54,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.partMonitor = partMonitor;
 	}
 
+	private boolean interactivity;
+	
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 	
 	private ScoreListControl scoreListControl;
@@ -83,9 +86,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
 		
 		Random r = new Random();
+		interactivity = Math.random() < 0.5;
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), r.nextBoolean()))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), interactivity))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
@@ -99,17 +103,15 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-		scoreListControl = new ScoreListControl();
-		scoreListControl.setModel(model);
-		ScoreListView scoreListView = new ScoreListView();
-		getView().embed(scoreListView);
-		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl();
-		scoreLoaderControl.setModel(model);
-		scoreLoaderControl.setView(new ScoreLoaderView());
+
+		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
+		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView(), interactivity);
+
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		System.out.println(watch);
+		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
+				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
 	}
 
 	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
@@ -144,11 +146,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
-
+		
 		initUIStateListeners();
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
+
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
 	

@@ -28,6 +28,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 	@Override
 	public void updateScore(IUserFeedback feedback) {
 		this.scoreUpdated.invoke(new ScoreUpdateArgs(feedback.getChoise().apply(feedback, methodsScoreMap), feedback));
+		this.highLightRequested.invoke(((ContextBasedOption) (feedback.getChoice())).getNonInteractiveContext());
 	}
 	
 	protected NonGenericListenerCollection<List<IMethodDescription>> highLightRequested = new NonGenericListenerCollection<>();
