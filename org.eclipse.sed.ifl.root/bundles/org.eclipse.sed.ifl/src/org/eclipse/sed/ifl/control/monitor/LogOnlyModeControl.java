@@ -26,8 +26,7 @@ public class LogOnlyModeControl extends ViewlessControl<LogOnlyModeModel> {
 		partMonitor = new PartMonitorControl(partAccessor);
 		partMonitor.setModel(new PartMonitorModel());
 
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 
 		addSubControl(partMonitor);
 		addSubControl(activityMonitor);

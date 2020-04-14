@@ -48,8 +48,12 @@ public class startHandler extends AbstractHandler {
 				}
 				try {
 					IJavaProject selected = sourceAccessor.getSelectedProject();
-					SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected, new PartMonitorControl(new PartMonitorModel(), partAccessor));
-					session.init(); 
+					PartMonitorControl partMonitor = new PartMonitorControl(partAccessor);
+					partMonitor.setModel(new PartMonitorModel());
+					SessionControl session = new SessionControl(selected, partMonitor);
+					session.setModel(new SessionModel());
+					session.setView(new SessionView(partAccessor));
+					session.init();
 					Activator.getDefault().setSession(session);
 				} catch (WrongSelectionException e) {
 					MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			

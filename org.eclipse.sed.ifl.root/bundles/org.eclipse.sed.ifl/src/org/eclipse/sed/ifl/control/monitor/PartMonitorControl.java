@@ -85,8 +85,7 @@ public class PartMonitorControl extends ViewlessControl<PartMonitorModel> {
 	
 	@Override
 	public void init() {
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 
 		addSubControl(activityMonitor);
 		accessor.addListenerToAllPages(lifeCycleListener);

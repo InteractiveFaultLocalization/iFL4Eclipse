@@ -41,6 +41,7 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
@@ -103,13 +104,18 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-
-		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
-		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView(), interactivity);
-
+		scoreListControl = new ScoreListControl();
+		scoreListControl.setModel(model);
+		ScoreListView scoreListView = new ScoreListView();
+		getView().embed(scoreListView);
+		scoreListControl.setView(scoreListView);
+		scoreLoaderControl = new ScoreLoaderControl(interactivity);
+		scoreLoaderControl.setModel(model);
+		scoreLoaderControl.setView(new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		System.out.println(watch);
+		
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
 				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
 	}
@@ -141,9 +147,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
-
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
 		

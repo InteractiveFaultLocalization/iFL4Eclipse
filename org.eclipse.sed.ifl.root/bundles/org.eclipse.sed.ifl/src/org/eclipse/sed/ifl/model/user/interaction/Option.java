@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
+
 import java.util.Map;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
@@ -83,4 +84,5 @@ public class Option {
 	public Map<IMethodDescription, Defineable<Double>> apply(IUserFeedback feedback, Map<IMethodDescription, Defineable<Double>> allScores) { 
 		throw new UnsupportedOperationException();
 	}
+
 }

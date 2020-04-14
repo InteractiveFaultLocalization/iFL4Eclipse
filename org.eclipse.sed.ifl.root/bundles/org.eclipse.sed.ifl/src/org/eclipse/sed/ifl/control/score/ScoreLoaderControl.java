@@ -22,12 +22,7 @@ import org.eclipse.swt.SWT;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
-	public ScoreLoaderControl(ScoreListModel model, ScoreLoaderView view) {
-		super(model, view);
-	}
-
-	public ScoreLoaderControl(ScoreListModel model, ScoreLoaderView scoreLoaderView, boolean interactivity) {
-		this(model, scoreLoaderView);
+	public ScoreLoaderControl(boolean interactivity) {
 		this.interactivity = interactivity;
 	}
 

@@ -13,13 +13,8 @@ public class UserFeedbackEvent extends Event {
 	public UserFeedbackEvent(IUserFeedback feedback) {
 		super(new HashMap<>());
 		resources.put(new User(feedback.getUser().getUserID()), "user");
-<<<<<<< HEAD
-		resources.put(new Option(feedback.getChoise().getId(), feedback.getChoise().getTitle()), "choise");
+		resources.put(new Option(feedback.getChoice().getId(), feedback.getChoice().getTitle()), "choice");
 		for (IMethodDescription subject : feedback.getSubjects().keySet()) {
-=======
-		resources.put(new Option(feedback.getChoice().getId(), feedback.getChoice().getTitle()), "choise");
-		for (IMethodDescription subject : feedback.getSubjects()) {
->>>>>>> feature/Dhorvath1294/update-logging-system
 			resources.put(new CodeElement(subject.getId().getKey()), "subject");
 		}
 	}

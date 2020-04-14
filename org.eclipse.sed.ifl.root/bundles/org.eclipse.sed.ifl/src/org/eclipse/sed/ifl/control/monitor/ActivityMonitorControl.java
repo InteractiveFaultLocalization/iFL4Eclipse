@@ -1,7 +1,10 @@
 package org.eclipse.sed.ifl.control.monitor;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
@@ -23,7 +26,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private static boolean isUsed = false;
 
 	public ActivityMonitorControl(ActivityMonitorModel model) {
-		super(model);
+		super.setModel(model);
 		model.setMacAddress(determineMacAddress());
 	}
 
@@ -81,15 +84,18 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private String determineMacAddress() {
 		byte[] macAddressByte = null;
 		try {
+			Socket socket = new Socket();
+			socket.connect(new InetSocketAddress("google.com", 80));
+			Activator.getDefault().getPreferenceStore().setValue("ipAddress", socket.getLocalAddress().getHostAddress());
 			InetAddress ip = InetAddress.getLocalHost();
-			Activator.getDefault().getPreferenceStore().setValue("ipAddress", ip.toString());
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
-			System.out.println("ip address: " + ip.toString());
 			macAddressByte = ni.getHardwareAddress();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not determine ip address\n");
 		} catch (SocketException e) {
 			System.out.println("Could not access Socket\n");
+		} catch (IOException e) {
+			System.out.println("I/O exception occured while trying to get IP address.");
 		}
 		if(macAddressByte != null) {
 			StringBuilder sb = new StringBuilder(18);

@@ -11,21 +11,49 @@ import java.util.Set;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
+
 public class IMethodDescriptionCollectionUtil {
+	
+	private static List<IMethodDescription> nonInteractiveContextList;
+	
+	public static List<IMethodDescription> getNonInteractiveContext(){
+		return nonInteractiveContextList;
+	}
+	
 	public static List<IMethodDescription> collectContext(
 			List<IMethodDescription> subjects,
 			Map<IMethodDescription, Defineable<Double>> allScores) {
+		//nonInteractiveContextList.clear();
 		Set<IMethodDescription> context = new HashSet<>();
 		subjects.stream()
 		.flatMap(subject -> subject.getContext().stream())
 		.forEach(id -> {
 			for (IMethodDescription desc : allScores.keySet()) {
 				if (desc.getId().equals(id)) {
-					context.add(desc);
-					break;
+					/*if(!desc.isInteractive()) {
+						nonInteractiveContextList.add(desc);
+					} else {
+					*/
+						context.add(desc);
+						break;
+					}
 				}
-			}
+			
 		});
+	/*if(!nonInteractiveContextList.isEmpty()) {
+		boolean highLightRequest = MessageDialog.open(
+				MessageDialog.QUESTION, null,
+				"Non-interactive methods removed",
+				"Your selection or the context of it contains non-interactive elements. "
+				+ "The score of non-interactive elements will not be affected by your feedback. "
+				+ "Would you like to highlight the affected non-interactive methods?"
+				, SWT.NONE);
+		if (!highLightRequest) {
+			nonInteractiveContextList.clear();
+		}
+		*/
+	
+	
 		return new ArrayList<>(context);
 	}
 	

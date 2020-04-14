@@ -766,13 +766,26 @@ public class ScoreListUI extends Composite {
 			}
 			item.addSelectionListener(new SelectionListener() {
 
+				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					List<IMethodDescription> subjects = Stream.of(table.getSelection())
-							.map(selection -> (IMethodDescription)selection.getData())
-							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-					UserFeedback feedback = new UserFeedback(option, subjects);					
-					optionSelected.invoke(feedback);
+					if(option.getId().equals("CONTEXT_BASED_OPTION")) {
+						List<IMethodDescription> subjects = Stream.of(table.getSelection())
+								.map(selection -> (IMethodDescription)selection.getData())
+								.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+						customOptionSelected.invoke(subjects);
+					} else {
+						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
+						List<TableItem> itemList = Arrays.asList(table.getSelection());
+						for(TableItem tableItem : itemList) {
+							assert tableItem.getData("entry") instanceof Entry<?, ?>;
+							subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
+									new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+						}
+						
+						UserFeedback feedback = new UserFeedback(option, subjects);
+						optionSelected.invoke(feedback);
+					}
 				}
 
 				@Override
@@ -813,10 +826,6 @@ public class ScoreListUI extends Composite {
 	private Button manualButton;
 	private Text nameFilterText;
 	private Button nameFilterClearButton;
-	
-	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
-		return optionSelected;
-	}
 
 	public void highlight(List<MethodIdentity> context) {
 		for (TableItem item : table.getItems()) {

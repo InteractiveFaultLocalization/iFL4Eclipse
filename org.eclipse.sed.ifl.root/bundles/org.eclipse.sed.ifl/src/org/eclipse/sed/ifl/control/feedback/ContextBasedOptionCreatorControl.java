@@ -41,8 +41,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 	
 	@Override
 	public void init() {
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		this.addSubControl(activityMonitor);
 		selectedSetter = new ScoreSetterControl("selected");
 		selectedSetter.setModel(new ScoreSetterModel());
@@ -107,7 +106,6 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		getView().display();
 	}
 	
-	//option példányt kap paraméterként -> visszaadja a beállított custom optiont
 	public void createContextBasedUserFeedback(Option option) {
 		
 		Relativeable<Defineable<Double>> selectedValue = selectedSetter.relativeableValueProvider();

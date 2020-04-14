@@ -69,8 +69,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	@Override
 	public void init() {
-		activityMonitor = new ActivityMonitorControl();
-		activityMonitor.setModel(new ActivityMonitorModel());
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		
 		scoreHistory = new ScoreHistoryControl();
 		scoreHistory.setModel(new ScoreHistoryModel());
@@ -240,7 +239,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<List<IMethodDescription>> highlightRequestListener = list -> {
 		getView().highlightRequest(list);
-
+	};
+	
 	private IListener<String> nameFilterChangedListener = name -> {
 		nameFilter.setName(name);
 		refreshView();

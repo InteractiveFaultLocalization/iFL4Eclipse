@@ -12,7 +12,6 @@ import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
@@ -27,14 +26,15 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	@Override
 	public void updateScore(IUserFeedback feedback) {
-		this.scoreUpdated.invoke(new ScoreUpdateArgs(feedback.getChoise().apply(feedback, methodsScoreMap), feedback));
-		this.highLightRequested.invoke(((ContextBasedOption) (feedback.getChoice())).getNonInteractiveContext());
+		this.scoreUpdated.invoke(new ScoreUpdateArgs(feedback.getChoice().apply(feedback, methodsScoreMap), feedback));
+		//this.highLightRequested.invoke(feedback.getChoice().getNonInteractiveContext());
 	}
 	
 	protected NonGenericListenerCollection<List<IMethodDescription>> highLightRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<List<IMethodDescription>> eventHighLightRequested() {
 		return highLightRequested;
+	}
 	
 	@Override
 	public void updateMethod(IMethodDescription method) {
