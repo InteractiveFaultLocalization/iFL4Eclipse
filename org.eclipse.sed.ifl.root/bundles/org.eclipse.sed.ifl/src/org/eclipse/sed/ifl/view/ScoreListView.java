@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
@@ -19,17 +21,17 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 
-public class ScoreListView extends View {
-	ScoreListUI ui;
-
-	public ScoreListView(ScoreListUI ui) {
-		super();
-		this.ui = ui;
-	}
+public class ScoreListView extends View implements IEmbeddable, IEmbedee {
+	ScoreListUI ui = new ScoreListUI();
 
 	@Override
-	public Composite getUI() {
-		return ui;
+	public void setParent(Composite parent) {
+		ui.setParent(parent);
+	}
+	
+	@Override
+	public void embed(IEmbeddable embedded) {
+		embedded.setParent(ui);
 	}
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {
@@ -48,6 +50,7 @@ public class ScoreListView extends View {
 	@Override
 	public void init() {
 		ui.eventOptionSelected().add(optionSelectedListener);
+		ui.eventCustomOptionSelected().add(customOptionSelectedListener);
 		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
 		ui.eventNavigateToContext().add(navigateToContextListener);
@@ -64,6 +67,7 @@ public class ScoreListView extends View {
 	@Override
 	public void teardown() {
 		ui.eventOptionSelected().remove(optionSelectedListener);
+		ui.eventCustomOptionSelected().remove(customOptionSelectedListener);
 		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
 		ui.eventNavigateToContext().remove(navigateToContextListener);
@@ -99,6 +103,14 @@ public class ScoreListView extends View {
 	}
 
 	private IListener<IUserFeedback> optionSelectedListener = optionSelected::invoke;
+
+	private NonGenericListenerCollection<List<IMethodDescription>> customOptionSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
+		return customOptionSelected;
+	}
+
+	private IListener<List<IMethodDescription>> customOptionSelectedListener = customOptionSelected::invoke;
 
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	

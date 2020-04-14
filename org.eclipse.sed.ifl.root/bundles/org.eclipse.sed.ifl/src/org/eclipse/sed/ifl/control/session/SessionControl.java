@@ -21,7 +21,6 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
-import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -41,17 +40,15 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
 	
-	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private ActivityMonitorControl activityMonitor;
 	private PartMonitorControl partMonitor;
 	
-	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject, PartMonitorControl partMonitor) {
-		super(model, view);
+	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
 	}
@@ -102,8 +99,14 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
-		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
+		scoreListControl = new ScoreListControl();
+		scoreListControl.setModel(model);
+		ScoreListView scoreListView = new ScoreListView();
+		getView().embed(scoreListView);
+		scoreListControl.setView(scoreListView);
+		scoreLoaderControl = new ScoreLoaderControl();
+		scoreLoaderControl.setModel(model);
+		scoreLoaderControl.setView(new ScoreLoaderView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		System.out.println(watch);
@@ -136,6 +139,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
+
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
 

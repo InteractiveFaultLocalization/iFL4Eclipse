@@ -21,7 +21,6 @@ import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.WrongSelectionException;
-import org.eclipse.sed.ifl.ide.gui.MainPart;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomWarningDialog;
 import org.eclipse.sed.ifl.model.monitor.LogOnlyModeModel;
 import org.eclipse.sed.ifl.model.monitor.PartMonitorModel;
@@ -49,8 +48,12 @@ public class startHandler extends AbstractHandler {
 				if (isKeyFilePresent("key", "dza tan kaho adz")) {
 					try {
 						IJavaProject selected = sourceAccessor.getSelectedProject();
-						SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected, new PartMonitorControl(new PartMonitorModel(), partAccessor));
-						session.init(); 
+						PartMonitorControl partMonitor = new PartMonitorControl(partAccessor);
+						partMonitor.setModel(new PartMonitorModel());
+						SessionControl session = new SessionControl(selected, partMonitor);
+						session.setModel(new SessionModel());
+						session.setView(new SessionView(partAccessor));
+						session.init();
 						Activator.getDefault().setSession(session);
 					} catch (WrongSelectionException e) {
 						MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
@@ -59,7 +62,8 @@ public class startHandler extends AbstractHandler {
 				else {
 					if (!Activator.getDefault().isLogOnlyModeActive()) {
 						MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Log-only mode activated.", SWT.NONE);
-						LogOnlyModeControl mode = new LogOnlyModeControl(new LogOnlyModeModel(), partAccessor);
+						LogOnlyModeControl mode = new LogOnlyModeControl(partAccessor);
+						mode.setModel(new LogOnlyModeModel());
 						mode.init();
 						Activator.getDefault().setLogOnlyMode(mode);
 					}

@@ -5,7 +5,9 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,6 +26,7 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
@@ -44,6 +47,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Scale;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -125,7 +129,6 @@ public class ScoreListUI extends Composite {
 	public double userInputTextValidator(String input) {
 		double returnValue;
 		try {
-			//input.replaceAll(",","." );
 			returnValue = Double.parseDouble(input);
 		} catch (NumberFormatException e) {
 			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
@@ -156,8 +159,12 @@ public class ScoreListUI extends Composite {
 		return returnValue;
 	}
 	
-	public ScoreListUI(Composite parent, int style) {
-		super(parent, style);
+	public ScoreListUI() {
+		this(new Shell());
+	}
+	
+	public ScoreListUI(Composite parent) {
+		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
 		setLayout(new GridLayout(1, false));
 		
@@ -320,8 +327,6 @@ public class ScoreListUI extends Composite {
 		noItemsToDisplayLabel.setVisible(false);
 		
 		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
-		contextMenu = new Menu(table);
-		nonInteractiveContextMenu = new Menu(table);
 		GridData gd_table = new GridData(SWT.FILL);
 		gd_table.grabExcessVerticalSpace = true;
 		gd_table.grabExcessHorizontalSpace = true;
@@ -556,17 +561,20 @@ public class ScoreListUI extends Composite {
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (entry.getValue().getLastAction() != null) {
-				String iconPath = entry.getValue().getLastAction().getCause().getChoise().getKind().getIconPath();
+				String iconPath = null;
+				try {
+				iconPath = entry.getValue().getLastAction().getCause().getChoise().getKind().getIconPath();
+				} catch (NullPointerException e) {
+					
+				}
 				if (iconPath != null) {
 					Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 					item.setImage(table.indexOf(iconColumn), icon);
 				}
 			}
 			if (entry.getValue().isDefinit()) {
-				//item.setText(table.indexOf(scoreColumn), String.format("%.4f", entry.getValue().getValue()));
 				LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 				item.setText(table.indexOf(scoreColumn), LIMIT_FORMAT.format(entry.getValue().getValue()));
-				System.out.println("Entry score value is: " + entry.getValue().getValue());
 			} else {
 				item.setText(table.indexOf(scoreColumn), "undefined");
 			}
@@ -586,6 +594,7 @@ public class ScoreListUI extends Composite {
 			}
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
+			item.setData("entry", entry);
 		}
 		iconColumn.pack();
 	}
@@ -598,6 +607,11 @@ public class ScoreListUI extends Composite {
 	Menu nonInteractiveContextMenu;
 	
 	public void createContexMenu(Iterable<Option> options) {
+		//It sets the parent of popup menu on the given !!parent's shell!!,
+		//because the late parent setters it is not possible to instantiate these before.
+		contextMenu = new Menu(table);
+		nonInteractiveContextMenu = new Menu(table);
+		
 		table.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
@@ -700,14 +714,27 @@ public class ScoreListUI extends Composite {
 			}
 			item.addSelectionListener(new SelectionListener() {
 
+				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					List<IMethodDescription> subjects = Stream.of(table.getSelection())
-							.map(selection -> (IMethodDescription)selection.getData())
-							.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-					UserFeedback feedback = new UserFeedback(option, subjects);					
-					optionSelected.invoke(feedback);
-					System.out.println(table.getSelection());
+
+					if(option.getId().equals("CONTEXT_BASED_OPTION")) {
+						List<IMethodDescription> subjects = Stream.of(table.getSelection())
+								.map(selection -> (IMethodDescription)selection.getData())
+								.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+						customOptionSelected.invoke(subjects);
+					} else {
+						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
+						List<TableItem> itemList = Arrays.asList(table.getSelection());
+						for(TableItem tableItem : itemList) {
+							assert tableItem.getData("entry") instanceof Entry<?, ?>;
+							subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
+									new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+						}
+						
+						UserFeedback feedback = new UserFeedback(option, subjects);
+						optionSelected.invoke(feedback);
+					}
 				}
 
 				@Override
@@ -724,6 +751,18 @@ public class ScoreListUI extends Composite {
 	}
 	
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
+		return optionSelected;
+	}
+
+	private NonGenericListenerCollection<List<IMethodDescription>> customOptionSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
+		return customOptionSelected;
+	}
+
+	
 	private Composite composite;
 	private Composite contextSizeComposite;
 	private Combo contextSizeCombo;
@@ -733,10 +772,6 @@ public class ScoreListUI extends Composite {
 	private Scale scale;
 	private Text manualText;
 	private Button manualButton;
-
-	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
-		return optionSelected;
-	}
 
 	public void highlight(List<MethodIdentity> context) {
 		for (TableItem item : table.getItems()) {

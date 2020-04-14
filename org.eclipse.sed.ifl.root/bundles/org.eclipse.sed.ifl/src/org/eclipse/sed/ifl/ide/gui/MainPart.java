@@ -12,6 +12,8 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.graphics.Image;
@@ -25,7 +27,7 @@ import org.eclipse.wb.swt.ResourceManager;
 
 import swing2swt.layout.BorderLayout;
 
-public class MainPart extends ViewPart {
+public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	
 	public MainPart() {
 		System.out.println("mainpart ctor");
@@ -160,7 +162,13 @@ public class MainPart extends ViewPart {
 	public void setFocus() {
 	}
 	
-	public Composite getUI() {
-		return composite;
+	@Override
+	public void setParent(Composite parent) {
+		composite.setParent(parent);
+	}
+	
+	@Override
+	public void embed(IEmbeddable embedded) {
+		embedded.setParent(composite);
 	}
 }

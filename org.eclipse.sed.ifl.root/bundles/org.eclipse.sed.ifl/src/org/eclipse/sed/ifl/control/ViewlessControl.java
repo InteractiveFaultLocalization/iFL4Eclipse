@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.eclipse.sed.ifl.model.IModel;
 
 public class ViewlessControl<TModel extends IModel> implements IViewlessControl<TModel> {
-	public ViewlessControl(TModel model) {
+	
+	@Override
+	public void setModel(TModel model) {
 		this.model = model;
 	}	
 	
@@ -27,10 +29,15 @@ public class ViewlessControl<TModel extends IModel> implements IViewlessControl<
 	
 	@Override
 	public void init() {
+		//System.out.println("begin (viewless) init of " + this.getClass().getName());
 		for (IViewlessControl<? extends IModel> control : subControls) {
 			control.init();
 		}
+		if (model == null) {
+			throw new ModelNotSetException();
+		}
 		model.init();
+		//System.out.println("end (viewless) init of " + this.getClass().getName());
 	}
 
 	@Override

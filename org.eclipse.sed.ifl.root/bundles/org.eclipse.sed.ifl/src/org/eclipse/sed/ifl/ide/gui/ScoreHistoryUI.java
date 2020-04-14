@@ -11,12 +11,17 @@ import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.RowLayout;
 
 public class ScoreHistoryUI extends Composite {
 	private Composite monumentRow;
 
-	public ScoreHistoryUI(Composite parent, int style) {
+	public ScoreHistoryUI() {
+		this(new Shell());
+	}
+	
+	public ScoreHistoryUI(Composite parent) {
 		super(parent, SWT.NONE);
 		RowLayout layout = new RowLayout(SWT.HORIZONTAL);
 		layout.wrap = false;

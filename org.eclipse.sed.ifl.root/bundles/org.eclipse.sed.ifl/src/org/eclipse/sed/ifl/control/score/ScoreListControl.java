@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
@@ -25,7 +26,6 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
-import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -38,7 +38,9 @@ import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
+import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -46,7 +48,9 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
@@ -56,24 +60,37 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
-	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private ActivityMonitorControl activityMonitor;
 	
-	private ScoreHistoryControl scoreHistory = new ScoreHistoryControl(
-			new ScoreHistoryModel(),
-			new ScoreHistoryView(new ScoreHistoryUI(getView().getUI(), SWT.NONE)));
+	private ScoreHistoryControl scoreHistory;
 
-	public ScoreListControl(ScoreListModel model, ScoreListView view) {
-		super(model, view);
-	}
+	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
 
 	@Override
 	public void init() {
+		activityMonitor = new ActivityMonitorControl();
+		activityMonitor.setModel(new ActivityMonitorModel());
+		
+		scoreHistory = new ScoreHistoryControl();
+		scoreHistory.setModel(new ScoreHistoryModel());
+		ScoreHistoryView scoreHistoryView = new ScoreHistoryView();
+		getView().embed(scoreHistoryView);
+		scoreHistory.setView(scoreHistoryView);
+		
+		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
+		contextBasedOptionCreator.setModel(new ContextBasedOptionCreatorModel());
+		contextBasedOptionCreator.setView(new ContextBasedOptionCreatorView());
+		this.addSubControl(contextBasedOptionCreator);
+
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
+		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
+		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		handler.eventHighLightRequested().add(highlightRequestListener);;
@@ -96,8 +113,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	@Override
 	public void teardown() {
+		contextBasedOptionCreator.eventContextBasedFeedbackOption().remove(optionSelectedListener);
+		contextBasedOptionCreator.eventContextBasedOptionNeeded().remove(contextBasedOptionProviderListener);
 		getModel().eventScoreUpdated().remove(scoreUpdatedListener);
 		getView().eventOptionSelected().remove(optionSelectedListener);
+		getView().eventCustomOptionSelected().remove(customOptionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		handler.eventHighLightRequested().remove(highlightRequestListener);
 		getView().eventSortRequired().remove(sortListener);
@@ -243,7 +263,16 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	public INonGenericListenerCollection<SideEffect> eventTerminationRequested() {
 		return terminationRequested;
 	}
-
+	
+	private IListener<Boolean> contextBasedOptionProviderListener = event -> {
+		for(Option option : handler.getProvidedOptions()) {
+			if(option.getId().equals("CONTEXT_BASED_OPTION")) {
+				contextBasedOptionCreator.createContextBasedUserFeedback(option);
+				break;
+			}
+		}
+	};
+	
 	private IListener<IUserFeedback> optionSelectedListener = event -> {
 		SideEffect effect = event.getChoise().getSideEffect();		
 		if (effect == SideEffect.NOTHING) {
@@ -267,6 +296,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				terminationRequested.invoke(effect);
 			}
 		}
+	};
+	
+	private IListener<List<IMethodDescription>> customOptionSelectedListener = event -> {
+		Map<IMethodDescription, Defineable<Double>> all = getModel().getRawScore();
+		List<IMethodDescription> selected = event;
+		List<IMethodDescription> context = IMethodDescriptionCollectionUtil.collectContext(selected, all);
+		List<IMethodDescription> others = IMethodDescriptionCollectionUtil.collectOther(all, selected, context);
+		contextBasedOptionCreator.createNewOption(selected, context, others, all);
 	};
 
 	private IListener<Map<IMethodDescription, ScoreChange>> scoreUpdatedListener = event -> {
@@ -341,8 +378,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private List<String> getElementNames(IUserFeedback event) {
 		List<String> rvList = new ArrayList<String>(event.getSubjects().size());
-		for(int i=0; i<event.getSubjects().size(); i++) {
-			rvList.add(event.getSubjects().get(i).getId().getName());
+		for(IMethodDescription method : event.getSubjects().keySet()) {
+			rvList.add(method.getId().getName());
 		}
 		return rvList;
 	}

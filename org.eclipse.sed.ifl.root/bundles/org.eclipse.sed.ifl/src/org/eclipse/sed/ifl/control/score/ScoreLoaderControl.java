@@ -22,10 +22,6 @@ import org.eclipse.swt.SWT;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
-	public ScoreLoaderControl(ScoreListModel model, ScoreLoaderView view) {
-		super(model, view);
-	}
-
 	public void load() {
 		getView().select();
 	}

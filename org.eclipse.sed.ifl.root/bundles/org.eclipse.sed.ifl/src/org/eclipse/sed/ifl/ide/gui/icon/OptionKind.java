@@ -6,7 +6,8 @@ public enum OptionKind implements IconSet {
 	CONTEXT_0XX("icons/option_0--.png"),
 	CONTEXT_0X0("icons/option_0-0.png"),
 	CONTEXT_00X("icons/option_00-.png"),
-	CONTEXT_FXX("icons/option_F--.png");
+	CONTEXT_FXX("icons/option_F--.png"),
+	CONTEXT_BASED("icons/option_context-based.png");
 	
 	private final String iconPath;
 
