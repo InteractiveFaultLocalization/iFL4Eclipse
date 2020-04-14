@@ -580,14 +580,20 @@ public class ScoreListUI extends Composite {
 		maxLabel.requestLayout();
 		minLabel.setText(LIMIT_FORMAT.format((min)));
 		minLabel.requestLayout();
-		scale.setMaximum(toScale(max));
-		System.out.println("Maximum value: " + max);
-		System.out.println("Scale maximum selection set: " + toScale(max));
-		System.out.println("Scale maximum selection allowed: " + scale.getMaximum());
+		/*This if statement below is needed because the setMaximum function of Scale
+		 * does not set the maximum value of the scale if said value is lesser than or
+		 * equal to the minimum value of the scale. This can happen when all elements' scores
+		 * are set to 0. In this scenario, the minimum value of the scale would be set
+		 * to 0 and then the function tries to set the maximum value to 0 but fails to do so
+		 * because (max value = min value).
+		 * @Dhorvath1294
+		 */
+		if(max <= min) {
+			scale.setMaximum(toScale(max+(1/SLIDER_PRECISION)));
+		}
 		scale.setMinimum(toScale(min));
-		System.out.println("Minimum value: " + min);
-		System.out.println("Scale minimum selection set: " + toScale(min));
-		System.out.println("Scale minimum selection allowed: " + scale.getMinimum());
+		scale.setMaximum(toScale(max));
+		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
 		enabledCheckButton.setSelection(true);
 		lowerScoreLimitEnabled.invoke(true);
