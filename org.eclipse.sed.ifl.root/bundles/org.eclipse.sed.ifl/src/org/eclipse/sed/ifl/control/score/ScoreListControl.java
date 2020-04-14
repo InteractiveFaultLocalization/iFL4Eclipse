@@ -21,6 +21,7 @@ import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
+import org.eclipse.sed.ifl.control.score.filter.NameFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
@@ -97,11 +98,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filters.add(hideUndefinedFilter);
 		filters.add(lessOrEqualFilter);
 		filters.add(contextSizeFilter);
+		filters.add(nameFilter);
 		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		getView().eventcontextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
 		getView().eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
 		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
+		getView().eventNameFilterChanged().add(nameFilterChangedListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventNavigateToContext().add(navigateToContextListener);
@@ -129,6 +132,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
 		getView().eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
 		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
+		getView().eventNameFilterChanged().remove(nameFilterChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		super.teardown();
@@ -151,6 +155,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 	
 	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(false);
+	
+	private NameFilter nameFilter = new NameFilter(true);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -234,6 +240,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<List<IMethodDescription>> highlightRequestListener = list -> {
 		getView().highlightRequest(list);
+
+	private IListener<String> nameFilterChangedListener = name -> {
+		nameFilter.setName(name);
+		refreshView();
 	};
 
 	private void refreshView() {

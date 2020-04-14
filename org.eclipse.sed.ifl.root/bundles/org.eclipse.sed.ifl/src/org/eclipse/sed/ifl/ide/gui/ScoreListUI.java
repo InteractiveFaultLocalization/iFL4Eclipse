@@ -30,6 +30,8 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
@@ -125,6 +127,10 @@ public class ScoreListUI extends Composite {
 	private void updateContextSizeRelation(String text) {
 		contextSizeRelationChanged.invoke(text);
 	}
+	
+	private void updateNameFilter(String text) {
+		nameFilterChanged.invoke(text);
+	}
 
 	public double userInputTextValidator(String input) {
 		double returnValue;
@@ -178,6 +184,11 @@ public class ScoreListUI extends Composite {
 		contextSizeComposite.setSize(0, 100);
 		contextSizeComposite.setLayout(new GridLayout(10, false));
 
+		nameFilterComposite = new Composite(this, SWT.NONE);
+		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		nameFilterComposite.setSize(0, 100);
+		nameFilterComposite.setLayout(new GridLayout(2, false));
+		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
 		enabledCheckButton.setEnabled(false);
@@ -310,6 +321,38 @@ public class ScoreListUI extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				int value = contextSizeSpinner.getSelection();
 				updateContextSizeLimit(value);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
+		nameFilterText.setMessage("filter by name...");
+		nameFilterText.setEnabled(false);
+		nameFilterText.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				updateNameFilter(nameFilterText.getText());
+				
+			}
+			
+		});
+		
+		nameFilterClearButton = new Button(nameFilterComposite, SWT.NONE);
+		nameFilterClearButton.setText("Clear");
+		nameFilterClearButton.setEnabled(false);
+		nameFilterClearButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nameFilterText.setText("");
+				
 			}
 
 			@Override
@@ -508,6 +551,12 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
+	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventNameFilterChanged() {
+		return nameFilterChanged;
+	}
+	
 	private static final double SLIDER_PRECISION = 10000.0;
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
@@ -546,6 +595,8 @@ public class ScoreListUI extends Composite {
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
 		contextSizeCheckBox.setEnabled(true);
+		nameFilterText.setEnabled(true);
+		nameFilterClearButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -765,6 +816,7 @@ public class ScoreListUI extends Composite {
 	
 	private Composite composite;
 	private Composite contextSizeComposite;
+	private Composite nameFilterComposite;
 	private Combo contextSizeCombo;
 	private Button contextSizeCheckBox;
 	private Spinner contextSizeSpinner;
@@ -772,6 +824,12 @@ public class ScoreListUI extends Composite {
 	private Scale scale;
 	private Text manualText;
 	private Button manualButton;
+	private Text nameFilterText;
+	private Button nameFilterClearButton;
+	
+	public INonGenericListenerCollection<IUserFeedback> eventOptionSelected() {
+		return optionSelected;
+	}
 
 	public void highlight(List<MethodIdentity> context) {
 		for (TableItem item : table.getItems()) {

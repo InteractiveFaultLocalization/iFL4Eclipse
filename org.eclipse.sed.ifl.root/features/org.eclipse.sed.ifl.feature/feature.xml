@@ -4,7 +4,7 @@
       label="iFL for Eclipse"
 
       version="2.2"
-
+	  
       provider-name="University of Szeged Department of Software Engineering">
 
    <description url="https://github.com/sed-szeged/iFL4Eclipse">
