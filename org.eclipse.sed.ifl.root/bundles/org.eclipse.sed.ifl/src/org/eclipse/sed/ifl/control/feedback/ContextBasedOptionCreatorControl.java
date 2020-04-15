@@ -123,7 +123,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		lambdaSetter = new ContextBasedOptionLambdaSetter(otherValue);
 		Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> otherFunction =
 		lambdaSetter.setLambda();
-			 
+		
 		ContextBasedOption contextBasedOption = new ContextBasedOption(option.getId(),
 			option.getTitle(),
 			option.getDescription(),

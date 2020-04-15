@@ -16,6 +16,9 @@ public class ContextBasedOptionLambdaSetter {
 	}
 	
 	private Defineable<Double> contextBasedFeedbackValueSetter(Relativeable<Defineable<Double>> relativeableValue, Defineable<Double> previousValue) {
+		if(!previousValue.isDefinit() ) {
+			return previousValue;
+		}
 		Defineable<Double> newValue = new Defineable<Double>();
 
 		if(relativeableValue.getValue().isDefinit()) {
@@ -34,9 +37,14 @@ public class ContextBasedOptionLambdaSetter {
 		return newValue;
 	}
 	
+	//name should be changed as it is misleading
 	public Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> setLambda(){
 		Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> returnFunction =
-				 relativeable.getValue().isDefinit() ? item -> contextBasedFeedbackValueSetter(relativeable, item.getValue()) : null;
+				// If relativeable is defined, then check if the method whose score we are about to change is
+				// interactive. If it is, then the return function calculates the new score; if it is not, the
+				// return function is null (it won't change anything). 
+				
+				 relativeable.getValue().isDefinit() ? item -> (item.getKey().isInteractive() && item.getValue().isDefinit()) ? contextBasedFeedbackValueSetter(relativeable, item.getValue()) : null : null;
 		return returnFunction;
 	}
 }

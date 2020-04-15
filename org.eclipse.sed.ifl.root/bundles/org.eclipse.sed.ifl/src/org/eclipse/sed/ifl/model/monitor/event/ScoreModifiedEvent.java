@@ -27,7 +27,7 @@ public class ScoreModifiedEvent extends Event {
 		Map<String, Object> returnMap = new HashMap<>();
 		
 		for(Relativeable<Defineable<Double>> relativeableValue : loggingMap.keySet()) {
-			returnMap.put(relativeableValue.getSelection() + "_value", relativeableValue.getValue().getValue());
+			returnMap.put(relativeableValue.getSelection() + "_value", relativeableValue.getValue().isDefinit() ? relativeableValue.getValue().getValue() : "undefined");
 			returnMap.put(relativeableValue.getSelection() + "_isRelative", relativeableValue.isRelative() ? "yes" : "no");
 		}
 		

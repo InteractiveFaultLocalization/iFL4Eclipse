@@ -116,8 +116,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(scoreListControl);
 		System.out.println(watch);
 		
+		
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
 				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
+		
 	}
 
 	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {

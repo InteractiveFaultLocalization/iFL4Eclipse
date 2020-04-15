@@ -18,12 +18,6 @@ public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;
 	private Map<IMethodDescription, Defineable<Double>> originalSubjects;
 	
-	//relativeable generikus osztály
-	//scale-bõl Relativeable<Defineable<Double>> double-t tároljon
-	//relatív vagy sem boolean + lekérdezés hozzá
-	//Tvalue generikus típus -> setter nincs hozzá, immutable
-	//defineable -> megadja, h aktív-e vagy sem
-	//probléma: null-nak ne legyen extra jelentése
 	private Relativeable<Defineable<Double>> relativeableValue;
 	
 	public void setRelativeableValue(Relativeable<Defineable<Double>> relativeableValue) {

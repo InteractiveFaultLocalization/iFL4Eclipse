@@ -73,11 +73,6 @@ public class IFLPreferencePage
 	 * restore itself.
 	 */
 	public void createFieldEditors() {
-		//tároljuk el a userID, MAC, scenarioID konkatenált stringjét (MD5 esetleg) az ID node-ba
-		//módosítás esetén újragenerálni
-		//legyen kimásolható mezõbe ezek alatt
-		
-		//szerver tesztelés gomb
 		
 		agreement = new Text(getFieldEditorParent(), SWT.READ_ONLY);
 		agreement.setText("User agreement: ");
@@ -96,8 +91,8 @@ public class IFLPreferencePage
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				checkLogEnabled();
 				getPreferenceStore().setValue("logKey", logCheckButton.getSelection());
+				checkLogEnabled();
 			}
 
 			@Override
@@ -172,15 +167,23 @@ public class IFLPreferencePage
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(IWorkbench workbench) {
-		getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				activityMonitor.log(new PreferencePropertyChangedEvent( event.getProperty(), event.getOldValue(), event.getNewValue()));
-			}
-			
-		});
+		getPreferenceStore().addPropertyChangeListener(propertyChanged);
 	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		getPreferenceStore().removePropertyChangeListener(propertyChanged);
+	}
+	
+	private IPropertyChangeListener propertyChanged = new IPropertyChangeListener() {
+
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			activityMonitor.log(new PreferencePropertyChangedEvent( event.getProperty(), event.getOldValue(), event.getNewValue()));
+		}
+		
+	};
 	
 	private String generateId() {
 		String generatedId;
@@ -225,6 +228,7 @@ public class IFLPreferencePage
 	}
 	
 	public void checkLogEnabled() {
+		logCheckButton.setSelection(getPreferenceStore().getBoolean("logKey"));
 		userIdField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());
 		scenarioIdField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());
 		hostField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());

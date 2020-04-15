@@ -377,9 +377,11 @@ public class ScoreSetter extends Composite {
 		}
 		
 		for (IMethodDescription method : subjects.keySet()) {
-			TableItem item = new TableItem(table, SWT.NULL);
-			item.setText(method.getId().getSignature());
-			item.setData(method);
+			
+				TableItem item = new TableItem(table, SWT.NULL);
+				item.setText(method.getId().getSignature());
+				item.setData(method);
+			
 		}
 		
 		
