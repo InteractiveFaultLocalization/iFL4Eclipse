@@ -1,8 +1,11 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.model.EmptyModel;
@@ -17,9 +20,14 @@ import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;
 	private Map<IMethodDescription, Defineable<Double>> originalSubjects;
+	private Map<IMethodDescription, Projection<Double>> subjectsToDisplay;
 	
 	private Relativeable<Defineable<Double>> relativeableValue;
 	
+	public Map<IMethodDescription, Projection<Double>> getSubjectsToDisplay() {
+		return subjectsToDisplay;
+	}
+
 	public void setRelativeableValue(Relativeable<Defineable<Double>> relativeableValue) {
 		this.relativeableValue = relativeableValue;
 	}
@@ -43,11 +51,13 @@ public class ScoreSetterModel extends EmptyModel {
 			.collect(Collectors.toMap(
 				entry -> (IMethodDescription)entry.getKey(),
 				entry -> new Projection<Double>(entry.getValue().getValue())));
+		createSubjectsToDisplayMap();
 		relatedChanged.invoke(new EmptyEvent());
 	}
 
 	public void updateSubjects(Map<IMethodDescription, Projection<Double>> subjects) {
 		this.subjects = subjects;
+		createSubjectsToDisplayMap();
 		relatedChanged.invoke(new EmptyEvent());
 	}
 	
@@ -59,5 +69,15 @@ public class ScoreSetterModel extends EmptyModel {
 
 	public INonGenericListenerCollection<EmptyEvent> eventRelatedChanged() {
 		return relatedChanged;
+	}
+	
+	private void createSubjectsToDisplayMap() {
+		ArrayList<Entry<IMethodDescription, Projection<Double>>> listToShuffle = new ArrayList<Entry<IMethodDescription, Projection<Double>>>(subjects.entrySet());
+		Collections.shuffle(listToShuffle);
+		Map<IMethodDescription, Projection<Double>> map = new HashMap<>();
+	    for (Entry<IMethodDescription, Projection<Double>> entry : listToShuffle) {
+	        map.put(entry.getKey(), entry.getValue());
+	    }
+	    this.subjectsToDisplay = map;
 	}
 }

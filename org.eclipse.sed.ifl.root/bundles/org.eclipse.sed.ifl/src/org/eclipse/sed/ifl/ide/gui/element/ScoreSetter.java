@@ -226,7 +226,7 @@ public class ScoreSetter extends Composite {
 		settingSection.setLayout(rl_settingSection);
 		
 		setUpper = new Button(settingSection, SWT.TOGGLE);
-		setUpper.setText("Set to 1");
+		setUpper.setText("Set to 1.0");
 		setUpper.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(upperLimit);
 			collectRelativeableValue.invoke(createRelativeableValue());
@@ -538,15 +538,17 @@ public class ScoreSetter extends Composite {
 	
 	private void refreshUpdatedScoresColumn(Relativeable<Defineable<Double>> value) {
 		for (TableItem item : table.getItems()) {
-			double currentScore = Double.parseDouble(item.getText(table.indexOf(currentScoreColumn)));
-			double newScore = value.isRelative() ? currentScore + (currentScore * (value.getValue().getValue()/100)) : value.getValue().getValue();
-			if(newScore > 1.0) {
-				newScore = 1.0;
+			if(value.getValue().isDefinit()) {
+				double currentScore = Double.parseDouble(item.getText(table.indexOf(currentScoreColumn)));
+				double newScore = value.isRelative() ? currentScore + (currentScore * (value.getValue().getValue()/100)) : value.getValue().getValue();
+				if(newScore > 1.0) {
+					newScore = 1.0;
+				}
+				if(newScore < 0.0) {
+					newScore = 0.0;
+				}
+				item.setText(table.indexOf(updatedScoreColumn), Double.toString(newScore));
 			}
-			if(newScore < 0.0) {
-				newScore = 0.0;
-			}
-			item.setText(table.indexOf(updatedScoreColumn), Double.toString(newScore));
 		}
 	}
 }

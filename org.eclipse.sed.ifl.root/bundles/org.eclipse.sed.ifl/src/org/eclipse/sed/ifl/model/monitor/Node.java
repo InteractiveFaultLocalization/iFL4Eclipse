@@ -30,6 +30,14 @@ public abstract class Node {
 		this.properties.putAll(properties);
 	}
 	
+	public GraphTraversal<Vertex, Vertex> createNodeTraversal(GraphTraversalSource g) {
+		GraphTraversal<Vertex, Vertex> t = g.addV(getLabel()).property("type", getType()).property("created", getCreation().toString());
+		for (Entry<String, Object> property : getProperties().entrySet()) {
+			t.property(property.getKey(), property.getValue().toString());
+		}
+		return t;
+	}
+	
 	public Vertex createNode(GraphTraversalSource g) {
 		GraphTraversal<Vertex, Vertex> t = g.addV(getLabel()).property("type", getType()).property("created", getCreation().toString());
 		for (Entry<String, Object> property : getProperties().entrySet()) {
