@@ -3,12 +3,15 @@ package org.eclipse.sed.ifl.ide.gui.element;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -43,6 +46,9 @@ import org.eclipse.swt.layout.GridData;
 
 public class ScoreSetter extends Composite {
 
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private Label title;
 	private Label newScore;
 	private Scale scale;
@@ -109,10 +115,10 @@ public class ScoreSetter extends Composite {
 		
 		
 
-		ArrayList<Entry<IMethodDescription, Projection<Double>>> listToShuffle = new ArrayList<Entry<IMethodDescription, Projection<Double>>>(subjects.entrySet());
-		Collections.shuffle(listToShuffle);
+		//ArrayList<Entry<IMethodDescription, Projection<Double>>> listToShuffle = new ArrayList<Entry<IMethodDescription, Projection<Double>>>(subjects.entrySet());
+		//Collections.shuffle(listToShuffle);
 		int counter = 0;
-		for (Entry<IMethodDescription, Projection<Double>> entry : listToShuffle) {
+		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
 			if(counter >= displayWidth / (glyphSize+1)) {
 				break;
 			}
@@ -122,7 +128,7 @@ public class ScoreSetter extends Composite {
 		}
 		counter = 0;
 		index = jitter.iterator();
-		for (Entry<IMethodDescription, Projection<Double>> entry : listToShuffle) {
+		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
 			if(counter >= displayWidth / (glyphSize+1)) {
 				break;
 			}
@@ -212,7 +218,11 @@ public class ScoreSetter extends Composite {
 		//TODO move action logic to Control
 		active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
-		active.addListener(SWT.Selection, event -> {	
+		active.addListener(SWT.Selection, event -> {
+			if(!active.getSelection()) {
+				setUpper.setSelection(active.getSelection());
+				setLower.setSelection(active.getSelection());
+			}
 			Setter.RecursiveEnable(settingSection, active.getSelection());
 			collectRelativeableValue.invoke(createRelativeableValue());
 			refreshUpdatedScoresColumn(createRelativeableValue());
@@ -421,6 +431,8 @@ public class ScoreSetter extends Composite {
 			item.dispose();
 		}
 		
+		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+		
 		Rectangle rect = table.getClientArea();
 		int columnWidth = rect.width/3;
 		nameColumn.setWidth(columnWidth);
@@ -431,7 +443,7 @@ public class ScoreSetter extends Composite {
 			
 				TableItem item = new TableItem(table, SWT.NULL);
 				item.setText(table.indexOf(nameColumn), entry.getKey().getId().getSignature());
-				item.setText(table.indexOf(currentScoreColumn), entry.getValue().getOriginal().toString());
+				item.setText(table.indexOf(currentScoreColumn),LIMIT_FORMAT.format(entry.getValue().getOriginal()));
 				item.setData(entry.getKey());
 			
 		}
@@ -547,7 +559,7 @@ public class ScoreSetter extends Composite {
 				if(newScore < 0.0) {
 					newScore = 0.0;
 				}
-				item.setText(table.indexOf(updatedScoreColumn), Double.toString(newScore));
+				item.setText(table.indexOf(updatedScoreColumn), LIMIT_FORMAT.format(newScore));
 			}
 		}
 	}
