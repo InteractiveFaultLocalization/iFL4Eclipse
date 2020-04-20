@@ -149,7 +149,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
-	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
 
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 	

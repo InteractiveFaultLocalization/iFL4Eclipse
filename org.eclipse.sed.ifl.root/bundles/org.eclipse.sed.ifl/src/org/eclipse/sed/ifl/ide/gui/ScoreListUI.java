@@ -636,7 +636,7 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(pathColumn), entry.getKey().getLocation().getAbsolutePath());
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
-			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
+			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size()+1 + " methods");
 			if (!entry.getKey().isInteractive()) {
 				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
