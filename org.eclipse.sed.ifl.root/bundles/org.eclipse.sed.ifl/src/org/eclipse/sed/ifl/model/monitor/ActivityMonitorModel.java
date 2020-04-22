@@ -86,8 +86,13 @@ public class ActivityMonitorModel extends EmptyModel {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String host = store.getString("host");
 		String port = store.getString("port");
-		if(!(host.equals("") && port.equals(""))) {
-			g = traversal().withRemote(DriverRemoteConnection.using(host, Integer.parseInt(port), "g"));
+		try {
+			int portNum = Integer.parseInt(port);
+			if(!(host.equals("") && port.equals(""))) {
+				g = traversal().withRemote(DriverRemoteConnection.using(host, portNum, "g"));
+			}
+		} catch (NumberFormatException e) {
+			
 		}
 		super.init();
 	}

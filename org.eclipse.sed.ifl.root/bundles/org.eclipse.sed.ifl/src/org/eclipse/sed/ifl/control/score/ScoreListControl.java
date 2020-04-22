@@ -193,7 +193,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Integer(a.getKey().getLocation().getBegining().getOffset()).compareTo(b.getKey().getLocation().getBegining().getOffset()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
-
+			case Interactivity:
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Boolean(a.getKey().isInteractive()).compareTo(b.getKey().isInteractive()))
+						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+				break;
+			case LastAction:
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getCause().getChoice().getKind().name().compareTo(b.getValue().getLastAction().getCause().getChoice().getKind().name())))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+				break;
 			default:
 				toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 				break;

@@ -7,14 +7,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -91,7 +89,7 @@ public class ScoreSetter extends Composite {
 		this.upperLimit = upperLimit;
 	}
 	
-	private List<Double> jitter = new ArrayList<>();
+	private List<Integer> jitter = new ArrayList<>();
 	
 	public void displayCurrentScoreDistribution(Map<IMethodDescription, Projection<Double>> subjects) {
 		for (Control control : distribution.getChildren()) {
@@ -100,18 +98,15 @@ public class ScoreSetter extends Composite {
 		
 		ArrayList<Projection<Double>> points = new ArrayList<Projection<Double>>(subjects.values());
 		
-		random = new Random();
-		double spacing = 1;
+		int spacing = 1;
 		while (jitter.size() < points.size()) {
-			//System.out.println("new jitt generated");
-			//jitter.add(random.nextDouble());
 			jitter.add(spacing);
 			spacing += glyphSize+1;
 		}
 		
 		
 		
-		Iterator<Double> index = jitter.iterator();
+		Iterator<Integer> index = jitter.iterator();
 		
 		
 
@@ -122,7 +117,7 @@ public class ScoreSetter extends Composite {
 			if(counter >= displayWidth / (glyphSize+1)) {
 				break;
 			}
-				double x = index.next();
+				int x = index.next();
 				createGlyph(SWT.COLOR_BLACK, x, entry.getValue().getOriginal(), entry.getKey());
 				counter++;
 		}
@@ -132,7 +127,7 @@ public class ScoreSetter extends Composite {
 			if(counter >= displayWidth / (glyphSize+1)) {
 				break;
 			}
-			double x = index.next();
+			int x = index.next();
 			if (entry.getValue().getProjected().isDefinit()) {
 				createGlyph(SWT.COLOR_RED, x, entry.getValue().getProjected().getValue(), entry.getKey());
 				counter++;
@@ -141,11 +136,11 @@ public class ScoreSetter extends Composite {
 		
 	}
 	
-	private void createGlyph(int color, double x, double y, IMethodDescription data) {
+	private void createGlyph(int color, int x, double y, IMethodDescription data) {
 		Label glyph = new Label(distribution, SWT.NONE);
 		glyph.setBackground(SWTResourceManager.getColor(color));
 		glyph.setBounds(
-			new Double(/*(displayWidth - glyphSize) **/ x).intValue(),
+			x,
 			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
 			glyphSize, glyphSize);
 		glyph.setText("");
@@ -483,7 +478,6 @@ public class ScoreSetter extends Composite {
 	private int displayWidth;
 	private int rulerWidth;
 	private int glyphSize;
-	private Random random;
 
 	public INonGenericListenerCollection<EmptyEvent> eventAbsoluteScoreSettingDisabled() {
 		return absoluteScoreSettingDisabled;

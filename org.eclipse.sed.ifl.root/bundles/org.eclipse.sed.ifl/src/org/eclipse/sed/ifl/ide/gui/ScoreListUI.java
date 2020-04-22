@@ -182,12 +182,7 @@ public class ScoreListUI extends Composite {
 		contextSizeComposite = new Composite(this, SWT.NONE);
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new GridLayout(10, false));
-
-		nameFilterComposite = new Composite(this, SWT.NONE);
-		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		nameFilterComposite.setSize(0, 100);
-		nameFilterComposite.setLayout(new GridLayout(2, false));
+		contextSizeComposite.setLayout(new GridLayout(11, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -331,6 +326,13 @@ public class ScoreListUI extends Composite {
 			
 		});
 		
+		nameFilterComposite = new Composite(contextSizeComposite, SWT.NONE);
+		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		nameFilterComposite.setSize(0, 100);
+		GridLayout nameLayout = new GridLayout(2, false);
+		nameLayout.marginLeft = 60;
+		nameFilterComposite.setLayout(nameLayout);
+		
 		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
 		nameFilterText.setMessage("filter by name...");
 		nameFilterText.setEnabled(false);
@@ -449,6 +451,7 @@ public class ScoreListUI extends Composite {
 		iconColumn = new TableColumn(table, SWT.NONE);
 		iconColumn.setResizable(false);
 		iconColumn.setText("Last action");
+		iconColumn.setData("sort", SortingArg.LastAction);
 
 		scoreColumn = new TableColumn(table, SWT.NONE);
 		scoreColumn.setMoveable(true);
@@ -495,6 +498,7 @@ public class ScoreListUI extends Composite {
 		interactivityColumn = new TableColumn(table, SWT.NONE);
 		interactivityColumn.setWidth(200);
 		interactivityColumn.setText("Interactivity");
+		interactivityColumn.setData("sort", SortingArg.Interactivity);
 	}
 	
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();

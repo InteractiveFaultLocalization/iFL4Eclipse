@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.ide.gui.dialogs;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IconAndMessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -43,6 +44,10 @@ public class CustomWarningDialog extends IconAndMessageDialog {
 		return composite;
 	}
 		
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+	}
 
 	@Override
 	protected Image getImage() {
