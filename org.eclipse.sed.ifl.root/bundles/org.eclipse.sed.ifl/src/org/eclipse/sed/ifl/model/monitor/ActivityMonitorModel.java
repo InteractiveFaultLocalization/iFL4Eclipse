@@ -99,9 +99,9 @@ public class ActivityMonitorModel extends EmptyModel {
 			//System.out.println("new event vertex: " + newEvent);
 			Vertex idNode;
 			if(!Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
-				idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).next();
+				idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).next();
 			} else {
-				idNode = g.V().hasLabel("id").has("mac", Activator.getDefault().getPreferenceStore().getString("ipAddress")).has("userID", userId).has("scenarioID", scenarioId).next();
+				idNode = g.V().hasLabel("id").has("mac", Activator.getDefault().getPreferenceStore().getString("ipAddress")).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).next();
 			}
 			//System.out.println("id vertex of new event: " + idNode);
 			Edge doneBy = g.V(newEvent).addE("doneBy").to(idNode).next();
@@ -127,17 +127,23 @@ public class ActivityMonitorModel extends EmptyModel {
 			if(Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
 				macAddress = Activator.getDefault().getPreferenceStore().getString("ipAddress");
 			}
-			List<Vertex> idNodes = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).toList();
+			List<Vertex> idNodes = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).toList();
 			//System.out.println("id list size: " + idNodes.size());
 			if(!idNodes.isEmpty()) {
 				idNode = idNodes.get(0);
 			} else {
 				idNode = insertId(new IdNode(macAddress, userId, scenarioId, generatedId));
-				System.out.println("new id node created: " + idNode);
+				System.out.println("new id node created: " + idNode + ", with generated id: " + generatedId);
 				return null;
 			}
-			Vertex lastEvent = g.V(idNode).in().not(__.out("follow")).next();
-			return lastEvent;
+			
+			List<Vertex> lastEvents = g.V(idNode).in().not(__.out("follow")).toList();
+			if(lastEvents.isEmpty()) {
+				return null;
+			} else {
+				return lastEvents.get(0);
+			}
+
 		}
 	}
 	

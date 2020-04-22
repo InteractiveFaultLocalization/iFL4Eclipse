@@ -149,6 +149,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private boolean checkGeneratedId() {
 		
 		String generatedId = Activator.getDefault().getPreferenceStore().getString("generatedId");
+		System.out.println("Generated ID from store: " + generatedId);
 		if (generatedId.equals("")) {
 			return false;
 		 } else { 

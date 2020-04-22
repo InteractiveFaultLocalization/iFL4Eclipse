@@ -137,7 +137,7 @@ public class ContextBasedOptionCreatorControl extends Control<ContextBasedOption
 		Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap = new HashMap<>();
 		loggingMap.put(selectedValue, selectedSetter.getOriginalSubjects());
 		loggingMap.put(contextValue, contextSetter.getOriginalSubjects());
-		//loggingMap.put(otherValue, otherSetter.getOriginalSubjects());
+		loggingMap.put(otherValue, otherSetter.getOriginalSubjects());
 		
 		activityMonitor.log(new ScoreModifiedEvent(loggingMap));
 		contextBasedFeedbackOption.invoke(feedback);

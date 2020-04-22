@@ -15,8 +15,10 @@ public class ScoreModifiedEvent extends Event {
 	public ScoreModifiedEvent(Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap) {
 		super(propertiesMapCreator(loggingMap));
 		for (Entry<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> entry : loggingMap.entrySet()) {
-			for(IMethodDescription method : entry.getValue().keySet()) {
-				resources.put(new CodeElement(method.getId().getKey()), entry.getKey().getSelection());
+			if(!entry.getKey().getSelection().equals("other")) {	
+				for(IMethodDescription method : entry.getValue().keySet()) {
+					resources.put(new CodeElement(method.getId().getKey()), entry.getKey().getSelection());
+				}
 			}
 		}
 	}
