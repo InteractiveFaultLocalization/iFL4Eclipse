@@ -62,6 +62,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		ui.eventNameFilterChanged().add(nameFilterChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
+		ui.eventLimitRelationChanged().add(limitFilterRelationChangedListener);
 		super.init();
 	}
 	
@@ -80,6 +81,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		ui.eventNameFilterChanged().remove(nameFilterChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
+		ui.eventLimitRelationChanged().remove(limitFilterRelationChangedListener);
 		super.teardown();
 	}
 	
@@ -193,6 +195,14 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	private IListener<String> contextSizeRelationChangedListener = contextSizeRelationChanged::invoke;
+	
+	private NonGenericListenerCollection<String> limitFilterRelationChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventLimitFilterRelationChanged() {
+		return limitFilterRelationChanged;
+	}
+	
+	private IListener<String> limitFilterRelationChangedListener = limitFilterRelationChanged::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
 	

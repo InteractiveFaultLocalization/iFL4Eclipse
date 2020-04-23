@@ -91,6 +91,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
+		getView().eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		handler.eventHighLightRequested().add(highlightRequestListener);;
@@ -126,6 +127,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
+		getView().eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
@@ -253,12 +255,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		refreshView();
 	};
 
+	private IListener<String> limitFilterRelationChangedListener = relation -> {
+		lessOrEqualFilter.setRelation(relation);
+		refreshView();
+	};
+	
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
 		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
 			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
 			entry.getValue().setLastAction(last);
 		}
+		scoreHistory.hideView();
 		getView().refreshScores(toDisplay);
 		getView().showNoItemsLabel(toDisplay.isEmpty());
 	}
