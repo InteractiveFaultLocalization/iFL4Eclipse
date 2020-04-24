@@ -69,6 +69,7 @@ public class ScoreListUI extends Composite {
 	private TableColumn positionColumn;
 	private TableColumn contextSizeColumn;
 	private Label noItemsToDisplayLabel;
+	private Button showFilterPart;
 	
 
 	private void requestNavigateToAllSelection() {
@@ -181,12 +182,15 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(8, false));
+		composite.setLayout(new GridLayout(9, false));
 		
 		contextSizeComposite = new Composite(this, SWT.NONE);
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
 		contextSizeComposite.setLayout(new GridLayout(11, false));
+		
+		showFilterPart = new Button(composite, SWT.NONE);
+		showFilterPart.setText("Show filters");
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");

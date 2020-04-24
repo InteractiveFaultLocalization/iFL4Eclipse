@@ -19,6 +19,7 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
+import org.eclipse.sed.ifl.control.score.filter.FilterControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.NameFilter;
@@ -66,6 +67,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private ScoreHistoryControl scoreHistory;
 
 	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
+	
+	private FilterControl filterControl;
 
 	@Override
 	public void init() {

@@ -87,6 +87,22 @@
       </view>
    </extension>
    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Fault Localization Filters"
+            id="org.eclipse.sed.ifl">
+      </category>
+      <view
+            category="org.eclipse.sed.ifl"
+            class="org.eclipse.sed.ifl.ide.gui.FilterPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLFilterView"
+            inject="true"
+            name="Interactive Fault Localization Filters"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">

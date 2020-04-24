@@ -8,6 +8,8 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.ide.gui.FilterPart;
+import org.eclipse.sed.ifl.ide.gui.MainPart;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
@@ -23,7 +25,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	ScoreListUI ui = new ScoreListUI();
-
+	
 	@Override
 	public void setParent(Composite parent) {
 		ui.setParent(parent);
@@ -212,7 +214,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	IListener<IMethodDescription> openDetailsRequiredListener = openDetailsRequired::invoke;
 	
-private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<String> eventNameFilterChanged() {
 		return nameFilterChanged;
