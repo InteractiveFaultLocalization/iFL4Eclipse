@@ -41,7 +41,13 @@ public class ContextBasedOption extends Option {
 	private Map<IMethodDescription, Defineable<Double>> applyAll(Function<Entry<IMethodDescription, Defineable<Double>>, Defineable<Double>> function, Map<IMethodDescription, Defineable<Double>> items) {
 		Map<IMethodDescription, Defineable<Double>> result = new HashMap<>();
 		for (Entry<IMethodDescription, Defineable<Double>> item : items.entrySet()) {
-			result.put(item.getKey(), function.apply(item));
+			Defineable<Double> newScore = function.apply(item);
+			if(newScore != null) {
+				result.put(item.getKey(), function.apply(item));
+			} else {
+				continue;
+			}
+			//result.put(item.getKey(), function.apply(item));
 		}
 		return result;
 	}

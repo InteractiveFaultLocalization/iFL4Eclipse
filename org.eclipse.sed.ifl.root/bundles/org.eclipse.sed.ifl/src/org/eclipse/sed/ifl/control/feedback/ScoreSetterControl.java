@@ -1,6 +1,9 @@
 package org.eclipse.sed.ifl.control.feedback;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
@@ -59,7 +62,7 @@ public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterVie
 	}
 	
 	private IListener<EmptyEvent> relatedChangeListener = event -> {
-		getView().displayCurrentScoreDistribution(getModel().getSubjects());
+		getView().displayCurrentScoreDistribution(getModel().getSubjectsToDisplay());
 	};
 	
 	private IListener<Relativeable<Defineable<Double>>> relativeableValueSetListener = relativeableValue -> {

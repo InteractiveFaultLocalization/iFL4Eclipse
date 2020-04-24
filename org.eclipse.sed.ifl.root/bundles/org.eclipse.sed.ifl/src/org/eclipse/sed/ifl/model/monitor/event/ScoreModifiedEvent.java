@@ -12,13 +12,13 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 
 public class ScoreModifiedEvent extends Event {
-//TODO subject lehetne egy másik map újMap<String,régiMap<>>
-	//resources put-nál a subject string lenne a selection
 	public ScoreModifiedEvent(Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap) {
 		super(propertiesMapCreator(loggingMap));
 		for (Entry<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> entry : loggingMap.entrySet()) {
-			for(IMethodDescription method : entry.getValue().keySet()) {
-				resources.put(new CodeElement(method.getId().getKey()), entry.getKey().getSelection());
+			if(!entry.getKey().getSelection().equals("other")) {	
+				for(IMethodDescription method : entry.getValue().keySet()) {
+					resources.put(new CodeElement(method.getId().getKey()), entry.getKey().getSelection());
+				}
 			}
 		}
 	}
@@ -27,7 +27,7 @@ public class ScoreModifiedEvent extends Event {
 		Map<String, Object> returnMap = new HashMap<>();
 		
 		for(Relativeable<Defineable<Double>> relativeableValue : loggingMap.keySet()) {
-			returnMap.put(relativeableValue.getSelection() + "_value", relativeableValue.getValue().getValue());
+			returnMap.put(relativeableValue.getSelection() + "_value", relativeableValue.getValue().isDefinit() ? relativeableValue.getValue().getValue() : "undefined");
 			returnMap.put(relativeableValue.getSelection() + "_isRelative", relativeableValue.isRelative() ? "yes" : "no");
 		}
 		

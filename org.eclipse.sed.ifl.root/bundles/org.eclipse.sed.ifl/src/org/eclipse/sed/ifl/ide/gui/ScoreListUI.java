@@ -115,9 +115,13 @@ public class ScoreListUI extends Composite {
 		scale.setSelection(toScale(value));
 		String formattedValue = LIMIT_FORMAT.format(value);
 		manualText.setText(formattedValue);
-		enabledCheckButton.setText("Filter scores <= ");
+		enabledCheckButton.setText("Show scores");
 		enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
+	}
+	
+	private void updateLimitFilterRelation(String text) {
+		limitRelationChanged.invoke(text);
 	}
 	
 	private void updateContextSizeLimit(int value) {
@@ -177,22 +181,17 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(7, false));
+		composite.setLayout(new GridLayout(8, false));
 		
 		contextSizeComposite = new Composite(this, SWT.NONE);
 		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new GridLayout(10, false));
-
-		nameFilterComposite = new Composite(this, SWT.NONE);
-		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		nameFilterComposite.setSize(0, 100);
-		nameFilterComposite.setLayout(new GridLayout(2, false));
+		contextSizeComposite.setLayout(new GridLayout(11, false));
 		
 		enabledCheckButton = new Button(composite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
 		enabledCheckButton.setEnabled(false);
-		enabledCheckButton.setText("Load some defined scores to enable this filter");
+		enabledCheckButton.setText("Load some defined scores to enable filters");
 		enabledCheckButton.setSelection(true);
 		enabledCheckButton.addSelectionListener(new SelectionListener() {
 			
@@ -202,6 +201,7 @@ public class ScoreListUI extends Composite {
 				scale.setEnabled(enabledCheckButton.getSelection());
 				manualText.setEnabled(enabledCheckButton.getSelection());
 				manualButton.setEnabled(enabledCheckButton.getSelection());
+				limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
 			}
 			
 			@Override
@@ -209,6 +209,28 @@ public class ScoreListUI extends Composite {
 				// TODO Auto-generated method stub
 				
 			}
+		});
+		
+		limitFilterCombo = new Combo(composite, SWT.READ_ONLY);
+		limitFilterCombo.add("<=");
+		limitFilterCombo.add(">=");
+		limitFilterCombo.setText(">=");
+		limitFilterCombo.setEnabled(false);
+		limitFilterCombo.addSelectionListener(new SelectionListener () {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				String text = limitFilterCombo.getText();
+				updateLimitFilterRelation(text);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
 		});
 		
 		manualText = new Text(composite, SWT.BORDER);
@@ -255,7 +277,6 @@ public class ScoreListUI extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
-				System.out.println("Scale value: " + value);
 				updateScoreFilterLimit(value);
 			}
 
@@ -270,7 +291,7 @@ public class ScoreListUI extends Composite {
 		
 		contextSizeCheckBox = new Button(contextSizeComposite, SWT.CHECK);
 		contextSizeCheckBox.setEnabled(false);
-		contextSizeCheckBox.setText("Filter context size");
+		contextSizeCheckBox.setText("Show context size");
 		contextSizeCheckBox.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -293,7 +314,7 @@ public class ScoreListUI extends Composite {
 		contextSizeCombo.add("=");
 		contextSizeCombo.add(">=");
 		contextSizeCombo.add(">");
-		contextSizeCombo.setText("=");
+		contextSizeCombo.setText(">=");
 		contextSizeCombo.setEnabled(false);
 		contextSizeCombo.addSelectionListener(new SelectionListener () {
 
@@ -315,6 +336,8 @@ public class ScoreListUI extends Composite {
 		
 		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
 		contextSizeSpinner.setEnabled(false);
+		contextSizeSpinner.setMaximum(1000);
+		contextSizeSpinner.setMinimum(0);
 		contextSizeSpinner.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -330,6 +353,13 @@ public class ScoreListUI extends Composite {
 			}
 			
 		});
+		
+		nameFilterComposite = new Composite(contextSizeComposite, SWT.NONE);
+		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		nameFilterComposite.setSize(0, 100);
+		GridLayout nameLayout = new GridLayout(2, false);
+		nameLayout.marginLeft = 60;
+		nameFilterComposite.setLayout(nameLayout);
 		
 		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
 		nameFilterText.setMessage("filter by name...");
@@ -447,8 +477,10 @@ public class ScoreListUI extends Composite {
 
 	private void createColumns() {
 		iconColumn = new TableColumn(table, SWT.NONE);
-		iconColumn.setResizable(false);
+		iconColumn.setResizable(true);
+		iconColumn.setWidth(80);
 		iconColumn.setText("Last action");
+		iconColumn.setData("sort", SortingArg.LastAction);
 
 		scoreColumn = new TableColumn(table, SWT.NONE);
 		scoreColumn.setMoveable(true);
@@ -493,8 +525,10 @@ public class ScoreListUI extends Composite {
 		contextSizeColumn.setData("sort", SortingArg.ContextSize);
 		
 		interactivityColumn = new TableColumn(table, SWT.NONE);
+		interactivityColumn.setMoveable(true);
 		interactivityColumn.setWidth(200);
 		interactivityColumn.setText("Interactivity");
+		interactivityColumn.setData("sort", SortingArg.Interactivity);
 	}
 	
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
@@ -519,6 +553,12 @@ public class ScoreListUI extends Composite {
 	
 	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
 		return contextSizeLimitChanged;
+	}
+	
+	private NonGenericListenerCollection<String> limitRelationChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventLimitRelationChanged() {
+		return limitRelationChanged;
 	}
 	
 	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
@@ -603,6 +643,7 @@ public class ScoreListUI extends Composite {
 		contextSizeCheckBox.setEnabled(true);
 		nameFilterText.setEnabled(true);
 		nameFilterClearButton.setEnabled(true);
+		limitFilterCombo.setEnabled(true);
 		updateScoreFilterLimit(min);
 	}
 
@@ -636,7 +677,7 @@ public class ScoreListUI extends Composite {
 			item.setText(table.indexOf(pathColumn), entry.getKey().getLocation().getAbsolutePath());
 			item.setText(table.indexOf(positionColumn),
 					entry.getKey().getLocation().getBegining().getOffset().toString());
-			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size() + " methods");
+			item.setText(table.indexOf(contextSizeColumn), entry.getKey().getContext().size()+1 + " methods");
 			if (!entry.getKey().isInteractive()) {
 				item.setText(table.indexOf(interactivityColumn), "User feedback disabled");
 				item.setForeground(table.indexOf(interactivityColumn), new Color(item.getDisplay(), 139,0,0));
@@ -648,7 +689,6 @@ public class ScoreListUI extends Composite {
 			item.setData("score", entry.getValue());
 			item.setData("entry", entry);
 		}
-		iconColumn.pack();
 	}
 
 	public void clearMethodScores() {
@@ -818,6 +858,7 @@ public class ScoreListUI extends Composite {
 	private Composite contextSizeComposite;
 	private Composite nameFilterComposite;
 	private Combo contextSizeCombo;
+	private Combo limitFilterCombo;
 	private Button contextSizeCheckBox;
 	private Spinner contextSizeSpinner;
 	private Button enabledCheckButton;

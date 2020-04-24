@@ -11,8 +11,9 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
@@ -21,6 +22,7 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 
 	private static int OK_BUTTON_ID = 1600;
 	private static int CANCEL_BUTTON_ID = 1601;
+	private Label warningLabel;
 	
 	public ContextBasedOptionCreatorDialog(Shell parentShell) {
 		super(parentShell);
@@ -77,6 +79,15 @@ public class ContextBasedOptionCreatorDialog extends Dialog implements IEmbedee 
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		Composite labelComp = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginLeft = 5;
+		layout.marginTop = 5;
+		labelComp.setLayout(layout);
+		
+		warningLabel = new Label(labelComp, SWT.NONE);
+		warningLabel.setText("Warning: the visualization does not represent all elements. To see all elements and score changes, use the tables below for each group.");
+		
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(new GridLayout(3, false));
 		for (IEmbeddable embedded : contents) {

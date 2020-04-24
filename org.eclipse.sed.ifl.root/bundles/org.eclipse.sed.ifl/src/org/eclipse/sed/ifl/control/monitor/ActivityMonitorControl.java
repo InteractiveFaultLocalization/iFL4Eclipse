@@ -136,6 +136,11 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String host = store.getString("host");
 		String port = store.getString("port");
+		try {
+			Integer.parseInt(port);
+		} catch (NumberFormatException e){
+			return false;
+		}
 		if (host.equals("") || port.equals("")) {
 			return false;
 		} else {
@@ -149,6 +154,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private boolean checkGeneratedId() {
 		
 		String generatedId = Activator.getDefault().getPreferenceStore().getString("generatedId");
+		System.out.println("Generated ID from store: " + generatedId);
 		if (generatedId.equals("")) {
 			return false;
 		 } else { 

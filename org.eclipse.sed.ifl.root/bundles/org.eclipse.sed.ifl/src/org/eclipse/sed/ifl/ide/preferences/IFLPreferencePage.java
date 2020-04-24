@@ -19,6 +19,8 @@ import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.PreferencePropertyChangedEvent;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -57,6 +59,7 @@ public class IFLPreferencePage
 	private StringFieldEditor scenarioIdField;
 	private StringFieldEditor hostField;
 	private StringFieldEditor portField;
+	private StringFieldEditor generatedIdField;
 	private Text desc;
 	private Text agreement;
 	private Button idButton;
@@ -73,11 +76,6 @@ public class IFLPreferencePage
 	 * restore itself.
 	 */
 	public void createFieldEditors() {
-		//tároljuk el a userID, MAC, scenarioID konkatenált stringjét (MD5 esetleg) az ID node-ba
-		//módosítás esetén újragenerálni
-		//legyen kimásolható mezõbe ezek alatt
-		
-		//szerver tesztelés gomb
 		
 		agreement = new Text(getFieldEditorParent(), SWT.READ_ONLY);
 		agreement.setText("User agreement: ");
@@ -96,8 +94,8 @@ public class IFLPreferencePage
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				checkLogEnabled();
 				getPreferenceStore().setValue("logKey", logCheckButton.getSelection());
+				checkLogEnabled();
 			}
 
 			@Override
@@ -119,6 +117,11 @@ public class IFLPreferencePage
 		portField = new StringFieldEditor("port", "Port: ", getFieldEditorParent());
 		addField(portField);
 		
+		generatedIdField = new StringFieldEditor("generatedId", "", getFieldEditorParent());
+		addField(generatedIdField);
+		generatedIdField.getTextControl(getFieldEditorParent()).setVisible(false);
+		generatedIdField.getLabelControl(getFieldEditorParent()).setVisible(false);
+		
 		idButton = new Button(getFieldEditorParent(), SWT.NONE);
 		idButton.setText("Generate ID");
 		idButton.addSelectionListener(new SelectionListener() {
@@ -126,8 +129,9 @@ public class IFLPreferencePage
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String generatedId = generateId();
+				generatedIdField.getTextControl(getFieldEditorParent()).setText(generatedId);
 				idText.setText(generatedId);
-				getPreferenceStore().setValue("generatedId", generatedId);
+				//getPreferenceStore().setValue("generatedId", generatedId);
 			}
 
 			@Override
@@ -166,21 +170,53 @@ public class IFLPreferencePage
 		connectText.setText("Test your connection to the server. Press the button.");
 		
 		checkLogEnabled();
+		userIdField.getTextControl(getFieldEditorParent()).addModifyListener(userIdChanged);
+		scenarioIdField.getTextControl(getFieldEditorParent()).addModifyListener(scenarioIdChanged);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(IWorkbench workbench) {
-		getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				activityMonitor.log(new PreferencePropertyChangedEvent( event.getProperty(), event.getOldValue(), event.getNewValue()));
-			}
-			
-		});
+		getPreferenceStore().addPropertyChangeListener(propertyChanged);
 	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		getPreferenceStore().removePropertyChangeListener(propertyChanged);
+		userIdField.getTextControl(getFieldEditorParent()).removeModifyListener(userIdChanged);
+		scenarioIdField.getTextControl(getFieldEditorParent()).removeModifyListener(scenarioIdChanged);
+	}
+	
+	private IPropertyChangeListener propertyChanged = new IPropertyChangeListener() {
+
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			//System.out.println(getPreferenceStore().getString("generatedId"));
+					activityMonitor.log(new PreferencePropertyChangedEvent( event.getProperty(), event.getOldValue(), event.getNewValue()));
+				
+		}
+		
+	};
+	
+	private ModifyListener userIdChanged = new ModifyListener() {
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			generatedIdField.getTextControl(getFieldEditorParent()).setText(generateId());
+		}
+		
+	};
+	
+	private ModifyListener scenarioIdChanged = new ModifyListener() {
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			generatedIdField.getTextControl(getFieldEditorParent()).setText(generateId());
+		}
+		
+	};
 	
 	private String generateId() {
 		String generatedId;
@@ -202,7 +238,7 @@ public class IFLPreferencePage
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("No such algorithm.");
 		}
-		System.out.println(generatedId);
+		//System.out.println(generatedId);
 		return generatedId;
 	}
 	
@@ -225,6 +261,7 @@ public class IFLPreferencePage
 	}
 	
 	public void checkLogEnabled() {
+		logCheckButton.setSelection(getPreferenceStore().getBoolean("logKey"));
 		userIdField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());
 		scenarioIdField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());
 		hostField.getTextControl(getFieldEditorParent()).setEnabled(logCheckButton.getSelection());
@@ -235,6 +272,7 @@ public class IFLPreferencePage
 			idText.setText("Your unique ID will be generated here. Press the button.");
 			connectText.setText("Test your connection to the server. Press the button.");
 			connectText.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+			generatedIdField.getTextControl(getFieldEditorParent()).setText("");
 		}
 	}
 }

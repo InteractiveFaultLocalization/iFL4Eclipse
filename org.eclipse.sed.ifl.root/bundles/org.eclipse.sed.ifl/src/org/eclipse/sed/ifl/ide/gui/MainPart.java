@@ -111,6 +111,7 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem hideUndefined = new ActionContributionItem(hideUndefinedAction);
 		hideUndefined.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(hideUndefined);
+		hideUndefinedAction.setChecked(true);
 	}
 
 	private void makeActions() {

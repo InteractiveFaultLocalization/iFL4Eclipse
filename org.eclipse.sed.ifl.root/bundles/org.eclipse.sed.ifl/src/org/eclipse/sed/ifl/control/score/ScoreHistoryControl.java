@@ -15,6 +15,10 @@ public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistory
 		getModel().store(new Monument<>(newScore, oldScore, subject, cause));
 	}
 	
+	public void hideView() {
+		getView().hide();
+	}
+	
 	public void display(IMethodDescription subject) {
 		getView().clearMonuments();
 		List<Monument<Score,IMethodDescription,IUserFeedback>> monuments = getModel().getMonumentsFor(subject);

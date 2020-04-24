@@ -28,19 +28,19 @@ public class ContextSizeFilter extends ScoreFilter {
 		boolean rValue = true;
 		switch (relation) {
 		case ">":
-			rValue =  arg0.getKey().getContext().size() > limit;
+			rValue =  arg0.getKey().getContext().size()+1 > limit;
 			break;
 		case ">=":
-			rValue = arg0.getKey().getContext().size() >= limit;
+			rValue = arg0.getKey().getContext().size()+1 >= limit;
 			break;
 		case "=":
-			rValue = arg0.getKey().getContext().size() == limit;
+			rValue = arg0.getKey().getContext().size()+1 == limit;
 			break;
 		case "<=":
-			rValue = arg0.getKey().getContext().size() <= limit;
+			rValue = arg0.getKey().getContext().size()+1 <= limit;
 			break;
 		case "<":
-			rValue = arg0.getKey().getContext().size() < limit;
+			rValue = arg0.getKey().getContext().size()+1 < limit;
 			break;
 		}
 		return rValue;

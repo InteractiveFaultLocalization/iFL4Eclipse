@@ -35,7 +35,7 @@ public class startHandler extends AbstractHandler {
 			PartAccessor partAccessor = new PartAccessor(event);
 			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
 			if (Activator.getDefault().isSessionActive()) {
-				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session already active", "You already started an Interactive Fault Localization session. Check the iFL panel for further details.");
+				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session is already active", "You have already started an Interactive Fault Localization session. Check the iFL panel for further details.");
 				dialog.open();
 			}
 			else {
@@ -56,7 +56,7 @@ public class startHandler extends AbstractHandler {
 					session.init();
 					Activator.getDefault().setSession(session);
 				} catch (WrongSelectionException e) {
-					MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
+					MessageDialog.open(MessageDialog.ERROR, null, "Unsupported project type", e.getMessage(), SWT.NONE);			
 				}
 				/*
 				if (!Activator.getDefault().isLogOnlyModeActive()) {

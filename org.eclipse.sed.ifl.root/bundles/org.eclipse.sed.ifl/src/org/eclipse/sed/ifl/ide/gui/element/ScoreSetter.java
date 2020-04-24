@@ -3,14 +3,16 @@ package org.eclipse.sed.ifl.ide.gui.element;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -27,6 +29,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Scale;
@@ -41,12 +44,17 @@ import org.eclipse.swt.layout.GridData;
 
 public class ScoreSetter extends Composite {
 
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private Label title;
 	private Label newScore;
 	private Scale scale;
 	private Button active;
 	private Table table;
 	private TableColumn nameColumn;
+	private TableColumn currentScoreColumn;
+	private TableColumn updatedScoreColumn;
 	
 	private int toScale(int value) {
 		return 100 - value;
@@ -67,6 +75,7 @@ public class ScoreSetter extends Composite {
 			item.setSelection(false);
 		}
 		collectRelativeableValue.invoke(createRelativeableValue());
+		refreshUpdatedScoresColumn(createRelativeableValue());
 	}
 	
 	private double lowerLimit = -1.0;
@@ -80,7 +89,7 @@ public class ScoreSetter extends Composite {
 		this.upperLimit = upperLimit;
 	}
 	
-	private List<Double> jitter = new ArrayList<>();
+	private List<Integer> jitter = new ArrayList<>();
 	
 	public void displayCurrentScoreDistribution(Map<IMethodDescription, Projection<Double>> subjects) {
 		for (Control control : distribution.getChildren()) {
@@ -89,33 +98,49 @@ public class ScoreSetter extends Composite {
 		
 		ArrayList<Projection<Double>> points = new ArrayList<Projection<Double>>(subjects.values());
 		
-		random = new Random();
+		int spacing = 1;
 		while (jitter.size() < points.size()) {
-			//System.out.println("new jitt generated");
-			jitter.add(random.nextDouble());
+			jitter.add(spacing);
+			spacing += glyphSize+1;
 		}
 		
 		
 		
-		Iterator<Double> index = jitter.iterator();
+		Iterator<Integer> index = jitter.iterator();
+		
+		
+
+		//ArrayList<Entry<IMethodDescription, Projection<Double>>> listToShuffle = new ArrayList<Entry<IMethodDescription, Projection<Double>>>(subjects.entrySet());
+		//Collections.shuffle(listToShuffle);
+		int counter = 0;
 		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
-			double x = index.next();
-			createGlyph(SWT.COLOR_BLACK, x, entry.getValue().getOriginal(), entry.getKey());
+			if(counter >= displayWidth / (glyphSize+1)) {
+				break;
+			}
+				int x = index.next();
+				createGlyph(SWT.COLOR_BLACK, x, entry.getValue().getOriginal(), entry.getKey());
+				counter++;
 		}
+		counter = 0;
 		index = jitter.iterator();
 		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
-			double x = index.next();
+			if(counter >= displayWidth / (glyphSize+1)) {
+				break;
+			}
+			int x = index.next();
 			if (entry.getValue().getProjected().isDefinit()) {
 				createGlyph(SWT.COLOR_RED, x, entry.getValue().getProjected().getValue(), entry.getKey());
+				counter++;
 			}
 		}
+		
 	}
-
-	private void createGlyph(int color, double x, double y, IMethodDescription data) {
+	
+	private void createGlyph(int color, int x, double y, IMethodDescription data) {
 		Label glyph = new Label(distribution, SWT.NONE);
 		glyph.setBackground(SWTResourceManager.getColor(color));
 		glyph.setBounds(
-			new Double((displayWidth - glyphSize) * x).intValue(),
+			x,
 			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
 			glyphSize, glyphSize);
 		glyph.setText("");
@@ -188,9 +213,14 @@ public class ScoreSetter extends Composite {
 		//TODO move action logic to Control
 		active = new Button(mainSection, SWT.CHECK);
 		active.setText("active");
-		active.addListener(SWT.Selection, event -> {	
+		active.addListener(SWT.Selection, event -> {
+			if(!active.getSelection()) {
+				setUpper.setSelection(active.getSelection());
+				setLower.setSelection(active.getSelection());
+			}
 			Setter.RecursiveEnable(settingSection, active.getSelection());
 			collectRelativeableValue.invoke(createRelativeableValue());
+			refreshUpdatedScoresColumn(createRelativeableValue());
 		});
 		active.setSelection(true);
 		
@@ -201,10 +231,11 @@ public class ScoreSetter extends Composite {
 		settingSection.setLayout(rl_settingSection);
 		
 		setUpper = new Button(settingSection, SWT.TOGGLE);
-		setUpper.setText("Set to 1");
+		setUpper.setText("Set to 1.0");
 		setUpper.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(upperLimit);
 			collectRelativeableValue.invoke(createRelativeableValue());
+			refreshUpdatedScoresColumn(createRelativeableValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -232,6 +263,7 @@ public class ScoreSetter extends Composite {
 			presets.get(entry.getKey()).addListener(SWT.Selection, event -> {
 				deltaPercentChanged.invoke(entry.getKey());
 				collectRelativeableValue.invoke(createRelativeableValue());
+				refreshUpdatedScoresColumn(createRelativeableValue());
 			});
 		}
 		
@@ -250,16 +282,17 @@ public class ScoreSetter extends Composite {
 		scale.addListener(SWT.Selection, event -> {
 			deltaPercentChanged.invoke(fromScale(scale.getSelection()));
 			collectRelativeableValue.invoke(createRelativeableValue());
+			refreshUpdatedScoresColumn(createRelativeableValue());
 		});
 
 		Label minRelativePercentDisplayer = new Label(scaleSection, SWT.NONE);
 		minRelativePercentDisplayer.setAlignment(SWT.CENTER);
 		minRelativePercentDisplayer.setText("-100%");
 
-		displayHeight = 250;
-		displayWidth = 50;
+		displayHeight = 400;
+		displayWidth = 240;
 		rulerWidth = 20;
-		glyphSize = 4;
+		glyphSize = 6;
 
 		ruler = new Composite(middleSection, SWT.NONE);
 		ruler.setLayout(null);
@@ -289,6 +322,7 @@ public class ScoreSetter extends Composite {
 		setLower.addListener(SWT.Selection, event -> {
 			absoluteScoreSetted.invoke(lowerLimit);
 			collectRelativeableValue.invoke(createRelativeableValue());
+			refreshUpdatedScoresColumn(createRelativeableValue());
 			if (!(setUpper.getSelection() || setLower.getSelection())) {
 				absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 			}
@@ -296,6 +330,11 @@ public class ScoreSetter extends Composite {
 				setUpper.setSelection(false);
 			}
 		});
+		
+		/*
+		warningLabel = new Label(mainSection, SWT.NONE);
+		warningLabel.setText("Warning: the above visualization does not represent all scores.\n To see all scores and changes, use the table below.");
+		*/
 		
 		tableSection = new Composite(mainSection, SWT.NONE);
 		tableSection.setLayout(new GridLayout());
@@ -308,11 +347,22 @@ public class ScoreSetter extends Composite {
 		gd_table.verticalAlignment = SWT.FILL;
 		gd_table.horizontalAlignment = SWT.FILL;
 		gd_table.heightHint = 100;
-		gd_table.widthHint = 250;
+		gd_table.widthHint = displayWidth + 50;
 		table.setLayoutData(gd_table);
 		
 		table.setLinesVisible(true);
-		table.setHeaderVisible(false);
+		table.setHeaderVisible(true);
+		
+		nameColumn = new TableColumn(table, SWT.LEFT);
+		nameColumn.setText("Name");
+		
+		currentScoreColumn = new TableColumn(table, SWT.LEFT);
+		currentScoreColumn.setText("Current score");
+		
+		updatedScoreColumn = new TableColumn(table, SWT.LEFT);
+		updatedScoreColumn.setText("Modified score");
+				
+		
 		table.addFocusListener(new FocusListener() {
 
 			@Override
@@ -376,10 +426,21 @@ public class ScoreSetter extends Composite {
 			item.dispose();
 		}
 		
-		for (IMethodDescription method : subjects.keySet()) {
-			TableItem item = new TableItem(table, SWT.NULL);
-			item.setText(method.getId().getSignature());
-			item.setData(method);
+		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+		
+		Rectangle rect = table.getClientArea();
+		int columnWidth = rect.width/3;
+		nameColumn.setWidth(columnWidth);
+		currentScoreColumn.setWidth(columnWidth);
+		updatedScoreColumn.setWidth(columnWidth);
+		
+		for (Entry<IMethodDescription, Projection<Double>> entry : subjects.entrySet()) {
+			
+				TableItem item = new TableItem(table, SWT.NULL);
+				item.setText(table.indexOf(nameColumn), entry.getKey().getId().getSignature());
+				item.setText(table.indexOf(currentScoreColumn),LIMIT_FORMAT.format(entry.getValue().getOriginal()));
+				item.setData(entry.getKey());
+			
 		}
 		
 		
@@ -417,7 +478,6 @@ public class ScoreSetter extends Composite {
 	private int displayWidth;
 	private int rulerWidth;
 	private int glyphSize;
-	private Random random;
 
 	public INonGenericListenerCollection<EmptyEvent> eventAbsoluteScoreSettingDisabled() {
 		return absoluteScoreSettingDisabled;
@@ -480,5 +540,21 @@ public class ScoreSetter extends Composite {
 	
 	public void invokeRelativeableCollection() {
 		collectRelativeableValue.invoke(createRelativeableValue());
+	}
+	
+	private void refreshUpdatedScoresColumn(Relativeable<Defineable<Double>> value) {
+		for (TableItem item : table.getItems()) {
+			if(value.getValue().isDefinit()) {
+				double currentScore = Double.parseDouble(item.getText(table.indexOf(currentScoreColumn)));
+				double newScore = value.isRelative() ? currentScore + (currentScore * (value.getValue().getValue()/100)) : value.getValue().getValue();
+				if(newScore > 1.0) {
+					newScore = 1.0;
+				}
+				if(newScore < 0.0) {
+					newScore = 0.0;
+				}
+				item.setText(table.indexOf(updatedScoreColumn), LIMIT_FORMAT.format(newScore));
+			}
+		}
 	}
 }

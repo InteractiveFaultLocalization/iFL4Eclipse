@@ -91,6 +91,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
+		getView().eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		handler.eventHighLightRequested().add(highlightRequestListener);;
@@ -126,6 +127,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
+		getView().eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
 		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
 		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
 		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
@@ -149,7 +151,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
-	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(false);
+	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
 
 	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
 	
@@ -193,7 +195,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Integer(a.getKey().getLocation().getBegining().getOffset()).compareTo(b.getKey().getLocation().getBegining().getOffset()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
-
+			case Interactivity:
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Boolean(a.getKey().isInteractive()).compareTo(b.getKey().isInteractive()))
+						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+				break;
+			case LastAction:
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getCause().getChoice().getKind().name().compareTo(b.getValue().getLastAction().getCause().getChoice().getKind().name())))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+				break;
 			default:
 				toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 				break;
@@ -246,12 +255,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		refreshView();
 	};
 
+	private IListener<String> limitFilterRelationChangedListener = relation -> {
+		lessOrEqualFilter.setRelation(relation);
+		refreshView();
+	};
+	
 	private void refreshView() {
 		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
 		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
 			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
 			entry.getValue().setLastAction(last);
 		}
+		scoreHistory.hideView();
 		getView().refreshScores(toDisplay);
 		getView().showNoItemsLabel(toDisplay.isEmpty());
 	}
