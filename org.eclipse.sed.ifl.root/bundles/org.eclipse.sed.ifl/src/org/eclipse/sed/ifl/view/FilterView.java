@@ -79,11 +79,11 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	public void showFilterPart() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			filterPart.getSite().getPage().showView(FilterPart.ID);
+			page.showView(FilterPart.ID);
 		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Could not open filters view.");
 		}
 	}
 	
