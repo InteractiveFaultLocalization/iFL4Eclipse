@@ -52,7 +52,9 @@ public class IMethodDescriptionCollectionUtil {
 			nonInteractiveContextList.clear();
 		}
 		*/
-	
+		for(IMethodDescription method : subjects) {
+			context.remove(method);
+		}
 	
 		return new ArrayList<>(context);
 	}
