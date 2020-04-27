@@ -1,30 +1,46 @@
 package org.eclipse.sed.ifl.view;
 
-import javax.inject.Inject;
-
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
-import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.gui.FilterPart;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	private FilterPart filterPart;
-	private IPartService service;
 	
-	public FilterView(PartAccessor partAccessor) {
-		this.filterPart = (FilterPart) partAccessor.getPart(FilterPart.ID);
+	public FilterView() {
+		this.filterPart = (FilterPart) getPart();
 	}
 
+	private IViewPart getPart() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IViewPart view = page.findView(FilterPart.ID);
+		
+		if (view != null) {
+			page.hideView(view);
+		}
+		EU.tryUnchecked(() -> page.showView(FilterPart.ID));
+		view = page.findView(FilterPart.ID);
+		if (view == null) {
+			throw new RuntimeException();
+		}
+		else {
+			return view;
+		}
+	}
+	
 	@Override
 	public void init() {
-		service = filterPart.getSite().getService(IPartService.class);
-		
+
 		filterPart.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
 		filterPart.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
 		filterPart.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
@@ -63,7 +79,12 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	public void showFilterPart() {
-		//TODO
+		try {
+			filterPart.getSite().getPage().showView(FilterPart.ID);
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void close() {
@@ -78,7 +99,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.setScoreFilter(min, max);
 	}
 	
-private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
 		return lowerScoreLimitChanged;
@@ -96,7 +117,7 @@ private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGen
 	
 	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Boolean> eventcontextSizeLimitEnabled() {
+	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
 		return contextSizeLimitEnabled;
 	}
 	

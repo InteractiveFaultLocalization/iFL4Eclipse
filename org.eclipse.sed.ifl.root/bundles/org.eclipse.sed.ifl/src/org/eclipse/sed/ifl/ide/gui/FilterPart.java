@@ -354,9 +354,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		minValue = min;
 		maxValue = max;
 		maxLabel.setText(LIMIT_FORMAT.format((max)));
-		maxLabel.requestLayout();
+		//maxLabel.requestLayout();
 		minLabel.setText(LIMIT_FORMAT.format((min)));
-		minLabel.requestLayout();
+		//minLabel.requestLayout();
 		/*This if statement below is needed because the setMaximum function of Scale
 		 * does not set the maximum value of the scale if said value is lesser than or
 		 * equal to the minimum value of the scale. This can happen when all elements' scores
@@ -389,7 +389,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		String formattedValue = LIMIT_FORMAT.format(value);
 		manualText.setText(formattedValue);
 		enabledCheckButton.setText("Show scores");
-		enabledCheckButton.requestLayout();
+		//enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
 	

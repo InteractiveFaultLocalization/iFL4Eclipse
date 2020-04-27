@@ -24,6 +24,7 @@ import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -118,24 +119,9 @@ public class ScoreListUI extends Composite {
 		manualText.setText(formattedValue);
 		enabledCheckButton.setText("Show scores");
 		enabledCheckButton.requestLayout();
-		lowerScoreLimitChanged.invoke(value);
+		//lowerScoreLimitChanged.invoke(value);
 	}
 	
-	private void updateLimitFilterRelation(String text) {
-		limitRelationChanged.invoke(text);
-	}
-	
-	private void updateContextSizeLimit(int value) {
-		contextSizeLimitChanged.invoke(value);
-	}
-	
-	private void updateContextSizeRelation(String text) {
-		contextSizeRelationChanged.invoke(text);
-	}
-	
-	private void updateNameFilter(String text) {
-		nameFilterChanged.invoke(text);
-	}
 
 	public double userInputTextValidator(String input) {
 		double returnValue;
@@ -182,217 +168,20 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(9, false));
-		
-		contextSizeComposite = new Composite(this, SWT.NONE);
-		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new GridLayout(11, false));
+		composite.setLayout(new GridLayout(1, false));
 		
 		showFilterPart = new Button(composite, SWT.NONE);
 		showFilterPart.setText("Show filters");
-		
-		enabledCheckButton = new Button(composite, SWT.CHECK);
-		enabledCheckButton.setToolTipText("enable");
-		enabledCheckButton.setEnabled(false);
-		enabledCheckButton.setText("Load some defined scores to enable filters");
-		enabledCheckButton.setSelection(true);
-		enabledCheckButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
-				scale.setEnabled(enabledCheckButton.getSelection());
-				manualText.setEnabled(enabledCheckButton.getSelection());
-				manualButton.setEnabled(enabledCheckButton.getSelection());
-				limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		limitFilterCombo = new Combo(composite, SWT.READ_ONLY);
-		limitFilterCombo.add("<=");
-		limitFilterCombo.add(">=");
-		limitFilterCombo.setText(">=");
-		limitFilterCombo.setEnabled(false);
-		limitFilterCombo.addSelectionListener(new SelectionListener () {
+		showFilterPart.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-				String text = limitFilterCombo.getText();
-				updateLimitFilterRelation(text);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		manualText = new Text(composite, SWT.BORDER);
-		manualText.setToolTipText("You may enter the score value manually here");
-		manualText.setEnabled(false);
-		manualText.addListener(SWT.Traverse, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				if(event.detail == SWT.TRAVERSE_RETURN) {
-		            double value = userInputTextValidator(manualText.getText());
-		            double correctValue = userInputRangeValidator(value);
-		            updateScoreFilterLimit(correctValue);
-		        }
-			}
-		});
-				
-		manualButton = new Button(composite, SWT.NONE);
-		manualButton.setText("Apply");
-		manualButton.setEnabled(false);
-		manualButton.addSelectionListener(new SelectionListener() {
-					
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double value = userInputTextValidator(manualText.getText());
-		        double correctValue = userInputRangeValidator(value);
-		        updateScoreFilterLimit(correctValue);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-					
-			}
-		});
-
-		minLabel = new Label(composite, SWT.NONE);
-		minLabel.setText("");
-		scale = new Scale(composite, SWT.NONE);
-		scale.setEnabled(false);
-		scale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		scale.setSelection(0);
-		scale.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double value = fromScale(scale.getSelection());
-				updateScoreFilterLimit(value);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				
-			}
-		});
-
-		maxLabel = new Label(composite, SWT.NONE);
-		maxLabel.setText("");
-		
-		contextSizeCheckBox = new Button(contextSizeComposite, SWT.CHECK);
-		contextSizeCheckBox.setEnabled(false);
-		contextSizeCheckBox.setText("Show context size");
-		contextSizeCheckBox.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-				contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
-				contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
-		contextSizeCombo.add("<");
-		contextSizeCombo.add("<=");
-		contextSizeCombo.add("=");
-		contextSizeCombo.add(">=");
-		contextSizeCombo.add(">");
-		contextSizeCombo.setText(">=");
-		contextSizeCombo.setEnabled(false);
-		contextSizeCombo.addSelectionListener(new SelectionListener () {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-				String text = contextSizeCombo.getText();
-				System.out.println("Combo selected item: "+text);
-				updateContextSizeRelation(text);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
-		contextSizeSpinner.setEnabled(false);
-		contextSizeSpinner.setMaximum(1000);
-		contextSizeSpinner.setMinimum(0);
-		contextSizeSpinner.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int value = contextSizeSpinner.getSelection();
-				updateContextSizeLimit(value);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		nameFilterComposite = new Composite(contextSizeComposite, SWT.NONE);
-		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		nameFilterComposite.setSize(0, 100);
-		GridLayout nameLayout = new GridLayout(2, false);
-		nameLayout.marginLeft = 60;
-		nameFilterComposite.setLayout(nameLayout);
-		
-		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
-		nameFilterText.setMessage("filter by name...");
-		nameFilterText.setEnabled(false);
-		nameFilterText.addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				updateNameFilter(nameFilterText.getText());
-				
-			}
-			
-		});
-		
-		nameFilterClearButton = new Button(nameFilterComposite, SWT.NONE);
-		nameFilterClearButton.setText("Clear");
-		nameFilterClearButton.setEnabled(false);
-		nameFilterClearButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nameFilterText.setText("");
+				openFiltersPage.invoke(new EmptyEvent());
 				
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
+			public void widgetDefaultSelected(SelectionEvent e) {	
 			}
 			
 		});
@@ -535,40 +324,10 @@ public class ScoreListUI extends Composite {
 		interactivityColumn.setData("sort", SortingArg.Interactivity);
 	}
 	
-	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> openFiltersPage = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
-		return lowerScoreLimitChanged;
-	}
-
-	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
-		return lowerScoreLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
-		return contextSizeLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
-		return contextSizeLimitChanged;
-	}
-	
-	private NonGenericListenerCollection<String> limitRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventLimitRelationChanged() {
-		return limitRelationChanged;
-	}
-	
-	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
-		return contextSizeRelationChanged;
+	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPage() {
+		return openFiltersPage;
 	}
 	
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
@@ -595,11 +354,6 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 	
-	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventNameFilterChanged() {
-		return nameFilterChanged;
-	}
 	
 	private static final double SLIDER_PRECISION = 10000.0;
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
@@ -609,9 +363,6 @@ public class ScoreListUI extends Composite {
 		return Double.valueOf(value * SLIDER_PRECISION).intValue();
 	}
 	
-	private static double fromScale(int value) {
-		return value / SLIDER_PRECISION;
-	}
 	
 	private double minValue;
 	private double maxValue;
@@ -640,7 +391,7 @@ public class ScoreListUI extends Composite {
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
 		enabledCheckButton.setSelection(true);
-		lowerScoreLimitEnabled.invoke(true);
+	//	lowerScoreLimitEnabled.invoke(true);
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
@@ -859,12 +610,8 @@ public class ScoreListUI extends Composite {
 
 	
 	private Composite composite;
-	private Composite contextSizeComposite;
-	private Composite nameFilterComposite;
-	private Combo contextSizeCombo;
 	private Combo limitFilterCombo;
 	private Button contextSizeCheckBox;
-	private Spinner contextSizeSpinner;
 	private Button enabledCheckButton;
 	private Scale scale;
 	private Text manualText;
