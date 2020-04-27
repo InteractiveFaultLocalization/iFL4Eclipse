@@ -71,6 +71,9 @@ public class IMethodDescriptionCollectionUtil {
 				}
 			}
 		});
+		for(Entry<IMethodDescription,Defineable<Double>> entry : subjects.entrySet()) {
+			contextMap.remove(entry.getKey());
+		}
 		return contextMap;
 	}
 	

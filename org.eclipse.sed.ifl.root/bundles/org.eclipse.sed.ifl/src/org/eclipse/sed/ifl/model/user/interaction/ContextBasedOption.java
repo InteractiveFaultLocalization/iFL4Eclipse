@@ -44,6 +44,7 @@ public class ContextBasedOption extends Option {
 			Defineable<Double> newScore = function.apply(item);
 			if(newScore != null) {
 				result.put(item.getKey(), function.apply(item));
+				//System.out.println("method name: " +item.getKey().getId().getName() + ", method score: " + function.apply(item));
 			} else {
 				continue;
 			}
@@ -60,6 +61,7 @@ public class ContextBasedOption extends Option {
 		Map<IMethodDescription, Defineable<Double>> other = null;
 		if (updateSelected != null) {
 			selected = feedback.getSubjects();
+			System.out.println("selected");
 			newScores.putAll(applyAll(updateSelected, selected));
 		}
 		if (updateContext != null) {
@@ -76,6 +78,7 @@ public class ContextBasedOption extends Option {
 			other = IMethodDescriptionCollectionUtil.collectOther(allScores, selected, context);
 			newScores.putAll(applyAll(updateOther, other));
 		}
+		
 		return newScores;
 	}
 
