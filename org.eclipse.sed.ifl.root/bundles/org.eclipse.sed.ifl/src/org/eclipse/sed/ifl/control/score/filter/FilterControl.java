@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -30,7 +31,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		getView().eventNameFilterChanged().add(nameFilterChangedListener);
 		getView().eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
-		
+		getView().eventSortRequired().add(sortListener);
 	}
 	
 	public void teardown() {
@@ -41,7 +42,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		getView().eventNameFilterChanged().remove(nameFilterChangedListener);
 		getView().eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
-		
+		getView().eventSortRequired().remove(sortListener);
 		super.teardown();
 	}
 	
@@ -113,5 +114,13 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	}
 	
 	private IListener<String> nameFilterChangedListener = nameFilterChanged::invoke;
+	
+	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+		return sortRequired;
+	}
+	
+	private IListener<SortingArg> sortListener = sortRequired::invoke;
 	
 }

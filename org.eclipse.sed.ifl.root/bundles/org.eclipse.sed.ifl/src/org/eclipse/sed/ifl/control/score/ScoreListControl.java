@@ -124,6 +124,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
 		filterControl.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		filterControl.eventNameFilterChanged().add(nameFilterChangedListener);
+		filterControl.eventSortRequired().add(sortListener);
 		
 		super.init();
 	}
@@ -152,6 +153,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
 		filterControl.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		filterControl.eventNameFilterChanged().remove(nameFilterChangedListener);
+		filterControl.eventSortRequired().add(sortListener);
 		
 		super.teardown();
 		activityMonitor = null;

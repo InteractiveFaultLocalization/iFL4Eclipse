@@ -77,6 +77,7 @@
             id="org.eclipse.sed.ifl">
       </category>
       <view
+            allowMultiple="false"
             category="org.eclipse.sed.ifl"
             class="org.eclipse.sed.ifl.ide.gui.MainPart"
             icon="icons/ico16.png"
@@ -93,13 +94,14 @@
             id="org.eclipse.sed.ifl">
       </category>
       <view
+            allowMultiple="false"
             category="org.eclipse.sed.ifl"
             class="org.eclipse.sed.ifl.ide.gui.FilterPart"
             icon="icons/ico16.png"
             id="org.eclipse.sed.ifl.views.IFLFilterView"
             inject="true"
             name="Interactive Fault Localization Filters"
-            restorable="false">
+            restorable="true">
       </view>
    </extension>
    <extension

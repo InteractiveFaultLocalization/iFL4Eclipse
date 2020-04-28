@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.FilterPart;
@@ -48,6 +49,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		filterPart.eventNameFilterChanged().add(nameFilterChangedListener);
 		filterPart.eventLimitRelationChanged().add(limitFilterRelationChangedListener);
+		filterPart.eventSortRequired().add(sortListener);
 		
 		super.init();
 	}
@@ -62,6 +64,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		filterPart.eventNameFilterChanged().remove(nameFilterChangedListener);
 		filterPart.eventLimitRelationChanged().remove(limitFilterRelationChangedListener);
+		filterPart.eventSortRequired().remove(sortListener);
 		
 		super.teardown();
 	}
@@ -81,7 +84,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	public void showFilterPart() {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			page.showView(FilterPart.ID);
+			this.filterPart = (FilterPart) page.showView(FilterPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open filters view.");
 		}
@@ -155,5 +158,11 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<String> nameFilterChangedListener = nameFilterChanged::invoke;
 	
+	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
+	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+		return sortRequired;
+	}
+	
+	private IListener<SortingArg> sortListener = sortRequired::invoke;
 }
