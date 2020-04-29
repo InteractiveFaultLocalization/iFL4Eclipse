@@ -433,4 +433,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		}
 		return rvList;
 	}
+
+	public void resetFilterState() {
+		filterControl.resetFilterState();
+		
+	}
+
+	public void closeFilterPart() {
+		filterControl.close();
+		
+	}
 }

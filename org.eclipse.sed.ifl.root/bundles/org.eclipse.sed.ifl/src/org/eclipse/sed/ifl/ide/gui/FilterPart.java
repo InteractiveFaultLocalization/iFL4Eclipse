@@ -1,6 +1,5 @@
 package org.eclipse.sed.ifl.ide.gui;
 
-import java.awt.BorderLayout;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -14,7 +13,6 @@ import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -30,7 +28,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
@@ -47,6 +44,10 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		return Double.valueOf(value * SLIDER_PRECISION).intValue();
 	}
 	
+	public static void setRestoreStateNeeded(Boolean restoreStateNeeded) {
+		FilterPart.restoreStateNeeded = restoreStateNeeded;
+	}
+
 	private static double fromScale(int value) {
 		return value / SLIDER_PRECISION;
 	}
@@ -75,18 +76,25 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private Button sortAscendingButton;
 	private Button sortDescendingButton;
 	
-	private double minValue;
-	private double maxValue;
+	private static double minValue;
+	private static double maxValue;
 	
 	private static Boolean restoreStateNeeded = false;
 	
 	private static Double scaleValue;
 	private static Boolean limitFilterEnabled;
+	private static Boolean limitFilterChecked;
 	private static Boolean contextFilterEnabled;
+	private static Boolean contextFilterChecked;
 	private static String limitFilterRelation;
 	private static String contextFilterRelation;
 	private static Integer contextFilterNumber;
 	private static String nameFilterString;
+	private static Boolean sortEnabled;
+	private static Boolean sortChecked;
+	private static String sortString;
+	private static Boolean sortDescendingChosen;
+	private static Boolean sortAscendingChosen;
 	
 	public FilterPart() {
 		System.out.println("filter part ctr");
@@ -94,20 +102,27 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	
 	private void saveState() {
-		limitFilterEnabled = enabledCheckButton.getSelection();
-		contextFilterEnabled = contextSizeCheckBox.getSelection();
-		scaleValue = fromScale(scale.getSelection());
+		limitFilterEnabled = enabledCheckButton.isEnabled();
+		limitFilterChecked = enabledCheckButton.getSelection();
+		contextFilterEnabled = contextSizeCheckBox.isEnabled();
+		contextFilterChecked = contextSizeCheckBox.getSelection();
+		scaleValue = Double.parseDouble(manualText.getText());
 		limitFilterRelation = limitFilterCombo.getText();
 		contextFilterRelation = contextSizeCombo.getText();
 		contextFilterNumber = contextSizeSpinner.getSelection();
 		nameFilterString = nameFilterText.getSelectionText();
+		sortEnabled = sortCheckButton.isEnabled();
+		sortChecked = sortCheckButton.getSelection();
+		sortString = sortCombo.getText();
+		sortAscendingChosen = sortAscendingButton.getSelection();
+		sortDescendingChosen = sortDescendingButton.getSelection();
 		
 		restoreStateNeeded = true;
 	}
 	
 	private void restoreState() {
 		enabledCheckButton.setEnabled(limitFilterEnabled);
-		enabledCheckButton.setSelection(limitFilterEnabled);
+		enabledCheckButton.setSelection(limitFilterChecked);
 		lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
 		scale.setEnabled(enabledCheckButton.getSelection());
 		manualText.setEnabled(enabledCheckButton.getSelection());
@@ -116,11 +131,11 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		scale.setSelection(toScale(scaleValue));
 		manualText.setText(scaleValue.toString());
 		limitFilterCombo.setText(limitFilterRelation);
-		updateScoreFilterLimit(fromScale(scale.getSelection()));
+		//updateScoreFilterLimit(fromScale(scale.getSelection()));
 		updateLimitFilterRelation(limitFilterCombo.getText());
 		
 		contextSizeCheckBox.setEnabled(contextFilterEnabled);
-		contextSizeCheckBox.setSelection(contextFilterEnabled);
+		contextSizeCheckBox.setSelection(contextFilterChecked);
 		contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
 		contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
 		contextSizeCombo.setText(contextFilterRelation);
@@ -129,6 +144,15 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		
 		nameFilterText.setText(nameFilterString);
 		updateNameFilter(nameFilterText.getText());
+		
+		sortCheckButton.setEnabled(sortEnabled);
+		sortCheckButton.setSelection(sortChecked);
+		sortCombo.setText(sortString);
+		sortAscendingButton.setSelection(sortAscendingChosen);
+		sortDescendingButton.setSelection(sortDescendingChosen);
+		//sortRequired.invoke(event);
+		System.out.println("scale value: " + scaleValue);
+		setScoreFilter(minValue, maxValue, scaleValue);
 	}
 	
 	@Override
@@ -144,7 +168,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Override
 	public void createPartControl(Composite parent) {
 		composite = parent;
-		composite.setLayoutData(BorderLayout.CENTER);
+		//composite.setLayoutData(BorderLayout.CENTER);
 		composite.setLayout(new GridLayout(1, false));
 		
 		limitFilterComposite = new Composite(composite, SWT.NONE);
@@ -177,7 +201,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 				sortCombo.setEnabled(sortCheckButton.getSelection());
 				sortDescendingButton.setEnabled(sortCheckButton.getSelection());
 				sortAscendingButton.setEnabled(sortCheckButton.getSelection());
-				
+				saveState();
 			}
 
 			@Override
@@ -227,6 +251,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 				manualText.setEnabled(enabledCheckButton.getSelection());
 				manualButton.setEnabled(enabledCheckButton.getSelection());
 				limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
+				saveState();
 			}
 			
 			@Override
@@ -248,6 +273,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 						
 						String text = limitFilterCombo.getText();
 						updateLimitFilterRelation(text);
+						saveState();
 					}
 
 					@Override
@@ -269,6 +295,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		            double value = userInputTextValidator(manualText.getText());
 		            double correctValue = userInputRangeValidator(value);
 		            updateScoreFilterLimit(correctValue);
+		            saveState();
 		        }
 			}
 		});
@@ -283,6 +310,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 				double value = userInputTextValidator(manualText.getText());
 		        double correctValue = userInputRangeValidator(value);
 		        updateScoreFilterLimit(correctValue);
+		        saveState();
 			}
 
 			@Override
@@ -293,7 +321,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		
 		minLabel = new Label(scaleComposite, SWT.NONE);
 		GridData gd_minLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_minLabel.minimumWidth = 20;
+		gd_minLabel.minimumWidth = -1;
 		minLabel.setLayoutData(gd_minLabel);
 		
 		scale = new Scale(scaleComposite, SWT.NONE);
@@ -308,6 +336,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public void widgetSelected(SelectionEvent e) {
 				double value = fromScale(scale.getSelection());
 				updateScoreFilterLimit(value);
+				saveState();
 			}
 
 			@Override
@@ -318,7 +347,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		
 		maxLabel = new Label(scaleComposite, SWT.NONE);
 		GridData gd_maxLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_maxLabel.minimumWidth = 20;
+		gd_maxLabel.minimumWidth = -1;
 		maxLabel.setLayoutData(gd_maxLabel);
 		
 		contextSizeCheckBox = new Button(contextSizeComposite, SWT.CHECK);
@@ -331,6 +360,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 				contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
 				contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
 				contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
+				saveState();
 			}
 			
 			@Override
@@ -354,8 +384,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public void widgetSelected(SelectionEvent e) {
 				
 				String text = contextSizeCombo.getText();
-				System.out.println("Combo selected item: "+text);
+				//System.out.println("Combo selected item: "+text);
 				updateContextSizeRelation(text);
+				saveState();
 			}
 
 			@Override
@@ -376,6 +407,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public void widgetSelected(SelectionEvent e) {
 				int value = contextSizeSpinner.getSelection();
 				updateContextSizeLimit(value);
+				saveState();
 			}
 
 			@Override
@@ -401,7 +433,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				updateNameFilter(nameFilterText.getText());
-				
+				saveState();
 			}
 			
 		});
@@ -415,7 +447,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				nameFilterText.setText("");
-				
+				saveState();
 			}
 
 			@Override
@@ -477,9 +509,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		minValue = min;
 		maxValue = max;
 		maxLabel.setText(LIMIT_FORMAT.format((max)));
-		//maxLabel.requestLayout();
+		
 		minLabel.setText(LIMIT_FORMAT.format((min)));
-		//minLabel.requestLayout();
+	
 		/*This if statement below is needed because the setMaximum function of Scale
 		 * does not set the maximum value of the scale if said value is lesser than or
 		 * equal to the minimum value of the scale. This can happen when all elements' scores
@@ -495,8 +527,10 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		scale.setMaximum(toScale(max));
 		scale.setMinimum(toScale(min));
 		enabledCheckButton.setEnabled(true);
-		enabledCheckButton.setSelection(true);
-		lowerScoreLimitEnabled.invoke(true);
+		if(!restoreStateNeeded) {
+			enabledCheckButton.setSelection(true);
+			lowerScoreLimitEnabled.invoke(true);
+		}
 		manualText.setEnabled(true);
 		manualButton.setEnabled(true);
 		scale.setEnabled(true);
@@ -507,6 +541,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		sortCheckButton.setEnabled(true);
 		updateScoreFilterLimit(min);
 		saveState();
+		maxLabel.requestLayout();
+		minLabel.requestLayout();
 	}
 	
 	private void updateScoreFilterLimit(double value) {

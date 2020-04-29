@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
+
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -8,6 +9,8 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.sed.ifl.util.wrapper.FilterParams;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -17,6 +20,8 @@ import org.eclipse.ui.PlatformUI;
 public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	private FilterPart filterPart;
+	private FilterParams filterParam;
+	private Boolean setScoreNeeded = false;
 	
 	public FilterView() {
 		this.filterPart = (FilterPart) getPart();
@@ -69,6 +74,28 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		super.teardown();
 	}
 	
+	private void initUIListeners() {
+		filterPart.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		filterPart.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		filterPart.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
+		filterPart.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
+		filterPart.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
+		filterPart.eventNameFilterChanged().add(nameFilterChangedListener);
+		filterPart.eventLimitRelationChanged().add(limitFilterRelationChangedListener);
+		filterPart.eventSortRequired().add(sortListener);
+	}
+	
+	private void removeUIListeners() {
+		filterPart.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		filterPart.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		filterPart.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
+		filterPart.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
+		filterPart.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
+		filterPart.eventNameFilterChanged().remove(nameFilterChangedListener);
+		filterPart.eventLimitRelationChanged().remove(limitFilterRelationChangedListener);
+		filterPart.eventSortRequired().remove(sortListener);
+	}
+	
 	@Override
 	public void embed(IEmbeddable embedded) {
 		filterPart.embed(embedded);
@@ -82,24 +109,40 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	public void showFilterPart() {
+		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
 			this.filterPart = (FilterPart) page.showView(FilterPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open filters view.");
 		}
+		initUIListeners();
+		if(setScoreNeeded) {
+			setScoreFilter(filterParam.getMin(), filterParam.getMax(), filterParam.getCurrent());
+		}
 	}
 	
 	public void close() {
-		filterPart.getSite().getPage().hideView(filterPart);
+		if(filterPart.getSite().getPart() != null) {
+			filterPart.getSite().getPage().hideView(filterPart);
+		}
 	}
 	
 	public void setScoreFilter(double min, double max, double current) {
-		filterPart.setScoreFilter(min, max, current);
+		try {
+			filterPart.setScoreFilter(min, max, current);
+		} catch (SWTException e) {
+			filterParam = new FilterParams(min, max, current);
+			setScoreNeeded = true;
+		}
 	}
 	
 	public void setScoreFilter(double min, double max) {
-		filterPart.setScoreFilter(min, max);
+		try {	
+			filterPart.setScoreFilter(min, max);
+		} catch (SWTException e) {
+			filterParam = new FilterParams(min, max);
+		}
 	}
 	
 	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
@@ -165,4 +208,9 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	private IListener<SortingArg> sortListener = sortRequired::invoke;
+
+	public void resetFilterState() {
+		FilterPart.setRestoreStateNeeded(false);
+		
+	}
 }

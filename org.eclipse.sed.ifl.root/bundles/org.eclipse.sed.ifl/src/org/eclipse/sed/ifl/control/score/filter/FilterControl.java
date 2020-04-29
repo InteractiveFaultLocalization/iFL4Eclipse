@@ -1,12 +1,9 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
-import java.util.Map;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.FilterModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -122,5 +119,10 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	}
 	
 	private IListener<SortingArg> sortListener = sortRequired::invoke;
+
+	public void resetFilterState() {
+		getView().resetFilterState();
+		
+	}
 	
 }
