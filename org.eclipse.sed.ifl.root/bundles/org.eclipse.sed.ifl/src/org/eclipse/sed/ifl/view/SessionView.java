@@ -30,7 +30,11 @@ public class SessionView extends View {
 		scoreLoadRequestedListener = event -> {
 			scoreLoadRequested.invoke(new EmptyEvent());
 		};
+		scoreRecalculateRequestedListener = event -> {
+			scoreLoadRequested.invoke(new EmptyEvent());
+		};
 		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		super.init();
 	}
 	
