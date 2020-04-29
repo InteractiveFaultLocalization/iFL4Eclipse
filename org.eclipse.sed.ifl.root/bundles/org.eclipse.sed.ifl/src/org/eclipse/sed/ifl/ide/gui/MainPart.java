@@ -12,8 +12,6 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.sed.ifl.general.IEmbeddable;
-import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.graphics.Image;
@@ -27,7 +25,7 @@ import org.eclipse.wb.swt.ResourceManager;
 
 import swing2swt.layout.BorderLayout;
 
-public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
+public class MainPart extends ViewPart {
 	
 	public MainPart() {
 		System.out.println("mainpart ctor");
@@ -100,9 +98,16 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<Boolean> eventHideUndefinedRequested() {
 		return hideUndefinedRequested;
 	}
+	
+	private NonGenericListenerCollection<Action> scoreRecalculateRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Action> eventScoreRecalculateRequested() {
+		return scoreRecalculateRequested;
+	}
 
 	private Action loadScoreAction;
 	private Action hideUndefinedAction;
+	private Action recalculateScoreAction;
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
 		ActionContributionItem loadScore = new ActionContributionItem(loadScoreAction);
@@ -111,7 +116,9 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem hideUndefined = new ActionContributionItem(hideUndefinedAction);
 		hideUndefined.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(hideUndefined);
-		hideUndefinedAction.setChecked(true);
+		ActionContributionItem recalculateScore = new ActionContributionItem(recalculateScoreAction);
+		loadScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(recalculateScore);
 	}
 
 	private void makeActions() {
@@ -154,6 +161,25 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 				return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/hide-undefined-icon.png"));
 			}
 		};
+		
+		recalculateScoreAction = new Action() {
+			@Override
+			public void run() {
+				super.run();
+				scoreRecalculateRequested.invoke(this);
+			}
+			
+			@Override
+			public String getText() {
+				return "Recalculate scores...";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
+			}
+		};
+		
 	}
 
 	private void hookDoubleClickAction() {
@@ -162,14 +188,8 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Override
 	public void setFocus() {
 	}
-	
-	@Override
-	public void setParent(Composite parent) {
-		composite.setParent(parent);
-	}
-	
-	@Override
-	public void embed(IEmbeddable embedded) {
-		embedded.setParent(composite);
+
+	public Composite getUI() {
+		return composite;
 	}
 }
