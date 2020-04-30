@@ -572,14 +572,18 @@ public class ScoreListUI extends Composite {
 					} else {
 						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
 						List<TableItem> itemList = Arrays.asList(table.getSelection());
-						for(TableItem tableItem : itemList) {
-							assert tableItem.getData("entry") instanceof Entry<?, ?>;
-							subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
-									new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
-						}
+						try {
+							for(TableItem tableItem : itemList) {
+								assert tableItem.getData("entry") instanceof Entry<?, ?>;
+								subjects.put(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getKey(),
+										new Defineable<Double>(((Entry<IMethodDescription, Score>)(tableItem.getData("entry"))).getValue().getValue()));
+							}
 						
 						UserFeedback feedback = new UserFeedback(option, subjects);
 						optionSelected.invoke(feedback);
+						} catch (UnsupportedOperationException undefinedScore) {
+							MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback", "Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
+						}
 					}
 				}
 

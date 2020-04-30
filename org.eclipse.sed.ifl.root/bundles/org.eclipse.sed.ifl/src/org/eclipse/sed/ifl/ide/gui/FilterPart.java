@@ -102,15 +102,18 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	
 	private void saveState() {
+		System.out.println("scale value in save state: " + scaleValue);
+		
 		limitFilterEnabled = enabledCheckButton.isEnabled();
 		limitFilterChecked = enabledCheckButton.getSelection();
 		contextFilterEnabled = contextSizeCheckBox.isEnabled();
 		contextFilterChecked = contextSizeCheckBox.getSelection();
 		scaleValue = Double.parseDouble(manualText.getText());
+		
 		limitFilterRelation = limitFilterCombo.getText();
 		contextFilterRelation = contextSizeCombo.getText();
 		contextFilterNumber = contextSizeSpinner.getSelection();
-		nameFilterString = nameFilterText.getSelectionText();
+		nameFilterString = nameFilterText.getText();
 		sortEnabled = sortCheckButton.isEnabled();
 		sortChecked = sortCheckButton.getSelection();
 		sortString = sortCombo.getText();
@@ -129,7 +132,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		manualButton.setEnabled(enabledCheckButton.getSelection());
 		limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
 		scale.setSelection(toScale(scaleValue));
-		manualText.setText(scaleValue.toString());
+		System.out.println("scale value in restore state: " + scaleValue);
+		manualText.setText(LIMIT_FORMAT.format(scaleValue));
 		limitFilterCombo.setText(limitFilterRelation);
 		//updateScoreFilterLimit(fromScale(scale.getSelection()));
 		updateLimitFilterRelation(limitFilterCombo.getText());
@@ -141,18 +145,19 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		contextSizeCombo.setText(contextFilterRelation);
 		contextSizeSpinner.setSelection(contextFilterNumber);
 		contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-		
+		System.out.println("scale value in restore state 1: " + scaleValue);
 		nameFilterText.setText(nameFilterString);
 		updateNameFilter(nameFilterText.getText());
-		
+		System.out.println("scale value in restore state 2: " + scaleValue);
 		sortCheckButton.setEnabled(sortEnabled);
 		sortCheckButton.setSelection(sortChecked);
 		sortCombo.setText(sortString);
 		sortAscendingButton.setSelection(sortAscendingChosen);
 		sortDescendingButton.setSelection(sortDescendingChosen);
 		//sortRequired.invoke(event);
-		System.out.println("scale value: " + scaleValue);
+		System.out.println("scale value in restore state 3: " + scaleValue);
 		setScoreFilter(minValue, maxValue, scaleValue);
+		System.out.println("scale value in restore state 4: " + scaleValue);
 	}
 	
 	@Override
@@ -170,6 +175,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		composite = parent;
 		//composite.setLayoutData(BorderLayout.CENTER);
 		composite.setLayout(new GridLayout(1, false));
+		
+		descLabel = new Label(parent, SWT.NONE);
+		descLabel.setText("Load some defined scores to enable filtering.");
 		
 		limitFilterComposite = new Composite(composite, SWT.NONE);
 		limitFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -505,6 +513,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 	
 	public void setScoreFilter(Double min, Double max) {
+		descLabel.setVisible(false);
 		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		minValue = min;
 		maxValue = max;
@@ -660,6 +669,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		}
 		
 	};
+	private Label descLabel;
 	
 	@Override
 	public void setFocus() {

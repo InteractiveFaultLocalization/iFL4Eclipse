@@ -101,7 +101,7 @@
             id="org.eclipse.sed.ifl.views.IFLFilterView"
             inject="true"
             name="Interactive Fault Localization Filters"
-            restorable="true">
+            restorable="false">
       </view>
    </extension>
    <extension

@@ -31,7 +31,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IViewPart view = page.findView(FilterPart.ID);
 		
-		if (view != null) {
+		if (view != null || page.isPartVisible(view)) {
 			page.hideView(view);
 		}
 		EU.tryUnchecked(() -> page.showView(FilterPart.ID));
