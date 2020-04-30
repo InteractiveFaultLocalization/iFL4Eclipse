@@ -20,24 +20,22 @@ public final class PomModifier {
 	private final String includeLine;
 	private final String excludeLine;
 
-	public PomModifier(String POMPath) throws IOException, XmlPullParserException {
+	private Model ParsePOM(String POMPath) throws Exception {
 		MavenXpp3Reader reader = new MavenXpp3Reader();
 		try {
 			File POMFile = new File(POMPath);
 			Model model = reader.read(new FileReader(POMFile)); // parsing XML
-			this.POM = model;
-			this.includeLine = model.getBuild().getOutputDirectory();
-			this.excludeLine = model.getBuild().getTestOutputDirectory();
-		} catch (IOException e) {
-			this.POM = null;
-			this.includeLine = null;
-			this.excludeLine = null;
-		} catch (XmlPullParserException e) {
-			this.POM = null;
-			this.includeLine = null;
-			this.excludeLine = null;
+			return model;
+		} catch (Exception e) {
+			return null;
 		}
+	}
 
+	public PomModifier(String POMPath) throws Exception {
+		Model model = ParsePOM(POMPath);
+		this.POM = model;
+		this.includeLine = model.getBuild().getOutputDirectory();
+		this.excludeLine = model.getBuild().getTestOutputDirectory();
 	}
 
 	public Model getPOM() {
