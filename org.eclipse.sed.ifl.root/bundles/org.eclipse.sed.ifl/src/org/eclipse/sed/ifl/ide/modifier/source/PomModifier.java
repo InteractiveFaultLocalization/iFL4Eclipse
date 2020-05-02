@@ -81,7 +81,7 @@ public final class PomModifier {
 	
 	private String extractPath(IJavaProject actualProject) {
 		IPath path = actualProject.getPath();
-		String pathString = path.toOSString() +"/pom.xml0";
+		String pathString = path.toOSString() + "/pom.xml0";
 		return pathString;
 	}
 	
