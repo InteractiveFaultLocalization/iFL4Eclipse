@@ -8,6 +8,28 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import java.io.File;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.sed.ifl.ide.accessor.source.WrongSelectionException;
+import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor.Natures;
+import org.eclipse.sed.ifl.util.exception.EU;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.PlatformUI;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileOutputStream;
@@ -19,20 +41,53 @@ public final class PomModifier {
 	private final Model POM;
 	private final String includeLine;
 	private final String excludeLine;
+	
+	private IResource extractSelection(ISelection sel) {
+	      if (!(sel instanceof IStructuredSelection))
+	         return null;
+	      IStructuredSelection ss = (IStructuredSelection) sel;
+	      Object element = ss.getFirstElement();
+	      if (element instanceof IResource)
+	         return (IResource) element;
+	      if (!(element instanceof IAdaptable))
+	         return null;
+	      IAdaptable adaptable = (IAdaptable)element;
+	      Object adapter = adaptable.getAdapter(IResource.class);
+	      return (IResource) adapter;
+	   }
 
-	private Model ParsePOM(String POMPath) throws Exception {
-		MavenXpp3Reader reader = new MavenXpp3Reader();
-		try {
-			File POMFile = new File(POMPath);
-			Model model = reader.read(new FileReader(POMFile)); // parsing XML
-			return model;
-		} catch (Exception e) {
-			return null;
+	
+	private IJavaProject getSelectedProject() {
+		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
+		ISelection selection = service.getSelection();
+		if (selection != null) {
+			IResource resource = extractSelection(selection);
+			if (resource == null) {
+				throw new WrongSelectionException("Non-resources selected.");
+			}
+			IProject project = resource.getProject();
+			if (EU.tryUnchecked(() -> project.isNatureEnabled(Natures.JAVA.getValue()))) {
+				return JavaCore.create(project);
+			}
+			else {
+				throw new WrongSelectionException("Non-Java project are selected.");
+			}
 		}
+		else {
+			throw new WrongSelectionException("Nothing is selected.");
+		}
+	}	
+	
+	private Model extractPOM(IJavaProject actualProject) {
+		return POM;
 	}
+	
+	
 
-	public PomModifier(String POMPath) throws Exception {
-		Model model = ParsePOM(POMPath);
+
+	public PomModifier() throws Exception {
+		IJavaProject actualProject = getSelectedProject();
+		Model model = extractPOM(actualProject);
 		this.POM = model;
 		this.includeLine = model.getBuild().getOutputDirectory();
 		this.excludeLine = model.getBuild().getTestOutputDirectory();
