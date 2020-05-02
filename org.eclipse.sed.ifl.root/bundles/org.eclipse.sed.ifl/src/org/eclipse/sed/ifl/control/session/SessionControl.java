@@ -14,14 +14,16 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
+import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
+import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
+import org.eclipse.sed.ifl.ide.modifier.source.PomModifier;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
@@ -40,6 +42,7 @@ import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
+import org.eclipse.sed.ifl.view.ScoreRecalculatorView;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
@@ -47,17 +50,17 @@ import org.eclipse.ui.IWorkbenchPart;
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
 	
-	private ActivityMonitorControl activityMonitor;
+	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 	private PartMonitorControl partMonitor;
 	
-	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
+	public SessionControl(SessionModel model, SessionView view, IJavaProject selectedProject, PartMonitorControl partMonitor) {
+		super(model, view);
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
 	}
 
-	private boolean interactivity;
-	
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
+	private PomModifier modifier = new PomModifier();
 	
 	private ScoreListControl scoreListControl;
 
@@ -87,10 +90,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
 		
 		Random r = new Random();
-		interactivity = Math.random() < 0.5;
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), interactivity))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), r.nextBoolean()))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
@@ -104,22 +106,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
-		scoreListControl = new ScoreListControl();
-		scoreListControl.setModel(model);
-		ScoreListView scoreListView = new ScoreListView();
-		getView().embed(scoreListView);
-		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(interactivity);
-		scoreLoaderControl.setModel(model);
-		scoreLoaderControl.setView(new ScoreLoaderView());
+		scoreListControl = new ScoreListControl(model, new ScoreListView(new ScoreListUI(getView().getUI(), SWT.NONE)));
+		scoreLoaderControl = new ScoreLoaderControl(model, new ScoreLoaderView());
+		//scoreRecalculatorControl = new ScoreRecalculatorControl(model, new ScoreRecalculatorView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
+		//addSubControl(scoreRecalculatorControl);
 		System.out.println(watch);
-		
-		
-		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
-				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
-		
 	}
 
 	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
@@ -149,15 +142,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	@Override
 	public void init() {
-		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
-		
+
 		initUIStateListeners();
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
-
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
 	
@@ -169,6 +160,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
+		//scoreRecalculatorControl = null;
 		activityMonitor = null;
 	}
 	
@@ -193,6 +185,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	}
 
 	private ScoreLoaderControl scoreLoaderControl;
+	private ScoreRecalculatorControl scoreRecalculatorControl;
 	
 	private IListener<EmptyEvent> scoreLoadRequestedListener =__ -> {
 		System.out.println("Loading scores from files are requested...");
@@ -200,9 +193,15 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	};
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 	
+	private IListener<EmptyEvent> scoreRecalculateRequestedListener =__ -> {
+		System.out.println("Recalculating scores from files are requested...");
+		//this.scoreLoaderControl.load();
+	};
+	
 	private void initUIStateListeners() {
 		getView().eventClosed().add(closeListener);
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
+		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 	}
 }
