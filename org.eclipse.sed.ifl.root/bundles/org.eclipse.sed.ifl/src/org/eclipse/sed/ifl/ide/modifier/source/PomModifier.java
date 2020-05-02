@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -78,16 +79,28 @@ public final class PomModifier {
 		}
 	}	
 	
-	private Model extractPOM(IJavaProject actualProject) {
-		return POM;
+	private String extractPath(IJavaProject actualProject) {
+		IPath path = actualProject.getPath();
+		String pathString = path.toOSString() +"/pom.xml0";
+		return pathString;
 	}
 	
 	
-
+	private Model ParsePOM(String POMPath) throws Exception {
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		try {
+			File POMFile = new File(POMPath);
+			Model model = reader.read(new FileReader(POMFile)); // parsing XML
+			return model;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	public PomModifier() throws Exception {
 		IJavaProject actualProject = getSelectedProject();
-		Model model = extractPOM(actualProject);
+		String POMPath = extractPath(actualProject);
+		Model model = ParsePOM(POMPath);
 		this.POM = model;
 		this.includeLine = model.getBuild().getOutputDirectory();
 		this.excludeLine = model.getBuild().getTestOutputDirectory();
