@@ -1,15 +1,13 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -17,6 +15,7 @@ import java.util.stream.Stream;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -26,53 +25,45 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.profile.NanoWatch;
+
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
+
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
+
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
+
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Scale;
+
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.layout.FillLayout;
 
 
 public class ScoreListUI extends Composite {
-	private Table table;
-	private TableColumn nameColumn;
-	private TableColumn iconColumn;
-	private TableColumn scoreColumn;
-	private TableColumn signitureColumn;
-	private TableColumn typeColumn;
-	private TableColumn pathColumn;
-	private TableColumn positionColumn;
-	private TableColumn contextSizeColumn;
+
 	private Label noItemsToDisplayLabel;
 	private Button showFilterPart;
 	
 
+	/*
 	private void requestNavigateToAllSelection() {
 		for (TableItem selected : table.getSelection()) {
 			String path = selected.getText(table.indexOf(pathColumn));
@@ -82,7 +73,9 @@ public class ScoreListUI extends Composite {
 			navigateToRequired.invoke(entry);
 		}
 	}
+	*/
 	
+	/*
 	private void requestNavigateToContextSelection() {
 		List<IMethodDescription> contextList = new ArrayList<IMethodDescription>();
 		
@@ -103,63 +96,23 @@ public class ScoreListUI extends Composite {
 		}
 		navigateToContext.invoke(contextList);
 	}
+	*/
 
 	private NonGenericListenerCollection<Table> selectionChanged = new NonGenericListenerCollection<>();
-	private Label minLabel;
-	private Label maxLabel;
-	private TableColumn interactivityColumn;
+
 	
 	public INonGenericListenerCollection<Table> eventSelectionChanged() {
 		return selectionChanged;
 	}
 	
-	private void updateScoreFilterLimit(double value) {
-		scale.setSelection(toScale(value));
-		String formattedValue = LIMIT_FORMAT.format(value);
-		manualText.setText(formattedValue);
-		enabledCheckButton.setText("Show scores");
-		enabledCheckButton.requestLayout();
-		//lowerScoreLimitChanged.invoke(value);
-	}
-	
-
-	public double userInputTextValidator(String input) {
-		double returnValue;
-		try {
-			returnValue = Double.parseDouble(input);
-		} catch (NumberFormatException e) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
-			"User provided upper score limit is not a number." + System.lineSeparator() + 
-			"Your input " + input + " could not be interpreted as a number." + System.lineSeparator() +
-			"Upper score limit has been set to minimum value.", SWT.NONE);
-		}
-		return returnValue;
-	}
-			
-	public double userInputRangeValidator(double input) {
-		double returnValue = input;
-		if (input < Double.valueOf(LIMIT_FORMAT.format(minValue))) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
-			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
-			" is lesser than " + LIMIT_FORMAT.format(minValue) + " minimum value." + System.lineSeparator() + 
-			"Upper score limit has been set to minimum value.", SWT.NONE);
-		}
-		if (input > Double.valueOf(LIMIT_FORMAT.format(maxValue))) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(maxValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
-			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
-			" is greater than " + LIMIT_FORMAT.format(maxValue) + " maximum value." + System.lineSeparator() + 
-			"Upper score limit has been set to maximum value.", SWT.NONE);
-		}
-		return returnValue;
-	}
 	
 	public ScoreListUI() {
 		this(new Shell());
 	}
 	
+	/**
+	 * @wbp.parser.constructor
+	 */
 	public ScoreListUI(Composite parent) {
 		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
@@ -186,143 +139,27 @@ public class ScoreListUI extends Composite {
 			
 		});
 		
+		scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_scrolledComposite.heightHint = 215;
+		gd_scrolledComposite.widthHint = 1600;
+		scrolledComposite.setLayoutData(gd_scrolledComposite);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		cardsComposite = new Composite(scrolledComposite, SWT.NONE);
+		cardsComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		cardsComposite.setLayout(new GridLayout(4, false));
+		scrolledComposite.setContent(cardsComposite);
+		scrolledComposite.setMinSize(cardsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
 		noItemsToDisplayLabel = new Label(this, SWT.NONE);
 		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
-		GridData gd_label = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		noItemsToDisplayLabel.setLayoutData(gd_label);
+		noItemsToDisplayLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		noItemsToDisplayLabel.setVisible(false);
-		
-		table = new Table(this, SWT.FULL_SELECTION | SWT.MULTI);
-		GridData gd_table = new GridData(SWT.FILL);
-		gd_table.grabExcessVerticalSpace = true;
-		gd_table.grabExcessHorizontalSpace = true;
-		gd_table.verticalAlignment = SWT.FILL;
-		gd_table.horizontalAlignment = SWT.FILL;
-		table.setLayoutData(gd_table);
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				System.out.println("double click on list detected");
-				requestNavigateToAllSelection();
-			}
-		});
-		table.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectionChanged.invoke((Table)e.widget);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) { }
-		});
-		table.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Boolean interactivity = Stream.of(table.getSelection())
-						.map(selection -> ((IMethodDescription)(selection.getData())).isInteractive())
-						.reduce((Boolean t, Boolean u) -> t && u).get();
-				if (interactivity) {
-					table.setMenu(contextMenu);
-				} else {
-					table.setMenu(nonInteractiveContextMenu);
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) { }
-		});
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-
-		createColumns();
-
-		Listener sortListener = new Listener() {
-			public void handleEvent(Event e) {
-				TableColumn sortColumn = table.getSortColumn();
-				int dir = table.getSortDirection();
-
-				TableColumn column = (TableColumn) e.widget;
-				SortingArg arg = (SortingArg) column.getData("sort");
-
-				if (sortColumn == column) {
-					dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-				} else {
-					table.setSortColumn(column);
-					dir = SWT.DOWN;
-				}
-				
-				table.setSortColumn(column);
-				table.setSortDirection(dir);
-				
-				arg.setDescending(dir == SWT.DOWN);
-				NanoWatch watch = new NanoWatch("sorting score-list");
-				sortRequired.invoke(arg);
-				System.out.println(watch);
-			}
-		};
-		
-		for (TableColumn column : table.getColumns()) {
-			column.addListener(SWT.Selection, sortListener);
-		}
 	}
-
-	private void createColumns() {
-		iconColumn = new TableColumn(table, SWT.NONE);
-		iconColumn.setResizable(true);
-		iconColumn.setWidth(80);
-		iconColumn.setText("Last action");
-		iconColumn.setData("sort", SortingArg.LastAction);
-
-		scoreColumn = new TableColumn(table, SWT.NONE);
-		scoreColumn.setMoveable(true);
-		scoreColumn.setWidth(100);
-		scoreColumn.setText("Score");
-		scoreColumn.setData("sort", SortingArg.Score);
-
-		nameColumn = new TableColumn(table, SWT.NONE);
-		nameColumn.setMoveable(true);
-		nameColumn.setWidth(100);
-		nameColumn.setText("Name");
-		nameColumn.setData("sort", SortingArg.Name);
-
-		signitureColumn = new TableColumn(table, SWT.NONE);
-		signitureColumn.setMoveable(true);
-		signitureColumn.setWidth(100);
-		signitureColumn.setText("Signature");
-		signitureColumn.setData("sort", SortingArg.Signature);
-
-		typeColumn = new TableColumn(table, SWT.NONE);
-		typeColumn.setMoveable(true);
-		typeColumn.setWidth(100);
-		typeColumn.setText("Parent type");
-		typeColumn.setData("sort", SortingArg.ParentType);
-
-		pathColumn = new TableColumn(table, SWT.NONE);
-		pathColumn.setMoveable(true);
-		pathColumn.setWidth(100);
-		pathColumn.setText("Path");
-		pathColumn.setData("sort", SortingArg.Path);
-
-		positionColumn = new TableColumn(table, SWT.NONE);
-		positionColumn.setMoveable(true);
-		positionColumn.setWidth(100);
-		positionColumn.setText("Position");
-		positionColumn.setData("sort", SortingArg.Position);
-
-		contextSizeColumn = new TableColumn(table, SWT.NONE);
-		contextSizeColumn.setMoveable(true);
-		contextSizeColumn.setWidth(100);
-		contextSizeColumn.setText("Context size");
-		contextSizeColumn.setData("sort", SortingArg.ContextSize);
 		
-		interactivityColumn = new TableColumn(table, SWT.NONE);
-		interactivityColumn.setMoveable(true);
-		interactivityColumn.setWidth(200);
-		interactivityColumn.setText("Interactivity");
-		interactivityColumn.setData("sort", SortingArg.Interactivity);
-	}
 	
 	private NonGenericListenerCollection<EmptyEvent> openFiltersPage = new NonGenericListenerCollection<>();
 	
@@ -355,63 +192,29 @@ public class ScoreListUI extends Composite {
 	}
 	
 	
-	private static final double SLIDER_PRECISION = 10000.0;
-	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
 	
-	private static int toScale(double value) {
-		return Double.valueOf(value * SLIDER_PRECISION).intValue();
-	}
-	
-	
-	private double minValue;
-	private double maxValue;
-	
-	public void setScoreFilter(Double min, Double max) {
-		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
-		minValue = min;
-		maxValue = max;
-		maxLabel.setText(LIMIT_FORMAT.format((max)));
-		maxLabel.requestLayout();
-		minLabel.setText(LIMIT_FORMAT.format((min)));
-		minLabel.requestLayout();
-		/*This if statement below is needed because the setMaximum function of Scale
-		 * does not set the maximum value of the scale if said value is lesser than or
-		 * equal to the minimum value of the scale. This can happen when all elements' scores
-		 * are set to 0. In this scenario, the minimum value of the scale would be set
-		 * to 0 and then the function tries to set the maximum value to 0 but fails to do so
-		 * because (max value = min value).
-		 * @Dhorvath1294
-		 */
-		if(max <= min) {
-			scale.setMaximum(toScale(max+(1/SLIDER_PRECISION)));
-		}
-		scale.setMinimum(toScale(min));
-		scale.setMaximum(toScale(max));
-		scale.setMinimum(toScale(min));
-		enabledCheckButton.setEnabled(true);
-		enabledCheckButton.setSelection(true);
-	//	lowerScoreLimitEnabled.invoke(true);
-		manualText.setEnabled(true);
-		manualButton.setEnabled(true);
-		scale.setEnabled(true);
-		contextSizeCheckBox.setEnabled(true);
-		nameFilterText.setEnabled(true);
-		nameFilterClearButton.setEnabled(true);
-		limitFilterCombo.setEnabled(true);
-		updateScoreFilterLimit(min);
-	}
 
-	public void setScoreFilter(Double min, Double max, Double current) {
-		setScoreFilter(min, max);
-		if (min < current && current < max) {
-			scale.setSelection(toScale(current));
-			updateScoreFilterLimit(current);
-		}
-	}
+	
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
+		//int rowCount = scores.entrySet().size() / 4;
+	//	int elementHeight = 0;
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
+			CodeElementUI element = new CodeElementUI(cardsComposite, SWT.NONE,
+					entry.getValue(),
+					entry.getKey().getId().getName(),
+					entry.getKey().getId().getSignature(),
+					entry.getKey().getId().getParentType(),
+					entry.getKey().getLocation().getAbsolutePath(),
+					entry.getKey().getLocation().getBegining().getOffset().toString(),
+					entry.getKey().getContext().size()+1,
+					entry.getKey().isInteractive(),
+					entry.getValue().getLastAction());
+			element.setData(entry.getKey());
+			element.setData("score", entry.getValue());
+			element.setData("entry", entry);
+			
+			/*
 			TableItem item = new TableItem(table, SWT.NULL);
 			if (entry.getValue().getLastAction() != null) {
 				String iconPath = entry.getValue().getLastAction().getCause().getChoice().getKind().getIconPath();
@@ -443,23 +246,32 @@ public class ScoreListUI extends Composite {
 			item.setData(entry.getKey());
 			item.setData("score", entry.getValue());
 			item.setData("entry", entry);
+			*/
+			
+			//elementHeight = element.getBounds().height;
 		}
+		//cardsComposite.setSize(cardsComposite.getSize().x, rowCount * elementHeight);
+		//System.out.println("width: " + cardsComposite.getSize().x + ", height: " + rowCount * elementHeight);
+		scrolledComposite.setContent(cardsComposite);
 	}
 
 	public void clearMethodScores() {
-		table.removeAll();
+		for(Control control : cardsComposite.getChildren()) {
+			control.dispose();
+		}
 	}
 
 	Menu contextMenu;
 	Menu nonInteractiveContextMenu;
 	
+	/*
 	public void createContexMenu(Iterable<Option> options) {
 		//It sets the parent of popup menu on the given !!parent's shell!!,
 		//because the late parent setters it is not possible to instantiate these before.
-		contextMenu = new Menu(table);
-		nonInteractiveContextMenu = new Menu(table);
+		contextMenu = new Menu(cardsComposite);
+		nonInteractiveContextMenu = new Menu(cardsComposite);
 		
-		table.setMenu(contextMenu);
+		cardsComposite.setMenu(contextMenu);
 		addFeedbackOptions(options, contextMenu);
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
 		addNavigationOptions(contextMenu);
@@ -467,7 +279,9 @@ public class ScoreListUI extends Composite {
 		addDetailsOptions(contextMenu);
 		addDetailsOptions(nonInteractiveContextMenu);
 	}
-
+*/
+	
+	/*
 	private void addDetailsOptions(Menu menu) {
 		new MenuItem(menu, SWT.SEPARATOR);
 		MenuItem openDetails = new MenuItem(menu, SWT.NONE);
@@ -475,7 +289,7 @@ public class ScoreListUI extends Composite {
 			
 			@Override
 			public void menuShown(MenuEvent e) {
-				for (TableItem item : table.getSelection()) {
+				for (Control item : cardsComposite.getSelection()) {
 					IMethodDescription sourceItem = (IMethodDescription)item.getData();
 					if (sourceItem.hasDetailsLink()) {
 						openDetails.setEnabled(true);
@@ -506,7 +320,7 @@ public class ScoreListUI extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) { }
 		});
 	}
-
+*/
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
 		noFeedback.setText("(User feedback is disabled)");
@@ -514,7 +328,7 @@ public class ScoreListUI extends Composite {
 		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);
 	}
-	
+	/*
 	private void addNavigationOptions(Menu menu) {
 		new MenuItem(menu, SWT.SEPARATOR);
 		MenuItem navigateToSelected = new MenuItem(menu, SWT.None);
@@ -549,7 +363,8 @@ public class ScoreListUI extends Composite {
 			
 		});
 	}
-
+*/
+	/*
 	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
 		for (Option option : options) {
 			MenuItem item = new MenuItem(contextMenu, SWT.None);
@@ -594,9 +409,9 @@ public class ScoreListUI extends Composite {
 			});
 		}
 	}
-
+*/
 	public void showNoItemsLabel(boolean show) {
-		table.setVisible(!show);
+		cardsComposite.setVisible(!show);
 		noItemsToDisplayLabel.setVisible(show);
 	}
 	
@@ -614,15 +429,10 @@ public class ScoreListUI extends Composite {
 
 	
 	private Composite composite;
-	private Combo limitFilterCombo;
-	private Button contextSizeCheckBox;
-	private Button enabledCheckButton;
-	private Scale scale;
-	private Text manualText;
-	private Button manualButton;
-	private Text nameFilterText;
-	private Button nameFilterClearButton;
-
+	private ScrolledComposite scrolledComposite;
+	private Composite cardsComposite;
+	
+/*
 	public void highlight(List<MethodIdentity> context) {
 		for (TableItem item : table.getItems()) {
 			item.setBackground(null);
@@ -636,7 +446,8 @@ public class ScoreListUI extends Composite {
 			}
 		}
 	}
-	
+	*/
+	/*
 	public void highlightNonInteractiveContext(List<IMethodDescription> context) {
 		if(context != null) {
 			for (TableItem item : table.getItems()) {
@@ -655,6 +466,6 @@ public class ScoreListUI extends Composite {
 			table.setSelection(elementList.toArray(elementArray));
 		}
 	}
-	
+	*/
 
 }
