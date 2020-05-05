@@ -1,5 +1,16 @@
 package org.eclipse.sed.ifl.view;
 
-public class ScoreRecalculatorView {
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
+
+public class ScoreRecalculatorView extends View {
+	
+	private FileDialog dialog;
+	
+	public ScoreRecalculatorView() {
+		dialog = new FileDialog(new Shell(), SWT.OPEN);
+		dialog.setFilterExtensions(new String[] {"*.csv"});
+	}
 
 }

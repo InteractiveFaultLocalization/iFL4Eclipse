@@ -1,6 +1,9 @@
 package org.eclipse.sed.ifl.view;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.gui.MainPart;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -11,16 +14,21 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartService;
 import org.eclipse.ui.IWorkbenchPart;
 
-public class SessionView extends View {
+public class SessionView extends View implements IEmbeddable, IEmbedee {
 	private MainPart part;
 	
-	public SessionView(MainPart part) {
-		this.part = part;
+	public SessionView(PartAccessor partAccessor) {
+		this.part = (MainPart) partAccessor.getPart(MainPart.ID);
 	}
 
 	@Override
-	public Composite getUI() {
-		return part.getUI();
+	public void setParent(Composite parent) {
+		part.setParent(parent);
+	}
+	
+	@Override
+	public void embed(IEmbeddable embedded) {
+		part.embed(embedded);
 	}
 	
 	@Override
