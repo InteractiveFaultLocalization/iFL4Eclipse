@@ -42,24 +42,24 @@ public final class PomModifier {
 	private final Model POM;
 	private final String includeLine;
 	private final String excludeLine;
-	
-	private IResource extractSelection(ISelection sel) {
-	      if (!(sel instanceof IStructuredSelection))
-	         return null;
-	      IStructuredSelection ss = (IStructuredSelection) sel;
-	      Object element = ss.getFirstElement();
-	      if (element instanceof IResource)
-	         return (IResource) element;
-	      if (!(element instanceof IAdaptable))
-	         return null;
-	      IAdaptable adaptable = (IAdaptable)element;
-	      Object adapter = adaptable.getAdapter(IResource.class);
-	      return (IResource) adapter;
-	   }
 
-	
+	private IResource extractSelection(ISelection sel) {
+		if (!(sel instanceof IStructuredSelection))
+			return null;
+		IStructuredSelection ss = (IStructuredSelection) sel;
+		Object element = ss.getFirstElement();
+		if (element instanceof IResource)
+			return (IResource) element;
+		if (!(element instanceof IAdaptable))
+			return null;
+		IAdaptable adaptable = (IAdaptable) element;
+		Object adapter = adaptable.getAdapter(IResource.class);
+		return (IResource) adapter;
+	}
+
 	private IJavaProject getSelectedProject() {
-		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
+		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getService(ISelectionService.class);
 		ISelection selection = service.getSelection();
 		if (selection != null) {
 			IResource resource = extractSelection(selection);
@@ -69,31 +69,30 @@ public final class PomModifier {
 			IProject project = resource.getProject();
 			if (EU.tryUnchecked(() -> project.isNatureEnabled(Natures.JAVA.getValue()))) {
 				return JavaCore.create(project);
-			}
-			else {
+			} else {
 				throw new WrongSelectionException("Non-Java project are selected.");
 			}
-		}
-		else {
+		} else {
 			throw new WrongSelectionException("Nothing is selected.");
 		}
-	}	
-	
+	}
+
 	private String extractPath(IJavaProject actualProject) {
 		IPath path = actualProject.getPath();
-		String pathString = path.toOSString() + "/pom.xml0";
+		String pathString = path.toOSString() + "/pom.xml";
 		return pathString;
 	}
-	
-	
-	private Model ParsePOM(String POMPath) throws Exception {
+
+	private Model ParsePOM(String POMPath) throws PomModificationException {
 		MavenXpp3Reader reader = new MavenXpp3Reader();
 		try {
 			File POMFile = new File(POMPath);
 			Model model = reader.read(new FileReader(POMFile)); // parsing XML
 			return model;
-		} catch (Exception e) {
-			return null;
+		} catch (IOException e) {
+			throw new PomModificationException("File is not found.");
+		} catch (XmlPullParserException e) {
+			throw new PomModificationException(e.getMessage());
 		}
 	}
 
@@ -212,16 +211,14 @@ public final class PomModifier {
 		this.POM.setBuild(mBuild);
 	}
 
-	public void savePOM(String newPOMPath) throws FileNotFoundException {
-		try {
+	public void savePOM(String newPOMPath) throws PomModificationException {
+		try(FileOutputStream f = new FileOutputStream(new File(newPOMPath))) {
 			MavenXpp3Writer writer = new MavenXpp3Writer();
-			File newPOMFile = new File(newPOMPath);
-			FileOutputStream f = new FileOutputStream(newPOMFile);
 			writer.write(f, this.POM);
 			f.close();
 
 		} catch (Exception FileNotFoundException) {
-
+				throw new PomModificationException("File is not found.");
 		}
 	}
 
