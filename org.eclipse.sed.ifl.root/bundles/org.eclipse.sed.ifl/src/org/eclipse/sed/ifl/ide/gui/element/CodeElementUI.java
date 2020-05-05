@@ -23,6 +23,110 @@ public class CodeElementUI extends Composite {
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
 	
+	Label scoreValueLabel;
+	Label nameValueLabel;
+	Text pathValueLabel;
+	Label positionValueLabel;
+	Label parentTypeValueLabel;
+	Label interactivityValueLabel;
+	Text signatureValueLabel;
+	Label contextSizeValueLabel;
+	
+	Label scoreIcon;
+	Label nameIcon;
+	Label pathIcon;
+	Label positionIcon;
+	Label parentTypeIcon;
+	Label interactivityIcon;
+	Label signatureIcon;
+	Label contextSizeIcon;
+
+	public void resetNeutralIcons() {
+		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
+		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_blue.png"));
+		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_blue.png"));
+		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_blue.png"));
+		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.png"));
+		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_blue.png"));
+		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.png"));
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
+	}
+	
+	public void setContextIcons() {
+		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_red.png"));
+		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_red.png"));
+		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_red.png"));
+		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_red.png"));
+		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_red.png"));
+		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_red.png"));
+		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_red.png"));
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_red.png"));
+	}
+	
+	public Label getScoreIcon() {
+		return scoreIcon;
+	}
+
+	public Label getNameIcon() {
+		return nameIcon;
+	}
+
+	public Label getPathIcon() {
+		return pathIcon;
+	}
+
+	public Label getPositionIcon() {
+		return positionIcon;
+	}
+
+	public Label getParentTypeIcon() {
+		return parentTypeIcon;
+	}
+
+	public Label getInteractivityIcon() {
+		return interactivityIcon;
+	}
+
+	public Label getSignatureIcon() {
+		return signatureIcon;
+	}
+
+	public Label getContextSizeIcon() {
+		return contextSizeIcon;
+	}
+
+	public Label getScoreValueLabel() {
+		return scoreValueLabel;
+	}
+
+	public Label getNameValueLabel() {
+		return nameValueLabel;
+	}
+
+	public Text getPathValueLabel() {
+		return pathValueLabel;
+	}
+
+	public Label getPositionValueLabel() {
+		return positionValueLabel;
+	}
+
+	public Label getParentTypeValueLabel() {
+		return parentTypeValueLabel;
+	}
+
+	public Label getInteractivityValueLabel() {
+		return interactivityValueLabel;
+	}
+
+	public Text getSignatureValueLabel() {
+		return signatureValueLabel;
+	}
+
+	public Label getContextSizeValueLabel() {
+		return contextSizeValueLabel;
+	}
+	
 	public CodeElementUI(Composite parent, int style,
 			Score score,
 			String name,
@@ -43,50 +147,50 @@ public class CodeElementUI extends Composite {
 		setLayout(gridLayout);
 		setSize(300,167);
 		
-		Label scoreIcon = new Label(this, SWT.NONE);
-		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.eps"));
+		scoreIcon = new Label(this, SWT.NONE);
+		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
 		scoreIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		scoreIcon.setText("");
 		
 		Label scoreKeyLabel = new Label(this, SWT.NONE);
 		scoreKeyLabel.setText("Score:");
 		
-		Label scoreValueLabel = new Label(this, SWT.NONE);
+		scoreValueLabel = new Label(this, SWT.NONE);
 		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		scoreValueLabel.setText(checkScore(score));
 		
 		Label lastActionLabel = new Label(this, SWT.NONE);
 		lastActionLabel.setImage(checkLastAction(lastAction));
 		
-		Label nameIcon = new Label(this, SWT.NONE);
-		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_blue.eps"));
+		nameIcon = new Label(this, SWT.NONE);
+		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_blue.png"));
 		nameIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		nameIcon.setText("");
 		
 		Label nameKeyLabel = new Label(this, SWT.NONE);
 		nameKeyLabel.setText("Name:");
 		
-		Label nameValueLabel = new Label(this, SWT.NONE);
+		nameValueLabel = new Label(this, SWT.NONE);
 		nameValueLabel.setText(name);
 		new Label(this, SWT.NONE);
 		
-		Label signatureIcon = new Label(this, SWT.NONE);
-		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.eps"));
+		signatureIcon = new Label(this, SWT.NONE);
+		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.png"));
 		signatureIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		signatureIcon.setText("");
 		
 		Label signatureKeyLabel = new Label(this, SWT.NONE);
 		signatureKeyLabel.setText("Signature:");
 		
-		Text signatureValueLabel = new Text(this, SWT.READ_ONLY);
+		signatureValueLabel = new Text(this, SWT.READ_ONLY);
 		GridData gd_signatureValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_signatureValueLabel.widthHint = 180;
 		signatureValueLabel.setLayoutData(gd_signatureValueLabel);
 		signatureValueLabel.setText(signature);
 		new Label(this, SWT.NONE);
 		
-		Label parentTypeIcon = new Label(this, SWT.NONE);
-		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.eps"));
+		parentTypeIcon = new Label(this, SWT.NONE);
+		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.png"));
 		parentTypeIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		parentTypeIcon.setText("");
 		
@@ -97,54 +201,54 @@ public class CodeElementUI extends Composite {
 		parentTypeValueLabel.setText(parentType);
 		new Label(this, SWT.NONE);
 		
-		Label pathIcon = new Label(this, SWT.NONE);
-		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_blue.eps"));
+		pathIcon = new Label(this, SWT.NONE);
+		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_blue.png"));
 		pathIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		pathIcon.setText("");
 		
 		Label pathKeyLabel = new Label(this, SWT.NONE);
 		pathKeyLabel.setText("Path:");
 		
-		Text pathValueLabel = new Text(this, SWT.READ_ONLY);
+		pathValueLabel = new Text(this, SWT.READ_ONLY);
 		GridData gd_pathValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_pathValueLabel.widthHint = 180;
 		pathValueLabel.setLayoutData(gd_pathValueLabel);
 		pathValueLabel.setText(path);
 		new Label(this, SWT.NONE);
 		
-		Label positionIcon = new Label(this, SWT.NONE);
-		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_blue.eps"));
+		positionIcon = new Label(this, SWT.NONE);
+		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_blue.png"));
 		positionIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		positionIcon.setText("");
 		
 		Label positionKeyLabel = new Label(this, SWT.NONE);
 		positionKeyLabel.setText("Position:");
 		
-		Label positionValueLabel = new Label(this, SWT.NONE);
+		positionValueLabel = new Label(this, SWT.NONE);
 		positionValueLabel.setText(position);
 		new Label(this, SWT.NONE);
 		
-		Label contextSizeIcon = new Label(this, SWT.NONE);
-		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.eps"));
+		contextSizeIcon = new Label(this, SWT.NONE);
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
 		contextSizeIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		contextSizeIcon.setText("");
 		
 		Label contextSizeKeyLabel = new Label(this, SWT.NONE);
 		contextSizeKeyLabel.setText("Context size:");
 		
-		Label contextSizeValueLabel = new Label(this, SWT.NONE);
+		contextSizeValueLabel = new Label(this, SWT.NONE);
 		contextSizeValueLabel.setText(contextSize.toString());
 		new Label(this, SWT.NONE);
 		
-		Label interactivityIcon = new Label(this, SWT.NONE);
-		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/interactivity_blue.eps"));
+		interactivityIcon = new Label(this, SWT.NONE);
+		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_blue.png"));
 		interactivityIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		interactivityIcon.setText("");
 		
 		Label interactivityKeyLabel = new Label(this, SWT.NONE);
 		interactivityKeyLabel.setText("Interactivity:");
 		
-		Label interactivityValueLabel = new Label(this, SWT.NONE);
+		interactivityValueLabel = new Label(this, SWT.NONE);
 		if(interactivity) {
 			interactivityValueLabel.setText("User feedback enabled");
 			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
@@ -174,4 +278,9 @@ public class CodeElementUI extends Composite {
 			}
 		} return null;
 	}
+	
+	 public boolean setFocus()
+	    {
+	        return super.forceFocus();
+	    }
 }

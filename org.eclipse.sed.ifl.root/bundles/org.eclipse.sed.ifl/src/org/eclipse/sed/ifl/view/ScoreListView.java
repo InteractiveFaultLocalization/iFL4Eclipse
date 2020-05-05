@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
+import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -18,8 +20,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Control;
 
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {
@@ -45,7 +46,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	public void createOptionsMenu(Iterable<Option> options) {
-		//ui.createContexMenu(options);
+		ui.createContexMenu(options);
 	}
 
 	@Override
@@ -80,9 +81,9 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		return selectionChanged;
 	}
 	
-	private IListener<Table> selectionChangedListener = event -> {
+	private IListener<HashSet<CodeElementUI>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (TableItem item : event.getSelection()) {
+		for (Control item : event) {
 			selection.add((IMethodDescription)item.getData());
 		}
 		selectionChanged.invoke(selection);
@@ -130,7 +131,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	private IListener<List<IMethodDescription>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
-		//ui.highlight(context);
+		ui.highlight(context);
 	}
 	
 	
