@@ -198,6 +198,7 @@ public class ScoreListUI extends Composite {
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
+		scrolledComposite.setRedraw(false);
 		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 			CodeElementUI element = new CodeElementUI(cardsComposite, SWT.NONE,
 					entry.getValue(),
@@ -249,9 +250,9 @@ public class ScoreListUI extends Composite {
 			}
 			
 		}
+		scrolledComposite.setRedraw(true);
 		scrolledComposite.setMinSize(cardsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		cardsComposite.requestLayout();
-		//cardsComposite.setMenu(contextMenu);
 	}
 
 	
@@ -266,16 +267,19 @@ public class ScoreListUI extends Composite {
 	Menu contextMenu;
 	Menu nonInteractiveContextMenu;
 	
+	public void createNonINteractiveContextMenu() {
+		nonInteractiveContextMenu = new Menu(cardsComposite);
+		
+		addDisabledFeedbackOptions(nonInteractiveContextMenu);
+		addNavigationOptions(nonInteractiveContextMenu);
+		addDetailsOptions(nonInteractiveContextMenu);
+	}
+	
 	public void createContexMenu(Iterable<Option> options) {
 		//It sets the parent of popup menu on the given !!parent's shell!!,
 		//because the late parent setters it is not possible to instantiate these before.
 		contextMenu = new Menu(cardsComposite);
 		nonInteractiveContextMenu = new Menu(cardsComposite);
-		
-	//	cardsComposite.setMenu(contextMenu);
-	/*	for(Control element : cardsComposite.getChildren()) {
-			element.setMenu(contextMenu);
-		}*/
 		
 		addFeedbackOptions(options, contextMenu);
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
@@ -441,7 +445,6 @@ public class ScoreListUI extends Composite {
 	private Composite cardsComposite;
 	
 	public void highlight(List<MethodIdentity> context) {
-		if(checkSelectedNotNull()) {	
 			for (Control item : cardsComposite.getChildren()) {
 				((CodeElementUI)item).resetNeutralIcons();
 			}
@@ -453,7 +456,6 @@ public class ScoreListUI extends Composite {
 					}
 				}
 			}
-		}
 	}
 	/*
 	public void highlightNonInteractiveContext(List<IMethodDescription> context) {

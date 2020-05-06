@@ -184,7 +184,7 @@ public class CodeElementUI extends Composite {
 		
 		signatureValueLabel = new Text(this, SWT.READ_ONLY);
 		GridData gd_signatureValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_signatureValueLabel.widthHint = 180;
+		gd_signatureValueLabel.widthHint = 140;
 		signatureValueLabel.setLayoutData(gd_signatureValueLabel);
 		signatureValueLabel.setText(signature);
 		new Label(this, SWT.NONE);
@@ -211,7 +211,7 @@ public class CodeElementUI extends Composite {
 		
 		pathValueLabel = new Text(this, SWT.READ_ONLY);
 		GridData gd_pathValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_pathValueLabel.widthHint = 180;
+		gd_pathValueLabel.widthHint = 140;
 		pathValueLabel.setLayoutData(gd_pathValueLabel);
 		pathValueLabel.setText(path);
 		new Label(this, SWT.NONE);

@@ -96,9 +96,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		this.addSubControl(filterControl);
 		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
 		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
+		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
-		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
@@ -302,6 +302,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().highlight(context);
 		if (event.size() == 1) {
 			scoreHistory.display(event.get(0));
+		} else {
+			scoreHistory.hideView();
 		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
