@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
@@ -32,6 +33,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -75,7 +77,7 @@ public class ScoreListUI extends Composite {
 			for (CodeElementUI selected : selectedSet) {
 				IMethodDescription entry = (IMethodDescription) selected.getData();
 				List<MethodIdentity> context = entry.getContext();
-				for (Control item : cardsComposite.getChildren()) {
+				for (Control item : cardsComposite.getDisplayedCards()) {
 					for (MethodIdentity target : context) {
 						if (item.getData() instanceof IMethodDescription &&
 							target.equals(((IMethodDescription)item.getData()).getId())) {
@@ -135,6 +137,15 @@ public class ScoreListUI extends Composite {
 		noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
 		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
 		noItemsToDisplayLabel.setVisible(false);
+		
+		cardsComposite = new CardHolderComposite(composite, SWT.NONE);
+		GridData gd_cardsComposite = new GridData(SWT.LEFT, SWT.LEFT, false, false, 2, 1);
+		gd_cardsComposite.widthHint = 1200;
+		gd_cardsComposite.heightHint = 500;
+		cardsComposite.setLayoutData(gd_cardsComposite);
+		cardsComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		cardsComposite.setLayout(new GridLayout(1, false));
+		
 		showFilterPart.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -148,22 +159,6 @@ public class ScoreListUI extends Composite {
 			}
 			
 		});
-		
-		scrolledComposite = new ScrolledComposite(this, SWT.V_SCROLL);
-		scrolledComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_scrolledComposite.heightHint = 415;
-		gd_scrolledComposite.widthHint = 1250;
-		scrolledComposite.setLayoutData(gd_scrolledComposite);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-		scrolledComposite.setAlwaysShowScrollBars(true);
-		
-		cardsComposite = new Composite(scrolledComposite, SWT.NONE);
-		cardsComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		cardsComposite.setLayout(new GridLayout(4, false));
-		scrolledComposite.setContent(cardsComposite);
-		scrolledComposite.setMinSize(cardsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 		
 	
@@ -198,21 +193,8 @@ public class ScoreListUI extends Composite {
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		scrolledComposite.setRedraw(false);
-		for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
-			CodeElementUI element = new CodeElementUI(cardsComposite, SWT.NONE,
-					entry.getValue(),
-					entry.getKey().getId().getName(),
-					entry.getKey().getId().getSignature(),
-					entry.getKey().getId().getParentType(),
-					entry.getKey().getLocation().getAbsolutePath(),
-					entry.getKey().getLocation().getBegining().getOffset().toString(),
-					entry.getKey().getContext().size()+1,
-					entry.getKey().isInteractive(),
-					entry.getValue().getLastAction());
-			element.setData(entry.getKey());
-			element.setData("score", entry.getValue());
-			element.setData("entry", entry);
+		cardsComposite.setContent(scores);
+		for (CodeElementUI element : cardsComposite.getDisplayedCards()) {
 			
 			element.addMouseListener(new MouseAdapter()
 			{
@@ -229,10 +211,10 @@ public class ScoreListUI extends Composite {
 							}
 					        selectedSet.remove(((CodeElementUI)event.widget));
 				    	} else {
-					        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+					        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(139, 209, 236));
 					        ((CodeElementUI)event.widget).setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
 					        for(Control control : element.getChildren()) {
-					        	control.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+					        	control.setBackground(SWTResourceManager.getColor(139, 209, 236));
 					        	if(control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
 					        		control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
 					        	}
@@ -243,24 +225,19 @@ public class ScoreListUI extends Composite {
 			    	}
 			    }
 			});
-			if(entry.getValue().isDefinit() && entry.getKey().isInteractive()) {
+			if(((Score)element.getData("score")).isDefinit() && ((IMethodDescription)element.getData()).isInteractive()) {
 				element.setMenu(contextMenu);
 			} else {
 				element.setMenu(nonInteractiveContextMenu);
 			}
 			
 		}
-		scrolledComposite.setRedraw(true);
-		scrolledComposite.setMinSize(cardsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		cardsComposite.requestLayout();
 	}
 
 	
 	public void clearMethodScores() {
-		for(Control control : cardsComposite.getChildren()) {
-			control.setMenu(null);
-			control.dispose();
-		}
+		cardsComposite.clearMethodScores();
 		selectedSet.clear();
 	}
 
@@ -423,7 +400,6 @@ public class ScoreListUI extends Composite {
 
 	public void showNoItemsLabel(boolean show) {
 		cardsComposite.setVisible(!show);
-		scrolledComposite.setVisible(!show);
 		noItemsToDisplayLabel.setVisible(show);
 	}
 	
@@ -441,14 +417,13 @@ public class ScoreListUI extends Composite {
 
 	
 	private Composite composite;
-	private ScrolledComposite scrolledComposite;
-	private Composite cardsComposite;
+	private CardHolderComposite cardsComposite;
 	
 	public void highlight(List<MethodIdentity> context) {
-			for (Control item : cardsComposite.getChildren()) {
+			for (Control item : cardsComposite.getDisplayedCards()) {
 				((CodeElementUI)item).resetNeutralIcons();
 			}
-			for (Control item : cardsComposite.getChildren()) {
+			for (Control item : cardsComposite.getDisplayedCards()) {
 				for (MethodIdentity target : context) {
 					if (item.getData() instanceof IMethodDescription &&
 						target.equals(((IMethodDescription)item.getData()).getId())) {
