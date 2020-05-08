@@ -11,9 +11,9 @@ import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
@@ -35,10 +35,13 @@ public class CardHolderComposite extends Composite {
 		setLayout(new GridLayout(1, false));
 		
 		cardArea = new Composite(this, SWT.NONE);
-		cardArea.setLayout(new GridLayout(4, false));
-		GridData gd_cardArea = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
-		gd_cardArea.widthHint = 1000;
-		gd_cardArea.heightHint = 800;
+		GridLayout gl_cardArea = new GridLayout(4, false);
+		gl_cardArea.marginWidth = 0;
+		gl_cardArea.marginHeight = 0;
+		cardArea.setLayout(gl_cardArea);
+		GridData gd_cardArea = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gd_cardArea.widthHint = 1400;
+		gd_cardArea.heightHint = 430;
 		cardArea.setLayoutData(gd_cardArea);
 
 		buttonArea = new Composite(this, SWT.NONE);
@@ -47,6 +50,8 @@ public class CardHolderComposite extends Composite {
 		gd_buttonArea.heightHint = 52;
 		gd_buttonArea.widthHint = 438;
 		buttonArea.setLayoutData(gd_buttonArea);
+		
+		setSize(Math.max(cardArea.getSize().x, buttonArea.getSize().x), Math.addExact(cardArea.getSize().y, buttonArea.getSize().y));
 		
 		Button home = new Button(buttonArea, SWT.NONE);
 		home.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -122,20 +127,21 @@ public class CardHolderComposite extends Composite {
 		contents.clear();
 		ArrayList<Map.Entry<IMethodDescription, Score>> elements = new ArrayList<Map.Entry<IMethodDescription, Score>>();
 		int numberOfElementsPerPage = 8;
-		int counter = 0;
+		int counter = 1;
 		int pageNumber = 1;
 		for(Map.Entry<IMethodDescription, Score> pageContent : scores.entrySet()) {
 			if(counter<numberOfElementsPerPage) {
 				elements.add(pageContent);
 				counter++;
 			} else {
+				elements.add(pageContent);
 				contents.put(pageNumber, elements);
 				pageNumber++;
 				elements = new ArrayList<Map.Entry<IMethodDescription, Score>>();
-				counter = 0;
+				counter = 1;
 			}
 		}
-		if(counter!=0) {
+		if(counter>1) {
 			contents.put(pageNumber, elements);
 
 		}
@@ -144,7 +150,6 @@ public class CardHolderComposite extends Composite {
 	
 	private void setPageContent(int pageNumber) {
 		clearMethodScores();
-		System.out.println("content mérete a " + pageNumber + " oldalon: " + contents.get(pageNumber).size());
 		for (Entry<IMethodDescription, Score> entry : contents.get(pageNumber)) {
 			CodeElementUI element = new CodeElementUI(cardArea, SWT.NONE,
 					entry.getValue(),
@@ -159,8 +164,11 @@ public class CardHolderComposite extends Composite {
 			element.setData(entry.getKey());
 			element.setData("score", entry.getValue());
 			element.setData("entry", entry);
+			
+			element.setChildrenBackgroundColor();
 		}
 		cardArea.requestLayout();
+		displayedPageChanged.invoke(getDisplayedCards());
 	}
 	
 	public List<CodeElementUI> getDisplayedCards() {
@@ -176,6 +184,7 @@ public class CardHolderComposite extends Composite {
 			setPageContent(currentPage+change);
 			pageCount = currentPage+change;
 			pageCountLabel.setText(pageCount + "/" + contents.size());
+			pageCountLabel.requestLayout();
 			pageCountLabel.setVisible(true);
 		}
 	}
@@ -185,6 +194,11 @@ public class CardHolderComposite extends Composite {
 			control.setMenu(null);
 			control.dispose();
 		}
-		//pageCount = 1;
+	}
+	
+	private NonGenericListenerCollection<List<CodeElementUI>> displayedPageChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<CodeElementUI>> eventDisplayedPageChanged() {
+		return displayedPageChanged;
 	}
 }

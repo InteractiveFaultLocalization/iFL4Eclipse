@@ -21,19 +21,18 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -103,6 +102,18 @@ public class ScoreListUI extends Composite {
 		return rValue;
 	}
 	
+	private boolean checkSelectedInteractive() {
+		boolean rValue = true;
+		for(CodeElementUI selected : selectedSet) {
+			if(!((IMethodDescription)selected.getData()).isInteractive()) {
+				MessageDialog.open(MessageDialog.ERROR, null, "Non-interactive elements selected", "Non-interactive code elements are selected. Feedback can only be given on elements whose interactivity is set to enabled.", SWT.NONE);
+				rValue = false;
+				break;
+			}
+		}
+		return rValue;
+	}
+	
 	private NonGenericListenerCollection<HashSet<CodeElementUI>> selectionChanged = new NonGenericListenerCollection<>();
 
 	
@@ -138,13 +149,9 @@ public class ScoreListUI extends Composite {
 		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
 		noItemsToDisplayLabel.setVisible(false);
 		
-		cardsComposite = new CardHolderComposite(composite, SWT.NONE);
-		GridData gd_cardsComposite = new GridData(SWT.LEFT, SWT.LEFT, false, false, 2, 1);
-		gd_cardsComposite.widthHint = 1200;
-		gd_cardsComposite.heightHint = 500;
-		cardsComposite.setLayoutData(gd_cardsComposite);
-		cardsComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		cardsComposite.setLayout(new GridLayout(1, false));
+		cardsComposite = new CardHolderComposite(this, SWT.NONE);
+		
+		cardsComposite.eventDisplayedPageChanged().add(displayedPageChangedListener);
 		
 		showFilterPart.addSelectionListener(new SelectionListener() {
 
@@ -192,9 +199,8 @@ public class ScoreListUI extends Composite {
 		return sortRequired;
 	}
 
-	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		cardsComposite.setContent(scores);
-		for (CodeElementUI element : cardsComposite.getDisplayedCards()) {
+	public void addListenersAndMenuToCards(List<CodeElementUI> cards) {
+		for (CodeElementUI element : cards) {
 			
 			element.addMouseListener(new MouseAdapter()
 			{
@@ -211,10 +217,10 @@ public class ScoreListUI extends Composite {
 							}
 					        selectedSet.remove(((CodeElementUI)event.widget));
 				    	} else {
-					        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(139, 209, 236));
+					        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(103, 198, 235));
 					        ((CodeElementUI)event.widget).setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
 					        for(Control control : element.getChildren()) {
-					        	control.setBackground(SWTResourceManager.getColor(139, 209, 236));
+					        	control.setBackground(SWTResourceManager.getColor(103, 198, 235));
 					        	if(control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
 					        		control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
 					        	}
@@ -232,6 +238,14 @@ public class ScoreListUI extends Composite {
 			}
 			
 		}
+	}
+	
+	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
+		addListenersAndMenuToCards(event);
+	};
+	
+	public void setMethodScore(Map<IMethodDescription, Score> scores) {
+		cardsComposite.setContent(scores);
 		cardsComposite.requestLayout();
 	}
 
@@ -366,25 +380,27 @@ public class ScoreListUI extends Composite {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					if(checkSelectedNotNull()) {	
-						if(option.getId().equals("CONTEXT_BASED_OPTION")) {
-							List<IMethodDescription> subjects = selectedSet.stream()
-									.map(selection -> (IMethodDescription)selection.getData())
-									.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-							customOptionSelected.invoke(subjects);
-						} else {
-							Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
-							try {
-								for(CodeElementUI element : selectedSet) {
-									assert element.getData("entry") instanceof Entry<?, ?>;
-									subjects.put(((Entry<IMethodDescription, Score>)(element.getData("entry"))).getKey(),
-											new Defineable<Double>(((Entry<IMethodDescription, Score>)(element.getData("entry"))).getValue().getValue()));
+					if(checkSelectedNotNull()) {
+						if(checkSelectedInteractive()) {
+							if(option.getId().equals("CONTEXT_BASED_OPTION")) {
+								List<IMethodDescription> subjects = selectedSet.stream()
+										.map(selection -> (IMethodDescription)selection.getData())
+										.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+								customOptionSelected.invoke(subjects);
+							} else {
+								Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
+								try {
+									for(CodeElementUI element : selectedSet) {
+										assert element.getData("entry") instanceof Entry<?, ?>;
+										subjects.put(((Entry<IMethodDescription, Score>)(element.getData("entry"))).getKey(),
+												new Defineable<Double>(((Entry<IMethodDescription, Score>)(element.getData("entry"))).getValue().getValue()));
+									}
+								
+								UserFeedback feedback = new UserFeedback(option, subjects);
+								optionSelected.invoke(feedback);
+								} catch (UnsupportedOperationException undefinedScore) {
+									MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback", "Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
 								}
-							
-							UserFeedback feedback = new UserFeedback(option, subjects);
-							optionSelected.invoke(feedback);
-							} catch (UnsupportedOperationException undefinedScore) {
-								MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback", "Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
 							}
 						}
 					}

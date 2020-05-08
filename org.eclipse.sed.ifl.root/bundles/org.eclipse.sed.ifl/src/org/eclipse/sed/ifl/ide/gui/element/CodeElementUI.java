@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -139,13 +140,13 @@ public class CodeElementUI extends Composite {
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		data.widthHint = 300;
+		data.widthHint = 330;
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		gridLayout.marginTop = 5;
 		gridLayout.marginLeft = 5;
 		setLayout(gridLayout);
-		setSize(300,167);
+		setSize(330,167);
 		
 		scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
@@ -258,6 +259,8 @@ public class CodeElementUI extends Composite {
 		}
 		
 		new Label(this, SWT.NONE);
+		
+		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 	}	
 	
 	private String checkScore(Score score){
@@ -283,4 +286,11 @@ public class CodeElementUI extends Composite {
 	    {
 	        return super.forceFocus();
 	    }
+
+	public void setChildrenBackgroundColor() {
+		for(Control control: this.getChildren()) {
+			control.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		}
+		
+	}
 }
