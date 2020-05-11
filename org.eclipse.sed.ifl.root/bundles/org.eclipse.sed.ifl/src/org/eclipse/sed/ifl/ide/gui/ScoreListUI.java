@@ -137,14 +137,16 @@ public class ScoreListUI extends Composite {
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
-		composite.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite = new GridLayout(2, false);
+		composite.setLayout(gl_composite);
 		
 		showFilterPart = new Button(composite, SWT.NONE);
 		showFilterPart.setText("Show filters");
 		
-		noItemsToDisplayLabel = new Label(composite, SWT.NONE);
-		GridData gd_noItemsToDisplayLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_noItemsToDisplayLabel.widthHint = 874;
+		noItemsToDisplayLabel = new Label(composite, SWT.CENTER);
+		noItemsToDisplayLabel.setAlignment(SWT.CENTER);
+		GridData gd_noItemsToDisplayLabel = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
+		gd_noItemsToDisplayLabel.horizontalIndent = 20;
 		noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
 		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
 		noItemsToDisplayLabel.setVisible(false);
@@ -241,6 +243,7 @@ public class ScoreListUI extends Composite {
 	}
 	
 	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
+		selectedSet.clear();
 		addListenersAndMenuToCards(event);
 	};
 	
@@ -326,7 +329,7 @@ public class ScoreListUI extends Composite {
 
 	private void addDisabledFeedbackOptions(Menu menu) {
 		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
-		noFeedback.setText("(User feedback is disabled)");
+		noFeedback.setText("(User feedback is disabled or score is undefined)");
 		noFeedback.setToolTipText("User feedback is disabled for some of the selected items. Remove these items from the selection to reenable it.");
 		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
 		noFeedback.setEnabled(false);

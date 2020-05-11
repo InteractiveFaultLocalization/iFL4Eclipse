@@ -140,13 +140,13 @@ public class CodeElementUI extends Composite {
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		data.widthHint = 330;
+		data.widthHint = 320;
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		gridLayout.marginTop = 5;
 		gridLayout.marginLeft = 5;
 		setLayout(gridLayout);
-		setSize(330,167);
+		setSize(320,167);
 		
 		scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));

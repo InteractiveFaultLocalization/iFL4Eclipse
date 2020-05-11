@@ -278,7 +278,8 @@ public class ResourceManager extends SWTResourceManager {
 				return getPluginImageFromUrl(url);
 			}
 		} catch (Throwable e) {
-			// Ignore any exceptions
+			System.err.println("icon not loaded");
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -371,6 +372,7 @@ public class ResourceManager extends SWTResourceManager {
 			return m_designTimePluginResourceProvider.getEntry(symbolicName, path);
 		}
 		// no such resource
+		
 		return null;
 	}
 

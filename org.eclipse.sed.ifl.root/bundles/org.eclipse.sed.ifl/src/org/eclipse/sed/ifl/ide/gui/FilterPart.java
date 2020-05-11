@@ -102,12 +102,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	
 	private void saveState() {
-		System.out.println("scale value in save state: " + scaleValue);
+		
 		
 		limitFilterEnabled = enabledCheckButton.isEnabled();
 		limitFilterChecked = enabledCheckButton.getSelection();
 		contextFilterEnabled = contextSizeCheckBox.isEnabled();
 		contextFilterChecked = contextSizeCheckBox.getSelection();
+		
 		scaleValue = Double.parseDouble(manualText.getText());
 		
 		limitFilterRelation = limitFilterCombo.getText();
@@ -121,6 +122,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		sortDescendingChosen = sortDescendingButton.getSelection();
 		
 		restoreStateNeeded = true;
+		
+		
 	}
 	
 	private void restoreState() {
@@ -132,10 +135,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		manualButton.setEnabled(enabledCheckButton.getSelection());
 		limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
 		scale.setSelection(toScale(scaleValue));
-		System.out.println("scale value in restore state: " + scaleValue);
 		manualText.setText(LIMIT_FORMAT.format(scaleValue));
 		limitFilterCombo.setText(limitFilterRelation);
-		//updateScoreFilterLimit(fromScale(scale.getSelection()));
 		updateLimitFilterRelation(limitFilterCombo.getText());
 		
 		contextSizeCheckBox.setEnabled(contextFilterEnabled);
@@ -145,19 +146,14 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		contextSizeCombo.setText(contextFilterRelation);
 		contextSizeSpinner.setSelection(contextFilterNumber);
 		contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-		System.out.println("scale value in restore state 1: " + scaleValue);
 		nameFilterText.setText(nameFilterString);
 		updateNameFilter(nameFilterText.getText());
-		System.out.println("scale value in restore state 2: " + scaleValue);
 		sortCheckButton.setEnabled(sortEnabled);
 		sortCheckButton.setSelection(sortChecked);
 		sortCombo.setText(sortString);
 		sortAscendingButton.setSelection(sortAscendingChosen);
 		sortDescendingButton.setSelection(sortDescendingChosen);
-		//sortRequired.invoke(event);
-		System.out.println("scale value in restore state 3: " + scaleValue);
 		setScoreFilter(minValue, maxValue, scaleValue);
-		System.out.println("scale value in restore state 4: " + scaleValue);
 	}
 	
 	@Override
@@ -392,7 +388,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public void widgetSelected(SelectionEvent e) {
 				
 				String text = contextSizeCombo.getText();
-				//System.out.println("Combo selected item: "+text);
 				updateContextSizeRelation(text);
 				saveState();
 			}
@@ -510,6 +505,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			scale.setSelection(toScale(current));
 			updateScoreFilterLimit(current);
 		}
+		saveState();
 	}
 	
 	public void setScoreFilter(Double min, Double max) {
@@ -540,16 +536,16 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			enabledCheckButton.setSelection(true);
 			lowerScoreLimitEnabled.invoke(true);
 		}
-		manualText.setEnabled(true);
-		manualButton.setEnabled(true);
-		scale.setEnabled(true);
+		manualText.setEnabled(enabledCheckButton.getSelection());
+		manualButton.setEnabled(enabledCheckButton.getSelection());
+		scale.setEnabled(enabledCheckButton.getSelection());
 		contextSizeCheckBox.setEnabled(true);
 		nameFilterText.setEnabled(true);
 		nameFilterClearButton.setEnabled(true);
 		limitFilterCombo.setEnabled(true);
 		sortCheckButton.setEnabled(true);
 		updateScoreFilterLimit(min);
-		saveState();
+		//saveState();
 		maxLabel.requestLayout();
 		minLabel.requestLayout();
 	}
@@ -559,7 +555,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		String formattedValue = LIMIT_FORMAT.format(value);
 		manualText.setText(formattedValue);
 		enabledCheckButton.setText("Show scores");
-		//enabledCheckButton.requestLayout();
 		lowerScoreLimitChanged.invoke(value);
 	}
 	
