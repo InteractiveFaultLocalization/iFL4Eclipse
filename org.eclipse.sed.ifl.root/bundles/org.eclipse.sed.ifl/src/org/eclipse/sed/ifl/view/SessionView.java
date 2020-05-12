@@ -39,7 +39,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 			scoreLoadRequested.invoke(new EmptyEvent());
 		};
 		scoreRecalculateRequestedListener = event -> {
-			scoreLoadRequested.invoke(new EmptyEvent());
+			scoreRecalculateRequested.invoke(new EmptyEvent());
 		};
 		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);

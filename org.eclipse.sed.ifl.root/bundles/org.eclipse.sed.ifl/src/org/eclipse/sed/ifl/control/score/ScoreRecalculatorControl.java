@@ -43,7 +43,10 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreLoade
 	}
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
-		public void invoke(String event) {
+		
+		
+		public void invoke(String event) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException("Function is not yet implemented");
 			
 		}
 	};
