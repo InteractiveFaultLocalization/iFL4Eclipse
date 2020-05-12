@@ -16,7 +16,7 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionView extends View implements IEmbeddable, IEmbedee {
 	private MainPart part;
-	
+
 	public SessionView(PartAccessor partAccessor) {
 		this.part = (MainPart) partAccessor.getPart(MainPart.ID);
 	}
@@ -25,12 +25,12 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 	public void setParent(Composite parent) {
 		part.setParent(parent);
 	}
-	
+
 	@Override
 	public void embed(IEmbeddable embedded) {
 		part.embed(embedded);
 	}
-	
+
 	@Override
 	public void init() {
 		service = part.getSite().getService(IPartService.class);
@@ -45,7 +45,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		super.init();
 	}
-	
+
 	@Override
 	public void teardown() {
 		service.removePartListener(stateListener);
@@ -54,24 +54,26 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		part.eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		super.teardown();
 	}
-	
+
 	private NonGenericListenerCollection<IWorkbenchPart> closed = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<IWorkbenchPart> eventClosed() {
 		return closed;
 	}
-	
+
 	private IPartService service;
 	private IPartListener stateListener;
-	
+
 	private void initUIStateListeners() {
 		stateListener = new IPartListener() {
 			@Override
-			public void partOpened(IWorkbenchPart part) { }
-			
+			public void partOpened(IWorkbenchPart part) {
+			}
+
 			@Override
-			public void partDeactivated(IWorkbenchPart part) {	}
-			
+			public void partDeactivated(IWorkbenchPart part) {
+			}
+
 			@Override
 			public void partClosed(IWorkbenchPart part) {
 				if (SessionView.this.part.equals(part)) {
@@ -79,35 +81,37 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 					SessionView.this.closed.invoke(part);
 				}
 			}
-			
+
 			@Override
-			public void partBroughtToTop(IWorkbenchPart part) { }
-			
+			public void partBroughtToTop(IWorkbenchPart part) {
+			}
+
 			@Override
-			public void partActivated(IWorkbenchPart part) { }
+			public void partActivated(IWorkbenchPart part) {
+			}
 		};
 		service.addPartListener(stateListener);
 		hideUndefinedListener = status -> hideUndefinedRequested.invoke(status);
 		part.eventHideUndefinedRequested().add(hideUndefinedListener);
 	}
-	
+
 	private NonGenericListenerCollection<EmptyEvent> scoreLoadRequested = new NonGenericListenerCollection<>();
 	private IListener<Action> scoreLoadRequestedListener;
-	
+
 	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadRequested() {
 		return scoreLoadRequested;
 	}
-	
+
 	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
 	private IListener<Boolean> hideUndefinedListener;
-	
+
 	public INonGenericListenerCollection<Boolean> eventHideUndefinedRequested() {
 		return hideUndefinedRequested;
 	}
-	
+
 	private NonGenericListenerCollection<EmptyEvent> scoreRecalculateRequested = new NonGenericListenerCollection<>();
 	private IListener<Action> scoreRecalculateRequestedListener;
-	
+
 	public INonGenericListenerCollection<EmptyEvent> eventScoreRecalculateRequested() {
 		return scoreRecalculateRequested;
 	}

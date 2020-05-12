@@ -48,20 +48,19 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
-	
+
 	private ActivityMonitorControl activityMonitor;
 	private PartMonitorControl partMonitor;
-	
+
 	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
 	}
-	
+
 	private boolean interactivity;
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
-	
-	
+
 	private ScoreListControl scoreListControl;
 
 	private Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
@@ -87,23 +86,21 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
-		
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter,
+				unrelevantFilter);
+
 		Random r = new Random();
 		interactivity = Math.random() < 0.5;
-		
+
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), r.nextBoolean()))
-		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+				.map(method -> new Method(identityFrom(method), locationFrom(method),
+						contextFrom(method, resolvedMethods), r.nextBoolean()))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
-		
-		Map<IMethodDescription, Score> sampleScores = methods.stream()
-		.map(method -> method)
-		.collect(
-			Collectors.collectingAndThen(
-				Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
-				Collections::unmodifiableMap));
+		Map<IMethodDescription, Score> sampleScores = methods.stream().map(method -> method)
+				.collect(Collectors.collectingAndThen(Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
+						Collections::unmodifiableMap));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
@@ -122,37 +119,34 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(scoreListControl);
 		addSubControl(scoreRecalculatorControl);
 		System.out.println(watch);
-		
+
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
 				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
-		
+
 	}
 
-	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method,
+			Map<IMethodBinding, IMethod> others) {
 		return accessor.getSiblings(method, others).entrySet().stream()
-		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
-		.map(contextMethod -> identityFrom(contextMethod))
-		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+				.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+				.map(contextMethod -> identityFrom(contextMethod))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
 
 	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
 		return new CodeChunkLocation(
-			EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
-			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
-			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset() + method.getValue().getSourceRange().getLength()))
-		);
+				EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset()
+						+ method.getValue().getSourceRange().getLength())));
 	}
 
 	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
-		return new MethodIdentity(
-			method.getKey().getName(),
-			accessor.getSignature(method.getKey()),
-			method.getKey().getDeclaringClass().getName(),
-			method.getKey().getReturnType().getName(),
-			method.getKey().getKey()
-		);
+		return new MethodIdentity(method.getKey().getName(), accessor.getSignature(method.getKey()),
+				method.getKey().getDeclaringClass().getName(), method.getKey().getReturnType().getName(),
+				method.getKey().getKey());
 	}
-	
+
 	@Override
 	public void init() {
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
@@ -163,10 +157,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
-		
+
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
-	
+
 	@Override
 	public void teardown() {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
@@ -178,17 +172,17 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreRecalculatorControl = null;
 		activityMonitor = null;
 	}
-	
+
 	private IListener<SideEffect> terminationReqestedListener = event -> {
 		getView().close();
 	};
 
 	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<EmptyEvent> eventFinished() {
 		return finished;
 	}
-	
+
 	private IListener<IWorkbenchPart> closeListener = part -> {
 		terminate();
 	};
@@ -201,18 +195,18 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private ScoreLoaderControl scoreLoaderControl;
 	private ScoreRecalculatorControl scoreRecalculatorControl;
-	
-	private IListener<EmptyEvent> scoreLoadRequestedListener =__ -> {
+
+	private IListener<EmptyEvent> scoreLoadRequestedListener = __ -> {
 		System.out.println("Loading scores from files are requested...");
 		this.scoreLoaderControl.load();
 	};
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
-	
-	private IListener<EmptyEvent> scoreRecalculateRequestedListener =__ -> {
-		System.out.println("Recalculating scores from files are requested...");
+
+	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
+		System.out.println("Recalculating scores are requested...");
 		this.scoreRecalculatorControl.load();
 	};
-	
+
 	private void initUIStateListeners() {
 		getView().eventClosed().add(closeListener);
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);

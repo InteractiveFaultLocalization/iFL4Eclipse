@@ -2,7 +2,7 @@ package org.eclipse.sed.ifl.control;
 
 import org.eclipse.sed.ifl.model.IModel;
 import org.eclipse.sed.ifl.view.IView;
-import org.eclipse.sed.ifl.view.ScoreRecalculatorView;
+
 
 public class Control<TModel extends IModel, TView extends IView> extends ViewlessControl<TModel> implements IControl<TModel, TView> {
 
@@ -16,10 +16,7 @@ public class Control<TModel extends IModel, TView extends IView> extends Viewles
 		this.view = view;
 	}
 	
-	public void setView(ScoreRecalculatorView scoreRecalculatorView) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 	
 	@Override
 	public void init() {
