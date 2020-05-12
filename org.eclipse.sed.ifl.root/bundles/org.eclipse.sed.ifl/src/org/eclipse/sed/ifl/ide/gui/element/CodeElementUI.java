@@ -150,8 +150,8 @@ public class CodeElementUI extends Composite {
 		
 		scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
+		System.out.println(scoreIcon.getImage().toString());
 		scoreIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		scoreIcon.setText("");
 		
 		Label scoreKeyLabel = new Label(this, SWT.NONE);
 		scoreKeyLabel.setText("Score:");
@@ -166,7 +166,6 @@ public class CodeElementUI extends Composite {
 		nameIcon = new Label(this, SWT.NONE);
 		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_blue.png"));
 		nameIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		nameIcon.setText("");
 		
 		Label nameKeyLabel = new Label(this, SWT.NONE);
 		nameKeyLabel.setText("Name:");
@@ -178,7 +177,6 @@ public class CodeElementUI extends Composite {
 		signatureIcon = new Label(this, SWT.NONE);
 		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.png"));
 		signatureIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		signatureIcon.setText("");
 		
 		Label signatureKeyLabel = new Label(this, SWT.NONE);
 		signatureKeyLabel.setText("Signature:");
@@ -193,7 +191,6 @@ public class CodeElementUI extends Composite {
 		parentTypeIcon = new Label(this, SWT.NONE);
 		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.png"));
 		parentTypeIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		parentTypeIcon.setText("");
 		
 		Label parentTypeKeyLabel = new Label(this, SWT.NONE);
 		parentTypeKeyLabel.setText("Parent type:");
@@ -205,7 +202,6 @@ public class CodeElementUI extends Composite {
 		pathIcon = new Label(this, SWT.NONE);
 		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_blue.png"));
 		pathIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		pathIcon.setText("");
 		
 		Label pathKeyLabel = new Label(this, SWT.NONE);
 		pathKeyLabel.setText("Path:");
@@ -220,7 +216,6 @@ public class CodeElementUI extends Composite {
 		positionIcon = new Label(this, SWT.NONE);
 		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_blue.png"));
 		positionIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		positionIcon.setText("");
 		
 		Label positionKeyLabel = new Label(this, SWT.NONE);
 		positionKeyLabel.setText("Position:");
@@ -232,7 +227,6 @@ public class CodeElementUI extends Composite {
 		contextSizeIcon = new Label(this, SWT.NONE);
 		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
 		contextSizeIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		contextSizeIcon.setText("");
 		
 		Label contextSizeKeyLabel = new Label(this, SWT.NONE);
 		contextSizeKeyLabel.setText("Context size:");
@@ -244,7 +238,6 @@ public class CodeElementUI extends Composite {
 		interactivityIcon = new Label(this, SWT.NONE);
 		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_blue.png"));
 		interactivityIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		interactivityIcon.setText("");
 		
 		Label interactivityKeyLabel = new Label(this, SWT.NONE);
 		interactivityKeyLabel.setText("Interactivity:");

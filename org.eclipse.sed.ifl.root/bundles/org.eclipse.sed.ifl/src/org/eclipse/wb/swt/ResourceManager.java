@@ -301,12 +301,15 @@ public class ResourceManager extends SWTResourceManager {
 						stream.close();
 					}
 				}
+				//System.out.println(image.toString());
 				return image;
 			} catch (Throwable e) {
-				// Ignore any exceptions
+				System.err.println("icon not loaded");
+				e.printStackTrace();
 			}
 		} catch (Throwable e) {
-			// Ignore any exceptions
+			System.err.println("icon not loaded");
+			e.printStackTrace();
 		}
 		return null;
 	}
