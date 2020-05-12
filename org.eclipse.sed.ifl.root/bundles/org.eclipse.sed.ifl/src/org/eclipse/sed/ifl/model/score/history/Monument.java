@@ -30,6 +30,10 @@ public class Monument<TScore extends Defineable<Double>, TSubject extends IMetho
 		return cause;
 	}
 	
+	public double getChange() {
+		return newScore.getValue() - oldScore.getValue();
+	}
+	
 	public Monument(TScore newScore, TScore oldScore, TSubject subject, TCause cause) {
 		super();
 		this.newScore = newScore;

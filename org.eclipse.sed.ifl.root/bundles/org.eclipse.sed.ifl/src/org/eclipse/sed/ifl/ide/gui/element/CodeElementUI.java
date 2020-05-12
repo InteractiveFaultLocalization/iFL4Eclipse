@@ -7,6 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -24,14 +25,14 @@ public class CodeElementUI extends Composite {
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
 	
-	Label scoreValueLabel;
-	Label nameValueLabel;
+	Text scoreValueLabel;
+	Text nameValueLabel;
 	Text pathValueLabel;
-	Label positionValueLabel;
-	Label parentTypeValueLabel;
-	Label interactivityValueLabel;
+	Text positionValueLabel;
+	Text parentTypeValueLabel;
+	Text interactivityValueLabel;
 	Text signatureValueLabel;
-	Label contextSizeValueLabel;
+	Text contextSizeValueLabel;
 	
 	Label scoreIcon;
 	Label nameIcon;
@@ -96,11 +97,11 @@ public class CodeElementUI extends Composite {
 		return contextSizeIcon;
 	}
 
-	public Label getScoreValueLabel() {
+	public Text getScoreValueLabel() {
 		return scoreValueLabel;
 	}
 
-	public Label getNameValueLabel() {
+	public Text getNameValueLabel() {
 		return nameValueLabel;
 	}
 
@@ -108,15 +109,15 @@ public class CodeElementUI extends Composite {
 		return pathValueLabel;
 	}
 
-	public Label getPositionValueLabel() {
+	public Text getPositionValueLabel() {
 		return positionValueLabel;
 	}
 
-	public Label getParentTypeValueLabel() {
+	public Text getParentTypeValueLabel() {
 		return parentTypeValueLabel;
 	}
 
-	public Label getInteractivityValueLabel() {
+	public Text getInteractivityValueLabel() {
 		return interactivityValueLabel;
 	}
 
@@ -124,7 +125,7 @@ public class CodeElementUI extends Composite {
 		return signatureValueLabel;
 	}
 
-	public Label getContextSizeValueLabel() {
+	public Text getContextSizeValueLabel() {
 		return contextSizeValueLabel;
 	}
 	
@@ -140,23 +141,22 @@ public class CodeElementUI extends Composite {
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		data.widthHint = 320;
+		data.widthHint = 280;
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		gridLayout.marginTop = 5;
 		gridLayout.marginLeft = 5;
 		setLayout(gridLayout);
-		setSize(320,167);
+		setSize(280,167);
 		
 		scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
-		System.out.println(scoreIcon.getImage().toString());
 		scoreIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		
 		Label scoreKeyLabel = new Label(this, SWT.NONE);
 		scoreKeyLabel.setText("Score:");
 		
-		scoreValueLabel = new Label(this, SWT.NONE);
+		scoreValueLabel = new Text(this, SWT.READ_ONLY);
 		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		scoreValueLabel.setText(checkScore(score));
 		
@@ -170,7 +170,7 @@ public class CodeElementUI extends Composite {
 		Label nameKeyLabel = new Label(this, SWT.NONE);
 		nameKeyLabel.setText("Name:");
 		
-		nameValueLabel = new Label(this, SWT.NONE);
+		nameValueLabel = new Text(this, SWT.READ_ONLY);
 		nameValueLabel.setText(name);
 		new Label(this, SWT.NONE);
 		
@@ -195,7 +195,7 @@ public class CodeElementUI extends Composite {
 		Label parentTypeKeyLabel = new Label(this, SWT.NONE);
 		parentTypeKeyLabel.setText("Parent type:");
 		
-		Label parentTypeValueLabel = new Label(this, SWT.NONE);
+		parentTypeValueLabel = new Text(this, SWT.READ_ONLY);
 		parentTypeValueLabel.setText(parentType);
 		new Label(this, SWT.NONE);
 		
@@ -220,7 +220,7 @@ public class CodeElementUI extends Composite {
 		Label positionKeyLabel = new Label(this, SWT.NONE);
 		positionKeyLabel.setText("Position:");
 		
-		positionValueLabel = new Label(this, SWT.NONE);
+		positionValueLabel = new Text(this, SWT.READ_ONLY);
 		positionValueLabel.setText(position);
 		new Label(this, SWT.NONE);
 		
@@ -231,7 +231,7 @@ public class CodeElementUI extends Composite {
 		Label contextSizeKeyLabel = new Label(this, SWT.NONE);
 		contextSizeKeyLabel.setText("Context size:");
 		
-		contextSizeValueLabel = new Label(this, SWT.NONE);
+		contextSizeValueLabel = new Text(this, SWT.READ_ONLY);
 		contextSizeValueLabel.setText(contextSize.toString());
 		new Label(this, SWT.NONE);
 		
@@ -242,7 +242,7 @@ public class CodeElementUI extends Composite {
 		Label interactivityKeyLabel = new Label(this, SWT.NONE);
 		interactivityKeyLabel.setText("Interactivity:");
 		
-		interactivityValueLabel = new Label(this, SWT.NONE);
+		interactivityValueLabel = new Text(this, SWT.READ_ONLY);
 		if(interactivity) {
 			interactivityValueLabel.setText("User feedback enabled");
 			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
@@ -267,7 +267,15 @@ public class CodeElementUI extends Composite {
 	
 	private Image checkLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		if (lastAction != null) {
-			String iconPath = lastAction.getCause().getChoice().getKind().getIconPath();
+			double changeDirection = lastAction.getChange();
+			String iconPath = "";
+			if(changeDirection > 0.0) {
+				iconPath = ScoreStatus.INCREASED.getIconPath();
+			} else if (changeDirection < 0.0) {
+				iconPath = ScoreStatus.DECREASED.getIconPath();
+			} else if (changeDirection == 0.0) {
+				iconPath = ScoreStatus.UNDEFINED.getIconPath();
+			}
 			if (iconPath != null) {
 				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 				return icon;
