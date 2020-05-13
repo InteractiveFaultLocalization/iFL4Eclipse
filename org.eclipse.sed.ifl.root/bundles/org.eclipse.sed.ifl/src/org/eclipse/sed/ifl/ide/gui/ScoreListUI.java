@@ -15,6 +15,7 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
+import org.eclipse.sed.ifl.ide.gui.element.SelectedElementUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -44,6 +45,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Point;
 
 
 
@@ -132,7 +135,7 @@ public class ScoreListUI extends Composite {
 	public ScoreListUI(Composite parent) {
 		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
-		setLayout(new GridLayout(1, false));
+		setLayout(new GridLayout(3, false));
 		
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -150,8 +153,26 @@ public class ScoreListUI extends Composite {
 		noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
 		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
 		noItemsToDisplayLabel.setVisible(false);
+		new Label(this, SWT.NONE);
+		new Label(this, SWT.NONE);
 		
 		cardsComposite = new CardHolderComposite(this, SWT.NONE);
+		
+		label = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
+		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label.heightHint = 481;
+		label.setLayoutData(gd_label);
+		
+		scrolledComposite = new ScrolledComposite(this, SWT.BORDER | SWT.V_SCROLL);
+		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_scrolledComposite.widthHint = 388;
+		gd_scrolledComposite.heightHint = 464;
+		scrolledComposite.setLayoutData(gd_scrolledComposite);
+		
+		selectedComposite = new Composite(scrolledComposite, SWT.NONE);
+		selectedComposite.setLayout(new GridLayout(1, false));
+		selectedComposite.setSize(new Point(388, 464));
+		scrolledComposite.setContent(selectedComposite);
 		
 		cardsComposite.eventDisplayedPageChanged().add(displayedPageChangedListener);
 		
@@ -228,6 +249,7 @@ public class ScoreListUI extends Composite {
 					        	}
 							}
 					        selectedSet.add(((CodeElementUI)event.widget));
+					        addSelectedElementToComposite(((CodeElementUI)event.widget));
 					    }
 				    	selectionChanged.invoke(selectedSet);
 			    	}
@@ -240,6 +262,11 @@ public class ScoreListUI extends Composite {
 			}
 			
 		}
+	}
+	
+	private void addSelectedElementToComposite(CodeElementUI element) {
+		SelectedElementUI selected = new SelectedElementUI(selectedComposite, SWT.NONE, element);
+		selected.requestLayout();
 	}
 	
 	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
@@ -437,6 +464,9 @@ public class ScoreListUI extends Composite {
 	
 	private Composite composite;
 	private CardHolderComposite cardsComposite;
+	private ScrolledComposite scrolledComposite;
+	private Label label;
+	private Composite selectedComposite;
 	
 	public void highlight(List<MethodIdentity> context) {
 			for (Control item : cardsComposite.getDisplayedCards()) {

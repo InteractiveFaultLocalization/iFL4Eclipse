@@ -40,7 +40,7 @@ public class CardHolderComposite extends Composite {
 		gl_cardArea.marginHeight = 0;
 		cardArea.setLayout(gl_cardArea);
 		GridData gd_cardArea = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		gd_cardArea.widthHint = 1400;
+		gd_cardArea.widthHint = 1300;
 		gd_cardArea.heightHint = 440;
 		cardArea.setLayoutData(gd_cardArea);
 
