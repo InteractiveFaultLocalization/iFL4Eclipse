@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.widgets.Composite;
 
 public class ScoreHistoryView extends View implements IEmbeddable {
@@ -21,8 +22,8 @@ public class ScoreHistoryView extends View implements IEmbeddable {
 		hide();
 	}
 	
-	public void addMonument(OptionKind kind, LocalDateTime creation) {
-		ui.putInRow(kind, creation);
+	public void addMonument(ScoreStatus status, LocalDateTime creation) {
+		ui.putInRow(status, creation);
 	}
 	
 	public void clearMonuments() {

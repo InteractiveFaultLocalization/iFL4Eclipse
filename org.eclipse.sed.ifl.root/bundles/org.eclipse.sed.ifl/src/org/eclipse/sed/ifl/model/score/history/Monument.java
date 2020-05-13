@@ -2,6 +2,7 @@ package org.eclipse.sed.ifl.model.score.history;
 
 import java.time.LocalDateTime;
 
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -11,6 +12,7 @@ public class Monument<TScore extends Defineable<Double>, TSubject extends IMetho
 	private TScore oldScore;
 	private TSubject subject;
 	private TCause cause;
+	private ScoreStatus changeDirection;
 	private LocalDateTime creation = LocalDateTime.now();
 	
 	public LocalDateTime getCreation() {
@@ -30,8 +32,12 @@ public class Monument<TScore extends Defineable<Double>, TSubject extends IMetho
 		return cause;
 	}
 	
-	public double getChange() {
+	private double getChangeDifference() {
 		return newScore.getValue() - oldScore.getValue();
+	}
+	
+	public ScoreStatus getChange() {
+		return changeDirection;
 	}
 	
 	public Monument(TScore newScore, TScore oldScore, TSubject subject, TCause cause) {
@@ -40,5 +46,12 @@ public class Monument<TScore extends Defineable<Double>, TSubject extends IMetho
 		this.oldScore = oldScore;
 		this.subject = subject;
 		this.cause = cause;
+		if(getChangeDifference() > 0.0) {
+			this.changeDirection = ScoreStatus.INCREASED;
+		} else if (getChangeDifference() < 0.0) {
+			this.changeDirection = ScoreStatus.DECREASED;
+		} else if (getChangeDifference() == 0.0) {
+			this.changeDirection = ScoreStatus.UNDEFINED;
+		}
 	}
 }

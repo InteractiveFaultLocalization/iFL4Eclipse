@@ -141,13 +141,13 @@ public class CodeElementUI extends Composite {
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		data.widthHint = 280;
+		data.widthHint = 310;
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		gridLayout.marginTop = 5;
 		gridLayout.marginLeft = 5;
 		setLayout(gridLayout);
-		setSize(280,167);
+	//	setSize(300,213);
 		
 		scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
@@ -267,15 +267,7 @@ public class CodeElementUI extends Composite {
 	
 	private Image checkLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		if (lastAction != null) {
-			double changeDirection = lastAction.getChange();
-			String iconPath = "";
-			if(changeDirection > 0.0) {
-				iconPath = ScoreStatus.INCREASED.getIconPath();
-			} else if (changeDirection < 0.0) {
-				iconPath = ScoreStatus.DECREASED.getIconPath();
-			} else if (changeDirection == 0.0) {
-				iconPath = ScoreStatus.UNDEFINED.getIconPath();
-			}
+			String iconPath = lastAction.getChange().getIconPath();
 			if (iconPath != null) {
 				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
 				return icon;
