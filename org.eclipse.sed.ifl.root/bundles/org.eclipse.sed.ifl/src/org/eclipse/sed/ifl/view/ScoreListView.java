@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
@@ -81,10 +82,10 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		return selectionChanged;
 	}
 	
-	private IListener<HashSet<CodeElementUI>> selectionChangedListener = event -> {
+	private IListener<HashSet<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (Control item : event) {
-			selection.add((IMethodDescription)item.getData());
+		for (Entry<IMethodDescription, Score> item : event) {
+			selection.add(item.getKey());
 		}
 		selectionChanged.invoke(selection);
 	};
