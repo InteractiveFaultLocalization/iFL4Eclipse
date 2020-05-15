@@ -55,6 +55,12 @@ public class ScoreListUI extends Composite {
 	private Label noItemsToDisplayLabel;
 	private Button showFilterPart;
 	
+	private Composite composite;
+	private CardHolderComposite cardsComposite;
+	private ScrolledComposite scrolledComposite;
+	private Label label;
+	private Composite selectedComposite;
+	
 	private HashSet<Entry<IMethodDescription, Score>> selectedSet = new HashSet<Entry<IMethodDescription, Score>>();
 
 	
@@ -157,13 +163,13 @@ public class ScoreListUI extends Composite {
 		new Label(this, SWT.NONE);
 		
 		cardsComposite = new CardHolderComposite(this, SWT.NONE);
-		GridData gd_cardsComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_cardsComposite = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
 		gd_cardsComposite.widthHint = 1259;
 		cardsComposite.setLayoutData(gd_cardsComposite);
 		
-		label = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
-		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label.heightHint = 458;
+		label = new Label(this, SWT.SEPARATOR | SWT.CENTER);
+		GridData gd_label = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gd_label.heightHint = 420;
 		label.setLayoutData(gd_label);
 		
 		scrolledComposite = new ScrolledComposite(this, SWT.V_SCROLL);
@@ -171,13 +177,13 @@ public class ScoreListUI extends Composite {
 		scrolledComposite.setExpandVertical(true);
 		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_scrolledComposite.widthHint = 384;
-		gd_scrolledComposite.heightHint = 467;
+		gd_scrolledComposite.heightHint = 427;
 		scrolledComposite.setLayoutData(gd_scrolledComposite);
 		
 		selectedComposite = new Composite(scrolledComposite, SWT.NONE);
 		selectedComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		selectedComposite.setLayout(new GridLayout(1, false));
-		selectedComposite.setSize(new Point(388, 464));
+		selectedComposite.setSize(new Point(378, 427));
 		scrolledComposite.setContent(selectedComposite);
 		scrolledComposite.setMinSize(selectedComposite.getSize());
 		
@@ -266,6 +272,7 @@ public class ScoreListUI extends Composite {
 	private void addSelectedElementToComposite(CodeElementUI element) {
 		SelectedElementUI selected = new SelectedElementUI(selectedComposite, SWT.NONE, element);
 		selected.eventSelectedRemoved().add(selectedRemovedListener);
+		selected.eventShowSelectedCard().add(showSelectedCardListener);
 		selected.requestLayout();
 		scrolledComposite.setMinSize(selectedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
@@ -293,6 +300,16 @@ public class ScoreListUI extends Composite {
 		}
 	}
 	
+	private IListener<Entry<IMethodDescription, Score>> showSelectedCardListener = event -> {
+		for (Entry<Integer, List<Map.Entry<IMethodDescription, Score>>> content : cardsComposite.getContents().entrySet()) {
+			for(Entry<IMethodDescription, Score> pageContent : content.getValue()) {
+				if(event.equals(pageContent)) {
+					cardsComposite.setPageCount(content.getKey(), 0);
+				}
+			}
+		}
+	};
+	
 	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
 		checkSelectedSet();
 		addListenersAndMenuToCards(event);
@@ -301,6 +318,7 @@ public class ScoreListUI extends Composite {
 	private IListener<Entry<IMethodDescription, Score>> selectedRemovedListener = event -> {
 		selectedSet.remove(event);
 		checkSelectedSet();
+		selectionChanged.invoke(selectedSet);
 	};
 	
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
@@ -493,11 +511,7 @@ public class ScoreListUI extends Composite {
 	}
 
 	
-	private Composite composite;
-	private CardHolderComposite cardsComposite;
-	private ScrolledComposite scrolledComposite;
-	private Label label;
-	private Composite selectedComposite;
+	
 	
 	public void highlight(List<MethodIdentity> context) {
 			for (Control item : cardsComposite.getDisplayedCards()) {

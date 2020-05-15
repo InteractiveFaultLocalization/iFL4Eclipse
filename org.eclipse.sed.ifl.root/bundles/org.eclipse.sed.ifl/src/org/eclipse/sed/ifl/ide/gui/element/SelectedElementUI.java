@@ -14,6 +14,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
@@ -90,6 +92,14 @@ public class SelectedElementUI extends Composite {
 			}
 			
 		});
+		
+		addMouseListener(new MouseAdapter() {
+			public void mouseDown(MouseEvent event) {
+				if(event.button == 1) {
+					showSelectedCard.invoke(originData);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -97,10 +107,19 @@ public class SelectedElementUI extends Composite {
 		// Disable the check that prevents subclassing of SWT components
 	}
 
+	public boolean setFocus() {
+		return super.forceFocus();
+	}
+	
 	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> selectedRemoved = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventSelectedRemoved() {
 		return selectedRemoved;
 	}
 	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> showSelectedCard = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventShowSelectedCard() {
+		return showSelectedCard;
+	}
 }

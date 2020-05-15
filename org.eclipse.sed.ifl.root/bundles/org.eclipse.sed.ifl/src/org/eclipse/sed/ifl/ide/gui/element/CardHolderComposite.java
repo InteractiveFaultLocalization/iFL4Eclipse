@@ -14,12 +14,16 @@ import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.RowData;
 
 public class CardHolderComposite extends Composite {
 
@@ -28,33 +32,34 @@ public class CardHolderComposite extends Composite {
 	private Composite cardArea;
 	private Composite buttonArea;
 	private int pageCount = 1;
-	private Label pageCountLabel;
+	private CLabel pageCountLabel;
 	
 	public CardHolderComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		
 		cardArea = new Composite(this, SWT.NONE);
-		GridLayout gl_cardArea = new GridLayout(4, false);
+		GridLayout gl_cardArea = new GridLayout(4, true);
 		gl_cardArea.marginWidth = 0;
 		gl_cardArea.marginHeight = 0;
 		cardArea.setLayout(gl_cardArea);
 		GridData gd_cardArea = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		gd_cardArea.widthHint = 1300;
-		gd_cardArea.heightHint = 440;
+		gd_cardArea.heightHint = 370;
 		cardArea.setLayoutData(gd_cardArea);
 
 		buttonArea = new Composite(this, SWT.NONE);
-		buttonArea.setLayout(new GridLayout(5, false));
+		RowLayout rl_buttonArea = new RowLayout(SWT.HORIZONTAL);
+		rl_buttonArea.justify = true;
+		buttonArea.setLayout(rl_buttonArea);
 		GridData gd_buttonArea = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		gd_buttonArea.heightHint = 52;
-		gd_buttonArea.widthHint = 438;
+		gd_buttonArea.heightHint = 32;
+		gd_buttonArea.widthHint = 171;
 		buttonArea.setLayoutData(gd_buttonArea);
 		
-		setSize(Math.max(cardArea.getSize().x, buttonArea.getSize().x), Math.addExact(cardArea.getSize().y, buttonArea.getSize().y));
+		setSize(1429, 575);
 		
 		Button home = new Button(buttonArea, SWT.NONE);
-		home.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		home.setText("<<");
 		home.addSelectionListener(new SelectionListener() {
 
@@ -70,7 +75,6 @@ public class CardHolderComposite extends Composite {
 		});
 		
 		Button pageDown = new Button(buttonArea, SWT.NONE);
-		pageDown.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		pageDown.setText("<");
 		pageDown.addSelectionListener(new SelectionListener() {
 
@@ -86,11 +90,12 @@ public class CardHolderComposite extends Composite {
 			
 		});
 		
-		pageCountLabel = new Label(buttonArea, SWT.NONE);
-		pageCountLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		pageCountLabel = new CLabel(buttonArea, SWT.CENTER);
+		pageCountLabel.setLayoutData(new RowData(SWT.DEFAULT, 25));
+		pageCountLabel.setAlignment(SWT.CENTER);
+		pageCountLabel.setText("");
 		
 		Button pageUp = new Button(buttonArea, SWT.NONE);
-		pageUp.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		pageUp.setText(">");
 		pageUp.addSelectionListener(new SelectionListener() {
 
@@ -107,7 +112,6 @@ public class CardHolderComposite extends Composite {
 		});
 		
 		Button end = new Button(buttonArea, SWT.NONE);
-		end.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		end.setText(">>");
 		end.addSelectionListener(new SelectionListener() {
 
@@ -179,7 +183,7 @@ public class CardHolderComposite extends Composite {
 		return rvList;
 	}
 	
-	private void setPageCount(int currentPage, int change) {
+	public void setPageCount(int currentPage, int change) {
 		if(currentPage+change >= 1 && currentPage+change <= contents.size()) {
 			setPageContent(currentPage+change);
 			pageCount = currentPage+change;
@@ -194,6 +198,10 @@ public class CardHolderComposite extends Composite {
 			control.setMenu(null);
 			control.dispose();
 		}
+	}
+	
+	public HashMap<Integer, List<Map.Entry<IMethodDescription, Score>>> getContents() {
+		return contents;
 	}
 	
 	private NonGenericListenerCollection<List<CodeElementUI>> displayedPageChanged = new NonGenericListenerCollection<>();

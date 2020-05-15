@@ -219,7 +219,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case LastAction:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getCause().getChoice().getKind().name().compareTo(b.getValue().getLastAction().getCause().getChoice().getKind().name())))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getChange().compareTo(b.getValue().getLastAction().getChange())))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			default:
