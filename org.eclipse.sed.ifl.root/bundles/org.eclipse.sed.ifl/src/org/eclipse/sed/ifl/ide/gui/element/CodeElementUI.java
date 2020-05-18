@@ -2,8 +2,12 @@ package org.eclipse.sed.ifl.ide.gui.element;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.sed.ifl.control.score.Score;
@@ -17,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.ResourceManager;
 
@@ -254,6 +259,17 @@ public class CodeElementUI extends Composite {
 		new Label(this, SWT.NONE);
 		
 		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		
+		this.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		
+		for(Control control : this.getChildren()) {
+			if(control instanceof Text) {
+				control.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_IBEAM));
+			} else {
+				dispatchMouseEventToParent(control);
+			}
+		}
+		
 	}	
 	
 	private String checkScore(Score score){
@@ -285,5 +301,19 @@ public class CodeElementUI extends Composite {
 			control.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		}
 		
+	}
+	
+	private void dispatchMouseEventToParent(Control child) {
+		child.addListener(SWT.MouseDown, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				if(event.type == SWT.MouseDown) {
+					child.getParent().notifyListeners(SWT.MouseDown, event);
+				}
+				
+			}
+			
+		});
 	}
 }

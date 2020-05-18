@@ -1,17 +1,17 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
-import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -21,7 +21,6 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {
@@ -82,7 +81,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		return selectionChanged;
 	}
 	
-	private IListener<HashSet<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
+	private IListener<List<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
 		for (Entry<IMethodDescription, Score> item : event) {
 			selection.add(item.getKey());

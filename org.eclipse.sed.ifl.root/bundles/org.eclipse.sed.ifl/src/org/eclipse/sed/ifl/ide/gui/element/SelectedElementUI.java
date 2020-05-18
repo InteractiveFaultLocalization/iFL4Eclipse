@@ -2,8 +2,13 @@ package org.eclipse.sed.ifl.ide.gui.element;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
@@ -26,9 +31,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.ResourceManager;
 
 public class SelectedElementUI extends Composite {
+	
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private Text scoreValueLabel;
 	private Text signatureValueLabel;
 	private Entry<IMethodDescription, Score> originData;
+
+	public Entry<IMethodDescription, Score> getOriginData() {
+		return originData;
+	}
 
 	/**
 	 * Create the composite.
@@ -45,6 +58,8 @@ public class SelectedElementUI extends Composite {
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		setLayout(gridLayout);
+		
+		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		
 		Label scoreIcon = new Label(this, SWT.NONE);
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
@@ -100,6 +115,9 @@ public class SelectedElementUI extends Composite {
 				}
 			}
 		});
+		
+		removeButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		
 	}
 
 	@Override
@@ -109,6 +127,12 @@ public class SelectedElementUI extends Composite {
 
 	public boolean setFocus() {
 		return super.forceFocus();
+	}
+	
+	public void originChanged(Entry<IMethodDescription, Score> origin) {
+		this.originData = origin;
+		this.scoreValueLabel.setText(LIMIT_FORMAT.format(origin.getValue().getValue()));
+		this.signatureValueLabel.setText(origin.getKey().getId().getSignature());
 	}
 	
 	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> selectedRemoved = new NonGenericListenerCollection<>();
