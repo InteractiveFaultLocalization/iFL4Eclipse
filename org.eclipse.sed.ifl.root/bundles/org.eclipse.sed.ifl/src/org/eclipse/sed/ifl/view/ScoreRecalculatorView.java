@@ -15,17 +15,14 @@ public class ScoreRecalculatorView extends View {
 		dialog.setFilterExtensions(new String[] { "*.csv" });
 	}
 
-	private NonGenericListenerCollection<String> fileSelected = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<String> recalculationSelected = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<String> eventFileSelected() {
-		return fileSelected;
+	public INonGenericListenerCollection<String> eventrecalculationSelected() {
+		return recalculationSelected;
 	}
 
-	public void select() {
-		String path = dialog.open();
-		if (path != null) {
-			fileSelected.invoke(path);
-		}
+	public void select() {	
+			recalculationSelected.invoke("Recalculation");
 	}
 
 }

@@ -3,10 +3,9 @@ package org.eclipse.sed.ifl.control.score;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
-import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.ScoreRecalculatorView;
 
-public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreLoaderView> {
+public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreRecalculatorView> {
 
 	private boolean interactivity;
 	
@@ -63,12 +62,14 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreLoade
 	};
 
 	@Override
-	public void init() throws UnsupportedOperationException {
+	public void init() {
+		getView().eventrecalculationSelected().add(fileSelectedListener);
 		super.init();
 	}
 
 	@Override
 	public void teardown() {
+		getView().eventrecalculationSelected().remove(fileSelectedListener);
 		super.teardown();
 	}
 
