@@ -259,13 +259,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
 		contextSizeFilter.setLimit(limit);
-		System.out.println("Context size filter limit changed to: " + limit);
 		refreshView();
 	};
 	
 	private IListener<String> contextSizeRelationChangedListener = relation -> {
 		contextSizeFilter.setRelation(relation);
-		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
 	};
 	

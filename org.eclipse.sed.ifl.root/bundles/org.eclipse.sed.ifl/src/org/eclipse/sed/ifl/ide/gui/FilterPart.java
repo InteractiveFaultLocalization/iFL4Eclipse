@@ -102,8 +102,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	
 	private void saveState() {
-		
-		
 		limitFilterEnabled = enabledCheckButton.isEnabled();
 		limitFilterChecked = enabledCheckButton.getSelection();
 		contextFilterEnabled = contextSizeCheckBox.isEnabled();
@@ -122,14 +120,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		sortDescendingChosen = sortDescendingButton.getSelection();
 		
 		restoreStateNeeded = true;
-		
-		
 	}
 	
 	private void restoreState() {
 		enabledCheckButton.setEnabled(limitFilterEnabled);
 		enabledCheckButton.setSelection(limitFilterChecked);
 		lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
+		
 		scale.setEnabled(enabledCheckButton.getSelection());
 		manualText.setEnabled(enabledCheckButton.getSelection());
 		manualButton.setEnabled(enabledCheckButton.getSelection());
@@ -146,14 +143,18 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		contextSizeCombo.setText(contextFilterRelation);
 		contextSizeSpinner.setSelection(contextFilterNumber);
 		contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-		nameFilterText.setText(nameFilterString);
-		updateNameFilter(nameFilterText.getText());
+		
 		sortCheckButton.setEnabled(sortEnabled);
 		sortCheckButton.setSelection(sortChecked);
 		sortCombo.setText(sortString);
 		sortAscendingButton.setSelection(sortAscendingChosen);
 		sortDescendingButton.setSelection(sortDescendingChosen);
+		sortCheckButton.notifyListeners(SWT.Selection, new Event());
+		
 		setScoreFilter(minValue, maxValue, scaleValue);
+
+		nameFilterText.setText(nameFilterString);
+		updateNameFilter(nameFilterText.getText());
 	}
 	
 	@Override
@@ -169,7 +170,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Override
 	public void createPartControl(Composite parent) {
 		composite = parent;
-		//composite.setLayoutData(BorderLayout.CENTER);
 		composite.setLayout(new GridLayout(1, false));
 		
 		descLabel = new Label(parent, SWT.NONE);
@@ -229,17 +229,53 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		sortCombo.add("Last action");
 		sortCombo.setText("Score");
 		sortCombo.addListener(SWT.Selection, sortListener);
+		sortCombo.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				saveState();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
 		sortAscendingButton = new Button(sortComposite, SWT.RADIO);
 		sortAscendingButton.setEnabled(false);
 		sortAscendingButton.setText("A -> Z");
 		sortAscendingButton.addListener(SWT.Selection, sortListener);
+		sortAscendingButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				saveState();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
 		sortDescendingButton = new Button(sortComposite, SWT.RADIO);
 		sortDescendingButton.setSelection(true);
 		sortDescendingButton.setEnabled(false);
 		sortDescendingButton.setText("Z -> A");
 		sortDescendingButton.addListener(SWT.Selection, sortListener);
+		sortDescendingButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				saveState();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
 		enabledCheckButton = new Button(limitFilterComposite, SWT.CHECK);
 		enabledCheckButton.setToolTipText("enable");
@@ -386,7 +422,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
 				String text = contextSizeCombo.getText();
 				updateContextSizeRelation(text);
 				saveState();
@@ -545,7 +580,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		limitFilterCombo.setEnabled(true);
 		sortCheckButton.setEnabled(true);
 		updateScoreFilterLimit(min);
-		//saveState();
 		maxLabel.requestLayout();
 		minLabel.requestLayout();
 	}
@@ -661,6 +695,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			arg.setDescending(dir == SWT.DOWN);
 			
 			sortRequired.invoke(arg);
+			saveState();
 		}
 		
 	};
