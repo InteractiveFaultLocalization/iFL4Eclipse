@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.gui.element;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import java.math.RoundingMode;
@@ -25,6 +26,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -116,10 +118,33 @@ public class SelectedElementUI extends Composite {
 			}
 		});
 		
-		removeButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		this.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		removeButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_ARROW));
+		
+		for(Control control : this.getChildren()) {
+			if(control instanceof Text) {
+				control.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_IBEAM));
+			} else if (!(control instanceof Button)){
+				dispatchMouseEventToParent(control);
+			}
+		}
 		
 	}
 
+	private void dispatchMouseEventToParent(Control child) {
+		child.addListener(SWT.MouseDown, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				if(event.type == SWT.MouseDown) {
+					child.getParent().notifyListeners(SWT.MouseDown, event);
+				}
+				
+			}
+			
+		});
+	}
+	
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
