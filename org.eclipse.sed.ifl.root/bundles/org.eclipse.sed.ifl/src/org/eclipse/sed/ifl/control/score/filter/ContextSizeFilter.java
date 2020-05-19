@@ -13,7 +13,7 @@ public class ContextSizeFilter extends ScoreFilter {
 
 	private Integer limit = 0;
 	
-	private String relation = "=";
+	private String relation = ">=";
 	
 	public void setLimit(Integer value) {
 		limit = value;

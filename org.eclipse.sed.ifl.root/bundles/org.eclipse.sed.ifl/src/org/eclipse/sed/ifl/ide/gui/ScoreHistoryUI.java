@@ -8,6 +8,7 @@ import org.eclipse.swt.layout.FillLayout;
 import java.time.LocalDateTime;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Label;
@@ -35,8 +36,8 @@ public class ScoreHistoryUI extends Composite {
 		monumentRow.setLayout(new FillLayout(SWT.HORIZONTAL));
 	}
 	
-	public void putInRow(OptionKind kind, LocalDateTime creation) {
-		Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", kind.getIconPath());
+	public void putInRow(ScoreStatus status, LocalDateTime creation) {
+		Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", status.getIconPath());
 		new MonumentUI(monumentRow, SWT.NONE, icon, creation);
 		monumentRow.requestLayout();
 	}

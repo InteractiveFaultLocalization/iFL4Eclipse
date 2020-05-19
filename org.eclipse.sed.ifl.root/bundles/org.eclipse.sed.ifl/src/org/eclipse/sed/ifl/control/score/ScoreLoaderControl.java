@@ -86,7 +86,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 						return;
 					}
 					
-					//boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
+					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					Score score = new Score(value);
 					loadedScores.put(entry, score);
@@ -108,6 +108,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 				SWT.NONE);
 			} catch (Exception e) {
 				MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "The plug-in was unable to open the CSV file. Please check if the CSV file is corrupted or is not properly formatted.", SWT.NONE);
+				e.printStackTrace();
 			}
 			System.out.println(watch);
 		}

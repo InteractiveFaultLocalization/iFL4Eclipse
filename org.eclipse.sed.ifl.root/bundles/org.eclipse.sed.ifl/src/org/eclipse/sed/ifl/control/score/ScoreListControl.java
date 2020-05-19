@@ -19,6 +19,7 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
+import org.eclipse.sed.ifl.control.score.filter.FilterControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.NameFilter;
@@ -27,6 +28,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
 import org.eclipse.sed.ifl.model.monitor.event.ConfirmEvent;
@@ -52,6 +54,7 @@ import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
+import org.eclipse.sed.ifl.view.FilterView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
@@ -66,6 +69,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private ScoreHistoryControl scoreHistory;
 
 	private ContextBasedOptionCreatorControl contextBasedOptionCreator; 
+	
+	private FilterControl filterControl;
 
 	@Override
 	public void init() {
@@ -77,6 +82,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().embed(scoreHistoryView);
 		scoreHistory.setView(scoreHistoryView);
 		
+		filterControl = new FilterControl();
+		filterControl.setView(new FilterView());
+		filterControl.setModel(new FilterModel());
+		
 		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 		contextBasedOptionCreator.setModel(new ContextBasedOptionCreatorModel());
 		contextBasedOptionCreator.setView(new ContextBasedOptionCreatorView());
@@ -84,14 +93,14 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 		this.addSubControl(activityMonitor);
 		this.addSubControl(scoreHistory);
+		this.addSubControl(filterControl);
 		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
 		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
+		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
-		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
-		getView().eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		handler.eventHighLightRequested().add(highlightRequestListener);;
@@ -99,18 +108,24 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filters.add(lessOrEqualFilter);
 		filters.add(contextSizeFilter);
 		filters.add(nameFilter);
-		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
-		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
-		getView().eventcontextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
-		getView().eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
-		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
-		getView().eventNameFilterChanged().add(nameFilterChangedListener);
+		
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventNavigateToContext().add(navigateToContextListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
+		
+		getView().eventOpenFiltersPart().add(openFiltersPage);
+		filterControl.eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
+		filterControl.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
+		filterControl.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
+		filterControl.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
+		filterControl.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
+		filterControl.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
+		filterControl.eventNameFilterChanged().add(nameFilterChangedListener);
+		filterControl.eventSortRequired().add(sortListener);
+		
 		super.init();
 	}
 
@@ -127,15 +142,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
-		getView().eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
-		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
-		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
-		getView().eventcontextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
-		getView().eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
-		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
-		getView().eventNameFilterChanged().remove(nameFilterChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
+		
+		getView().eventOpenFiltersPart().remove(openFiltersPage);
+		filterControl.eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
+		filterControl.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
+		filterControl.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
+		filterControl.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
+		filterControl.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
+		filterControl.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
+		filterControl.eventNameFilterChanged().remove(nameFilterChangedListener);
+		filterControl.eventSortRequired().add(sortListener);
+		
 		super.teardown();
 		activityMonitor = null;
 		scoreHistory = null;
@@ -200,7 +219,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case LastAction:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getCause().getChoice().getKind().name().compareTo(b.getValue().getLastAction().getCause().getChoice().getKind().name())))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getChange().compareTo(b.getValue().getLastAction().getChange())))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			default:
@@ -213,6 +232,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		return toDisplay;
 	}
 
+	private IListener<EmptyEvent> openFiltersPage = event -> {
+		filterControl.showFilterPart();
+	};
+	
 	public void setHideUndefinedScores(Boolean status) {
 		System.out.println("hiding undefined scores are requested to set: " + status);
 		hideUndefinedFilter.setEnabled(status);
@@ -236,13 +259,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
 		contextSizeFilter.setLimit(limit);
-		System.out.println("Context size filter limit changed to: " + limit);
 		refreshView();
 	};
 	
 	private IListener<String> contextSizeRelationChangedListener = relation -> {
 		contextSizeFilter.setRelation(relation);
-		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
 	};
 	
@@ -279,6 +300,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().highlight(context);
 		if (event.size() == 1) {
 			scoreHistory.display(event.get(0));
+		} else {
+			scoreHistory.hideView();
 		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
@@ -305,7 +328,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			System.out.println("size of userfeedback list: " + event.getSubjects().size());
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoice().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
@@ -336,7 +358,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
 		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
 		if (min.isPresent() && max.isPresent()) {
-			getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+			//getView().setScoreFilter(min.get().getValue(), max.get().getValue());
+			filterControl.setScoreFilter(min.get().getValue(), max.get().getValue());
 		}
 		handler.loadMethodsScoreMap(rawScores);
 		//TODO: history-saving-bug history should be saved here but we do not have the cause, since this event come from the model,
@@ -391,7 +414,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		if (rawScores.size() > TOP_SCORE_LIMIT && min.isPresent() && max.isPresent()) {
 			Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList()).get(0).getValue();
 			if (limit.isDefinit()) {
-				getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
+				//getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
+				filterControl.setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
 			}
 			MessageDialog.open(
 					MessageDialog.INFORMATION, null,
@@ -407,5 +431,15 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			rvList.add(method.getId().getName());
 		}
 		return rvList;
+	}
+
+	public void resetFilterState() {
+		filterControl.resetFilterState();
+		
+	}
+
+	public void closeFilterPart() {
+		filterControl.close();
+		
 	}
 }
