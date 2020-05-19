@@ -7,9 +7,7 @@ import org.eclipse.sed.ifl.view.ScoreRecalculatorView;
 
 public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreRecalculatorView> {
 
-	private boolean interactivity;
 	
-	private ScoreRecalculatorView view;
 
 	
 	
@@ -21,11 +19,10 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreRecal
 		getView().select();
 	}
 	
+	private boolean interactivity;
 	
-	public void setView(ScoreRecalculatorView scoreRecalculatorView) {
-		this.view = view;
-		
-	}
+	
+	
 
 
 	public class Entry {
@@ -53,7 +50,7 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreRecal
 		}
 	}
 
-	private IListener<String> fileSelectedListener = new IListener<String>() {
+	private IListener<String> eventrecalculationSelected = new IListener<String>() {
 
 		public void invoke(String event) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException("Function is not yet implemented");
@@ -63,13 +60,13 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreRecal
 
 	@Override
 	public void init() {
-		getView().eventrecalculationSelected().add(fileSelectedListener);
+		getView().eventrecalculationSelected().add(eventrecalculationSelected);
 		super.init();
 	}
 
 	@Override
 	public void teardown() {
-		getView().eventrecalculationSelected().remove(fileSelectedListener);
+		getView().eventrecalculationSelected().remove(eventrecalculationSelected);
 		super.teardown();
 	}
 
