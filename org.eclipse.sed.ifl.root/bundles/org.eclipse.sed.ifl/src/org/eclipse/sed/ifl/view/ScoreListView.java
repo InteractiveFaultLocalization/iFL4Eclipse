@@ -1,8 +1,11 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
@@ -18,8 +21,6 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {
@@ -41,7 +42,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	public void highlightRequest(List<IMethodDescription> list) {
-		ui.highlightNonInteractiveContext(list);
+		//ui.highlightNonInteractiveContext(list);
 	}
 	
 	public void createOptionsMenu(Iterable<Option> options) {
@@ -80,10 +81,10 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		return selectionChanged;
 	}
 	
-	private IListener<Table> selectionChangedListener = event -> {
+	private IListener<List<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (TableItem item : event.getSelection()) {
-			selection.add((IMethodDescription)item.getData());
+		for (Entry<IMethodDescription, Score> item : event) {
+			selection.add(item.getKey());
 		}
 		selectionChanged.invoke(selection);
 	};
@@ -133,13 +134,6 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.highlight(context);
 	}
 	
-	public void setScoreFilter(double min, double max, double current) {
-		ui.setScoreFilter(min, max, current);
-	}
-	
-	public void setScoreFilter(double min, double max) {
-		ui.setScoreFilter(min, max);
-	}
 	
 	public void showNoItemsLabel(boolean show) {
 		ui.showNoItemsLabel(show);

@@ -24,10 +24,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 
 /**
  * This class represents a preference page that
@@ -172,6 +174,10 @@ public class IFLPreferencePage
 		checkLogEnabled();
 		userIdField.getTextControl(getFieldEditorParent()).addModifyListener(userIdChanged);
 		scenarioIdField.getTextControl(getFieldEditorParent()).addModifyListener(scenarioIdChanged);
+		
+		Group interactivity = new Group(getFieldEditorParent().getParent(), SWT.NONE);
+		interactivity.setText("Choose the interactivity\n of the code elements");
+		addField(new RadioGroupFieldEditor("interactivity", "", 1, new String[][]{{"Randomized", "random"}, {"All true", "allTrue"}, {"All false", "allFalse"}}, interactivity, false));
 	}
 
 	/* (non-Javadoc)

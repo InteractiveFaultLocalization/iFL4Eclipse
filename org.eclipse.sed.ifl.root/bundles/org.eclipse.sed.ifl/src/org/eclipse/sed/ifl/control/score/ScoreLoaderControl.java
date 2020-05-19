@@ -86,7 +86,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 						return;
 					}
 					
-					//boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
+					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					Score score = new Score(value);
 					loadedScores.put(entry, score);

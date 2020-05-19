@@ -27,7 +27,7 @@ public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistory
 		} else {
 			getView().show();
 			for (Monument<Score,IMethodDescription,IUserFeedback> monument : monuments) {
-				getView().addMonument(monument.getCause().getChoice().getKind(), monument.getCreation());
+				getView().addMonument(monument.getChange(), monument.getCreation());
 			}
 		}
 	}

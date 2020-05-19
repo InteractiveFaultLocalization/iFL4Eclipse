@@ -29,6 +29,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("generatedId", "");
 		store.setDefault("macAddress", "");
 		store.setDefault("ipAddress", "");
+		store.setDefault("interactivity", "random");
 	}
 
 }

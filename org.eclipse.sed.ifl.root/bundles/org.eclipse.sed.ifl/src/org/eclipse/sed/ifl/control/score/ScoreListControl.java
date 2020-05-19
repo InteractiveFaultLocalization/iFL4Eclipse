@@ -96,9 +96,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		this.addSubControl(filterControl);
 		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
 		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
+		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().refreshScores(getModel().getScores());
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
-		getView().createOptionsMenu(handler.getProvidedOptions());
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
@@ -219,7 +219,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case LastAction:
-				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getCause().getChoice().getKind().name().compareTo(b.getValue().getLastAction().getCause().getChoice().getKind().name())))
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0 : a.getValue().getLastAction().getChange().compareTo(b.getValue().getLastAction().getChange())))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			default:
@@ -259,13 +259,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
 		contextSizeFilter.setLimit(limit);
-		System.out.println("Context size filter limit changed to: " + limit);
 		refreshView();
 	};
 	
 	private IListener<String> contextSizeRelationChangedListener = relation -> {
 		contextSizeFilter.setRelation(relation);
-		System.out.println("Context size filter relation changed to: " + relation);
 		refreshView();
 	};
 	
@@ -302,6 +300,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().highlight(context);
 		if (event.size() == 1) {
 			scoreHistory.display(event.get(0));
+		} else {
+			scoreHistory.hideView();
 		}
 		activityMonitor.log(new SelectionChangedEvent(event));
 	};
@@ -328,7 +328,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			activityMonitor.log(new UserFeedbackEvent(event));
 		} else {
 			boolean confirmed = false;
-			System.out.println("size of userfeedback list: " + event.getSubjects().size());
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(), "Terminal choice confirmation:" + event.getChoice().getTitle(),
 					"You choose an option which will end this iFL session with a " + (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 					+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
