@@ -63,14 +63,12 @@ public class ScoreRecalculatorControl extends Control<ScoreListModel, ScoreLoade
 	};
 
 	@Override
-	public void init() {
-		getView().eventFileSelected().add(fileSelectedListener);
+	public void init() throws UnsupportedOperationException {
 		super.init();
 	}
 
 	@Override
 	public void teardown() {
-		getView().eventFileSelected().remove(fileSelectedListener);
 		super.teardown();
 	}
 
