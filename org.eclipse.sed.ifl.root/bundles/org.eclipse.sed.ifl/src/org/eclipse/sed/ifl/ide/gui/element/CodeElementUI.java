@@ -6,12 +6,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -161,12 +158,17 @@ public class CodeElementUI extends Composite {
 		Label scoreKeyLabel = new Label(this, SWT.NONE);
 		scoreKeyLabel.setText("Score:");
 		
+		Label lastActionLabel = new Label(this, SWT.NONE);
+		GridData gd_lastActionLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		Boolean hideLastActionIcon = (lastAction == null);
+		gd_lastActionLabel.exclude = hideLastActionIcon;
+		lastActionLabel.setLayoutData(gd_lastActionLabel);
+		lastActionLabel.setImage(checkLastAction(lastAction));
+		
 		scoreValueLabel = new Text(this, SWT.READ_ONLY);
+		scoreValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, hideLastActionIcon ? 2 : 1, 1));
 		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		scoreValueLabel.setText(checkScore(score));
-		
-		Label lastActionLabel = new Label(this, SWT.NONE);
-		lastActionLabel.setImage(checkLastAction(lastAction));
 		
 		nameIcon = new Label(this, SWT.NONE);
 		nameIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/name_blue.png"));
@@ -176,8 +178,8 @@ public class CodeElementUI extends Composite {
 		nameKeyLabel.setText("Name:");
 		
 		nameValueLabel = new Text(this, SWT.READ_ONLY);
+		nameValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		nameValueLabel.setText(name);
-		new Label(this, SWT.NONE);
 		
 		signatureIcon = new Label(this, SWT.NONE);
 		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.png"));
@@ -187,11 +189,10 @@ public class CodeElementUI extends Composite {
 		signatureKeyLabel.setText("Signature:");
 		
 		signatureValueLabel = new Text(this, SWT.READ_ONLY);
-		GridData gd_signatureValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_signatureValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
 		gd_signatureValueLabel.widthHint = 140;
 		signatureValueLabel.setLayoutData(gd_signatureValueLabel);
 		signatureValueLabel.setText(signature);
-		new Label(this, SWT.NONE);
 		
 		parentTypeIcon = new Label(this, SWT.NONE);
 		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.png"));
@@ -201,8 +202,8 @@ public class CodeElementUI extends Composite {
 		parentTypeKeyLabel.setText("Parent type:");
 		
 		parentTypeValueLabel = new Text(this, SWT.READ_ONLY);
+		parentTypeValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		parentTypeValueLabel.setText(parentType);
-		new Label(this, SWT.NONE);
 		
 		pathIcon = new Label(this, SWT.NONE);
 		pathIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/path_blue.png"));
@@ -212,11 +213,10 @@ public class CodeElementUI extends Composite {
 		pathKeyLabel.setText("Path:");
 		
 		pathValueLabel = new Text(this, SWT.READ_ONLY);
-		GridData gd_pathValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_pathValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
 		gd_pathValueLabel.widthHint = 140;
 		pathValueLabel.setLayoutData(gd_pathValueLabel);
 		pathValueLabel.setText(path);
-		new Label(this, SWT.NONE);
 		
 		positionIcon = new Label(this, SWT.NONE);
 		positionIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_blue.png"));
@@ -226,8 +226,8 @@ public class CodeElementUI extends Composite {
 		positionKeyLabel.setText("Position:");
 		
 		positionValueLabel = new Text(this, SWT.READ_ONLY);
+		positionValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		positionValueLabel.setText(position);
-		new Label(this, SWT.NONE);
 		
 		contextSizeIcon = new Label(this, SWT.NONE);
 		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
@@ -237,8 +237,8 @@ public class CodeElementUI extends Composite {
 		contextSizeKeyLabel.setText("Context size:");
 		
 		contextSizeValueLabel = new Text(this, SWT.READ_ONLY);
+		contextSizeValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		contextSizeValueLabel.setText(contextSize.toString());
-		new Label(this, SWT.NONE);
 		
 		interactivityIcon = new Label(this, SWT.NONE);
 		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_blue.png"));
@@ -248,6 +248,7 @@ public class CodeElementUI extends Composite {
 		interactivityKeyLabel.setText("Interactivity:");
 		
 		interactivityValueLabel = new Text(this, SWT.READ_ONLY);
+		interactivityValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		if(interactivity) {
 			interactivityValueLabel.setText("User feedback enabled");
 			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
@@ -256,11 +257,10 @@ public class CodeElementUI extends Composite {
 			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
 		}
 		
-		new Label(this, SWT.NONE);
-		
 		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		
 		this.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		
 		
 		for(Control control : this.getChildren()) {
 			if(control instanceof Text) {
@@ -286,6 +286,7 @@ public class CodeElementUI extends Composite {
 			String iconPath = lastAction.getChange().getIconPath();
 			if (iconPath != null) {
 				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
+				
 				return icon;
 			}
 		} return null;
@@ -296,6 +297,8 @@ public class CodeElementUI extends Composite {
 	        return super.forceFocus();
 	    }
 
+	 //gyerek bármi állítása kerüljön ki egy lambdába, õsosztály
+	 
 	public void setChildrenBackgroundColor() {
 		for(Control control: this.getChildren()) {
 			control.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
@@ -315,5 +318,13 @@ public class CodeElementUI extends Composite {
 			}
 			
 		});
+	}
+	
+	public void highlightCard() {
+		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+	}
+	
+	public void resetHighlight() {
+		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 	}
 }

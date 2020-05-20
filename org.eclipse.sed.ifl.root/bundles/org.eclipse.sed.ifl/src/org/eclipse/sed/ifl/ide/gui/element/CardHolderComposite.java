@@ -45,6 +45,7 @@ public class CardHolderComposite extends Composite {
 		cardArea.setLayout(gl_cardArea);
 		cardArea.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
+		//nyilacskák helyére fancy ikonok
 		buttonArea = new Composite(this, SWT.NONE);
 		RowLayout rl_buttonArea = new RowLayout(SWT.HORIZONTAL);
 		rl_buttonArea.justify = true;
@@ -177,6 +178,7 @@ public class CardHolderComposite extends Composite {
 		return rvList;
 	}
 	
+	//change fölös
 	public void setPageCount(int currentPage, int change) {
 		if(currentPage+change >= 1 && currentPage+change <= contents.size()) {
 			setPageContent(currentPage+change);

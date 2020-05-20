@@ -22,6 +22,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
@@ -118,6 +119,24 @@ public class SelectedElementUI extends Composite {
 			}
 		});
 		
+		addMouseTrackListener(new MouseTrackListener() {
+
+			@Override
+			public void mouseEnter(MouseEvent e) {				
+			}
+
+			@Override
+			public void mouseExit(MouseEvent e) {
+				resetOriginHighlight.invoke(originData);
+			}
+
+			@Override
+			public void mouseHover(MouseEvent e) {
+				highlightOriginCard.invoke(originData);
+			}
+			
+		});
+		
 		this.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		removeButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_ARROW));
 		
@@ -170,5 +189,17 @@ public class SelectedElementUI extends Composite {
 
 	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventShowSelectedCard() {
 		return showSelectedCard;
+	}
+	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> highlightOriginCard = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventHiglightOriginCard() {
+		return highlightOriginCard;
+	}
+	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> resetOriginHighlight = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventResetOriginHighlight() {
+		return resetOriginHighlight;
 	}
 }

@@ -242,24 +242,42 @@ public class ScoreListUI extends Composite {
 				public void mouseDown(MouseEvent event)
 			    {
 			    	if(event.button == 1) {
-				    	if(!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI)event.widget).getData("entry"))) {
-					        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(103, 198, 235));
-					        ((CodeElementUI)event.widget).setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-					        for(Control control : element.getChildren()) {
-					        	control.setBackground(SWTResourceManager.getColor(103, 198, 235));
-					        	if(control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
-					        		control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-					        	}
-					        }
-					        selectedList.add((Entry<IMethodDescription, Score>) ((CodeElementUI)event.widget).getData("entry"));
-					        addSelectedElementToComposite(((CodeElementUI)event.widget));
-					     } else {
-					    	 requestSelectedRemoval((CodeElementUI)event.widget);
-					    	 checkSelectedSet();
-					     }
-				    	selectionChanged.invoke(selectedList);
+			    		if(event.count == 1) {
+					    	if(!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI)event.widget).getData("entry"))) {
+						        ((CodeElementUI)event.widget).setBackground(SWTResourceManager.getColor(103, 198, 235));
+						        ((CodeElementUI)event.widget).setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
+						        for(Control control : element.getChildren()) {
+						        	control.setBackground(SWTResourceManager.getColor(103, 198, 235));
+						        	if(control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
+						        		control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
+						        	}
+						        }
+						        selectedList.add((Entry<IMethodDescription, Score>) ((CodeElementUI)event.widget).getData("entry"));
+						        addSelectedElementToComposite(((CodeElementUI)event.widget));
+						     } else {
+						    	 requestSelectedRemoval((CodeElementUI)event.widget);
+						    	 checkSelectedSet();
+						     }
+					    	selectionChanged.invoke(selectedList);
+			    		} else if (event.count == 2) {
+			    			IMethodDescription data = (IMethodDescription) element.getData();
+							String path = data.getLocation().getAbsolutePath();
+							int offset = data.getLocation().getBegining().getOffset();
+							System.out.println("navigation requested to: " + path + ":" + offset);
+							navigateToRequired.invoke(data);
+			    		}
 			    	}
 			    }
+				/*
+				public void mouseDoubleClick(MouseEvent e)
+				{
+					IMethodDescription data = (IMethodDescription) element.getData();
+					String path = data.getLocation().getAbsolutePath();
+					int offset = data.getLocation().getBegining().getOffset();
+					System.out.println("navigation requested to: " + path + ":" + offset);
+					navigateToRequired.invoke(data);
+				}
+				*/
 			});
 			if(((Score)element.getData("score")).isDefinit() && ((IMethodDescription)element.getData()).isInteractive()) {
 				element.setMenu(contextMenu);
@@ -274,6 +292,8 @@ public class ScoreListUI extends Composite {
 		SelectedElementUI selected = new SelectedElementUI(selectedComposite, SWT.NONE, element);
 		selected.eventSelectedRemoved().add(selectedRemovedListener);
 		selected.eventShowSelectedCard().add(showSelectedCardListener);
+		selected.eventHiglightOriginCard().add(highlightOriginCardListener);
+		selected.eventResetOriginHighlight().add(resetOriginCardBackgroundListener);
 		selected.requestLayout();
 		scrolledComposite.setMinSize(selectedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
@@ -316,6 +336,22 @@ public class ScoreListUI extends Composite {
 		if(!displayed) {
 			MessageDialog.open(MessageDialog.ERROR, null, "Element not displayed", "The requested element is not displayed because of the current filtering options."
 					+ " Change the filtering options to allow the requested element to be displayed.", SWT.NONE);
+		}
+	};
+	
+	private IListener<Entry<IMethodDescription, Score>> highlightOriginCardListener = event -> {
+		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
+			if(card.getData("entry").equals(event)) {	
+				card.highlightCard();
+			}
+		}
+	};
+	
+	private IListener<Entry<IMethodDescription, Score>> resetOriginCardBackgroundListener = event -> {
+		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
+			if(card.getData("entry").equals(event)) {
+				card.resetHighlight();
+			}
 		}
 	};
 	
