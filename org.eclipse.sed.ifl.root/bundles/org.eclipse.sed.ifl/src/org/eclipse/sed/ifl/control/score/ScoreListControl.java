@@ -282,11 +282,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 	
 	private void refreshView() {
-		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
-		for (Entry<IMethodDescription, Score> entry : toDisplay.entrySet()) {
+		for (Entry<IMethodDescription, Score> entry : getModel().getScores().entrySet()) {
 			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
 			entry.getValue().setLastAction(last);
 		}
+		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
 		scoreHistory.hideView();
 		getView().refreshScores(toDisplay);
 		getView().showNoItemsLabel(toDisplay.isEmpty());
