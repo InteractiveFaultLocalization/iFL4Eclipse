@@ -122,7 +122,8 @@ public class SelectedElementUI extends Composite {
 		addMouseTrackListener(new MouseTrackListener() {
 
 			@Override
-			public void mouseEnter(MouseEvent e) {				
+			public void mouseEnter(MouseEvent e) {	
+				highlightOriginCard.invoke(originData);
 			}
 
 			@Override
@@ -132,7 +133,7 @@ public class SelectedElementUI extends Composite {
 
 			@Override
 			public void mouseHover(MouseEvent e) {
-				highlightOriginCard.invoke(originData);
+				
 			}
 			
 		});
@@ -158,6 +159,24 @@ public class SelectedElementUI extends Composite {
 				if(event.type == SWT.MouseDown) {
 					child.getParent().notifyListeners(SWT.MouseDown, event);
 				}
+				
+			}
+			
+		});
+		child.addListener(SWT.MouseEnter, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				child.getParent().notifyListeners(SWT.MouseEnter, event);
+				
+			}
+			
+		});
+		child.addListener(SWT.MouseExit, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				child.getParent().notifyListeners(SWT.MouseExit, event);
 				
 			}
 			

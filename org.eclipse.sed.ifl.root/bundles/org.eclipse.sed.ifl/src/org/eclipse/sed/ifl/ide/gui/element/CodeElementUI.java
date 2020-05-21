@@ -146,8 +146,6 @@ public class CodeElementUI extends Composite {
 		data.widthHint = 310;
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
-		gridLayout.marginTop = 5;
-		gridLayout.marginLeft = 5;
 		setLayout(gridLayout);
 	//	setSize(300,213);
 		

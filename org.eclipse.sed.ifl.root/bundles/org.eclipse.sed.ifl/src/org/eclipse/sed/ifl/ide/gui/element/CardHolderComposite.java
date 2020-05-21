@@ -20,8 +20,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 
@@ -36,18 +34,22 @@ public class CardHolderComposite extends Composite {
 	
 	public CardHolderComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(1, false));
+		GridLayout gridLayout = new GridLayout(1, false);
+		setLayout(gridLayout);
 		
 		cardArea = new Composite(this, SWT.NONE);
+		cardArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		GridLayout gl_cardArea = new GridLayout(4, true);
-		gl_cardArea.marginWidth = 0;
-		gl_cardArea.marginHeight = 0;
 		cardArea.setLayout(gl_cardArea);
-		cardArea.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
 		//nyilacskák helyére fancy ikonok
 		buttonArea = new Composite(this, SWT.NONE);
 		RowLayout rl_buttonArea = new RowLayout(SWT.HORIZONTAL);
+		rl_buttonArea.marginWidth = 5;
+		rl_buttonArea.marginBottom = 0;
+		rl_buttonArea.marginTop = 0;
+		rl_buttonArea.marginRight = 0;
+		rl_buttonArea.marginLeft = 0;
 		rl_buttonArea.justify = true;
 		buttonArea.setLayout(rl_buttonArea);
 		buttonArea.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));

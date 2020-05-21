@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 
@@ -53,7 +54,7 @@ public class ScoreListUI extends Composite {
 
 	private Label noItemsToDisplayLabel;
 	private Button showFilterPart;
-	
+	private GC gc;
 	private Composite composite;
 	private CardHolderComposite cardsComposite;
 	private ScrolledComposite scrolledComposite;
@@ -145,6 +146,7 @@ public class ScoreListUI extends Composite {
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setSize(0, 100);
 		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.marginWidth = 10;
 		composite.setLayout(gl_composite);
 		
 		showFilterPart = new Button(composite, SWT.NONE);
@@ -161,6 +163,9 @@ public class ScoreListUI extends Composite {
 		new Label(this, SWT.NONE);
 		
 		cardsComposite = new CardHolderComposite(this, SWT.NONE);
+		GridLayout gridLayout = (GridLayout) cardsComposite.getLayout();
+		gridLayout.horizontalSpacing = 0;
+		gridLayout.verticalSpacing = 0;
 		GridData gd_cardsComposite = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
 		gd_cardsComposite.widthHint = 1259;
 		cardsComposite.setLayoutData(gd_cardsComposite);
@@ -180,7 +185,9 @@ public class ScoreListUI extends Composite {
 		
 		selectedComposite = new Composite(scrolledComposite, SWT.NONE);
 		selectedComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		selectedComposite.setLayout(new GridLayout(1, false));
+		GridLayout gl_selectedComposite = new GridLayout(1, false);
+		gl_selectedComposite.marginWidth = 0;
+		selectedComposite.setLayout(gl_selectedComposite);
 		selectedComposite.setSize(new Point(378, 427));
 		scrolledComposite.setContent(selectedComposite);
 		scrolledComposite.setMinSize(selectedComposite.getSize());
@@ -342,15 +349,25 @@ public class ScoreListUI extends Composite {
 	private IListener<Entry<IMethodDescription, Score>> highlightOriginCardListener = event -> {
 		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
 			if(card.getData("entry").equals(event)) {	
-				card.highlightCard();
+				gc = new GC(card.getParent());
+				gc.setLineWidth(2);
+				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+				gc.drawRectangle(card.getBounds());
+				gc.dispose();
+				break;
 			}
 		}
 	};
 	
 	private IListener<Entry<IMethodDescription, Score>> resetOriginCardBackgroundListener = event -> {
 		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
-			if(card.getData("entry").equals(event)) {
-				card.resetHighlight();
+			if(card.getData("entry").equals(event)) {	
+				gc = new GC(card.getParent());
+				gc.setLineWidth(2);
+				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				gc.drawRectangle(card.getBounds());
+				gc.dispose();
+				break;
 			}
 		}
 	};
@@ -367,7 +384,6 @@ public class ScoreListUI extends Composite {
 		selectionChanged.invoke(selectedList);
 	};
 	
-	@SuppressWarnings("unused")
 	private void requestSelectedRemoval(CodeElementUI card) {
 		selectedList.remove(card.getData("entry"));
 		for(Control selected : selectedComposite.getChildren()) {
