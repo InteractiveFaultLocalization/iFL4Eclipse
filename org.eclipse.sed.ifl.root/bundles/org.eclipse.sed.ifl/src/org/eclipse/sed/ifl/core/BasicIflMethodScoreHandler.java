@@ -1,17 +1,22 @@
 package org.eclipse.sed.ifl.core;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
+import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
+import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
@@ -34,6 +39,20 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 
 	public INonGenericListenerCollection<List<IMethodDescription>> eventHighLightRequested() {
 		return highLightRequested;
+	}
+	
+	public void undoLastAction(Monument<Score, IMethodDescription, IUserFeedback> memento) {
+		Map<IMethodDescription, Defineable<Double>> updateMap = new HashMap<IMethodDescription, Defineable<Double>>();
+		updateMap.put(memento.getSubject(), memento.getOldScore());
+		this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, memento.getCause()));
+	}
+	
+	public void undoLastFeedback(List<Monument<Score, IMethodDescription, IUserFeedback>> mementoList) {
+		Map<IMethodDescription, Defineable<Double>> updateMap = new HashMap<IMethodDescription, Defineable<Double>>();
+		for(Monument<Score, IMethodDescription, IUserFeedback> memento : mementoList) {
+			updateMap.put(memento.getSubject(), memento.getOldScore());
+		}
+		this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, mementoList.get(mementoList.size()-1).getCause()));
 	}
 	
 	@Override

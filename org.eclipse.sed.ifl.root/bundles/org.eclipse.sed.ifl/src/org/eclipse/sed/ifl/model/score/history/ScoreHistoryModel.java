@@ -12,6 +12,10 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 public class ScoreHistoryModel extends EmptyModel {
 	private List<Monument<Score, IMethodDescription, IUserFeedback>> steps = new ArrayList<>();
 	
+	public List<Monument<Score, IMethodDescription, IUserFeedback>> getMonuments() {
+		return steps;
+	}
+
 	public void store(Monument<Score, IMethodDescription, IUserFeedback> state) {
 		steps.add(state);
 	}
@@ -24,6 +28,16 @@ public class ScoreHistoryModel extends EmptyModel {
 
 	public Monument<Score, IMethodDescription, IUserFeedback> getLastOf(IMethodDescription subject) {
 		for (int i = steps.size() - 1; i >= 0; i--) {
+			Monument<Score, IMethodDescription, IUserFeedback> step = steps.get(i);
+			if (step.getSubject().equals(subject)) {
+				return step;
+			}
+		}
+		return null;
+	}
+	
+	public Monument<Score, IMethodDescription, IUserFeedback> getFirstOf(IMethodDescription subject) {
+		for (int i = 0; i <= steps.size(); i++) {
 			Monument<Score, IMethodDescription, IUserFeedback> step = steps.get(i);
 			if (step.getSubject().equals(subject)) {
 				return step;

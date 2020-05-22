@@ -115,6 +115,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSelectionChanged().add(selectionChangedListener);
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
+		getView().eventUndoLastActionRequired().add(undoLastActionRequiredListener);
+		getView().eventUndoLastFeedbackRequired().add(undoLastFeedbackRequiredListener);
 		
 		getView().eventOpenFiltersPart().add(openFiltersPage);
 		filterControl.eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
@@ -144,6 +146,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
+		getView().eventUndoLastActionRequired().remove(undoLastActionRequiredListener);
+		getView().eventUndoLastFeedbackRequired().remove(undoLastFeedbackRequiredListener);
 		
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
 		filterControl.eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
@@ -169,6 +173,30 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		
 	};
 
+	private IListener<Entry<IMethodDescription, Score>> undoLastActionRequiredListener = event -> {
+		if(scoreHistory.getLastOf(event.getKey()) != null) {
+			handler.undoLastAction(scoreHistory.getLastOf(event.getKey()));
+		} else {
+			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No action found", "There has not been any modification action made on the score(s) of the selected element(s).", SWT.NONE);
+		}
+	};
+	
+	private IListener<Entry<IMethodDescription, Score>> undoLastFeedbackRequiredListener = event -> {
+		List<Monument<Score, IMethodDescription, IUserFeedback>> history = scoreHistory.getHistory();
+		if(!history.isEmpty()) {
+			IUserFeedback lastFeedback = history.get(history.size()-1).getCause();
+			List<Monument<Score, IMethodDescription, IUserFeedback>> lastFeedbackList = new ArrayList<Monument<Score, IMethodDescription, IUserFeedback>>();
+			for(Monument<Score, IMethodDescription, IUserFeedback> entry : history) {
+				if(entry.getCause().equals(lastFeedback)) {
+					lastFeedbackList.add(entry);
+				}
+			}
+			handler.undoLastFeedback(lastFeedbackList);
+		} else {
+			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No feedback found", "There has not been any feedback made on any of the scores.", SWT.NONE);
+		}
+	};
+	
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
 

@@ -59,6 +59,8 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().add(openFiltersPartListener);
+		ui.eventUndoLastActionRequired().add(undoLastActionRequiredListener);
+		ui.eventUndoLastFeedbackRequired().add(undoLastFeedbackRequiredListener);
 		super.init();
 	}
 	
@@ -72,6 +74,8 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().remove(openFiltersPartListener);
+		ui.eventUndoLastActionRequired().remove(undoLastActionRequiredListener);
+		ui.eventUndoLastFeedbackRequired().remove(undoLastFeedbackRequiredListener);
 		super.teardown();
 	}
 	
@@ -163,4 +167,19 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
 	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastActionRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastActionRequired() {
+		return undoLastActionRequired;
+	}
+	
+	private IListener<Entry<IMethodDescription, Score>> undoLastActionRequiredListener = undoLastActionRequired::invoke;
+	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastFeedbackRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastFeedbackRequired() {
+		return undoLastFeedbackRequired;
+	}
+	
+	private IListener<Entry<IMethodDescription, Score>> undoLastFeedbackRequiredListener = undoLastFeedbackRequired::invoke;
 }

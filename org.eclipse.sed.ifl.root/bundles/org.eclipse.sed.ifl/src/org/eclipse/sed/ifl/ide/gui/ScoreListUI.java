@@ -234,6 +234,18 @@ public class ScoreListUI extends Composite {
 		return openDetailsRequired;
 	}
 	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastActionRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastActionRequired() {
+		return undoLastActionRequired;
+	}
+	
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastFeedbackRequired = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastFeedbackRequired() {
+		return undoLastFeedbackRequired;
+	}
+	
 	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
 	
 	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
@@ -439,6 +451,7 @@ public class ScoreListUI extends Composite {
 		nonInteractiveContextMenu = new Menu(cardsComposite);
 		
 		addFeedbackOptions(options, contextMenu);
+		addUndoOptions(contextMenu);
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
 		addNavigationOptions(contextMenu);
 		addNavigationOptions(nonInteractiveContextMenu);
@@ -446,6 +459,42 @@ public class ScoreListUI extends Composite {
 		addDetailsOptions(nonInteractiveContextMenu);
 	}
 	
+	private void addUndoOptions(Menu menu) {
+		MenuItem undo = new MenuItem(menu, SWT.NONE);
+		undo.setText("Undo last action on this element");
+		undo.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (Entry<IMethodDescription, Score> item : selectedList) {
+					System.out.println("undo last action option chosen for " + item.getKey().getId().getSignature());
+					undoLastActionRequired.invoke(item);
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
+		MenuItem undoFeedback = new MenuItem(menu, SWT.NONE);
+		undoFeedback.setText("Undo last feedback");
+		undoFeedback.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (Entry<IMethodDescription, Score> item : selectedList) {
+					System.out.println("undo last feedback option chosen for " + item.getKey().getId().getSignature());
+					undoLastFeedbackRequired.invoke(item);
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
+	}
 	
 	private void addDetailsOptions(Menu menu) {
 		new MenuItem(menu, SWT.SEPARATOR);
