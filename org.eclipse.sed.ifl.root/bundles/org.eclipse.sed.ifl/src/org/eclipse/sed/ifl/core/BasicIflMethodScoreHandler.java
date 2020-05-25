@@ -41,10 +41,13 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		return highLightRequested;
 	}
 	
-	public void undoLastAction(Monument<Score, IMethodDescription, IUserFeedback> memento) {
+	public void undoLastAction(List<Monument<Score, IMethodDescription, IUserFeedback>> mementos) {
 		Map<IMethodDescription, Defineable<Double>> updateMap = new HashMap<IMethodDescription, Defineable<Double>>();
-		updateMap.put(memento.getSubject(), memento.getOldScore());
-		this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, memento.getCause()));
+		for(Monument<Score, IMethodDescription, IUserFeedback> memento : mementos) {	
+			updateMap.put(memento.getSubject(), memento.getOldScore());
+			this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, memento.getCause()));
+			updateMap.clear();
+		}
 	}
 	
 	public void undoLastFeedback(List<Monument<Score, IMethodDescription, IUserFeedback>> mementoList) {
@@ -52,7 +55,7 @@ public class BasicIflMethodScoreHandler extends MethodScoreHandler {
 		for(Monument<Score, IMethodDescription, IUserFeedback> memento : mementoList) {
 			updateMap.put(memento.getSubject(), memento.getOldScore());
 		}
-		this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, mementoList.get(mementoList.size()-1).getCause()));
+		this.scoreUpdated.invoke(new ScoreUpdateArgs(updateMap, mementoList.get(0).getCause()));	
 	}
 	
 	@Override

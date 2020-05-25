@@ -167,13 +167,13 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastActionRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> undoLastActionRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastActionRequired() {
+	public INonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> eventUndoLastActionRequired() {
 		return undoLastActionRequired;
 	}
 	
-	private IListener<Entry<IMethodDescription, Score>> undoLastActionRequiredListener = undoLastActionRequired::invoke;
+	private IListener<List<Entry<IMethodDescription, Score>>> undoLastActionRequiredListener = undoLastActionRequired::invoke;
 	
 	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastFeedbackRequired = new NonGenericListenerCollection<>();
 	

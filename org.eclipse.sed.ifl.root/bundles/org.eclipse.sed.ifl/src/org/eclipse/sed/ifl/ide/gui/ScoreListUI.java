@@ -38,6 +38,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -234,9 +235,9 @@ public class ScoreListUI extends Composite {
 		return openDetailsRequired;
 	}
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> undoLastActionRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> undoLastActionRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventUndoLastActionRequired() {
+	public INonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> eventUndoLastActionRequired() {
 		return undoLastActionRequired;
 	}
 	
@@ -461,15 +462,17 @@ public class ScoreListUI extends Composite {
 	
 	private void addUndoOptions(Menu menu) {
 		MenuItem undo = new MenuItem(menu, SWT.NONE);
-		undo.setText("Undo last action on this element");
+		undo.setText("Undo last action only on selected element(s)");
 		undo.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				List<Entry<IMethodDescription, Score>> subjects = new ArrayList<Entry<IMethodDescription, Score>>();
 				for (Entry<IMethodDescription, Score> item : selectedList) {
 					System.out.println("undo last action option chosen for " + item.getKey().getId().getSignature());
-					undoLastActionRequired.invoke(item);
+					subjects.add(item);
 				}
+				undoLastActionRequired.invoke(subjects);
 			}
 
 			@Override
@@ -478,14 +481,16 @@ public class ScoreListUI extends Composite {
 			
 		});
 		MenuItem undoFeedback = new MenuItem(menu, SWT.NONE);
-		undoFeedback.setText("Undo last feedback");
+		undoFeedback.setText("Undo last feedback that affected the selected element");
 		undoFeedback.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				for (Entry<IMethodDescription, Score> item : selectedList) {
-					System.out.println("undo last feedback option chosen for " + item.getKey().getId().getSignature());
-					undoLastFeedbackRequired.invoke(item);
+				if(selectedList.size() > 1) {
+					MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "Multiple elements selected",
+							"The 'Undo last feedback' option can only be chosen for one element at a time.", SWT.NONE);
+				} else if(!selectedList.isEmpty()){
+					undoLastFeedbackRequired.invoke(selectedList.get(0));
 				}
 			}
 

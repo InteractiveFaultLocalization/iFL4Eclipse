@@ -173,18 +173,26 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		
 	};
 
-	private IListener<Entry<IMethodDescription, Score>> undoLastActionRequiredListener = event -> {
-		if(scoreHistory.getLastOf(event.getKey()) != null) {
-			handler.undoLastAction(scoreHistory.getLastOf(event.getKey()));
-		} else {
-			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No action found", "There has not been any modification action made on the score(s) of the selected element(s).", SWT.NONE);
+	private IListener<List<Entry<IMethodDescription, Score>>> undoLastActionRequiredListener = event -> {
+		boolean showWarning = false;
+		List<Monument<Score, IMethodDescription, IUserFeedback>> lastActions = new ArrayList<Monument<Score, IMethodDescription, IUserFeedback>>();
+		for(Entry<IMethodDescription, Score> subject : event) {
+			if(scoreHistory.getLastOf(subject.getKey()) != null) {
+				lastActions.add(scoreHistory.getLastOf(subject.getKey()));
+			} else {
+				showWarning = true;
+			}
 		}
+		if(showWarning) {
+			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No action found", "Some of the selected elements have no history yet. These elements will not be affected.", SWT.NONE);
+		}
+		handler.undoLastAction(lastActions);
 	};
 	
 	private IListener<Entry<IMethodDescription, Score>> undoLastFeedbackRequiredListener = event -> {
 		List<Monument<Score, IMethodDescription, IUserFeedback>> history = scoreHistory.getHistory();
 		if(!history.isEmpty()) {
-			IUserFeedback lastFeedback = history.get(history.size()-1).getCause();
+			IUserFeedback lastFeedback = scoreHistory.getLastOf(event.getKey()).getCause();
 			List<Monument<Score, IMethodDescription, IUserFeedback>> lastFeedbackList = new ArrayList<Monument<Score, IMethodDescription, IUserFeedback>>();
 			for(Monument<Score, IMethodDescription, IUserFeedback> entry : history) {
 				if(entry.getCause().equals(lastFeedback)) {
@@ -193,7 +201,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			}
 			handler.undoLastFeedback(lastFeedbackList);
 		} else {
-			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No feedback found", "There has not been any feedback made on any of the scores.", SWT.NONE);
+			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "No feedback found", "There has not been any feedback made on the selected elements.", SWT.NONE);
 		}
 	};
 	
