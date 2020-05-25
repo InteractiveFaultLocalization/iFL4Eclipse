@@ -114,7 +114,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl(interactivity);
 		scoreRecalculatorControl.setModel(model);
-		scoreRecalculatorControl.setView(new ScoreRecalculatorView());
+		//scoreRecalculatorControl.setView(new ScoreRecalculatorView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		addSubControl(scoreRecalculatorControl);
@@ -152,10 +152,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
-
-		initUIStateListeners();
+		getView().eventClosed().add(closeListener);
+		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
+		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		startNewSession();
-		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
+		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);		
 		super.init();
 
 		activityMonitor.log(SessionEvent.start(selectedProject));
@@ -165,11 +167,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	public void teardown() {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
+		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
+		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
-		scoreRecalculatorControl = null;
+		scoreRecalculatorControl = null; 
 		activityMonitor = null;
 	}
 
@@ -203,14 +207,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		System.out.println("Recalculating scores are requested...");
-		this.scoreRecalculatorControl.load();
+		System.out.println("Recalculating scores are requested..."); //metódus hívás
 	};
 
-	private void initUIStateListeners() {
-		getView().eventClosed().add(closeListener);
-		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
-		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
-		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
-	}
+	
 }
