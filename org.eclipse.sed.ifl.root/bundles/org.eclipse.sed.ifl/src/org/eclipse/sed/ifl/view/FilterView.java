@@ -210,7 +210,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	private IListener<SortingArg> sortListener = sortRequired::invoke;
 
 	public void resetFilterState() {
-		FilterPart.setRestoreStateNeeded(false);
-		
+
 	}
 }
