@@ -48,10 +48,15 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 	private IListener<String> eventRecalculationSelected = new IListener<String>() { 
 
 		public void invoke(String event) throws UnsupportedOperationException {
+			System.out.println("Recalculating scores are requested...");
 			throw new UnsupportedOperationException("Function is not yet implemented");
 
 		}
 	};
+	
+	public void start(String event)throws UnsupportedOperationException {
+		this.eventRecalculationSelected.invoke(event);
+	}
 
 	@Override
 	public void init() {

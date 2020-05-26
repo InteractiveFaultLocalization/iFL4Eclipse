@@ -8,11 +8,9 @@ import org.eclipse.swt.widgets.Shell;
 
 public class ScoreRecalculatorView extends View {
 
-	private FileDialog dialog;
 
 	public ScoreRecalculatorView() {
-		dialog = new FileDialog(new Shell(), SWT.OPEN);
-		dialog.setFilterExtensions(new String[] { "*.csv" });
+		
 	}
 
 	private NonGenericListenerCollection<String> recalculationSelected = new NonGenericListenerCollection<>();

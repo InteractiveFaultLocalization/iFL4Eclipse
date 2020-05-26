@@ -114,7 +114,6 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl(interactivity);
 		scoreRecalculatorControl.setModel(model);
-		//scoreRecalculatorControl.setView(new ScoreRecalculatorView());
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
 		addSubControl(scoreRecalculatorControl);
@@ -207,7 +206,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		System.out.println("Recalculating scores are requested..."); //metódus hívás
+		this.scoreRecalculatorControl.start("Recalculation");
 	};
 
 	
