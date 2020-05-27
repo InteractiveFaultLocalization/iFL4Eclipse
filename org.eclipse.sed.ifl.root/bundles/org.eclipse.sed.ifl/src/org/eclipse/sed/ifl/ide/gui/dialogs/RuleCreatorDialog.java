@@ -7,6 +7,7 @@ import org.eclipse.swt.custom.CBanner;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.BooleanRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -118,7 +119,7 @@ public class RuleCreatorDialog extends Dialog {
 					break;
 				case "Interactivity": new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE);
 					break;
-				case "Last Action":
+				case "Last action": new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE);
 					break;
 				}
 				ruleCreatorComposite.requestLayout();
