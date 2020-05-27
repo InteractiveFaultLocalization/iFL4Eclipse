@@ -84,6 +84,20 @@ public class RuleCreatorDialog extends Dialog {
 		
 		Button okButton = new Button(buttonBarComposite, SWT.NONE);
 		okButton.setText("Add");
+		okButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+				
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
 		Button cancelButton = new Button(buttonBarComposite, SWT.NONE);
 		cancelButton.setText("Cancel");
@@ -103,23 +117,23 @@ public class RuleCreatorDialog extends Dialog {
 					control.dispose();
 				}
 				switch (domainList.getSelection()[0]) {
-				case "Score": new DoubleRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Score": new DoubleRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Name": new StringRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Name": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Signature": new StringRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Signature": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Parent type": new StringRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Parent type": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Path": new StringRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Path": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Position": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Position": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Context size": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Context size": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Interactivity": new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Interactivity": new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Last action": new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE);
+				case "Last action": new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				}
 				ruleCreatorComposite.requestLayout();
