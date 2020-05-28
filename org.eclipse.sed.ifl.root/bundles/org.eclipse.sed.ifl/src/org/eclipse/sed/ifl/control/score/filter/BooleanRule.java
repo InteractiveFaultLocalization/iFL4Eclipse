@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
+import java.util.Map;
+
 public class BooleanRule implements Rule {
 
 	private String domain;

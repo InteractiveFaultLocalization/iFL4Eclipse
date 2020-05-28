@@ -3,15 +3,25 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
+import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.BooleanRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
@@ -25,6 +35,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -35,6 +46,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.custom.ScrolledComposite;
 
 public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
@@ -44,6 +56,12 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Inject IWorkbench workbench;
 	
 	private Composite composite;
+	private Button addRuleButton;
+	private ScrolledComposite scrolledComposite;
+	private Button resetAllButton;
+	private Composite rulesComposite;
+	
+	private List<Rule> rules = new ArrayList<Rule>();
 	
 	public FilterPart() {
 		System.out.println("filter part ctr");
@@ -72,6 +90,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				RuleCreatorDialog ruleDialog = new RuleCreatorDialog(Display.getCurrent().getActiveShell(), SWT.NONE);
+				ruleDialog.eventRuleCreated().add(ruleCreatedListener);
 				ruleDialog.open();
 			}
 
@@ -83,19 +102,43 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		
 		resetAllButton = new Button(parent, SWT.NONE);
 		resetAllButton.setText("Reset all");
+		resetAllButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(Control control : rulesComposite.getChildren()) {
+					control.dispose();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
-		scrolledComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.V_SCROLL);
-		scrolledComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
+		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
+		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+		 gd_scrolledComposite.widthHint = 360;
+		 gd_scrolledComposite.heightHint = 280;
+		scrolledComposite.setLayoutData( gd_scrolledComposite);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 		
 		rulesComposite = new Composite(scrolledComposite, SWT.NONE);
-		rulesComposite.setSize(new Point(378, 300));
+		rulesComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		rulesComposite.setSize(new Point(360, 280));
+		rulesComposite.setLayout(new GridLayout(1, false));
 		scrolledComposite.setContent(rulesComposite);
 		scrolledComposite.setMinSize(rulesComposite.getSize());
 	}
 
-	
+	private IListener<Rule> ruleCreatedListener = event -> {
+		RuleElementUI ruleElement = null;
+		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
+		scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		ruleElement.requestLayout();
+	};
 	
 	public void setScoreFilter(Double min, Double max, Double current) {
 		setScoreFilter(min, max);
@@ -218,10 +261,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	};
 	
 	*/
-	private Button addRuleButton;
-	private ScrolledComposite scrolledComposite;
-	private Button resetAllButton;
-	private Composite rulesComposite;
 	
 	@Override
 	public void setFocus() {

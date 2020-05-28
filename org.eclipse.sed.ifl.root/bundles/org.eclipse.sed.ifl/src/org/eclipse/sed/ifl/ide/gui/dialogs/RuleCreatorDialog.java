@@ -4,11 +4,15 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.custom.CBanner;
+import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.BooleanRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.RuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -25,6 +29,8 @@ public class RuleCreatorDialog extends Dialog {
 
 	protected Object result;
 	protected Shell shell;
+	
+	private RuleCreator ruleCreator;
 
 	/**
 	 * Create the dialog.
@@ -57,8 +63,8 @@ public class RuleCreatorDialog extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), getStyle());
-		shell.setSize(420, 241);
+		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
+		shell.setSize(420, 335);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
 		
@@ -66,9 +72,9 @@ public class RuleCreatorDialog extends Dialog {
 		infoLabel.setText("Create rule for filtering.");
 		
 		CBanner banner = new CBanner(shell, SWT.NONE);
-		banner.setRightWidth(320);
+		banner.setRightWidth(310);
 		GridData gd_banner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_banner.heightHint = 183;
+		gd_banner.heightHint = 277;
 		gd_banner.widthHint = 408;
 		banner.setLayoutData(gd_banner);
 		
@@ -88,9 +94,10 @@ public class RuleCreatorDialog extends Dialog {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-				
+				Rule rule = ruleCreator.getRule();
+				if(rule != null) {
+					ruleCreated.invoke(rule);
+				}
 			}
 
 			@Override
@@ -107,7 +114,7 @@ public class RuleCreatorDialog extends Dialog {
 		
 		List domainList = new List(listComposite, SWT.BORDER);
 		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action"});
-		domainList.setBounds(0, 0, 96, 148);
+		domainList.setBounds(0, 0, 89, 241);
 		domainList.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -117,23 +124,23 @@ public class RuleCreatorDialog extends Dialog {
 					control.dispose();
 				}
 				switch (domainList.getSelection()[0]) {
-				case "Score": new DoubleRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Score": ruleCreator = new DoubleRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Name": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Name": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Signature": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Signature": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Parent type": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Parent type": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Path": new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Path": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Position": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Position": ruleCreator = new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Context size": new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Context size": ruleCreator = new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Interactivity": new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Interactivity": ruleCreator = new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
-				case "Last action": new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+				case "Last action": ruleCreator = new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				}
 				ruleCreatorComposite.requestLayout();
@@ -145,6 +152,12 @@ public class RuleCreatorDialog extends Dialog {
 			}
 			
 		});
-
+		
+	}
+	
+	private NonGenericListenerCollection<Rule> ruleCreated = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Rule> eventRuleCreated() {
+		return ruleCreated;
 	}
 }

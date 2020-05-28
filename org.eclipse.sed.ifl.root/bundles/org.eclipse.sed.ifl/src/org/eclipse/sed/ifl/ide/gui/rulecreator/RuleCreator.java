@@ -8,10 +8,4 @@ public interface RuleCreator {
 
 	public Rule getRule();
 	
-	final NonGenericListenerCollection<Rule> ruleCreated = new NonGenericListenerCollection<>();
-	
-	public default INonGenericListenerCollection<Rule> eventRuleCreated() {
-		return ruleCreated;
-	}
-	
 }

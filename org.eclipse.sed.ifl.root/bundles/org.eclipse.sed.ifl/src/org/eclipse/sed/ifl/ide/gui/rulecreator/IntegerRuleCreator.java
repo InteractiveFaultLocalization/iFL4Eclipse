@@ -38,6 +38,7 @@ public class IntegerRuleCreator extends Composite implements RuleCreator {
 		
 		addRelationCombo = new Combo(this, SWT.READ_ONLY);
 		addRelationCombo.setItems(new String[] {"<", "<=", "=", ">=", ">"});
+		addRelationCombo.setText("<");
 
 	}
 

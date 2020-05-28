@@ -32,6 +32,7 @@ public class LastActionRuleCreator extends Composite implements RuleCreator {
 		grpLastAction.setLayout(new RowLayout(SWT.HORIZONTAL));
 		
 		increasedButton = new Button(grpLastAction, SWT.RADIO);
+		increasedButton.setSelection(true);
 		increasedButton.setText("increased");
 		
 		decreasedButton = new Button(grpLastAction, SWT.RADIO);

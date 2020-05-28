@@ -33,6 +33,7 @@ public class BooleanRuleCreator extends Composite implements RuleCreator {
 		trueButton.setText("true");
 		
 		falseButton = new Button(grpCondition, SWT.RADIO);
+		falseButton.setSelection(true);
 		falseButton.setText("false");
 
 	}

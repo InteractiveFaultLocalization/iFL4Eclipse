@@ -1,7 +1,9 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
-public class DoubleRule implements Rule {
+import java.util.Map;
 
+public class DoubleRule implements Rule {
+	
 	private String domain;
 	private double value;
 	private String relation;

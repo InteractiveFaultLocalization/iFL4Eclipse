@@ -49,6 +49,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		containmentGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
 		
 		containsButton = new Button(containmentGroup, SWT.RADIO);
+		containsButton.setSelection(true);
 		containsButton.setText("contains");
 		
 		notContainsButton = new Button(containmentGroup, SWT.RADIO);
@@ -63,6 +64,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		exactMatchingButton.setText("exact");
 		
 		partialMatchingButton = new Button(matchingGroup, SWT.RADIO);
+		partialMatchingButton.setSelection(true);
 		partialMatchingButton.setText("partial");
 		
 		Group caseGroup = new Group(this, SWT.NONE);
@@ -74,6 +76,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		caseYes.setText("yes");
 		
 		caseNo = new Button(caseGroup, SWT.RADIO);
+		caseNo.setSelection(true);
 		caseNo.setText("no");
 		
 		Group regexGroup = new Group(this, SWT.NONE);
@@ -85,6 +88,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		regexYes.setText("yes");
 		
 		regexNo = new Button(regexGroup, SWT.RADIO);
+		regexNo.setSelection(true);
 		regexNo.setText("no");
 
 	}
@@ -96,6 +100,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 
 	@Override
 	public Rule getRule() {
-		return new StringRule(this.domain, containsButton.getSelection(), exactMatchingButton.getSelection(), caseYes.getSelection(), regexYes.getSelection());
+		return new StringRule(this.domain, text.getText(), containsButton.getSelection(), exactMatchingButton.getSelection(), caseYes.getSelection(), regexYes.getSelection());
 	}
+	
 }
