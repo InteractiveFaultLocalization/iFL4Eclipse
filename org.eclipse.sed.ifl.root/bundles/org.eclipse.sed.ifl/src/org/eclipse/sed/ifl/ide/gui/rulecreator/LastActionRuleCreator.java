@@ -11,7 +11,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 
 public class LastActionRuleCreator extends Composite implements RuleCreator {
-
+	
 	private String domain;
 	private Button increasedButton;
 	private Button decreasedButton;

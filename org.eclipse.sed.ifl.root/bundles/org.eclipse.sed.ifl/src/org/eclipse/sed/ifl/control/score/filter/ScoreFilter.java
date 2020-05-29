@@ -7,6 +7,7 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 
 public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription, Score>> {
+
 	public ScoreFilter(Boolean enabled) {
 		setEnabled(enabled);
 	}
@@ -35,4 +36,6 @@ public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription,
 	}
 
 	protected abstract boolean check(Entry<IMethodDescription, Score> arg0);
+
+	public abstract Rule getRule();
 }

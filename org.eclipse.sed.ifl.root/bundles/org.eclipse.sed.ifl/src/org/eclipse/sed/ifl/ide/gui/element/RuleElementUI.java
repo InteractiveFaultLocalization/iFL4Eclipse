@@ -9,7 +9,12 @@ import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -21,6 +26,12 @@ public class RuleElementUI extends Composite {
 
 	private Rule rule;
 	private Image icon = null;
+	
+	private NonGenericListenerCollection<Rule> ruleDeleted = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Rule> eventruleDeleted() {
+		return ruleDeleted;
+	}
 	
 	/**
 	 * Create the composite.
@@ -44,6 +55,7 @@ public class RuleElementUI extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				ruleDeleted.invoke(rule);
 				((Control) e.getSource()).getParent().dispose();
 			}
 
@@ -65,13 +77,23 @@ public class RuleElementUI extends Composite {
 		GridData gd_ruleValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_ruleValueLabel.widthHint = 250;
 		ruleValueLabel.setLayoutData(gd_ruleValueLabel);
+		
+		addDisposeListener(new DisposeListener() {
+
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				((ScrolledComposite) getParent().getParent()).setMinSize(getParent().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				getParent().requestLayout();
+			}
+			
+		});
 	}
 
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
-
+	
 	private String setRuleValueLabelText() {
 		String rString = "";
 		String containsString = null;

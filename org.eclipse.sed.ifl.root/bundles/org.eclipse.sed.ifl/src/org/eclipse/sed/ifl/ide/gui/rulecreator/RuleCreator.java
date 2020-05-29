@@ -1,8 +1,6 @@
 package org.eclipse.sed.ifl.ide.gui.rulecreator;
 
 import org.eclipse.sed.ifl.control.score.filter.Rule;
-import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 
 public interface RuleCreator {
 

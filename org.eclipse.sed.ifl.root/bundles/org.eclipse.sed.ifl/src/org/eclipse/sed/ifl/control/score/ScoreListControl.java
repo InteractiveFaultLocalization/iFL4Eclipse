@@ -18,11 +18,17 @@ import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
-import org.eclipse.sed.ifl.control.score.filter.ContextSizeFilter;
+import org.eclipse.sed.ifl.control.score.filter.DoubleFilter;
+import org.eclipse.sed.ifl.control.score.filter.LastActionFilter;
+import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
+import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.FilterControl;
 import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
-import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
-import org.eclipse.sed.ifl.control.score.filter.NameFilter;
+import org.eclipse.sed.ifl.control.score.filter.BooleanFilter;
+import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
+import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
+import org.eclipse.sed.ifl.control.score.filter.StringFilter;
+import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
@@ -103,11 +109,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
 		handler.eventScoreUpdated().add(scoreRecalculatedListener);
 		handler.loadMethodsScoreMap(getModel().getRawScore());
-		handler.eventHighLightRequested().add(highlightRequestListener);;
+		handler.eventHighLightRequested().add(highlightRequestListener);
 		filters.add(hideUndefinedFilter);
-		filters.add(lessOrEqualFilter);
-		filters.add(contextSizeFilter);
-		filters.add(nameFilter);
 		
 		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
@@ -117,14 +120,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
 		
 		getView().eventOpenFiltersPart().add(openFiltersPage);
-		filterControl.eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
-		filterControl.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
-		filterControl.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
-		filterControl.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
-		filterControl.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
-		filterControl.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
-		filterControl.eventNameFilterChanged().add(nameFilterChangedListener);
+		
+		filterControl.eventBooleanRuleAdded().add(newBooleanFilterAddedListener);
+		filterControl.eventDoubleRuleAdded().add(newDoubleFilterAddedListener);
+		filterControl.eventLastActionRuleAdded().add(newLastActionFilterAddedListener);
+		filterControl.eventStringRuleAdded().add(newStringFilterAddedListener);
 		filterControl.eventSortRequired().add(sortListener);
+		filterControl.eventDeleteRules().add(filtersRemovedListener);
 		
 		super.init();
 	}
@@ -146,14 +148,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
-		filterControl.eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
-		filterControl.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
-		filterControl.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
-		filterControl.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
-		filterControl.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
-		filterControl.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
-		filterControl.eventNameFilterChanged().remove(nameFilterChangedListener);
-		filterControl.eventSortRequired().add(sortListener);
+		
+		filterControl.eventBooleanRuleAdded().remove(newBooleanFilterAddedListener);
+		filterControl.eventDoubleRuleAdded().remove(newDoubleFilterAddedListener);
+		filterControl.eventLastActionRuleAdded().remove(newLastActionFilterAddedListener);
+		filterControl.eventStringRuleAdded().remove(newStringFilterAddedListener);
+		filterControl.eventSortRequired().remove(sortListener);
+		filterControl.eventDeleteRules().remove(filtersRemovedListener);
 		
 		super.teardown();
 		activityMonitor = null;
@@ -170,13 +171,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
+	
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
-
-	private LessOrEqualFilter lessOrEqualFilter = new LessOrEqualFilter(true);
-	
-	private ContextSizeFilter contextSizeFilter = new ContextSizeFilter(false);
-	
-	private NameFilter nameFilter = new NameFilter(true);
 
 	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
@@ -242,42 +238,44 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		refreshView();
 	}
 
-	private IListener<Double> lowerScoreLimitChangedListener = limit -> {
-		lessOrEqualFilter.setLimit(limit);
-		refreshView();
-	};
-
-	private IListener<Boolean> lowerScoreLimitEnabledListener = enabled -> {
-		lessOrEqualFilter.setEnabled(enabled);
-		refreshView();
-	};
-	
-	private IListener<Boolean> contextSizeLimitEnabledListener = enabled -> {
-		contextSizeFilter.setEnabled(enabled);
-		refreshView();
-	};
-	
-	private IListener<Integer> contextSizeLimitChangedListener = limit -> {
-		contextSizeFilter.setLimit(limit);
-		refreshView();
-	};
-	
-	private IListener<String> contextSizeRelationChangedListener = relation -> {
-		contextSizeFilter.setRelation(relation);
-		refreshView();
-	};
-	
 	private IListener<List<IMethodDescription>> highlightRequestListener = list -> {
 		getView().highlightRequest(list);
 	};
 	
-	private IListener<String> nameFilterChangedListener = name -> {
-		nameFilter.setName(name);
+	private IListener<DoubleRule> newDoubleFilterAddedListener = rule -> {
+		filters.add(new DoubleFilter(true, rule));
 		refreshView();
 	};
-
-	private IListener<String> limitFilterRelationChangedListener = relation -> {
-		lessOrEqualFilter.setRelation(relation);
+	
+	private IListener<StringRule> newStringFilterAddedListener = rule -> {
+		filters.add(new StringFilter(true, rule));
+		refreshView();
+	};
+	
+	private IListener<BooleanRule> newBooleanFilterAddedListener = rule -> {
+		filters.add(new BooleanFilter(true, rule));
+		refreshView();
+	};
+	
+	
+	private IListener<List<Rule>> filtersRemovedListener = rules -> {
+		List<ScoreFilter> toBeRemoved = new ArrayList<>();
+		for(ScoreFilter filter: filters) {	
+			for(Rule rule: rules) {
+				if(rule == filter.getRule()) {
+					toBeRemoved.add(filter);
+				}
+			}
+		}
+		for(ScoreFilter filter: toBeRemoved) {
+			filters.remove(filter);
+		}
+		refreshView();
+	};
+	
+	
+	private IListener<LastActionRule> newLastActionFilterAddedListener = rule -> {
+		filters.add(new LastActionFilter(true, rule, scoreHistory));
 		refreshView();
 	};
 	
@@ -359,7 +357,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
 		if (min.isPresent() && max.isPresent()) {
 			//getView().setScoreFilter(min.get().getValue(), max.get().getValue());
-			filterControl.setScoreFilter(min.get().getValue(), max.get().getValue());
+			//filterControl.setScoreFilter(min.get().getValue(), max.get().getValue());
 		}
 		handler.loadMethodsScoreMap(rawScores);
 		//TODO: history-saving-bug history should be saved here but we do not have the cause, since this event come from the model,
@@ -414,8 +412,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		if (rawScores.size() > TOP_SCORE_LIMIT && min.isPresent() && max.isPresent()) {
 			Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList()).get(0).getValue();
 			if (limit.isDefinit()) {
-				//getView().setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
-				filterControl.setScoreFilter(min.get().getValue(), max.get().getValue(), limit.getValue());
+				filterControl.enableFiltering();
 			}
 			MessageDialog.open(
 					MessageDialog.INFORMATION, null,

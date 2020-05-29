@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
-import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.widgets.Composite;
 

@@ -1,7 +1,5 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
-import java.util.Map;
-
 public class StringRule implements Rule {
 
 	private String domain;

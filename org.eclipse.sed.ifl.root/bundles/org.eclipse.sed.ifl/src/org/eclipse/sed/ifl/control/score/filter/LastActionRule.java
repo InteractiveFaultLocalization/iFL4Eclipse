@@ -1,7 +1,5 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
-import java.util.Map;
-
 import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 
 public class LastActionRule implements Rule {

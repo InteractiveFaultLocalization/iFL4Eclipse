@@ -108,6 +108,18 @@ public class RuleCreatorDialog extends Dialog {
 		
 		Button cancelButton = new Button(buttonBarComposite, SWT.NONE);
 		cancelButton.setText("Cancel");
+		cancelButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.close();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
 		Composite listComposite = new Composite(banner, SWT.NONE);
 		banner.setLeft(listComposite);

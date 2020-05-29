@@ -1,53 +1,37 @@
 package org.eclipse.sed.ifl.ide.gui;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
+import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
+import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
+import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
 import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.BooleanRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Scale;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.Label;
 
 public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
@@ -61,7 +45,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private Button resetAllButton;
 	private Composite rulesComposite;
 	
-	private List<Rule> rules = new ArrayList<Rule>();
+	private List<Rule> rules = new ArrayList<>();
 	
 	public FilterPart() {
 		System.out.println("filter part ctr");
@@ -83,7 +67,12 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		composite = parent;
 		composite.setLayout(new GridLayout(2, false));
 		
+		enableInfoLabel = new Label(parent, SWT.NONE);
+		enableInfoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		enableInfoLabel.setText("Load some defined scores to enable filtering.");
+		
 		addRuleButton = new Button(parent, SWT.NONE);
+		addRuleButton.setEnabled(false);
 		addRuleButton.setText("Add rule");
 		addRuleButton.addSelectionListener(new SelectionListener() {
 
@@ -101,11 +90,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		});
 		
 		resetAllButton = new Button(parent, SWT.NONE);
+		resetAllButton.setEnabled(false);
 		resetAllButton.setText("Reset all");
 		resetAllButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				deleteRules.invoke(rules);
 				for(Control control : rulesComposite.getChildren()) {
 					control.dispose();
 				}
@@ -133,87 +124,67 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		scrolledComposite.setMinSize(rulesComposite.getSize());
 	}
 
+	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<List<Rule>> eventDeleteRules() {
+		return deleteRules;
+	}
+	
+	private IListener<Rule> ruleDeleted = rule -> {
+		rules.remove(rule);
+		List<Rule> list = new ArrayList<>();
+		list.add(rule);
+		deleteRules.invoke(list);
+	};
+	
 	private IListener<Rule> ruleCreatedListener = event -> {
+		rules.add(event);
+		ruleAdded(event);
 		RuleElementUI ruleElement = null;
 		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
+		ruleElement.eventruleDeleted().add(ruleDeleted);
 		scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		ruleElement.requestLayout();
 	};
 	
-	public void setScoreFilter(Double min, Double max, Double current) {
-		setScoreFilter(min, max);
+	private NonGenericListenerCollection<StringRule> stringRuleAdded = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<StringRule> eventStringRuleAdded() {
+		return stringRuleAdded;
 	}
 	
-	public void setScoreFilter(Double min, Double max) {
-		
+	private void ruleAdded(Rule rule) {
+		if(rule instanceof StringRule) {
+			stringRuleAdded.invoke((StringRule) rule);
+		}
+		if(rule instanceof DoubleRule) {
+			doubleRuleAdded.invoke((DoubleRule) rule);
+		}
+		if(rule instanceof BooleanRule) {
+			booleanRuleAdded.invoke((BooleanRule) rule);
+		}
+		if(rule instanceof LastActionRule) {
+			lastActionRuleAdded.invoke((LastActionRule) rule);
+		}
 	}
 	
-	private void updateScoreFilterLimit(double value) {
-		lowerScoreLimitChanged.invoke(value);
+	private NonGenericListenerCollection<DoubleRule> doubleRuleAdded = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<DoubleRule> eventDoubleRuleAdded() {
+		return doubleRuleAdded;
 	}
 	
-	private void updateLimitFilterRelation(String text) {
-		limitRelationChanged.invoke(text);
+	private NonGenericListenerCollection<BooleanRule> booleanRuleAdded = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
+		return booleanRuleAdded;
 	}
 	
-	private void updateContextSizeLimit(int value) {
-		contextSizeLimitChanged.invoke(value);
-	}
+	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
+	private Label enableInfoLabel;
 	
-	private void updateContextSizeRelation(String text) {
-		contextSizeRelationChanged.invoke(text);
-	}
-	
-	private void updateNameFilter(String text) {
-		nameFilterChanged.invoke(text);
-	}
-	
-	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
-		return lowerScoreLimitChanged;
-	}
-
-	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
-		return lowerScoreLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
-		return contextSizeLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
-		return contextSizeLimitChanged;
-	}
-	
-	private NonGenericListenerCollection<String> limitRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventLimitRelationChanged() {
-		return limitRelationChanged;
-	}
-	
-	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
-		return contextSizeRelationChanged;
-	}
-	
-	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventNameFilterChanged() {
-		return nameFilterChanged;
-	}
-	
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
-		return sortRequired;
+	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
+		return lastActionRuleAdded;
 	}
 	
 	/*
@@ -269,6 +240,14 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Override
 	public void dispose() {
 		this.getSite().getPage().hideView(this);
+	}
+
+
+	public void enableFiltering() {
+		enableInfoLabel.setVisible(false);
+		enableInfoLabel.requestLayout();
+		addRuleButton.setEnabled(true);
+		resetAllButton.setEnabled(true);
 	}
 	
 }
