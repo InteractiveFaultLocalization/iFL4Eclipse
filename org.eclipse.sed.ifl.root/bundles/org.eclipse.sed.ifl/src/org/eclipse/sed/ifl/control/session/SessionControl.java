@@ -41,7 +41,6 @@ import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
-import org.eclipse.sed.ifl.view.ScoreRecalculatorView;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
@@ -112,7 +111,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = new ScoreLoaderControl(interactivity);
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
-		scoreRecalculatorControl = new ScoreRecalculatorControl(interactivity);
+		scoreRecalculatorControl = new ScoreRecalculatorControl();
 		scoreRecalculatorControl.setModel(model);
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
@@ -156,7 +155,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		startNewSession();
-		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);		
+		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
 
 		activityMonitor.log(SessionEvent.start(selectedProject));
@@ -172,7 +171,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
-		scoreRecalculatorControl = null; 
+		scoreRecalculatorControl = null;
 		activityMonitor = null;
 	}
 
@@ -206,8 +205,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		this.scoreRecalculatorControl.start("Recalculation");
+		this.scoreRecalculatorControl.recalculate("Recalculation");
 	};
 
-	
 }
