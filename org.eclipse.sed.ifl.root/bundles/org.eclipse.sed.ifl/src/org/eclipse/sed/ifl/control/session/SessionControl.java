@@ -205,7 +205,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		this.scoreRecalculatorControl.recalculate("Recalculation");
+		this.scoreRecalculatorControl.recalculate();
 	};
 
 }
