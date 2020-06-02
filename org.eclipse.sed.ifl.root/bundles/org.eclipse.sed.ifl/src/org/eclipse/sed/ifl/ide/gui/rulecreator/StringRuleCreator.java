@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.gui.rulecreator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.swt.SWT;
@@ -100,7 +101,15 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 
 	@Override
 	public Rule getRule() {
-		return new StringRule(this.domain, text.getText(), containsButton.getSelection(), exactMatchingButton.getSelection(), caseYes.getSelection(), regexYes.getSelection());
+		String validation = text.getText();
+		validation.replaceAll("\\s+","");
+		if(!validation.isEmpty()) {
+			return new StringRule(this.domain, text.getText(), containsButton.getSelection(), exactMatchingButton.getSelection(), caseYes.getSelection(), regexYes.getSelection());
+		} else {
+			MessageDialog.open(MessageDialog.ERROR, null, "Empty string input", "The provided input is an empty string."
+					+ "Please enter a string that is not empty.", SWT.NONE);
+			return null;
+		}
 	}
 	
 }

@@ -26,6 +26,9 @@ public class LastActionFilter extends ScoreFilter {
 	protected boolean check(Entry<IMethodDescription, Score> arg0) {
 		
 		boolean rValue = true;
+		if(history.getLastOf(arg0.getKey()) == null) {
+			return false;
+		}
 		
 		switch(this.status) {
 		case INCREASED: rValue = history.getLastOf(arg0.getKey()).getChange().equals(ScoreStatus.INCREASED);
@@ -33,6 +36,10 @@ public class LastActionFilter extends ScoreFilter {
 		case DECREASED: rValue = history.getLastOf(arg0.getKey()).getChange().equals(ScoreStatus.DECREASED);
 			break;
 		case UNDEFINED: rValue = history.getLastOf(arg0.getKey()).getChange().equals(ScoreStatus.UNDEFINED);
+			break;
+		case NONE: rValue = history.getLastOf(arg0.getKey()).getChange().equals(ScoreStatus.NONE);
+			break;
+		default:
 			break;
 		}
 		
