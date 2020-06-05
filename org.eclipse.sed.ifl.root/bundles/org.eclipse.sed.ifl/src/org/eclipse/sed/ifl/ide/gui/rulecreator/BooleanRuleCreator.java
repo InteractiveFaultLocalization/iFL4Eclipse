@@ -8,6 +8,7 @@ import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.wb.swt.ResourceManager;
 
 public class BooleanRuleCreator extends Composite implements RuleCreator {
 
@@ -27,12 +28,14 @@ public class BooleanRuleCreator extends Composite implements RuleCreator {
 		
 		Group grpCondition = new Group(this, SWT.NONE);
 		grpCondition.setText("Condition");
-		grpCondition.setLayout(new RowLayout(SWT.HORIZONTAL));
+		grpCondition.setLayout(new RowLayout(SWT.VERTICAL));
 		
 		trueButton = new Button(grpCondition, SWT.RADIO);
+		trueButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png"));
 		trueButton.setText("true");
 		
 		falseButton = new Button(grpCondition, SWT.RADIO);
+		falseButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png"));
 		falseButton.setSelection(true);
 		falseButton.setText("false");
 

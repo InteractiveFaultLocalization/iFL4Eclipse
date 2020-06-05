@@ -4,14 +4,19 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
+
+import java.util.Map;
+
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -68,7 +73,7 @@ public class RuleElementUI extends Composite {
 		Label ruleKeyLabel = new Label(this, SWT.NONE);
 		ruleKeyLabel.setText("Rule:");
 		
-		Label ruleValueLabel = new Label(this, SWT.NONE);
+		CLabel ruleValueLabel = new CLabel(this, SWT.NONE);
 		ruleValueLabel.setText(setRuleValueLabelText());
 		if(icon != null) {
 			ruleValueLabel.setImage(icon);
@@ -99,26 +104,41 @@ public class RuleElementUI extends Composite {
 		String containsString = null;
 		switch(this.rule.getDomain()) {
 		case "Score": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score.png");
 			break;
 		case "Name": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
+			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
 			break;
 		case "Signature": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
+			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
 			break;
 		case "Parent type": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
+			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
 			break;
 		case "Path": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
+			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
 			break;
 		case "Position": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position.png"); ;
 			break;
 		case "Context size":  rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size.png");;
 			break;
 		case "Interactivity": rString = ((BooleanRule)this.rule).isValue() == true ? "interactive" : "not interactive";
+			icon = ((BooleanRule)this.rule).isValue() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png");
 			break;
-		case "Last action": icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", ((LastActionRule)this.rule).getStatus().getIconPath());
+		case "Last action": ScoreStatus status = ((LastActionRule)this.rule).getStatus();
+			if(status.equals(ScoreStatus.INCREASED))
+				rString = "increased";
+			if(status.equals(ScoreStatus.DECREASED))
+				rString = "decreased";
+			if(status.equals(ScoreStatus.UNDEFINED))
+					rString = "unchanged";
+			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", ((LastActionRule)this.rule).getStatus().getIconPath());
 			break;
 		}
 		return rString;

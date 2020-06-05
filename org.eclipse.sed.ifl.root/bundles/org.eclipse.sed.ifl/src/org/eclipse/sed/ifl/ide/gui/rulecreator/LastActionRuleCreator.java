@@ -9,6 +9,7 @@ import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.wb.swt.ResourceManager;
 
 public class LastActionRuleCreator extends Composite implements RuleCreator {
 	
@@ -29,16 +30,19 @@ public class LastActionRuleCreator extends Composite implements RuleCreator {
 		
 		Group grpLastAction = new Group(this, SWT.NONE);
 		grpLastAction.setText("Last action");
-		grpLastAction.setLayout(new RowLayout(SWT.HORIZONTAL));
+		grpLastAction.setLayout(new RowLayout(SWT.VERTICAL));
 		
 		increasedButton = new Button(grpLastAction, SWT.RADIO);
+		increasedButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/up_tri16.png"));
 		increasedButton.setSelection(true);
 		increasedButton.setText("increased");
 		
 		decreasedButton = new Button(grpLastAction, SWT.RADIO);
+		decreasedButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/down_tri16.png"));
 		decreasedButton.setText("decreased");
 		
 		unchangedButton = new Button(grpLastAction, SWT.RADIO);
+		unchangedButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/undef16.png"));
 		unchangedButton.setText("unchanged");
 
 	}

@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.wb.swt.ResourceManager;
 
 public class RuleCreatorDialog extends Dialog {
 
@@ -64,7 +65,8 @@ public class RuleCreatorDialog extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
-		shell.setSize(420, 335);
+		shell.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ico8.png"));
+		shell.setSize(420, 382);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
 		
@@ -74,7 +76,7 @@ public class RuleCreatorDialog extends Dialog {
 		CBanner banner = new CBanner(shell, SWT.NONE);
 		banner.setRightWidth(310);
 		GridData gd_banner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_banner.heightHint = 277;
+		gd_banner.heightHint = 323;
 		gd_banner.widthHint = 408;
 		banner.setLayoutData(gd_banner);
 		
@@ -126,7 +128,7 @@ public class RuleCreatorDialog extends Dialog {
 		
 		List domainList = new List(listComposite, SWT.BORDER);
 		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action"});
-		domainList.setBounds(0, 0, 89, 241);
+		domainList.setBounds(0, 0, 89, 284);
 		domainList.addSelectionListener(new SelectionListener() {
 
 			@Override

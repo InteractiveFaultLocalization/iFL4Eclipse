@@ -45,7 +45,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private Button resetAllButton;
 	private Composite rulesComposite;
 	
-	private List<Rule> rules = new ArrayList<>();
+	private static Boolean filterEnabled = false;
+	
+	private static List<Rule> rules = new ArrayList<>();
 	
 	public FilterPart() {
 		System.out.println("filter part ctr");
@@ -122,6 +124,14 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		rulesComposite.setLayout(new GridLayout(1, false));
 		scrolledComposite.setContent(rulesComposite);
 		scrolledComposite.setMinSize(rulesComposite.getSize());
+		
+		System.out.println(rules.size());
+		
+		if(filterEnabled.booleanValue())
+		{
+			enableFiltering();
+		}
+		showRules();
 	}
 
 	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
@@ -136,6 +146,19 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		list.add(rule);
 		deleteRules.invoke(list);
 	};
+	
+	private void showRules() {
+		if(!rules.isEmpty()) {
+			for(Rule rule : rules) {
+				
+				RuleElementUI ruleElement = null;
+				ruleElement = new RuleElementUI(rulesComposite, SWT.None, rule);
+				ruleElement.eventruleDeleted().add(ruleDeleted);
+				scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				ruleElement.requestLayout();
+			}
+		}
+	}
 	
 	private IListener<Rule> ruleCreatedListener = event -> {
 		rules.add(event);
@@ -248,6 +271,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		enableInfoLabel.requestLayout();
 		addRuleButton.setEnabled(true);
 		resetAllButton.setEnabled(true);
+		
+		filterEnabled = true;
 	}
 	
 }
