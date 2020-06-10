@@ -7,24 +7,26 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.wb.swt.ResourceManager;
 
 public class StringRuleCreator extends Composite implements RuleCreator{
 	private Text text;
 	private String domain;
-	
-	Button containsButton;
-	Button notContainsButton;
-	Button exactMatchingButton;
-	Button partialMatchingButton;
-	Button caseYes;
-	Button caseNo;
-	Button regexYes;
-	Button regexNo;
+	private Label containsLabel;
+	private Button containsButton;
+	private Label matchingLabel;
+	private Button matchingButton;
+	private Label caseLabel;
+	private Button caseButton;
+	private Label regexLabel;
+	private Button regexButton;
 
 	/**
 	 * Create the composite.
@@ -42,55 +44,93 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		text = new Text(this, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Group containmentGroup = new Group(this, SWT.NONE);
-		GridData gd_containmentGroup = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
-		gd_containmentGroup.widthHint = 264;
-		containmentGroup.setLayoutData(gd_containmentGroup);
-		containmentGroup.setText("Containment");
-		containmentGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
+		containsLabel = new Label(this, SWT.NONE);
+		containsLabel.setText("Containment:");
 		
-		containsButton = new Button(containmentGroup, SWT.RADIO);
-		containsButton.setSelection(true);
-		containsButton.setText("contains");
+		containsButton = new Button(this, SWT.TOGGLE);
+		containsButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png"));
+		containsButton.setText("not contains");
+		containsButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				containsButton.setImage(containsButton.getSelection() ? 
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") :
+							ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png"));
+				containsButton.setText(containsButton.getSelection() ? "contains" : "not contains");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
-		notContainsButton = new Button(containmentGroup, SWT.RADIO);
-		notContainsButton.setText("not contains");
+		matchingLabel = new Label(this, SWT.NONE);
+		matchingLabel.setText("Matching:");
 		
-		Group matchingGroup = new Group(this, SWT.NONE);
-		matchingGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-		matchingGroup.setText("Matching");
-		matchingGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
+		matchingButton = new Button(this, SWT.TOGGLE);
+		matchingButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/matching_no_v2.png"));
+		matchingButton.setText("partial");
+		matchingButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				matchingButton.setImage(matchingButton.getSelection() ? 
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/matching_yes_v2.png") :
+							ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/matching_no_v2.png"));
+				matchingButton.setText(matchingButton.getSelection() ? "exact" : "partial");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
-		exactMatchingButton = new Button(matchingGroup, SWT.RADIO);
-		exactMatchingButton.setText("exact");
+		caseLabel = new Label(this, SWT.NONE);
+		caseLabel.setText("Case-sensitive:");
 		
-		partialMatchingButton = new Button(matchingGroup, SWT.RADIO);
-		partialMatchingButton.setSelection(true);
-		partialMatchingButton.setText("partial");
+		caseButton = new Button(this, SWT.TOGGLE);
+		caseButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_no.png"));
+		caseButton.setText("no");
+		caseButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				caseButton.setImage(caseButton.getSelection() ? 
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_yes.png") :
+							ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_no.png"));
+				caseButton.setText(caseButton.getSelection() ? "yes" : "no");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 		
-		Group caseGroup = new Group(this, SWT.NONE);
-		caseGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-		caseGroup.setText("Case-sensitive");
-		caseGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
+		regexLabel = new Label(this, SWT.NONE);
+		regexLabel.setText("Regular expression:");
 		
-		caseYes = new Button(caseGroup, SWT.RADIO);
-		caseYes.setText("yes");
-		
-		caseNo = new Button(caseGroup, SWT.RADIO);
-		caseNo.setSelection(true);
-		caseNo.setText("no");
-		
-		Group regexGroup = new Group(this, SWT.NONE);
-		regexGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-		regexGroup.setText("Regular expression");
-		regexGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
-		
-		regexYes = new Button(regexGroup, SWT.RADIO);
-		regexYes.setText("yes");
-		
-		regexNo = new Button(regexGroup, SWT.RADIO);
-		regexNo.setSelection(true);
-		regexNo.setText("no");
+		regexButton = new Button(this, SWT.TOGGLE);
+		regexButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/regex_no.png"));
+		regexButton.setText("no");
+		regexButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				regexButton.setImage(regexButton.getSelection() ? 
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/regex_yes.png") :
+							ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/regex_no.png"));
+				regexButton.setText(regexButton.getSelection() ? "yes" : "no");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 	}
 
@@ -101,10 +141,10 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 
 	@Override
 	public Rule getRule() {
-		String validation = text.getText();
+		String validation = text.getText().trim();
 		validation.replaceAll("\\s+","");
-		if(!validation.isEmpty()) {
-			return new StringRule(this.domain, text.getText(), containsButton.getSelection(), exactMatchingButton.getSelection(), caseYes.getSelection(), regexYes.getSelection());
+		if(!validation.equals("")) {
+			return new StringRule(this.domain, text.getText(), containsButton.getSelection(), matchingButton.getSelection(), caseButton.getSelection(), regexButton.getSelection());
 		} else {
 			MessageDialog.open(MessageDialog.ERROR, null, "Empty string input", "The provided input is an empty string."
 					+ "Please enter a string that is not empty.", SWT.NONE);
