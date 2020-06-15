@@ -21,10 +21,7 @@ import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
-<<<<<<< HEAD
-=======
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
->>>>>>> feature/kisdom/scorerecalculation-mvc-skeleton
 import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
