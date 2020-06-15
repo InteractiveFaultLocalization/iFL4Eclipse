@@ -21,6 +21,10 @@ import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
+<<<<<<< HEAD
+=======
+import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
+>>>>>>> feature/kisdom/scorerecalculation-mvc-skeleton
 import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
@@ -47,19 +51,19 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
-	
+
 	private ActivityMonitorControl activityMonitor;
 	private PartMonitorControl partMonitor;
-	
+
 	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
 	}
 
 	private String interactivity;
-	
+
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
-	
+
 	private ScoreListControl scoreListControl;
 
 	private Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
@@ -95,8 +99,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter, unrelevantFilter);
-		
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter,
+				unrelevantFilter);
+
 		Random r = new Random();
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
@@ -104,13 +109,9 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
-		
-		Map<IMethodDescription, Score> sampleScores = methods.stream()
-		.map(method -> method)
-		.collect(
-			Collectors.collectingAndThen(
-				Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
-				Collections::unmodifiableMap));
+		Map<IMethodDescription, Score> sampleScores = methods.stream().map(method -> method)
+				.collect(Collectors.collectingAndThen(Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
+						Collections::unmodifiableMap));
 		ScoreLoaderControl.saveSample(sampleScores, new File("sampleFor_" + selectedProject.getElementName() + ".csv"));
 
 		ScoreListModel model = new ScoreListModel(methods);
@@ -122,76 +123,80 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
+		scoreRecalculatorControl = new ScoreRecalculatorControl();
+		scoreRecalculatorControl.setModel(model);
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
+		addSubControl(scoreRecalculatorControl);
 		System.out.println(watch);
-		
-		
+
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
 				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
-		
+
 	}
 
-	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method, Map<IMethodBinding, IMethod> others) {
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method,
+			Map<IMethodBinding, IMethod> others) {
 		return accessor.getSiblings(method, others).entrySet().stream()
-		.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
-		.map(contextMethod -> identityFrom(contextMethod))
-		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+				.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+				.map(contextMethod -> identityFrom(contextMethod))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
 
 	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
 		return new CodeChunkLocation(
-			EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
-			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
-			new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset() + method.getValue().getSourceRange().getLength()))
-		);
+				EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset()
+						+ method.getValue().getSourceRange().getLength())));
 	}
 
 	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
-		return new MethodIdentity(
-			method.getKey().getName(),
-			accessor.getSignature(method.getKey()),
-			method.getKey().getDeclaringClass().getName(),
-			method.getKey().getReturnType().getName(),
-			method.getKey().getKey()
-		);
+		return new MethodIdentity(method.getKey().getName(), accessor.getSignature(method.getKey()),
+				method.getKey().getDeclaringClass().getName(), method.getKey().getReturnType().getName(),
+				method.getKey().getKey());
 	}
-	
+
 	@Override
 	public void init() {
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 		addSubControl(activityMonitor);
 		addSubControl(partMonitor);
-		
-		initUIStateListeners();
+		getView().eventClosed().add(closeListener);
+		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
+		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
 
 		activityMonitor.log(SessionEvent.start(selectedProject));
 	}
-	
+
 	@Override
 	public void teardown() {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
+		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
+		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
+		scoreRecalculatorControl = null;
 		activityMonitor = null;
 	}
-	
+
 	private IListener<SideEffect> terminationReqestedListener = event -> {
 		getView().close();
 	};
 
 	private NonGenericListenerCollection<EmptyEvent> finished = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<EmptyEvent> eventFinished() {
 		return finished;
 	}
-	
+
 	private IListener<IWorkbenchPart> closeListener = part -> {
 		terminate();
 	};
@@ -205,16 +210,16 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	}
 
 	private ScoreLoaderControl scoreLoaderControl;
-	
-	private IListener<EmptyEvent> scoreLoadRequestedListener =__ -> {
+	private ScoreRecalculatorControl scoreRecalculatorControl;
+
+	private IListener<EmptyEvent> scoreLoadRequestedListener = __ -> {
 		System.out.println("Loading scores from files are requested...");
 		this.scoreLoaderControl.load();
 	};
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
-	
-	private void initUIStateListeners() {
-		getView().eventClosed().add(closeListener);
-		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
-		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
-	}
+
+	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
+		this.scoreRecalculatorControl.recalculate();
+	};
+
 }
