@@ -22,6 +22,7 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
+import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
@@ -56,7 +57,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.partMonitor = partMonitor;
 	}
 
-	private boolean interactivity;
+	private String interactivity;
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 
@@ -89,12 +90,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 				unrelevantFilter);
 
 		Random r = new Random();
-		interactivity = Math.random() < 0.5;
-
+		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-				.map(method -> new Method(identityFrom(method), locationFrom(method),
-						contextFrom(method, resolvedMethods), r.nextBoolean()))
-				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), setInteractivity(r)))
+		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
 		Map<IMethodDescription, Score> sampleScores = methods.stream().map(method -> method)
