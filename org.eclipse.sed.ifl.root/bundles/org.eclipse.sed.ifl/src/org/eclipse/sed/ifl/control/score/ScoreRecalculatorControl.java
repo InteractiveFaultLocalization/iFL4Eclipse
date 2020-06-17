@@ -8,21 +8,8 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.IPath;
@@ -109,7 +96,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 		IVMInstall jre = JavaRuntime.getDefaultVMInstall();
 		File jdkHome = jre.getInstallLocation();
-		String toolsPathString =  Paths.get(jdkHome.getAbsolutePath() + "lib" + "tools.jar").normalize().toString();
+		String toolsPathString = Paths.get(jdkHome.getAbsolutePath() + "lib" + "tools.jar").normalize().toString();
 		IPath toolsPath = null;
 		toolsPath.append(toolsPathString);
 		IRuntimeClasspathEntry toolsEntry = JavaRuntime.newArchiveRuntimeClasspathEntry(toolsPath);
@@ -121,8 +108,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		workingCopy.setAttribute("org.eclipse.jdt.launching.JRE_CONTAINER",
 				"org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_202");
 
-		
-		String systemLibsPathString =  Paths.get(JavaRuntime.JRE_CONTAINER).normalize().toString();
+		String systemLibsPathString = Paths.get(JavaRuntime.JRE_CONTAINER).normalize().toString();
 		IPath systemLibsPath = null;
 		systemLibsPath.append(systemLibsPathString);
 		IRuntimeClasspathEntry systemLibsEntry = JavaRuntime.newRuntimeContainerClasspathEntry(systemLibsPath,
@@ -130,7 +116,6 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 		List classpath = new ArrayList();
 		classpath.add(toolsEntry.getMemento());
-		classpath.add(agentEntry.getMemento());
 		classpath.add(systemLibsEntry.getMemento());
 
 		workingCopy.setAttribute("ATTR_CLASSPATH", classpath);
