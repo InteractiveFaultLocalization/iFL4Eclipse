@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.*;
 
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.IPath;
@@ -94,6 +95,8 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 			}
 		}
 
+		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, "Maven IFL build");
+
 		IVMInstall jre = JavaRuntime.getDefaultVMInstall();
 		File jdkHome = jre.getInstallLocation();
 		String toolsPathString = Paths.get(jdkHome.getAbsolutePath() + "lib" + "tools.jar").normalize().toString();
@@ -102,7 +105,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		IRuntimeClasspathEntry toolsEntry = JavaRuntime.newArchiveRuntimeClasspathEntry(toolsPath);
 		toolsEntry.setClasspathProperty(IRuntimeClasspathEntry.USER_CLASSES);
 
-		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, "Maven IFL build");
+		workingCopy.setAttribute(ILaunchManager.ATTR_PRIVATE, true);
 		workingCopy.setAttribute("ATTR_VM_INSTALL_NAME", jre.getName());
 		workingCopy.setAttribute("ATTR_VM_INSTALL_TYPE", jre.getVMInstallType().getId());
 		workingCopy.setAttribute("org.eclipse.jdt.launching.JRE_CONTAINER",
@@ -117,6 +120,10 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		List classpath = new ArrayList();
 		classpath.add(toolsEntry.getMemento());
 		classpath.add(systemLibsEntry.getMemento());
+		
+		final Properties properties = new Properties();
+		properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+		String pomPath = properties.getProperty("basedir");
 
 		workingCopy.setAttribute("ATTR_CLASSPATH", classpath);
 		workingCopy.setAttribute("ATTR_DEFAULT_CLASSPATH", false);
@@ -132,6 +139,14 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		workingCopy.setAttribute("M2_SKIP_TESTS", skipTests);
 
 		workingCopy.setAttribute("M2_WORKSPACE_RESOLUTION", resolution);
+		
+		 workingCopy.setAttribute("M2_ATTR_POM_DIR", pomPath);
+		
+		workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_SCOPE, "${project}");
+		
+	    workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_RECURSIVE, true);
+
+		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_JRE_CONTAINER_PATH, systemLibsPath.toString());
 
 		File workingDir = JavaCore.getClasspathVariable("projektNev").append("bin").toFile();
 		workingCopy.setAttribute("ATTR_WORKING_DIRECTORY", workingDir.getAbsolutePath());
