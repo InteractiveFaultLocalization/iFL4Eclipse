@@ -10,26 +10,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.control.score.filter.BooleanFilter;
+import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleFilter;
+import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
+import org.eclipse.sed.ifl.control.score.filter.FilterControl;
+import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
 import org.eclipse.sed.ifl.control.score.filter.LastActionFilter;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
-import org.eclipse.sed.ifl.control.score.filter.FilterControl;
-import org.eclipse.sed.ifl.control.score.filter.HideUndefinedFilter;
-import org.eclipse.sed.ifl.control.score.filter.BooleanFilter;
-import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
-import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
+import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.control.score.filter.StringFilter;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
-import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
@@ -179,6 +181,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Map<IMethodDescription, Score> toDisplay = new HashMap<>();
 		for (ScoreFilter filter : filters) {
 			filtered = filtered.filter(filter);
+			Set<Entry<IMethodDescription, Score>> result = filtered.collect(Collectors.toSet());
+			filterControl.setResultNumber(filter.getRule(), result.size());
+			filtered = result.stream();
 		}
 		if (sorting != null) {
 			switch (sorting) {

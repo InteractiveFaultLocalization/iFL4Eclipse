@@ -183,6 +183,11 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	public void enableFiltering() {
 		filterPart.enableFiltering();
 	}
+
+	public void setResultNumber(Rule rule, int count) {
+		filterPart.setResultNumber(rule, count);
+		
+	}
 	
 	//private IListener<SortingArg> sortListener = sortRequired::invoke;
 

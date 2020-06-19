@@ -49,22 +49,38 @@ public class StringFilter extends ScoreFilter {
 			break;
 		}
 		
-		boolean containsCheck = contains ? target.contains(text) : !target.contains(text);
-		boolean exactMatchCheck = exactMatches ? target.contentEquals(text) : containsCheck;
-		boolean caseSensitiveCheck = isCaseSensitive ? target.equals(text) : containsCheck;
-		boolean regexCheck = true;
+		boolean containsCheck = false;
+		
+		if(!isCaseSensitive) {
+			String lowerTarget = target.toLowerCase();
+			String lowerText = text.toLowerCase();
+			
+			if(!exactMatches) {
+				containsCheck = contains ? lowerTarget.contains(lowerText) : !lowerTarget.contains(lowerText);
+			} else {
+				containsCheck = contains ? lowerTarget.equals(lowerText) : !lowerTarget.equals(lowerText);
+			}
+		} else {
+			if (!exactMatches) {
+				containsCheck = contains ? target.contains(text) : !target.contains(text);
+			} else {
+				containsCheck = contains ? target.equals(text) : !target.equals(text);
+			}
+		}
+		
+		boolean regexCheck = false;
 		
 		if(isRegex) {
+			containsCheck = false;
 			Pattern pattern = Pattern.compile(text);
 			Matcher regexMatcher = pattern.matcher(target);
 			regexCheck = regexMatcher.matches();
 		}
 		
 		System.out.println(arg0.getKey().getId().getSignature());
-		System.out.println("target: " + target + ", contains: " + containsCheck + ", exact match: " + exactMatchCheck 
-				+ ", case sens: " + caseSensitiveCheck + ", regex: " + regexCheck +", resulting in: " + (containsCheck && exactMatchCheck && caseSensitiveCheck && regexCheck));
+		System.out.println("target: " + target + ", contains: " + containsCheck);
 		
-		return containsCheck && exactMatchCheck && caseSensitiveCheck && regexCheck;
+		return containsCheck || regexCheck;
 	}
 
 	public Rule getRule() {

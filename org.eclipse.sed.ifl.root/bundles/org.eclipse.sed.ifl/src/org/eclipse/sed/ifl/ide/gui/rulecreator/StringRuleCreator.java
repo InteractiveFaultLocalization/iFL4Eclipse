@@ -48,8 +48,9 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 		containsLabel.setText("Containment:");
 		
 		containsButton = new Button(this, SWT.TOGGLE);
-		containsButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png"));
-		containsButton.setText("not contains");
+		containsButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png"));
+		containsButton.setText("contains");
+		containsButton.setSelection(true);
 		containsButton.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -58,6 +59,7 @@ public class StringRuleCreator extends Composite implements RuleCreator{
 						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") :
 							ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png"));
 				containsButton.setText(containsButton.getSelection() ? "contains" : "not contains");
+				containsButton.requestLayout();
 			}
 
 			@Override

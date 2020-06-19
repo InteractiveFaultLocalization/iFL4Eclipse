@@ -18,6 +18,7 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -27,11 +28,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.widgets.Label;
 
 public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
@@ -160,14 +160,23 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		}
 	}
 	
+	public void setResultNumber(Rule rule, int resultNumber) {
+		System.out.println(rulesComposite.getChildren().length);
+		for (Control control : rulesComposite.getChildren()) {
+			if(rule == ((RuleElementUI)control).getRule()) {
+				((RuleElementUI)control).setResultNumber(resultNumber);
+			}
+		}
+	}
+	
 	private IListener<Rule> ruleCreatedListener = event -> {
-		rules.add(event);
-		ruleAdded(event);
 		RuleElementUI ruleElement = null;
 		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
 		ruleElement.eventruleDeleted().add(ruleDeleted);
 		scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		ruleElement.requestLayout();
+		rules.add(event);
+		ruleAdded(event);
 	};
 	
 	private NonGenericListenerCollection<StringRule> stringRuleAdded = new NonGenericListenerCollection<>();

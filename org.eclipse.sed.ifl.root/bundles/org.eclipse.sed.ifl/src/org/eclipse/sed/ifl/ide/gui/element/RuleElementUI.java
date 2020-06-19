@@ -1,12 +1,5 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-
-import java.util.Map;
-
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
@@ -24,13 +17,23 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.ResourceManager;
 
 public class RuleElementUI extends Composite {
 
 	private Rule rule;
+	
+	public Rule getRule() {
+		return rule;
+	}
+
 	private Image icon = null;
+	private Label resultsValueLabel;
 	
 	private NonGenericListenerCollection<Rule> ruleDeleted = new NonGenericListenerCollection<>();
 	
@@ -55,6 +58,7 @@ public class RuleElementUI extends Composite {
 		domainValueLabel.setText(this.rule.getDomain());
 		
 		Button removeButton = new Button(this, SWT.NONE);
+		removeButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		removeButton.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/remove_selection.png"));
 		removeButton.addSelectionListener(new SelectionListener() {
 
@@ -79,9 +83,14 @@ public class RuleElementUI extends Composite {
 			ruleValueLabel.setImage(icon);
 		}
 		
-		GridData gd_ruleValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_ruleValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
 		gd_ruleValueLabel.widthHint = 250;
 		ruleValueLabel.setLayoutData(gd_ruleValueLabel);
+		
+		Label resultsLabel = new Label(this, SWT.NONE);
+		resultsLabel.setText("Results in:");
+		
+		resultsValueLabel = new Label(this, SWT.NONE);
 		
 		addDisposeListener(new DisposeListener() {
 
@@ -104,26 +113,26 @@ public class RuleElementUI extends Composite {
 		String containsString = null;
 		switch(this.rule.getDomain()) {
 		case "Score": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
-			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score.png");
+			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score_3.png");
 			break;
 		case "Name": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
+			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
 			break;
 		case "Signature": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
+			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
 			break;
 		case "Parent type": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
+			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
 			break;
 		case "Path": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment.png");;
+			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
 			break;
 		case "Position": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
-			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position.png"); ;
+			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_3.png"); ;
 			break;
 		case "Context size":  rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
 			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size.png");;
@@ -142,5 +151,10 @@ public class RuleElementUI extends Composite {
 			break;
 		}
 		return rString;
+	}
+
+	public void setResultNumber(int resultNumber) {
+		resultsValueLabel.setText(resultNumber + " entries");
+		resultsValueLabel.requestLayout();
 	}
 }

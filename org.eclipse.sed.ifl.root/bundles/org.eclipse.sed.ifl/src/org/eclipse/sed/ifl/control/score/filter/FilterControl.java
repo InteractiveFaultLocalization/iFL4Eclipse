@@ -113,5 +113,10 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	public void enableFiltering() {
 		getView().enableFiltering();
 	}
+
+	public void setResultNumber(Rule rule, int count) {
+		getView().setResultNumber(rule, count);
+		
+	}
 	
 }
