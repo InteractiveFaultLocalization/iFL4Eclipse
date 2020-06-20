@@ -12,6 +12,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.*;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -29,7 +36,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 	}
 
-	public void recalculate() throws UnsupportedOperationException, CoreException, IOException {
+	public void recalculate() throws UnsupportedOperationException, CoreException, IOException, XmlPullParserException {
 		System.out.println("Recalculating scores are requested...");
 		// throw new UnsupportedOperationException("Function is not yet implemented");
 		IExtensionRegistry reg = RegistryFactory.getRegistry();
@@ -120,10 +127,17 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		List classpath = new ArrayList();
 		classpath.add(toolsEntry.getMemento());
 		classpath.add(systemLibsEntry.getMemento());
+
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		Model model;
+		if ((new File("pom.xml")).exists()) {
+			model = reader.read(new FileReader("pom.xml"));
+		} else {
+			throw new XmlPullParserException("No POM detected");
+		}
 		
-		final Properties properties = new Properties();
-		properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
-		String pomPath = properties.getProperty("basedir");
+		String pomPath = model.getBasedir();
+			
 
 		workingCopy.setAttribute("ATTR_CLASSPATH", classpath);
 		workingCopy.setAttribute("ATTR_DEFAULT_CLASSPATH", false);
@@ -139,12 +153,12 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		workingCopy.setAttribute("M2_SKIP_TESTS", skipTests);
 
 		workingCopy.setAttribute("M2_WORKSPACE_RESOLUTION", resolution);
-		
-		 workingCopy.setAttribute("M2_ATTR_POM_DIR", pomPath);
-		
+
+		workingCopy.setAttribute("M2_ATTR_POM_DIR", pomPath);
+
 		workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_SCOPE, "${project}");
-		
-	    workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_RECURSIVE, true);
+
+		workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_RECURSIVE, true);
 
 		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_JRE_CONTAINER_PATH, systemLibsPath.toString());
 
