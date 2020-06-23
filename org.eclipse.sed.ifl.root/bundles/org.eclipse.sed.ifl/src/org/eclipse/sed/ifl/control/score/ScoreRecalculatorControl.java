@@ -12,63 +12,33 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.*;
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-
-import java.io.FileReader;
-import java.io.IOException;
-
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.*;
 import org.eclipse.debug.ui.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.*;
 
 public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
-	public ScoreRecalculatorControl() {
+	private IJavaProject selectedProject;
 
+	public ScoreRecalculatorControl(IJavaProject selectedProject) {
+		this.selectedProject = selectedProject;
 	}
 
-	public void recalculate() throws UnsupportedOperationException, CoreException, IOException, XmlPullParserException {
+	public void recalculate() throws UnsupportedOperationException, CoreException, IOException {
 		System.out.println("Recalculating scores are requested...");
 		// throw new UnsupportedOperationException("Function is not yet implemented");
-		IExtensionRegistry reg = RegistryFactory.getRegistry();
-		IExtensionPoint[] points = reg.getExtensionPoints();
-		IConfigurationElement[] elements = new IConfigurationElement[points.length];
-		IConfigurationElement[] locations = new IConfigurationElement[points.length];
-		String[] pointsNames = new String[points.length];
-		elements[0] = null;
-		for (int i = 0; i < points.length; i++) {
-			if (points[i].getSimpleIdentifier().startsWith("")) { // can be used for filtering certain ExtensionPoints
-				pointsNames[i] = points[i].getSimpleIdentifier();
-			}
-			if (points[i].getSimpleIdentifier().contentEquals("targetLocations")) {
-				locations = points[i].getConfigurationElements();
-			}
-		}
-		Arrays.sort(pointsNames);
-
-		for (int i = 0; i < points.length; i++) {
-			System.out.println(pointsNames[i]);
-			if (points[i].getSimpleIdentifier().equals("launchConfigurationTabs")) {
-				elements = points[i].getConfigurationElements();
-			}
-		}
-		System.out.println("Configs are:");
-		for (int i = 0; i < elements.length; i++) {
-			System.out.println(elements[i].getName());
-		}
 
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager(); // Maven pluginnak és JUnitnak
 																					// lekérni
-		String configType = elements[0].getValue();
 		ILaunchConfigurationType type = launchManager
 				.getLaunchConfigurationType("org.eclipse.m2e.Maven2LaunchConfigurationType");
 		ILaunchConfiguration[] configurations = launchManager.getLaunchConfigurations(type); // pluginokban van dedikált
@@ -128,23 +98,19 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		classpath.add(toolsEntry.getMemento());
 		classpath.add(systemLibsEntry.getMemento());
 
-		MavenXpp3Reader reader = new MavenXpp3Reader();
-		Model model;
-		if ((new File("pom.xml")).exists()) {
-			model = reader.read(new FileReader("pom.xml"));
-		} else {
-			throw new XmlPullParserException("No POM detected");
-		}
-		
-		String pomPath = model.getBasedir();
-			
+		IClasspathEntry[] projectClassPath = this.selectedProject.getRawClasspath();
+
+		String pomPath = projectClassPath[0].getPath().toOSString() + "/bundles/pom.xml";
+
+		IProject currentIProject = this.selectedProject.getProject();
+		String pomPath2 = currentIProject.getRawLocation().toOSString() + "/bundles/pom.xml";
 
 		workingCopy.setAttribute("ATTR_CLASSPATH", classpath);
 		workingCopy.setAttribute("ATTR_DEFAULT_CLASSPATH", false);
 
 		workingCopy.setAttribute("ATTR_MAIN_TYPE_NAME", typeName);
 
-		workingCopy.setAttribute("ATTR_LOCATION", locations[0]);
+		workingCopy.setAttribute("ATTR_LOCATION", "locationHelye");
 
 		workingCopy.setAttribute("M2_GOALS", goal);
 
@@ -166,6 +132,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		workingCopy.setAttribute("ATTR_WORKING_DIRECTORY", workingDir.getAbsolutePath());
 
 		ILaunchConfiguration configuration = workingCopy.doSave();
+		JavaCore.getClasspathVariable("amire szükség van");
 		DebugUITools.launch(configuration, ILaunchManager.RUN_MODE); // Maven vagy JUnit-on keresztül.
 		// Mavenbol classpath kinyerése
 

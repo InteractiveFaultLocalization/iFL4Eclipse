@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.session;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
@@ -21,11 +23,7 @@ import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
-<<<<<<< HEAD
-=======
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
->>>>>>> feature/kisdom/scorerecalculation-mvc-skeleton
-import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
@@ -60,7 +58,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.partMonitor = partMonitor;
 	}
 
-	private String interactivity;
+	private boolean interactivity;
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 
@@ -87,26 +85,18 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		return false;
 	};
 
-	private boolean setInteractivity(Random r) {
-		boolean rValue = r.nextBoolean();
-		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
-		}
-	}
-	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
 		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter,
 				unrelevantFilter);
 
 		Random r = new Random();
-		
+		interactivity = Math.random() < 0.5;
+
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), setInteractivity(r)))
-		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+				.map(method -> new Method(identityFrom(method), locationFrom(method),
+						contextFrom(method, resolvedMethods), r.nextBoolean()))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
 		Map<IMethodDescription, Score> sampleScores = methods.stream().map(method -> method)
@@ -120,10 +110,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl(interactivity);
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
-		scoreRecalculatorControl = new ScoreRecalculatorControl();
+		scoreRecalculatorControl = new ScoreRecalculatorControl(selectedProject);
 		scoreRecalculatorControl.setModel(model);
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
@@ -204,8 +194,6 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private void terminate() {
 		System.out.println("Session closing...");
 		activityMonitor.log(SessionEvent.stop(selectedProject));
-		scoreListControl.resetFilterState();
-		scoreListControl.closeFilterPart();
 		this.finished.invoke(new EmptyEvent());
 	}
 
@@ -219,7 +207,18 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		this.scoreRecalculatorControl.recalculate();
+		try {
+			this.scoreRecalculatorControl.recalculate();
+		} catch (UnsupportedOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	};
 
 }
