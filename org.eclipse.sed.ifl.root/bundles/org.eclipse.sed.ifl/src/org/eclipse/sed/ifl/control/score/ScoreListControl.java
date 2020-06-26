@@ -30,6 +30,7 @@ import org.eclipse.sed.ifl.control.score.filter.LastActionFilter;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
+import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.control.score.filter.StringFilter;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
@@ -113,8 +114,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		handler.loadMethodsScoreMap(getModel().getRawScore());
 		handler.eventHighLightRequested().add(highlightRequestListener);
 		filters.add(hideUndefinedFilter);
-		
-		getView().eventSortRequired().add(sortListener);
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventNavigateToContext().add(navigateToContextListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
@@ -129,6 +128,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventStringRuleAdded().add(newStringFilterAddedListener);
 		filterControl.eventSortRequired().add(sortListener);
 		filterControl.eventDeleteRules().add(filtersRemovedListener);
+		filterControl.eventSortRequired().add(sortListener);
 		
 		super.init();
 	}
@@ -142,7 +142,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventCustomOptionSelected().remove(customOptionSelectedListener);
 		handler.eventScoreUpdated().remove(scoreRecalculatedListener);
 		handler.eventHighLightRequested().remove(highlightRequestListener);
-		getView().eventSortRequired().remove(sortListener);
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
@@ -157,6 +156,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventStringRuleAdded().remove(newStringFilterAddedListener);
 		filterControl.eventSortRequired().remove(sortListener);
 		filterControl.eventDeleteRules().remove(filtersRemovedListener);
+		filterControl.eventSortRequired().remove(sortListener);
 		
 		super.teardown();
 		activityMonitor = null;
@@ -249,6 +249,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<DoubleRule> newDoubleFilterAddedListener = rule -> {
 		filters.add(new DoubleFilter(true, rule));
+		System.out.println((int)rule.getValue());
 		refreshView();
 	};
 	
@@ -268,6 +269,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		for(ScoreFilter filter: filters) {	
 			for(Rule rule: rules) {
 				if(rule == filter.getRule()) {
+					if(rule instanceof SortRule) {
+						sorting = null;
+					}
 					toBeRemoved.add(filter);
 				}
 			}
@@ -387,8 +391,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private SortingArg sorting;
 
-	private IListener<SortingArg> sortListener = event -> {
-		sorting = event;
+	private IListener<SortRule> sortListener = event -> {
+		sorting = event.getArg();
 		refreshView();
 	};
 

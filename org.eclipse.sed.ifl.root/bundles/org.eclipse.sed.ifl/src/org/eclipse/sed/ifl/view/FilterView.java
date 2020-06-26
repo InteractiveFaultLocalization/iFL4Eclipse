@@ -8,6 +8,7 @@ import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
+import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -71,6 +72,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventLastActionRuleAdded().add(lastActionRuleAddedListener);
 		filterPart.eventStringRuleAdded().add(stringRuleAddedListener);
 		filterPart.eventDeleteRules().add(deleteRulesListener);
+		filterPart.eventSortRuleAdded().add(sortListener);
 	}
 	
 	private void removeUIListeners() {
@@ -79,6 +81,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventLastActionRuleAdded().remove(lastActionRuleAddedListener);
 		filterPart.eventStringRuleAdded().remove(stringRuleAddedListener);
 		filterPart.eventDeleteRules().remove(deleteRulesListener);
+		filterPart.eventSortRuleAdded().remove(sortListener);
 	}
 	
 	@Override
@@ -174,12 +177,14 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<LastActionRule> lastActionRuleAddedListener = lastActionRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<SortRule> sortRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+	public INonGenericListenerCollection<SortRule> eventSortRequired() {
 		return sortRequired;
 	}
 
+	private IListener<SortRule> sortListener = sortRequired::invoke;
+	
 	public void enableFiltering() {
 		filterPart.enableFiltering();
 	}
@@ -188,7 +193,4 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.setResultNumber(rule, count);
 		
 	}
-	
-	//private IListener<SortingArg> sortListener = sortRequired::invoke;
-
 }

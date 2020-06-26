@@ -9,6 +9,7 @@ import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
+import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -38,6 +39,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLFilterView";
 	
 	@Inject IWorkbench workbench;
+	private int numberOfSortRules = 0;
 	
 	private Composite composite;
 	private Button addRuleButton;
@@ -161,7 +163,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 	
 	public void setResultNumber(Rule rule, int resultNumber) {
-		System.out.println(rulesComposite.getChildren().length);
 		for (Control control : rulesComposite.getChildren()) {
 			if(rule == ((RuleElementUI)control).getRule()) {
 				((RuleElementUI)control).setResultNumber(resultNumber);
@@ -170,6 +171,12 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 	
 	private IListener<Rule> ruleCreatedListener = event -> {
+		if(event instanceof SortRule) {
+			if(numberOfSortRules >= 1) {
+				removePreviousSortRule();
+				numberOfSortRules--;
+			}
+		}
 		RuleElementUI ruleElement = null;
 		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
 		ruleElement.eventruleDeleted().add(ruleDeleted);
@@ -185,6 +192,17 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		return stringRuleAdded;
 	}
 	
+	private void removePreviousSortRule() {
+		for(Control control: rulesComposite.getChildren()) {
+			Rule rule = ((RuleElementUI)control).getRule();
+			if( rule instanceof SortRule ) {
+				control.dispose();
+				ruleDeleted.invoke(rule);
+			}
+		}
+	}
+
+
 	private void ruleAdded(Rule rule) {
 		if(rule instanceof StringRule) {
 			stringRuleAdded.invoke((StringRule) rule);
@@ -198,6 +216,16 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		if(rule instanceof LastActionRule) {
 			lastActionRuleAdded.invoke((LastActionRule) rule);
 		}
+		if(rule instanceof SortRule) {
+			numberOfSortRules ++;
+			sortRuleAdded.invoke((SortRule) rule);
+		}
+	}
+	
+	private NonGenericListenerCollection<SortRule> sortRuleAdded = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<SortRule> eventSortRuleAdded() {
+		return sortRuleAdded;
 	}
 	
 	private NonGenericListenerCollection<DoubleRule> doubleRuleAdded = new NonGenericListenerCollection<>();
@@ -218,52 +246,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
 		return lastActionRuleAdded;
 	}
-	
-	/*
-	Listener sortListener = new Listener() {
-		public void handleEvent(Event e) {
-			int dir;
-			if(sortDescendingButton.getSelection()) {
-				dir = SWT.DOWN;
-			} else {
-				dir = SWT.UP;
-			}
-			
-			SortingArg arg;
-			String text = sortCombo.getText();
-			
-			switch(text) {
-			case "Score": arg = SortingArg.Score;
-				break;
-			case "Name": arg = SortingArg.Name;
-				break;
-			case "Signature": arg = SortingArg.Signature;
-				break;
-			case "Parent type": arg = SortingArg.ParentType;
-				break;
-			case "Path": arg = SortingArg.Path;
-				break;
-			case "Context size": arg = SortingArg.ContextSize;
-				break;
-			case "Position": arg = SortingArg.Position;
-				break;
-			case "Interactivity": arg = SortingArg.Interactivity;
-				break;
-			case "Last action":  arg = SortingArg.LastAction;
-				break;
-			default: arg = SortingArg.Score;
-				break;
-			}
-			
-			arg.setDescending(dir == SWT.DOWN);
-			
-			sortRequired.invoke(arg);
-			saveState();
-		}
-		
-	};
-	
-	*/
 	
 	@Override
 	public void setFocus() {

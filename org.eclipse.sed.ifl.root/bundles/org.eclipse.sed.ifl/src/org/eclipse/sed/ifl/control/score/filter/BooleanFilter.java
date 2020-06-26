@@ -24,7 +24,7 @@ public class BooleanFilter extends ScoreFilter {
 		
 		rValue = arg0.getKey().isInteractive();
 		
-		return rValue;
+		return value ? rValue : !rValue;
 	}
 
 	public Rule getRule() {

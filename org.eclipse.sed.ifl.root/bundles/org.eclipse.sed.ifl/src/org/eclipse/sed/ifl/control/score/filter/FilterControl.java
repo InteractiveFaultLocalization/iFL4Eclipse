@@ -97,13 +97,13 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	
 	private IListener<LastActionRule> lastActionRuleAddedListener = lastActionRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<SortRule> sortRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+	public INonGenericListenerCollection<SortRule> eventSortRequired() {
 		return sortRequired;
 	}
 	
-	private IListener<SortingArg> sortListener = sortRequired::invoke;
+	private IListener<SortRule> sortListener = sortRequired::invoke;
 
 	public void resetFilterState() {
 		//getView().resetFilterState();

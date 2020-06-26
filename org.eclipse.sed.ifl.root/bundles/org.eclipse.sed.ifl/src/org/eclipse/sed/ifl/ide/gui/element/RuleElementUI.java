@@ -1,10 +1,12 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
+import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -91,6 +93,7 @@ public class RuleElementUI extends Composite {
 		resultsLabel.setText("Results in:");
 		
 		resultsValueLabel = new Label(this, SWT.NONE);
+		resultsValueLabel.setText("-");
 		
 		addDisposeListener(new DisposeListener() {
 
@@ -148,6 +151,16 @@ public class RuleElementUI extends Composite {
 			if(status.equals(ScoreStatus.UNDEFINED))
 					rString = "unchanged";
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", ((LastActionRule)this.rule).getStatus().getIconPath());
+			break;
+		case "Sort": SortingArg arg = ((SortRule)this.rule).getArg();
+			String sortDomain = arg.getDomain();
+			if(arg.isDescending()) {
+				rString = sortDomain.concat(" descending");
+				icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/down_arrow16.png");
+			} else if(!arg.isDescending()) {
+				rString = sortDomain.concat(" ascending");
+				icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/up_arrow16.png");
+			}
 			break;
 		}
 		return rString;

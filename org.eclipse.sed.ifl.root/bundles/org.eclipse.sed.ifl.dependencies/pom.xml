@@ -64,8 +64,13 @@
 		</plugins>
 	</build>
 	<dependencies>
-
 		<!-- here goes the dependencies -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.wb.rcp/swing2swt -->
+		<dependency>
+			<groupId>org.eclipse.wb.rcp</groupId>
+			<artifactId>swing2swt</artifactId>
+			<version>1.6.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
 			<artifactId>neo4j-gremlin</artifactId>

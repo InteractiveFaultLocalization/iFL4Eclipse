@@ -10,6 +10,7 @@ import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.RuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.SortRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -127,13 +128,12 @@ public class RuleCreatorDialog extends Dialog {
 		banner.setLeft(listComposite);
 		
 		List domainList = new List(listComposite, SWT.BORDER);
-		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action"});
+		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action", "Sort"});
 		domainList.setBounds(0, 0, 89, 284);
 		domainList.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(domainList.getSelection()[0]);
 				for(Control control : ruleCreatorComposite.getChildren()) {
 					control.dispose();
 				}
@@ -155,6 +155,8 @@ public class RuleCreatorDialog extends Dialog {
 				case "Interactivity": ruleCreator = new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				case "Last action": ruleCreator = new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
+					break;
+				case "Sort": ruleCreator = new SortRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				}
 				ruleCreatorComposite.requestLayout();

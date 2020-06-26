@@ -37,7 +37,7 @@ public class DoubleFilter extends ScoreFilter {
 		boolean rValue = true;
 		boolean isScore = false;
 		
-		double target = 0;
+		double target = 0.0;
 		
 		switch(this.domain) {
 		case "Score":
@@ -57,16 +57,16 @@ public class DoubleFilter extends ScoreFilter {
 			rValue =  target > limit;
 			break;
 		case ">=":
-			rValue = target >= limit;
+			rValue =  target >= limit;
 			break;
 		case "=":
-			rValue = target == limit;
+			rValue =  target == limit;
 			break;
 		case "<=":
-			rValue = target <= limit;
+			rValue =  target <= limit;
 			break;
 		case "<":
-			rValue = target < limit;
+			rValue =  target < limit;
 			break;
 		}
 		
