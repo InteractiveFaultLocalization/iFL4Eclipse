@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
+import org.apache.maven.project.MavenProject;
+
 import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 
@@ -17,6 +19,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.*;
 import org.eclipse.debug.ui.*;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -24,13 +27,19 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.*;
+import org.eclipse.m2e.actions.MavenLaunchConstants;
+import org.eclipse.m2e.core.MavenPlugin;
+import org.eclipse.m2e.core.project.IMavenProjectFacade;
+import org.eclipse.m2e.core.project.IMavenProjectRegistry;
 
 public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 	private IJavaProject selectedProject;
+	private IProject currentIProject;
 
 	public ScoreRecalculatorControl(IJavaProject selectedProject) {
 		this.selectedProject = selectedProject;
+		this.currentIProject = selectedProject.getProject();
 	}
 
 	public void recalculate() throws UnsupportedOperationException, CoreException, IOException {
@@ -74,6 +83,23 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, "Maven IFL build");
 
+		boolean isJREConfigured = false;
+
+		for (IClasspathEntry entry : selectedProject.getRawClasspath()) {
+			if (JavaRuntime.JRE_CONTAINER.equals(entry.getPath().segment(0))) {
+				IPath jreContainerPath = entry.getPath();
+				isJREConfigured = true;
+				break;
+			}
+		}
+
+		/*
+		 * if(isJREConfigured == false) { throw new
+		 * CoreException(StatusUtil.error(ScoreRecalculatorControl.class, "Project " +
+		 * currentIProject.getName() + " does not have JRE configured.")); }
+		 */
+		// Unsure about proper CodeException handling
+
 		IVMInstall jre = JavaRuntime.getDefaultVMInstall();
 		File jdkHome = jre.getInstallLocation();
 		String toolsPathString = Paths.get(jdkHome.getAbsolutePath() + "lib" + "tools.jar").normalize().toString();
@@ -94,16 +120,29 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		IRuntimeClasspathEntry systemLibsEntry = JavaRuntime.newRuntimeContainerClasspathEntry(systemLibsPath,
 				IRuntimeClasspathEntry.STANDARD_CLASSES);
 
+		IMavenProjectRegistry projectManager = MavenPlugin.getMavenProjectRegistry();
+		IMavenProjectFacade projectFacade = projectManager.create(currentIProject, new NullProgressMonitor());
+		MavenProject mavenProject = projectFacade.getMavenProject(new NullProgressMonitor());
+
+		String buildDirectory = mavenProject.getBuild().getDirectory();
+		String finalName = mavenProject.getBuild().getFinalName();
+		String finalArtifactPathString = buildDirectory + "/" + finalName + "." + mavenProject.getPackaging();
+		
+		IPath finalArtifactPath = null;
+		finalArtifactPath.append(finalArtifactPathString);
+
 		List classpath = new ArrayList();
-		classpath.add(toolsEntry.getMemento());
-		classpath.add(systemLibsEntry.getMemento());
 
 		IClasspathEntry[] projectClassPath = this.selectedProject.getRawClasspath();
 
 		String pomPath = projectClassPath[0].getPath().toOSString() + "/bundles/pom.xml";
 
-		IProject currentIProject = this.selectedProject.getProject();
-		String pomPath2 = currentIProject.getRawLocation().toOSString() + "/bundles/pom.xml";
+		String pomPath2 = this.currentIProject.getRawLocation().toOSString() + "/bundles/pom.xml";
+
+		System.out.println(pomPath);
+		System.out.println(pomPath);
+		
+		
 
 		workingCopy.setAttribute("ATTR_CLASSPATH", classpath);
 		workingCopy.setAttribute("ATTR_DEFAULT_CLASSPATH", false);
@@ -120,7 +159,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 		workingCopy.setAttribute("M2_WORKSPACE_RESOLUTION", resolution);
 
-		workingCopy.setAttribute("M2_ATTR_POM_DIR", pomPath);
+		workingCopy.setAttribute("M2_ATTR_POM_DIR", pomPath2);
 
 		workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_SCOPE, "${project}");
 
