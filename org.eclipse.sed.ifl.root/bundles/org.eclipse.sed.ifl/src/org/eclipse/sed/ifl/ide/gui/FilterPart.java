@@ -13,6 +13,7 @@ import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.ide.gui.dialogs.PresetChooserDialog;
 import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
 import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -69,10 +70,10 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	@Override
 	public void createPartControl(Composite parent) {
 		composite = parent;
-		composite.setLayout(new GridLayout(2, false));
+		composite.setLayout(new GridLayout(3, false));
 		
 		enableInfoLabel = new Label(parent, SWT.NONE);
-		enableInfoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		enableInfoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		enableInfoLabel.setText("Load some defined scores to enable filtering.");
 		
 		addRuleButton = new Button(parent, SWT.NONE);
@@ -112,8 +113,25 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			
 		});
 		
+		choosePresetButton = new Button(parent, SWT.NONE);
+		choosePresetButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		choosePresetButton.setText("Choose preset");
+		choosePresetButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				PresetChooserDialog presetDialog = new PresetChooserDialog(Display.getCurrent().getActiveShell(), SWT.NONE);
+				presetDialog.open();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
+		
 		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
-		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
 		 gd_scrolledComposite.widthHint = 360;
 		 gd_scrolledComposite.heightHint = 280;
 		scrolledComposite.setLayoutData( gd_scrolledComposite);
@@ -242,6 +260,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	
 	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
 	private Label enableInfoLabel;
+	private Button choosePresetButton;
 	
 	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
 		return lastActionRuleAdded;
