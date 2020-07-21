@@ -15,6 +15,7 @@ import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.FilterPart;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.swt.widgets.Composite;
@@ -73,6 +74,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventStringRuleAdded().add(stringRuleAddedListener);
 		filterPart.eventDeleteRules().add(deleteRulesListener);
 		filterPart.eventSortRuleAdded().add(sortListener);
+		filterPart.eventGetTopTenLimit().add(getTopTenLimitListener);
 	}
 	
 	private void removeUIListeners() {
@@ -82,6 +84,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventStringRuleAdded().remove(stringRuleAddedListener);
 		filterPart.eventDeleteRules().remove(deleteRulesListener);
 		filterPart.eventSortRuleAdded().remove(sortListener);
+		filterPart.eventGetTopTenLimit().remove(getTopTenLimitListener);
 	}
 	
 	@Override
@@ -114,6 +117,10 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		if(filterPart.getSite().getPart() != null) {
 			filterPart.getSite().getPage().hideView(filterPart);
 		}
+	}
+	
+	public void applyTopScorePreset(Double limit) {
+		filterPart.applyTopScorePreset(limit);
 	}
 	
 	/*
@@ -184,6 +191,14 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private IListener<SortRule> sortListener = sortRequired::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
+		return getTopTenLimit;
+	}
+	
+	private IListener<EmptyEvent> getTopTenLimitListener = getTopTenLimit::invoke;
 	
 	public void enableFiltering() {
 		filterPart.enableFiltering();

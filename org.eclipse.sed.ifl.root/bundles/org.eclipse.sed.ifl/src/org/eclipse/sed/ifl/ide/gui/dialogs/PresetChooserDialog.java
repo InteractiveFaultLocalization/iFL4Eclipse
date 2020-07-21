@@ -5,6 +5,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+
+import org.eclipse.sed.ifl.control.score.filter.Rule;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -15,6 +21,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class PresetChooserDialog extends Dialog {
 
@@ -56,16 +63,16 @@ public class PresetChooserDialog extends Dialog {
 	private void createContents() {
 		shlChoosePreset = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
 		shlChoosePreset.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ico8.png"));
-		shlChoosePreset.setSize(450, 300);
+		shlChoosePreset.setSize(450, 350);
 		shlChoosePreset.setText("Choose preset");
 		shlChoosePreset.setLayout(new GridLayout(2, false));
 		
 		Label choosePresetLabel = new Label(shlChoosePreset, SWT.NONE);
-		choosePresetLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		choosePresetLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 2, 1));
 		choosePresetLabel.setText("Choose preset:");
 		
 		Tree tree = new Tree(shlChoosePreset, SWT.BORDER);
-		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		tree.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -82,52 +89,78 @@ public class PresetChooserDialog extends Dialog {
 		});
 		
 		TreeItem domainItem = new TreeItem(tree, SWT.NONE);
-		domainItem.setText("Domain");
+		
 		
 		TreeItem trtmScore = new TreeItem(domainItem, SWT.NONE);
-		trtmScore.setText("Score");
+		
 		
 		TreeItem trtmShowTop = new TreeItem(trtmScore, SWT.NONE);
-		trtmShowTop.setText("Show top 10 suspicious items");
-		trtmShowTop.setData("description", "Shows the top 10 most suspicious items based on the score of the items.");
+		
+		trtmShowTop.setData("description", "Shows the top 10 most suspicious items based on the score of the items.\n"
+				+ "Applies one fine-tuned Score domain rule.");
+		trtmShowTop.setData("name", "TOP_10");
 		trtmScore.setExpanded(true);
 		
 		TreeItem trtmName = new TreeItem(domainItem, SWT.NONE);
-		trtmName.setText("Name");
-		
 		TreeItem trtmSignature = new TreeItem(domainItem, SWT.NONE);
-		trtmSignature.setText("Signature");
-		
 		TreeItem trtmParentType = new TreeItem(domainItem, SWT.NONE);
-		trtmParentType.setText("Parent type");
-		
 		TreeItem trtmPath = new TreeItem(domainItem, SWT.NONE);
-		trtmPath.setText("Path");
-		trtmPath.setExpanded(true);
-		
 		TreeItem trtmPosition = new TreeItem(domainItem, SWT.NONE);
-		trtmPosition.setText("Position");
-		
 		TreeItem trtmContextSize = new TreeItem(domainItem, SWT.NONE);
-		trtmContextSize.setText("Context size");
-		
 		TreeItem trtmInteractivity = new TreeItem(domainItem, SWT.NONE);
-		trtmInteractivity.setText("Interactivity");
-		
 		TreeItem trtmLastAction = new TreeItem(domainItem, SWT.NONE);
-		trtmLastAction.setText("Last action");
-		domainItem.setExpanded(true);
+		TreeItem trtmMultidomainPresets = new TreeItem(tree, SWT.NONE);
+		
+		/*setText of tree items is needed here - in the end - because children count would show false numbers
+		  had the texts been set earlier*/
+		domainItem.setText("Single-domain presets".concat(addChildrenCountToName(domainItem)));
+		trtmScore.setText("Score".concat(addChildrenCountToName(trtmScore)));
+		trtmShowTop.setText("Show top 10 suspicious items");
+		trtmName.setText("Name".concat(addChildrenCountToName(trtmName)));
+		trtmSignature.setText("Signature".concat(addChildrenCountToName(trtmSignature)));
+		trtmParentType.setText("Parent type".concat(addChildrenCountToName(trtmParentType)));
+		trtmPath.setText("Path".concat(addChildrenCountToName(trtmPath)));
+		trtmPosition.setText("Position".concat(addChildrenCountToName(trtmPosition)));
+		trtmContextSize.setText("Context size".concat(addChildrenCountToName(trtmContextSize)));
+		trtmInteractivity.setText("Interactivity".concat(addChildrenCountToName(trtmInteractivity)));
+		trtmLastAction.setText("Last action".concat(addChildrenCountToName(trtmLastAction)));
+		trtmMultidomainPresets.setText("Multi-domain presets".concat(addChildrenCountToName(trtmMultidomainPresets)));
 		
 		Label lblDescription = new Label(shlChoosePreset, SWT.NONE);
-		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 2, 1));
 		lblDescription.setText("Description:");
 		
 		descriptionLabel = new Label(shlChoosePreset, SWT.WRAP);
+		descriptionLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		descriptionLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 		
 		Button btnAddPreset = new Button(shlChoosePreset, SWT.NONE);
-		btnAddPreset.setText("Add preset");
+		btnAddPreset.setText("Apply preset");
 		new Label(shlChoosePreset, SWT.NONE);
+		btnAddPreset.addSelectionListener(new SelectionListener() {
 
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(tree.getSelection()[0].getData("name") != null) {
+					presetChosen.invoke((String)tree.getSelection()[0].getData("name"));
+					System.out.println((String)tree.getSelection()[0].getData("name"));
+				}
+			}
+			
+		});
 	}
 
+	private String addChildrenCountToName(TreeItem item) {
+		return " " + "(" + item.getItemCount() + ")";
+	}
+	
+	private NonGenericListenerCollection<String> presetChosen = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventPresetChosen() {
+		return presetChosen;
+	}
 }

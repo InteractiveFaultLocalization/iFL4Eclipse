@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
@@ -18,6 +19,7 @@ import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
 import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -40,7 +42,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLFilterView";
 	
 	@Inject IWorkbench workbench;
-	private int numberOfSortRules = 0;
 	
 	private Composite composite;
 	private Button addRuleButton;
@@ -116,11 +117,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		choosePresetButton = new Button(parent, SWT.NONE);
 		choosePresetButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		choosePresetButton.setText("Choose preset");
+		choosePresetButton.setEnabled(false);
 		choosePresetButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				PresetChooserDialog presetDialog = new PresetChooserDialog(Display.getCurrent().getActiveShell(), SWT.NONE);
+				presetDialog.eventPresetChosen().add(presetChosenListener);
 				presetDialog.open();
 			}
 
@@ -167,6 +170,35 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		deleteRules.invoke(list);
 	};
 	
+	private IListener<String> presetChosenListener = string -> {
+		boolean answer = MessageDialog.open(MessageDialog.QUESTION, null, "Warning",
+			"Applying a preset overwrites all currently applied rules.\n"
+		  + "Proceed?",
+			SWT.NONE);
+		if (answer) {
+			deleteRules.invoke(rules);
+			for(Control control : rulesComposite.getChildren()) {
+				control.dispose();
+			}
+			switch(string) {
+			case "TOP_10": getTopTenLimit();
+				break;
+			default:
+				break;
+			}
+		}
+	};
+	
+	private void getTopTenLimit() {
+		getTopTenLimit.invoke(new EmptyEvent());
+	}
+	
+	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
+		return getTopTenLimit;
+	}
+	
 	private void showRules() {
 		if(!rules.isEmpty()) {
 			for(Rule rule : rules) {
@@ -189,12 +221,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 	
 	private IListener<Rule> ruleCreatedListener = event -> {
-		if(event instanceof SortRule) {
-			if(numberOfSortRules >= 1) {
-				removePreviousSortRule();
-				numberOfSortRules--;
-			}
-		}
 		RuleElementUI ruleElement = null;
 		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
 		ruleElement.eventruleDeleted().add(ruleDeleted);
@@ -209,17 +235,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<StringRule> eventStringRuleAdded() {
 		return stringRuleAdded;
 	}
-	
-	private void removePreviousSortRule() {
-		for(Control control: rulesComposite.getChildren()) {
-			Rule rule = ((RuleElementUI)control).getRule();
-			if( rule instanceof SortRule ) {
-				control.dispose();
-				ruleDeleted.invoke(rule);
-			}
-		}
-	}
-
 
 	private void ruleAdded(Rule rule) {
 		if(rule instanceof StringRule) {
@@ -233,10 +248,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		}
 		if(rule instanceof LastActionRule) {
 			lastActionRuleAdded.invoke((LastActionRule) rule);
-		}
-		if(rule instanceof SortRule) {
-			numberOfSortRules ++;
-			sortRuleAdded.invoke((SortRule) rule);
 		}
 	}
 	
@@ -281,8 +292,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		enableInfoLabel.requestLayout();
 		addRuleButton.setEnabled(true);
 		resetAllButton.setEnabled(true);
+		choosePresetButton.setEnabled(true);
 		
 		filterEnabled = true;
+	}
+	
+	public void applyTopScorePreset(Double limit) {
+		ruleCreatedListener.invoke(new DoubleRule("Score", limit, ">="));
 	}
 	
 }

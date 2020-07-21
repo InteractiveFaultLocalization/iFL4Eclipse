@@ -126,9 +126,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventDoubleRuleAdded().add(newDoubleFilterAddedListener);
 		filterControl.eventLastActionRuleAdded().add(newLastActionFilterAddedListener);
 		filterControl.eventStringRuleAdded().add(newStringFilterAddedListener);
-		filterControl.eventSortRequired().add(sortListener);
 		filterControl.eventDeleteRules().add(filtersRemovedListener);
-		filterControl.eventSortRequired().add(sortListener);
+		
+		filterControl.eventGetTopTenLimit().add(getTopTenLimitListener);
+		getView().eventSortRequired().add(sortListener);
 		
 		super.init();
 	}
@@ -154,9 +155,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.eventDoubleRuleAdded().remove(newDoubleFilterAddedListener);
 		filterControl.eventLastActionRuleAdded().remove(newLastActionFilterAddedListener);
 		filterControl.eventStringRuleAdded().remove(newStringFilterAddedListener);
-		filterControl.eventSortRequired().remove(sortListener);
 		filterControl.eventDeleteRules().remove(filtersRemovedListener);
-		filterControl.eventSortRequired().remove(sortListener);
+		
+		filterControl.eventGetTopTenLimit().remove(getTopTenLimitListener);
+		
+		getView().eventSortRequired().remove(sortListener);
 		
 		super.teardown();
 		activityMonitor = null;
@@ -391,8 +394,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private SortingArg sorting;
 
-	private IListener<SortRule> sortListener = event -> {
-		sorting = event.getArg();
+	private IListener<SortingArg> sortListener = event -> {
+		sorting = event;
 		refreshView();
 	};
 
@@ -411,6 +414,18 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	};
 	
 	private static final int TOP_SCORE_LIMIT = 9;
+	
+	private IListener<EmptyEvent> getTopTenLimitListener = event -> {
+		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore().entrySet().stream()
+				.sorted((a, b) -> -1 * a.getValue().compareTo(b.getValue()))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+			Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit()).min(Comparator.comparing(score -> score.getValue()));
+			Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit()).max(Comparator.comparing(score -> score.getValue()));
+			if (rawScores.size() > TOP_SCORE_LIMIT && min.isPresent() && max.isPresent()) {
+				Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList()).get(0).getValue();
+				filterControl.applyTopScorePreset(limit.getValue());
+			}
+	};
 	
 	private IListener<EmptyEvent> scoreLoadedListener = __ -> {
 		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore().entrySet().stream()

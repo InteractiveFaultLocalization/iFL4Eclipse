@@ -8,6 +8,7 @@ import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.FilterView;
 
@@ -29,6 +30,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventStringRuleAdded().add(stringRuleAddedListener);
 		getView().eventSortRequired().add(sortListener);
 		getView().eventDeleteRules().add(deleteRulesListener);
+		getView().eventGetTopTenLimit().add(getTopTenLimitListener);
 	}
 	
 	public void teardown() {
@@ -38,6 +40,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventStringRuleAdded().remove(stringRuleAddedListener);
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventDeleteRules().remove(deleteRulesListener);
+		getView().eventGetTopTenLimit().remove(getTopTenLimitListener);
 		super.teardown();
 	}
 	
@@ -56,6 +59,10 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().setScoreFilter(min, max);
 	}
 	*/
+	
+	public void applyTopScorePreset(Double limit) {
+		getView().applyTopScorePreset(limit);
+	}
 	
 	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
 	
@@ -104,6 +111,14 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	}
 	
 	private IListener<SortRule> sortListener = sortRequired::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
+		return getTopTenLimit;
+	}
+	
+	private IListener<EmptyEvent> getTopTenLimitListener = getTopTenLimit::invoke;
 
 	public void resetFilterState() {
 		//getView().resetFilterState();

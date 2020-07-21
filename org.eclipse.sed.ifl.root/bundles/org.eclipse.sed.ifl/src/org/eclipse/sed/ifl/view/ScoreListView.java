@@ -40,7 +40,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.clearMethodScores();
 		ui.setMethodScore(scores);
 	}
-
+	
 	public void highlightRequest(List<IMethodDescription> list) {
 		//ui.highlightNonInteractiveContext(list);
 	}

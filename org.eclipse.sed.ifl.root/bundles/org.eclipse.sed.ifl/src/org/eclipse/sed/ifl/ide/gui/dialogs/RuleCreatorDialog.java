@@ -128,7 +128,7 @@ public class RuleCreatorDialog extends Dialog {
 		banner.setLeft(listComposite);
 		
 		List domainList = new List(listComposite, SWT.BORDER);
-		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action", "Sort"});
+		domainList.setItems(new String[] {"Score", "Name", "Signature", "Parent type", "Path", "Position", "Context size", "Interactivity", "Last action"});
 		domainList.setBounds(0, 0, 89, 284);
 		domainList.addSelectionListener(new SelectionListener() {
 
@@ -155,8 +155,6 @@ public class RuleCreatorDialog extends Dialog {
 				case "Interactivity": ruleCreator = new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				case "Last action": ruleCreator = new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Sort": ruleCreator = new SortRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 					break;
 				}
 				ruleCreatorComposite.requestLayout();
