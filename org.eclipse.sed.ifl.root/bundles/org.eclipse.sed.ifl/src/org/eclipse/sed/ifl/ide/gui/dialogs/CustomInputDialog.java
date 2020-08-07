@@ -3,6 +3,9 @@ package org.eclipse.sed.ifl.ide.gui.dialogs;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
@@ -21,7 +24,9 @@ import org.eclipse.swt.widgets.Text;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CustomInputDialog extends Dialog {
 	
@@ -35,6 +40,7 @@ public class CustomInputDialog extends Dialog {
 	
 	private List <String> list;
 	private List <Text> typedTextList = new ArrayList<Text>();
+	private Set <String> elementSet = new HashSet<String>();
 		
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage,
 			List<String> elementNames) {
@@ -42,8 +48,15 @@ public class CustomInputDialog extends Dialog {
 		this.title = dialogTitle;
 		this.message = dialogMessage;
 		this.list = elementNames;
+		putListElemsToSet(elementNames);
 	}
 	
+	private void putListElemsToSet(List<String> list) {
+		for(String elem : list) {
+			elementSet.add(elem);
+		}
+	}
+
 	@Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
@@ -66,28 +79,37 @@ public class CustomInputDialog extends Dialog {
 			label.setFont(parent.getFont());
 		}
 		
-		table = new Table(container, SWT.HIDE_SELECTION);
+		table = new Table(container, SWT.HIDE_SELECTION | SWT.V_SCROLL);
 		GridData gd_table = new GridData(SWT.FILL);
-		gd_table.grabExcessVerticalSpace = true;
+		gd_table.grabExcessVerticalSpace = false;
 		gd_table.grabExcessHorizontalSpace = true;
 		gd_table.verticalAlignment = SWT.FILL;
 		gd_table.horizontalAlignment = SWT.FILL;
+		if(elementSet.size() > 8) {
+			gd_table.heightHint = 150;
+		}
 		table.setLayoutData(gd_table);
+		
+		TableLayout tableLayout = new TableLayout();
+		table.setLayout(tableLayout);
+		
+		tableLayout.addColumnData(new ColumnWeightData(50));
+		tableLayout.addColumnData(new ColumnWeightData(50));
 		
 		table.setLinesVisible(true);
 		table.setHeaderVisible(false);
 		
 		createTableColumns();
 		
-		setTableContents();
-				
+		setTableContents();		
 		
 		return container;
 	  }
 
 	
 	private void setTableContents() {
-		for(String elementName : list) {
+		
+		for(String elementName : elementSet) {
 			TableItem item = new TableItem(table, SWT.NULL);
 			item.setText(table.indexOf(nameColumn), elementName);
 			
@@ -111,12 +133,10 @@ public class CustomInputDialog extends Dialog {
 
 	private void createTableColumns() {
 		nameColumn = new TableColumn(table, SWT.LEFT);
-		nameColumn.setWidth(270);
 		nameColumn.setText("");
 		nameColumn.setResizable(false);
 		
 		typeNameColumn = new TableColumn(table, SWT.LEFT);
-		typeNameColumn.setWidth(270);
 		typeNameColumn.setText("");
 		typeNameColumn.setResizable(false);
 	}
