@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class CustomInputDialog extends Dialog {
 	
@@ -40,7 +41,7 @@ public class CustomInputDialog extends Dialog {
 	
 	private List <String> list;
 	private List <Text> typedTextList = new ArrayList<Text>();
-	private Set <String> elementSet = new HashSet<String>();
+	private Set <String> elementSet = new TreeSet<String>();
 		
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage,
 			List<String> elementNames) {
