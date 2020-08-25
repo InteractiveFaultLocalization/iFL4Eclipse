@@ -1,9 +1,10 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.util.ArrayList;
+import javax.inject.*;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -11,26 +12,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.layout.GridData;
-
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.sed.ifl.general.IEmbeddable;
-import org.eclipse.sed.ifl.general.IEmbedee;
-import org.eclipse.sed.ifl.ide.gui.dialogs.PresetChooserDialog;
-import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
-import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
-import org.eclipse.sed.ifl.util.event.IListener;
-import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
-import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.wb.swt.SWTResourceManager;
 
-import javax.inject.*;
 
 enum SelectionLocation {
 	LEFT, RIGHT, UNSELECTED
@@ -171,7 +157,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite.setParent(parent);
 	}
 
-public ArrayList<TItem> getArrayLeft() {
+	public ArrayList<TItem> getArrayLeft() {
 		return arrayLeft;
 	}
 
@@ -201,68 +187,132 @@ public ArrayList<TItem> getArrayLeft() {
 		this.rightLabel.setText(labelText);
 	}
 
-	public String getAllRight() {
+	public String getAllRightText() {
 		return allRight.getText();
 	}
 
-	public void setAllRight(String buttonText) {
+	public void setAllRightText(String buttonText) {
 		this.allRight.setText(buttonText);
 	}
 
-	public String getAllUp() {
+	public String getAllUpText() {
 		return allUp.getText();
 	}
 
-	public void setAllUp(String buttonText) {
+	public void setAllUpText(String buttonText) {
 		this.allUp.setText(buttonText);
 	}
 
-	public String getOneRight() {
+	public String getOneRightText() {
 		return oneRight.getText();
 	}
 
-	public void setOneRight(String buttonText) {
+	public void setOneRightText(String buttonText) {
 		this.oneRight.setText(buttonText);
 	}
 
-	public String getOneUp() {
+	public String getOneUpText() {
 		return oneUp.getText();
 	}
 
-	public void setOneUp(String buttonText) {
+	public void setOneUpText(String buttonText) {
 		this.oneUp.setText(buttonText);
 	}
 
-	public String getOneLeft() {
+	public String getOneLeftText() {
 		return oneLeft.getText();
 	}
 
-	public void setOneLeft(String buttonText) {
+	public void setOneLeftText(String buttonText) {
 		this.oneLeft.setText(buttonText);
 	}
 
-	public String getOneDown() {
+	public String getOneDownText() {
 		return oneDown.getText();
 	}
 
-	public void setOneDown(String buttonText) {
+	public void setOneDownText(String buttonText) {
 		this.oneDown.setText(buttonText);
 	}
 
-	public String getAllLeft() {
+	public String getAllLeftText() {
 		return allLeft.getText();
 	}
 
-	public void setAllLeft(String buttonText) {
+	public void setAllLeftText(String buttonText) {
 		this.allLeft.setText(buttonText);
 	}
 
-	public String getAllDown() {
+	public String getAllDownText() {
 		return allDown.getText();
 	}
 
-	public void setAllDown(String buttonText) {
+	public void setAllDownText(String buttonText) {
 		this.allDown.setText(buttonText);
+	}
+	
+	public Button getAllRight() {
+		return allRight;
+	}
+
+	public void setAllRight(Button button) {
+		this.allRight = button;
+	}
+
+	public Button getAllUp() {
+		return allUp;
+	}
+
+	public void setAllUp(Button button) {
+		this.allUp = button;
+	}
+
+	public Button getOneRight() {
+		return oneRight;
+	}
+
+	public void setOneRight(Button button) {
+		this.oneRight = button;
+	}
+
+	public Button getOneUp() {
+		return oneUp;
+	}
+
+	public void setOneUp(Button button) {
+		this.oneUp = button;
+	}
+
+	public Button getOneLeft() {
+		return oneLeft;
+	}
+
+	public void setOneLeft(Button button) {
+		this.oneLeft = button;
+	}
+
+	public Button getOneDown() {
+		return oneDown;
+	}
+
+	public void setOneDown(Button button) {
+		this.oneDown = button;
+	}
+
+	public Button getAllLeft() {
+		return allLeft;
+	}
+
+	public void setAllLeft(Button button) {
+		this.allLeft = button;
+	}
+
+	public Button getAllDown() {
+		return allDown;
+	}
+
+	public void setAllDown(Button button) {
+		this.allDown = button;
 	}
 
 	public void refresh() {
@@ -340,7 +390,7 @@ public ArrayList<TItem> getArrayLeft() {
 		destination.setSelection(destination.getItemCount() - 1);
 	}
 
-	class moveBetweenListsListener implements Listener {
+	public class moveBetweenListsListener implements Listener {
 		@Override
 		public void handleEvent(Event event) {
 
@@ -367,7 +417,7 @@ public ArrayList<TItem> getArrayLeft() {
 		}
 	}
 
-	class moveInsideListListener implements Listener {
+	 public class moveInsideListListener implements Listener {
 
 		@Override
 		public void handleEvent(Event event) {
