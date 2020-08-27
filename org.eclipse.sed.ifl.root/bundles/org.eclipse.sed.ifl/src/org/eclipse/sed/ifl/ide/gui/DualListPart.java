@@ -35,8 +35,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private ArrayList<TItem> arrayLeft;
 	private ArrayList<TItem> arrayRight;
 
-	private final Display display;
-	private final Shell shell;
+	private final Display display = new Display();
+	private final Shell shell = new Shell(display);
 	private TItem selectedItem;
 	private int selectedIndex;
 	private int newIndex;
@@ -65,8 +65,10 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private GridLayout gridLayout;
 
 	public DualListPart() {
-		display = new Display();
-		shell = new Shell(display);
+		System.out.println("dual list part ctr");
+	}
+	
+	private void addUIElements(){
 		selectedItem = null;
 		selectedIndex = 0;
 		newIndex = 0;
@@ -145,7 +147,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allDown.setText("Move to bottom");
 		allDown.setLayoutData(buttonData);
 
-		System.out.println("dual list part ctr");
 	}
 
 	@Override
@@ -320,6 +321,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		source.set(newIndex, selectedItem);
 		return newIndex;
 	}
+	
 
 	public void refreshSelectionBetweenOne(List source, List destination) {
 		DualListPart.this.refresh();
@@ -385,6 +387,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void createPartControl(Composite parent) {
 		composite = parent;
 		composite.setLayout(gridLayout);
+		addUIElements();
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
