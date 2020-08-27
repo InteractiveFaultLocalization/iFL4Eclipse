@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -28,39 +29,39 @@ public class DualListControl extends Control<DualListModel, DualListView> {
 	private void initUIListeners() {
 		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
 		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
-		//getView().eventMoveInsideListRequested().add(selectionRequestedListener);
+		getView().eventSelectionRequested().add(selectionRequestedListener);
 
 	}
 
 	public void removeUIListeners() {
 		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
 		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
-		//getView().eventMoveInsideListRequested().remove(selectionRequestedListener);
+		getView().eventSelectionRequested().remove(selectionRequestedListener);
 
 	}
 
-	private NonGenericListenerCollection<SelectionEvent> selectionRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<SelectionEvent> eventSelectionRequested() {
+	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
 		return selectionRequested;
 	}
 
-	private IListener<SelectionEvent> selectionRequestedListener = selectionRequested::invoke;
+	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
 
-	private NonGenericListenerCollection<Event> moveBetweenListsRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> moveBetweenListsRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Event> eventMoveBetweenListsRequested() {
+	public INonGenericListenerCollection<ItemMoveObject> eventMoveBetweenListsRequested() {
 		return moveBetweenListsRequested;
 	}
 
-	private IListener<Event> moveBetweenListsRequestedListener = moveBetweenListsRequested::invoke;
+	private IListener<ItemMoveObject> moveBetweenListsRequestedListener = moveBetweenListsRequested::invoke;
 
-	private NonGenericListenerCollection<Event> moveInsideListRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> moveInsideListRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Event> eventMoveInsideListRequested() {
+	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
 		return moveInsideListRequested;
 	}
 
-	private IListener<Event> moveInsideListRequestedListener = moveInsideListRequested::invoke;
+	private IListener<ItemMoveObject> moveInsideListRequestedListener = moveInsideListRequested::invoke;
 
 }

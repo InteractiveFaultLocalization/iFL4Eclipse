@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.util.ArrayList;
 import javax.inject.*;
 
+import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -44,6 +45,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private SelectionLocation whichList;
 	private String itemString;
 	private int itemIndex;
+	private ItemMoveObject<TItem> moveItem;
 
 	@FunctionalInterface
 	public interface elementStringer<TItem> {
@@ -67,8 +69,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public DualListPart() {
 		System.out.println("dual list part ctr");
 	}
-	
-	private void addUIElements(){
+
+	private void addUIElements() {
 		selectedItem = null;
 		selectedIndex = 0;
 		newIndex = 0;
@@ -299,8 +301,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	public void moveBetweenOne(ArrayList<TItem> source, ArrayList<TItem> destination, int itemIndex) {
 		selectedItem = source.get(itemIndex);
+		int destinationIndex = destination.size(); // since size is calculated before adding item, we don't need to
+													// subtract 1 from size
 		destination.add(selectedItem);
 		source.remove(selectedItem);
+		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex,
+				destinationIndex);
 	}
 
 	public int moveInside(ArrayList<TItem> source, int itemIndex, Widget selectedButton) {
@@ -319,9 +325,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		swap = source.get(newIndex);
 		source.set(selectedIndex, swap);
 		source.set(newIndex, selectedItem);
+		this.moveItem= new ItemMoveObject<TItem>(source, source, selectedItem, itemIndex, newIndex);
 		return newIndex;
 	}
-	
 
 	public void refreshSelectionBetweenOne(List source, List destination) {
 		DualListPart.this.refresh();
@@ -342,18 +348,18 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				case UNSELECTED:
 					break;
 				case LEFT:
-					moveBetweenOne(arrayLeft, arrayRight, itemIndex);
+					 moveBetweenOne(arrayLeft, arrayRight, itemIndex);
 					whichList = whichList.LEFT;
 					refreshSelectionBetweenOne(listLeft, listRight);
 					break;
 				case RIGHT:
-					moveBetweenOne(arrayRight, arrayLeft, itemIndex);
+					 moveBetweenOne(arrayRight, arrayLeft, itemIndex);
 					whichList = whichList.RIGHT;
 					refreshSelectionBetweenOne(listRight, listLeft);
 					break;
 				}
 			}
-			moveBetweenListsRequested.invoke(event);
+			moveBetweenListsRequested.invoke(moveItem);
 		}
 	}
 
@@ -378,7 +384,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				listRight.setSelection(newIndex);
 				break;
 			}
-			moveInsideListRequested.invoke(event);
+			moveInsideListRequested.invoke(moveItem);
 		}
 
 	}
@@ -395,7 +401,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				itemIndex = arrayLeft.indexOf(itemString);
 				whichList = whichList.LEFT;
 				listRight.setSelection(-1);
-				selectionRequested.invoke(event);
+				selectionRequested.invoke(itemIndex);
 			}
 
 			public void widgetDefaultSelected(SelectionEvent event) {
@@ -409,7 +415,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				itemIndex = arrayRight.indexOf(itemString);
 				whichList = whichList.RIGHT;
 				listLeft.setSelection(-1);
-				selectionRequested.invoke(event);
+				selectionRequested.invoke(itemIndex);
 			}
 
 			public void widgetDefaultSelected(SelectionEvent event) {
@@ -433,21 +439,21 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
 	}
 
-	private NonGenericListenerCollection<SelectionEvent> selectionRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<SelectionEvent> eventSelectionRequested() {
+	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
 		return selectionRequested;
 	}
 
-	private NonGenericListenerCollection<Event> moveBetweenListsRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> moveBetweenListsRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Event> eventMoveBetweenListsRequested() {
+	public INonGenericListenerCollection<ItemMoveObject> eventMoveBetweenListsRequested() {
 		return moveBetweenListsRequested;
 	}
 
-	private NonGenericListenerCollection<Event> moveInsideListRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> moveInsideListRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Event> eventMoveInsideListRequested() {
+	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
 		return moveInsideListRequested;
 	}
 
