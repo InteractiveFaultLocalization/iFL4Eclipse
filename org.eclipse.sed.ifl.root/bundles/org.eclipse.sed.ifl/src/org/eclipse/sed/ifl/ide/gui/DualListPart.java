@@ -5,6 +5,8 @@ import javax.inject.*;
 
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -17,7 +19,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 
-
 enum SelectionLocation {
 	LEFT, RIGHT, UNSELECTED
 }
@@ -25,11 +26,12 @@ enum SelectionLocation {
 public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbedee {
 
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
-	
-	@Inject IWorkbench workbench;
-	
+
+	@Inject
+	IWorkbench workbench;
+
 	private Composite composite;
-	
+
 	private ArrayList<TItem> arrayLeft;
 	private ArrayList<TItem> arrayRight;
 
@@ -61,7 +63,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Button allLeft;
 	private Button allDown;
 	private GridLayout gridLayout;
-	
+
 	public DualListPart() {
 		display = new Display();
 		shell = new Shell(display);
@@ -146,7 +148,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		System.out.println("dual list part ctr");
 	}
 
-	
 	@Override
 	public void embed(IEmbeddable embedded) {
 		embedded.setParent(composite);
@@ -250,70 +251,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void setAllDownText(String buttonText) {
 		this.allDown.setText(buttonText);
 	}
-	
-	public Button getAllRight() {
-		return allRight;
-	}
-
-	public void setAllRight(Button button) {
-		this.allRight = button;
-	}
-
-	public Button getAllUp() {
-		return allUp;
-	}
-
-	public void setAllUp(Button button) {
-		this.allUp = button;
-	}
-
-	public Button getOneRight() {
-		return oneRight;
-	}
-
-	public void setOneRight(Button button) {
-		this.oneRight = button;
-	}
-
-	public Button getOneUp() {
-		return oneUp;
-	}
-
-	public void setOneUp(Button button) {
-		this.oneUp = button;
-	}
-
-	public Button getOneLeft() {
-		return oneLeft;
-	}
-
-	public void setOneLeft(Button button) {
-		this.oneLeft = button;
-	}
-
-	public Button getOneDown() {
-		return oneDown;
-	}
-
-	public void setOneDown(Button button) {
-		this.oneDown = button;
-	}
-
-	public Button getAllLeft() {
-		return allLeft;
-	}
-
-	public void setAllLeft(Button button) {
-		this.allLeft = button;
-	}
-
-	public Button getAllDown() {
-		return allDown;
-	}
-
-	public void setAllDown(Button button) {
-		this.allDown = button;
-	}
 
 	public void refresh() {
 		listLeft.removeAll();
@@ -414,10 +351,11 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 					break;
 				}
 			}
+			moveBetweenListsRequested.invoke(event);
 		}
 	}
 
-	 public class moveInsideListListener implements Listener {
+	public class moveInsideListListener implements Listener {
 
 		@Override
 		public void handleEvent(Event event) {
@@ -438,6 +376,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				listRight.setSelection(newIndex);
 				break;
 			}
+			moveInsideListRequested.invoke(event);
 		}
 
 	}
@@ -445,7 +384,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	@Override
 	public void createPartControl(Composite parent) {
 		composite = parent;
-		composite.setLayout(gridLayout); 
+		composite.setLayout(gridLayout);
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
@@ -453,6 +392,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				itemIndex = arrayLeft.indexOf(itemString);
 				whichList = whichList.LEFT;
 				listRight.setSelection(-1);
+				selectionRequested.invoke(event);
 			}
 
 			public void widgetDefaultSelected(SelectionEvent event) {
@@ -466,6 +406,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				itemIndex = arrayRight.indexOf(itemString);
 				whichList = whichList.RIGHT;
 				listLeft.setSelection(-1);
+				selectionRequested.invoke(event);
 			}
 
 			public void widgetDefaultSelected(SelectionEvent event) {
@@ -489,14 +430,28 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
 	}
 
+	private NonGenericListenerCollection<SelectionEvent> selectionRequested = new NonGenericListenerCollection<>();
 
-		
-		
-	
+	public INonGenericListenerCollection<SelectionEvent> eventSelectionRequested() {
+		return selectionRequested;
+	}
+
+	private NonGenericListenerCollection<Event> moveBetweenListsRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Event> eventMoveBetweenListsRequested() {
+		return moveBetweenListsRequested;
+	}
+
+	private NonGenericListenerCollection<Event> moveInsideListRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Event> eventMoveInsideListRequested() {
+		return moveInsideListRequested;
+	}
+
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	public void dispose() {
 		this.getSite().getPage().hideView(this);

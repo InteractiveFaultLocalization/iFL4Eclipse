@@ -104,6 +104,23 @@
             restorable="false">
       </view>
    </extension>
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Fault Localization Dual List"
+            id="org.eclipse.sed.ifl">
+      </category>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.sed.ifl"
+            class="org.eclipse.sed.ifl.ide.gui.DualListPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLDualListView"
+            inject="true"
+            name="Interactive Fault Localization Dual List"
+            restorable="false">
+      </view>
+   </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension

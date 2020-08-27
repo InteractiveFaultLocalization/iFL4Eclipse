@@ -1,17 +1,18 @@
 package org.eclipse.sed.ifl.view;
 
-import java.util.List;
+
 
 
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.DualListPart;
-import org.eclipse.sed.ifl.ide.gui.DualListPart.moveBetweenListsListener;
-import org.eclipse.sed.ifl.ide.gui.DualListPart.moveInsideListListener;
+import org.eclipse.sed.ifl.util.event.IListener;
+import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -19,7 +20,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class DualListView extends View implements IEmbeddable, IEmbedee {
 
-	private DualListPart dualListPart;
+	private DualListPart<?> dualListPart;
 
 	public DualListView() {
 		this.dualListPart = (DualListPart) getPart();
@@ -43,58 +44,26 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 
 	@Override
 	public void init() {
-
 		initUIListeners();
 		super.init();
 	}
 
 	@Override
 	public void teardown() {
-
 		removeUIListeners();
 		super.teardown();
 	}
 
 	private void initUIListeners() {
-
-		dualListPart.getAllRight().addListener(SWT.Selection, new moveBetweenListsListener()); // I don't understand
-																							   // this error.
-
-		dualListPart.getOneRight().addListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getOneLeft().addListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getAllLeft().addListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getAllUp().addListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getOneUp().addListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getOneDown().addListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getAllDown().addListener(SWT.Selection, new moveInsideListListener());
-
+		dualListPart.eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
+		dualListPart.eventMoveInsideListRequested().add(moveInsideListRequestedListener);
+		//dualListPart.eventMoveInsideListRequested().add(selectionRequestedListener); // does not work on SelectionEvent
 	}
 
 	private void removeUIListeners() {
-
-		dualListPart.getAllRight().removeListener(SWT.Selection, new moveBetweenListsListener()); // Same thing here.
-																								  // Also, how do I remove
-																								  // the added listener?
-		dualListPart.getOneRight().removeListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getOneLeft().removeListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getAllLeft().removeListener(SWT.Selection, new moveBetweenListsListener());
-
-		dualListPart.getAllUp().removeListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getOneUp().removeListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getOneDown().removeListener(SWT.Selection, new moveInsideListListener());
-
-		dualListPart.getAllDown().removeListener(SWT.Selection, new moveInsideListListener());
-
+		dualListPart.eventMoveBetweenListsRequested().remove(moveBetweenListsRequestedListener);
+		dualListPart.eventMoveInsideListRequested().remove(moveInsideListRequestedListener);
+		//dualListPart.eventMoveInsideListRequested().remove(selectionRequestedListener); //same
 	}
 
 	@Override
@@ -126,36 +95,30 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 		}
 	}
 	
-	public Button buttonAllRight() {
-		return dualListPart.getAllRight();
+	private NonGenericListenerCollection<SelectionEvent> selectionRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<SelectionEvent> eventSelectionRequested() {
+		return selectionRequested;
+	}
+
+	private IListener<SelectionEvent> selectionRequestedListener = selectionRequested::invoke;
+	
+	private NonGenericListenerCollection<Event> moveBetweenListsRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Event> eventMoveBetweenListsRequested() {
+		return moveBetweenListsRequested;
 	}
 	
-	public Button buttonAllLeft() {
-		return dualListPart.getAllLeft();
+	private IListener<Event> moveBetweenListsRequestedListener = moveBetweenListsRequested::invoke;
+	
+	private NonGenericListenerCollection<Event> moveInsideListRequested = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<Event> eventMoveInsideListRequested() {
+		return moveInsideListRequested;
 	}
 	
-	public Button buttonOneRight() {
-		return dualListPart.getOneRight();
-	}
+	private IListener<Event> moveInsideListRequestedListener = moveInsideListRequested::invoke;
 	
-	public Button buttonOneLeft() {
-		return dualListPart.getOneLeft();
-	}
 	
-	public Button buttonAllUp() {
-		return dualListPart.getAllUp();
-	}
-	
-	public Button buttonOneUp() {
-		return dualListPart.getOneUp();
-	}
-	
-	public Button buttonOneDown() {
-		return dualListPart.getOneDown();
-	}
-	
-	public Button buttonAllDown() {
-		return dualListPart.getAllDown();
-	}
 
 }
