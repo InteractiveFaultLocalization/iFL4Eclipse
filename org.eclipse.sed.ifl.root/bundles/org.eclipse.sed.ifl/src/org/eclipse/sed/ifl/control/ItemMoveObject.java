@@ -19,4 +19,26 @@ public class ItemMoveObject<TItem> {
 		this.destinationIndex = destinationIndex;
 	}
 
+	public ArrayList<TItem> getSourceList() {
+		return sourceList;
+	}
+
+	public ArrayList<TItem> getDestinationList() {
+		return destinationList;
+	}
+
+	public TItem getItem() {
+		return item;
+	}
+
+	public int getSourceIndex() {
+		return sourceIndex;
+	}
+
+	public int getDestinationIndex() {
+		return destinationIndex;
+	}
+	
+	
+
 }

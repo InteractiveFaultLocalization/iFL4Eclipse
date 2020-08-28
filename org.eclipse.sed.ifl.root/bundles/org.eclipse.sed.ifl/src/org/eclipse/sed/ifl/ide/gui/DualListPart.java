@@ -36,8 +36,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private ArrayList<TItem> arrayLeft;
 	private ArrayList<TItem> arrayRight;
 
-	private final Display display = new Display();
-	private final Shell shell = new Shell(display);
+	
 	private TItem selectedItem;
 	private int selectedIndex;
 	private int newIndex;
@@ -70,7 +69,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		System.out.println("dual list part ctr");
 	}
 
-	private void addUIElements() {
+	private void addUIElements(Composite parent) {
 		selectedItem = null;
 		selectedIndex = 0;
 		newIndex = 0;
@@ -80,9 +79,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		arrayLeft = new ArrayList<TItem>();
 		arrayRight = new ArrayList<TItem>();
 
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 4;
-		gridLayout.makeColumnsEqualWidth = false;
 
 		GridData listData = new GridData();
 		listData.horizontalAlignment = SWT.CENTER;
@@ -97,55 +93,55 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		labelData.horizontalAlignment = SWT.CENTER;
 		labelData.verticalAlignment = SWT.TOP;
 
-		Label leftLabel = new Label(shell, SWT.NONE);
+		Label leftLabel = new Label(parent, SWT.NONE);
 		leftLabel.setText("Left List");
 
 		leftLabel.setData(labelData);
 
-		new Label(shell, SWT.NONE).setText("");
+		new Label(parent, SWT.NONE).setText("");
 
-		Label rightLabel = new Label(shell, SWT.NONE);
+		Label rightLabel = new Label(parent, SWT.NONE);
 		rightLabel.setText("Right List");
 
 		rightLabel.setData(labelData);
 
-		new Label(shell, SWT.NONE).setText("");
+		new Label(parent, SWT.NONE).setText("");
 
-		listLeft = new List(shell, SWT.V_SCROLL);
+		listLeft = new List(parent, SWT.V_SCROLL);
 		listLeft.setLayoutData(listData);
 
-		allRight = new Button(shell, SWT.PUSH);
+		allRight = new Button(parent, SWT.PUSH);
 		allRight.setText("--> -->");
 		allRight.setLayoutData(buttonData);
 
-		listRight = new List(shell, SWT.V_SCROLL);
+		listRight = new List(parent, SWT.V_SCROLL);
 		listRight.setLayoutData(listData);
 
-		allUp = new Button(shell, SWT.PUSH);
+		allUp = new Button(parent, SWT.PUSH);
 		allUp.setText("Move to Top");
 		allUp.setLayoutData(buttonData);
 
-		oneRight = new Button(shell, SWT.PUSH);
+		oneRight = new Button(parent, SWT.PUSH);
 		oneRight.setText("-->");
 		oneRight.setLayoutData(buttonData);
 
-		oneUp = new Button(shell, SWT.PUSH);
+		oneUp = new Button(parent, SWT.PUSH);
 		oneUp.setText("One Up");
 		oneUp.setLayoutData(buttonData);
 
-		oneLeft = new Button(shell, SWT.PUSH);
+		oneLeft = new Button(parent, SWT.PUSH);
 		oneLeft.setText("<--");
 		oneLeft.setLayoutData(buttonData);
 
-		oneDown = new Button(shell, SWT.PUSH);
+		oneDown = new Button(parent, SWT.PUSH);
 		oneDown.setText("One Down");
 		oneDown.setLayoutData(buttonData);
 
-		allLeft = new Button(shell, SWT.PUSH);
+		allLeft = new Button(parent, SWT.PUSH);
 		allLeft.setText("<-- <--");
 		allLeft.setLayoutData(buttonData);
 
-		allDown = new Button(shell, SWT.PUSH);
+		allDown = new Button(parent, SWT.PUSH);
 		allDown.setText("Move to bottom");
 		allDown.setLayoutData(buttonData);
 
@@ -391,9 +387,13 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		gridLayout = new GridLayout();
+		gridLayout.numColumns = 4;
+		gridLayout.makeColumnsEqualWidth = false;
 		composite = parent;
 		composite.setLayout(gridLayout);
-		addUIElements();
+		addUIElements( parent);
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
