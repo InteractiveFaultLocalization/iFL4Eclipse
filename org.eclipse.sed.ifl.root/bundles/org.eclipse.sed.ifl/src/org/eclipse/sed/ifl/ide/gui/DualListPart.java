@@ -9,15 +9,18 @@ import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 
@@ -75,6 +78,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	public DualListPart() {
 		System.out.println("dual list part ctr");
+		
+		
 	}
 
 	private void addUIElements(Composite parent) {
@@ -434,18 +439,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite = parent;
 		composite.setLayout(gridLayout);
 		addUIElements(parent);
-		TItem litem1 = (TItem) "nokedli";
-		this.leftAdd(litem1);
-		TItem litem2 = (TItem) "krumpli";
-		this.leftAdd(litem2);
-		TItem litem3 = (TItem) "palacsinta";
-		this.leftAdd(litem3);
-		TItem ritem1 = (TItem) "saláta";
-		this.rightAdd(ritem1);
-		TItem ritem2 = (TItem) "pörkölt";
-		this.rightAdd(ritem2);
-		TItem ritem3 = (TItem) "lángos";
-		this.rightAdd(ritem3); 
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {

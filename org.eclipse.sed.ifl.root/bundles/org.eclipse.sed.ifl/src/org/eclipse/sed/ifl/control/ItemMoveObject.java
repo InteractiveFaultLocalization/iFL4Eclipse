@@ -39,6 +39,8 @@ public class ItemMoveObject<TItem> {
 		return destinationIndex;
 	}
 	
-	
+	public void setDestinationIndex(int destinationIndex) {
+		this.destinationIndex = destinationIndex;
+	}
 
 }

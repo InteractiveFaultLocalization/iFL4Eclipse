@@ -6,8 +6,6 @@ import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.sed.ifl.view.DualListView;
 
 public class DualListControl extends Control<DualListModel, DualListView> {
