@@ -107,11 +107,11 @@
     <extension
          point="org.eclipse.ui.views">
       <category
-            name="Fault Localization Dual List"
+            name="Fault Localization Filters"
             id="org.eclipse.sed.ifl">
       </category>
       <view
-            allowMultiple="true"
+            allowMultiple="false"
             category="org.eclipse.sed.ifl"
             class="org.eclipse.sed.ifl.ide.gui.DualListPart"
             icon="icons/ico16.png"
