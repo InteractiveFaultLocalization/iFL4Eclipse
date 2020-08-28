@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,7 +42,7 @@ public class CustomInputDialog extends Dialog {
 	
 	private List <String> list;
 	private List <Text> typedTextList = new ArrayList<Text>();
-	private Set <String> elementSet = new TreeSet<String>();
+	private TreeSet <String> elementSet = new TreeSet<String>();
 		
 	public CustomInputDialog(Shell parentShell, String dialogTitle, String dialogMessage,
 			List<String> elementNames) {
@@ -49,7 +50,7 @@ public class CustomInputDialog extends Dialog {
 		this.title = dialogTitle;
 		this.message = dialogMessage;
 		this.list = elementNames;
-		putListElemsToSet(elementNames);
+		putListElemsToSet(list);
 	}
 	
 	private void putListElemsToSet(List<String> list) {
@@ -58,6 +59,20 @@ public class CustomInputDialog extends Dialog {
 		}
 	}
 
+	private String getTreeSetElementAtIndex(TreeSet<String> set, int index) {
+		Iterator<String> itr = set.iterator();
+		int currentIndex = 0;
+		String currentElement = "";
+		while(itr.hasNext()) {
+			currentElement = itr.next();
+			if(currentIndex == index) {
+				break;
+			}
+		currentIndex++;
+		}
+		return currentElement;
+	}
+	
 	@Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
@@ -146,8 +161,8 @@ public class CustomInputDialog extends Dialog {
 	private boolean validateInputs() {
 		boolean rValue = true;
 		
-		for(int i=0; i<list.size(); i++) {
-			if(!list.get(i).equals(typedTextList.get(i).getText())) {
+		for(int i=0; i<elementSet.size(); i++) {
+			if(!getTreeSetElementAtIndex(elementSet, i).equals(typedTextList.get(i).getText())) {
 				rValue = false;
 				typedTextList.get(i).setBackground(new Color(null, 255,102,102));     
 			} else {
