@@ -19,7 +19,7 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 	private DualListPart<?> dualListPart;
 
 	public DualListView() {
-		this.dualListPart = (DualListPart) getPart();
+		this.dualListPart = (DualListPart<?>) getPart();
 	}
 
 	private IViewPart getPart() {
@@ -78,7 +78,7 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			this.dualListPart = (DualListPart) page.showView(DualListPart.ID);
+			this.dualListPart = (DualListPart<?>) page.showView(DualListPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open dual list view.");
 		}

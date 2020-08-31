@@ -8,7 +8,6 @@ import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
@@ -41,11 +40,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private ArrayList<TItem> arrayRight;
 
 	private TItem selectedItem;
-	private int selectedIndex;
 	private int newIndex;
 	private TItem swap;
 	private SelectionLocation whichList;
-	private String itemString;
 	private int itemIndex;
 	private ItemMoveObject<TItem> moveItem;
 
@@ -67,39 +64,20 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Button allLeft;
 	private Button allDown;
 	private GridLayout gridLayout;
-	private Image allRightImage;
-	private Image allUpImage;
-	private Image oneRightImage;
-	private Image oneUpImage;
-	private Image oneLeftImage;
-	private Image oneDownImage;
-	private Image allLeftImage;
-	private Image allDownImage;
 
 	public DualListPart() {
 		System.out.println("dual list part ctr");
-		
-		
+
 	}
 
 	private void addUIElements(Composite parent) {
 		selectedItem = null;
-		selectedIndex = 0;
 		newIndex = 0;
 		swap = null;
-		whichList = whichList.UNSELECTED;
+		whichList = SelectionLocation.UNSELECTED;
 
 		arrayLeft = new ArrayList<TItem>();
 		arrayRight = new ArrayList<TItem>();
-
-		allRightImage = null;
-		allUpImage = null;
-		oneRightImage = null;
-		oneUpImage = null;
-		oneLeftImage = null;
-		oneDownImage = null;
-		allLeftImage = null;
-		allDownImage = null;
 
 		GridData listData = new GridData();
 		listData.horizontalAlignment = SWT.CENTER;
@@ -132,55 +110,47 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listLeft.setLayoutData(listData);
 
 		allRight = new Button(parent, SWT.PUSH);
-		allRight.setImage(allRightImage);
 		allRight.setText("--> -->");
 		allRight.setLayoutData(buttonData);
-		allRight.setSize(40,40);
+		allRight.setSize(40, 40);
 
 		listRight = new List(parent, SWT.V_SCROLL);
 		listRight.setLayoutData(listData);
 
 		allUp = new Button(parent, SWT.PUSH);
-		allUp.setImage(allUpImage);
 		allUp.setText("Move to Top");
 		allUp.setLayoutData(buttonData);
-		allUp.setSize(40,40);
+		allUp.setSize(40, 40);
 
 		oneRight = new Button(parent, SWT.PUSH);
-		oneRight.setImage(oneRightImage);
 		oneRight.setText("-->");
 		oneRight.setLayoutData(buttonData);
-		oneRight.setSize(40,40);
+		oneRight.setSize(40, 40);
 
 		oneUp = new Button(parent, SWT.PUSH);
-		oneUp.setImage(oneUpImage);
 		oneUp.setText("One Up");
 		oneUp.setLayoutData(buttonData);
-		oneUp.setSize(40,40);
+		oneUp.setSize(40, 40);
 
 		oneLeft = new Button(parent, SWT.PUSH);
-		oneLeft.setImage(oneLeftImage);
 		oneLeft.setText("<--");
 		oneLeft.setLayoutData(buttonData);
-		oneLeft.setSize(40,40);
+		oneLeft.setSize(40, 40);
 
 		oneDown = new Button(parent, SWT.PUSH);
-		oneDown.setImage(oneDownImage);
 		oneDown.setText("One Down");
 		oneDown.setLayoutData(buttonData);
-		oneDown.setSize(40,40);
+		oneDown.setSize(40, 40);
 
 		allLeft = new Button(parent, SWT.PUSH);
-		allLeft.setImage(allLeftImage);
 		allLeft.setText("<-- <--");
 		allLeft.setLayoutData(buttonData);
-		allLeft.setSize(40,40);
+		allLeft.setSize(40, 40);
 
 		allDown = new Button(parent, SWT.PUSH);
-		allDown.setImage(allDownImage);
 		allDown.setText("Move to bottom");
 		allDown.setLayoutData(buttonData);
-		allDown.setSize(40,40);
+		allDown.setSize(40, 40);
 
 	}
 
@@ -202,7 +172,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		return arrayRight;
 	}
 
-	public String getArrayElementbyIndex(ArrayList<TItem> source, int extractIndex, elementStringer function) {
+	public String getArrayElementbyIndex(ArrayList<TItem> source, int extractIndex, elementStringer<TItem> function) {
 		TItem extractedItem = source.get(extractIndex);
 		String extractedString = function.getAsString(extractedItem);
 		return extractedString;
@@ -321,13 +291,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	}
 
 	public void moveBetweenAll(ArrayList<TItem> source, ArrayList<TItem> destination) {
-		int length = source.size();
 		for (TItem item : source) {
 			destination.add(item);
 		}
 		source.clear();
-		whichList = whichList.UNSELECTED;
-		
+		whichList = SelectionLocation.UNSELECTED;
+
 	}
 
 	public void moveBetweenOne(ArrayList<TItem> source, ArrayList<TItem> destination, int itemIndex) {
@@ -337,7 +306,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		destination.add(selectedItem);
 		source.remove(selectedItem);
 		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex, destinationIndex);
-		
+
 	}
 
 	public int moveInside(ArrayList<TItem> source, int itemIndex, Widget selectedButton) {
@@ -363,8 +332,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void refreshSelectionBetweenOne(List source, List destination) {
 		DualListPart.this.refresh();
 		source.setSelection(-1);
-		destination.setSelection(destination.getItemCount() - 1);
-		this.moveItem.setDestinationIndex(destination.getItemCount()-1);
+		int newSelection = destination.getItemCount() - 1;
+		destination.setSelection(newSelection);
+		this.moveItem.setDestinationIndex(newSelection);
 	}
 
 	public class moveBetweenListsListener implements Listener {
@@ -383,19 +353,19 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 					break;
 				case LEFT:
 					moveBetweenOne(arrayLeft, arrayRight, itemIndex);
-					whichList = whichList.RIGHT;
+					whichList = SelectionLocation.RIGHT;
 					refreshSelectionBetweenOne(listLeft, listRight);
 					itemIndex = arrayRight.size() - 1;
 					break;
 				case RIGHT:
 					moveBetweenOne(arrayRight, arrayLeft, itemIndex);
-					whichList = whichList.LEFT;
+					whichList = SelectionLocation.LEFT;
 					refreshSelectionBetweenOne(listRight, listLeft);
 					itemIndex = arrayLeft.size() - 1;
 					break;
 				}
 			}
-		
+
 			moveBetweenListsRequested.invoke(moveItem);
 			selectionRequested.invoke(itemIndex);
 		}
@@ -442,9 +412,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemString = listLeft.getSelection()[0];
-				itemIndex = arrayLeft.indexOf(itemString);
-				whichList = whichList.LEFT;
+				itemIndex = arrayLeft.indexOf(listLeft.getSelection()[0]);
+				whichList = SelectionLocation.LEFT;
 				listRight.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
 			}
@@ -456,9 +425,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listRight.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemString = listRight.getSelection()[0];
-				itemIndex = arrayRight.indexOf(itemString);
-				whichList = whichList.RIGHT;
+				itemIndex = arrayRight.indexOf(listRight.getSelection()[0]);
+				whichList = SelectionLocation.RIGHT;
 				listLeft.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
 			}
