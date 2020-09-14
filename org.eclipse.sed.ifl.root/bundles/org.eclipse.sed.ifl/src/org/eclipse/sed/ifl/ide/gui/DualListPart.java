@@ -257,6 +257,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void setAllDownText(String buttonText) {
 		this.allDown.setText(buttonText);
 	}
+	
+	public void itemizer(String item) {
+		TItem lElement = (TItem) item;
+		leftAdd(lElement);
+	}
+	
 
 	public void refresh() {
 		listLeft.removeAll();
@@ -268,6 +274,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		for (TItem item : arrayRight) {
 			listRight.add(String.valueOf(item));
 		}
+		
+		listRefreshRequested.invoke(arrayRight);
 	}
 
 	public void leftAdd(TItem item) {
@@ -409,6 +417,26 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite = parent;
 		composite.setLayout(gridLayout);
 		addUIElements(parent);
+		TItem score = (TItem) "Score";
+		TItem name = (TItem) "Name";
+		TItem signature = (TItem) "Signature";
+		TItem parentType = (TItem) "Parent Type";
+		TItem path = (TItem) "Path";
+		TItem contextSize = (TItem) "Context Size";
+		TItem position = (TItem) "Position";
+		TItem interactivity = (TItem) "Interactivity";
+		TItem lastAction = (TItem) "Last Action";
+		
+		leftAdd(score);
+		leftAdd(name);
+		leftAdd(signature);
+		leftAdd(parentType);
+		leftAdd(path);
+		leftAdd(contextSize);
+		leftAdd(position);
+		leftAdd(interactivity);
+		leftAdd(lastAction);
+		
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
@@ -450,6 +478,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneDown.addListener(SWT.Selection, new moveInsideListListener());
 
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
+	}
+	
+	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ArrayList> eventListRefreshRequested() {
+		return listRefreshRequested;
 	}
 
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();

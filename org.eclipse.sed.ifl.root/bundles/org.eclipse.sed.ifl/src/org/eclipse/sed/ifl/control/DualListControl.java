@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.control;
 
+import java.util.ArrayList;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.model.DualListModel;
@@ -8,7 +9,7 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.DualListView;
 
-public class DualListControl extends Control<DualListModel, DualListView> {
+public class DualListControl<TItem> extends Control<DualListModel, DualListView> {
 
 	public void showDualListPart() {
 		getView().showDualListPart();
@@ -28,6 +29,7 @@ public class DualListControl extends Control<DualListModel, DualListView> {
 		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
 		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
 		getView().eventSelectionRequested().add(selectionRequestedListener);
+		getView().eventListRefreshRequested().add(listRefreshRequestedListener);
 
 	}
 
@@ -35,9 +37,19 @@ public class DualListControl extends Control<DualListModel, DualListView> {
 		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
 		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
 		getView().eventSelectionRequested().remove(selectionRequestedListener);
+		getView().eventListRefreshRequested().remove(listRefreshRequestedListener);
 
 	}
 
+	
+	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ArrayList> eventlistRefreshRequested() {
+		return listRefreshRequested;
+	}
+
+	private IListener<ArrayList> listRefreshRequestedListener = listRefreshRequested::invoke;
+	
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventSelectionRequested() {

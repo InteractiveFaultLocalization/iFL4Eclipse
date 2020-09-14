@@ -49,9 +49,12 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private Button resetAllButton;
 	private Composite rulesComposite;
 	
+	
 	private static Boolean filterEnabled = false;
 	
 	private static List<Rule> rules = new ArrayList<>();
+	
+	private DualListPart<?> dualListPart;
 	
 	public FilterPart() {
 		System.out.println("filter part ctr");
@@ -70,6 +73,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		
 		composite = parent;
 		composite.setLayout(new GridLayout(3, false));
 		
@@ -226,6 +231,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ruleElement.eventruleDeleted().add(ruleDeleted);
 		scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		ruleElement.requestLayout();
+		dualListPart.itemizer("Valami");
 		rules.add(event);
 		ruleAdded(event);
 	};
@@ -237,6 +243,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 
 	private void ruleAdded(Rule rule) {
+		
+		System.out.println(rule);
+		
 		if(rule instanceof StringRule) {
 			stringRuleAdded.invoke((StringRule) rule);
 		}

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;

@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
+import java.util.ArrayList;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -54,12 +55,14 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 		dualListPart.eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
 		dualListPart.eventMoveInsideListRequested().add(moveInsideListRequestedListener);
 		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
+		dualListPart.eventListRefreshRequested().add(listRefreshRequestedListener);
 	}
 
 	private void removeUIListeners() {
 		dualListPart.eventMoveBetweenListsRequested().remove(moveBetweenListsRequestedListener);
 		dualListPart.eventMoveInsideListRequested().remove(moveInsideListRequestedListener);
 		dualListPart.eventSelectionRequested().remove(selectionRequestedListener);
+		dualListPart.eventListRefreshRequested().remove(listRefreshRequestedListener);
 	}
 
 	@Override
@@ -90,6 +93,14 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 			dualListPart.getSite().getPage().hideView(dualListPart);
 		}
 	}
+	
+	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ArrayList> eventListRefreshRequested() {
+		return listRefreshRequested;
+	}
+	
+	private IListener<ArrayList> listRefreshRequestedListener = listRefreshRequested::invoke;
 
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
