@@ -210,28 +210,6 @@ public class ScoreSetter extends Composite {
 		rl_mainSection.justify = true;
 		mainSection.setLayout(rl_mainSection);
 		
-		selectionImage = new Label(mainSection, SWT.NONE);
-		
-		title = new Label(mainSection, SWT.NONE);
-		title.setText("(no title)");
-		title.setImage(null);
-		title.setAlignment(SWT.CENTER);
-
-		//TODO move action logic to Control
-		active = new Button(mainSection, SWT.CHECK);
-		active.setImage(null);
-		active.setText("active");
-		active.addListener(SWT.Selection, event -> {
-			if(!active.getSelection()) {
-				setUpper.setSelection(active.getSelection());
-				setLower.setSelection(active.getSelection());
-			}
-			Setter.RecursiveEnable(settingSection, active.getSelection());
-			collectRelativeableValue.invoke(createRelativeableValue());
-			refreshUpdatedScoresColumn(createRelativeableValue());
-		});
-		active.setSelection(true);
-		
 		settingSection = new Composite(mainSection, SWT.NONE);
 		RowLayout rl_settingSection = new RowLayout(SWT.VERTICAL);
 		rl_settingSection.center = true;
@@ -240,6 +218,40 @@ public class ScoreSetter extends Composite {
 		
 		middleSection = new Composite(settingSection, SWT.NONE);
 		middleSection.setLayout(new GridLayout(4, false));
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		
+		selectionImage = new Label(middleSection, SWT.NONE);
+		selectionImage.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		
+		title = new Label(middleSection, SWT.NONE);
+		title.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		title.setText("(no title)");
+		title.setImage(null);
+		title.setAlignment(SWT.CENTER);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		new Label(middleSection, SWT.NONE);
+		
+				//TODO move action logic to Control
+				active = new Button(middleSection, SWT.CHECK);
+				active.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+				active.setImage(null);
+				active.setText("active");
+				active.addListener(SWT.Selection, event -> {
+					if(!active.getSelection()) {
+						setUpper.setSelection(active.getSelection());
+						setLower.setSelection(active.getSelection());
+					}
+					Setter.RecursiveEnable(settingSection, active.getSelection());
+					collectRelativeableValue.invoke(createRelativeableValue());
+					refreshUpdatedScoresColumn(createRelativeableValue());
+				});
+				active.setSelection(true);
 		
 		Composite presetSection = new Composite(middleSection, SWT.NONE);
 		presetSection.setLayout(new RowLayout(SWT.VERTICAL));
@@ -322,13 +334,8 @@ public class ScoreSetter extends Composite {
 				
 				setUpper = new Button(composite, SWT.TOGGLE);
 				setUpper.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_1_inactive_v2.png"));
+				
 				setUpper.addListener(SWT.Selection, event -> {
-					absoluteScoreSetted.invoke(upperLimit);
-					collectRelativeableValue.invoke(createRelativeableValue());
-					refreshUpdatedScoresColumn(createRelativeableValue());
-					if (!(setUpper.getSelection() || setLower.getSelection())) {
-						absoluteScoreSettingDisabled.invoke(new EmptyEvent());
-					}
 					if (setUpper.getSelection()) {
 						setLower.setSelection(false);
 						setUpper.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_1_v2.png"));
@@ -336,20 +343,27 @@ public class ScoreSetter extends Composite {
 					} else {
 						setUpper.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_1_inactive_v2.png"));
 					}
-				});
-				setLower.addListener(SWT.Selection, event -> {
-					absoluteScoreSetted.invoke(lowerLimit);
+					absoluteScoreSetted.invoke(upperLimit);
 					collectRelativeableValue.invoke(createRelativeableValue());
 					refreshUpdatedScoresColumn(createRelativeableValue());
 					if (!(setUpper.getSelection() || setLower.getSelection())) {
 						absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 					}
+				});
+				
+				setLower.addListener(SWT.Selection, event -> {
 					if (setLower.getSelection()) {
 						setUpper.setSelection(false);
 						setUpper.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_1_inactive_v2.png"));
 						setLower.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_0_v2.png"));
 					} else {
 						setLower.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/set_to_0_inactive_v2.png"));
+					}
+					absoluteScoreSetted.invoke(lowerLimit);
+					collectRelativeableValue.invoke(createRelativeableValue());
+					refreshUpdatedScoresColumn(createRelativeableValue());
+					if (!(setUpper.getSelection() || setLower.getSelection())) {
+						absoluteScoreSettingDisabled.invoke(new EmptyEvent());
 					}
 				});
 		
@@ -364,7 +378,7 @@ public class ScoreSetter extends Composite {
 		table = new Table(tableSection, SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
 		
 		GridData gd_table = new GridData(SWT.FILL);
-		gd_table.widthHint = 327;
+		gd_table.widthHint = 387;
 		gd_table.grabExcessHorizontalSpace = true;
 		gd_table.grabExcessVerticalSpace = true;
 		gd_table.verticalAlignment = SWT.FILL;
@@ -559,6 +573,7 @@ public class ScoreSetter extends Composite {
 		} else {
 			value = new Defineable<Double>();
 		}
+		System.out.println(middleSection.getSize().x);
 		return new Relativeable<Defineable<Double>>(isRelative, value, title.getText());
 	}
 	
