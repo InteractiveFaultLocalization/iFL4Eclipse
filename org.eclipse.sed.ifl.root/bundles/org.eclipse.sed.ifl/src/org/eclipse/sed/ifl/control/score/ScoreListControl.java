@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
+import org.eclipse.sed.ifl.control.ChainComparator;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
@@ -38,7 +39,6 @@ import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
-import org.eclipse.sed.ifl.ide.gui.DualListPart;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.model.FilterModel;
@@ -210,153 +210,105 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
 		Map<IMethodDescription, Score> toDisplay = new HashMap<>();
 		for (ScoreFilter filter : filters) {
-			 Double score;
-			 String name;
-			 String signature;
-			 String parentType;
-			 String path;
-			 Double contextSize;
-			 int position;
-			 boolean interactivity;
-			 String lastAction;
-			 
-			 
-				for(SortingArg prevSort : previousSorts) {
-				/*	if (prevSort != null) {
-						switch (prevSort) {
-						case Score:
-							if(score == filter.getValue();) filter.setIgnored(true);
-							break;
-						case Name:
-							if(	name.equals(filter.getKey().getId().getName();)filter.setIgnored(true));
-							break;
-						case Signature:
-							if(signature.equals(filter.getKey().getId().getSignature();)filter.setIgnored(true));
-							break;
-						case ParentType:
-							if(parentType.equals(filter.getKey().getId().getParentType();)filter.setIgnored(true));
-							break;
-						case Path:
-							if(path.equals(filter.getKey().getLocation().getAbsolutePath();)filter.setIgnored(true));
-							break;
-						case ContextSize:
-							if(contextSize == filter.getKey().getContext().getSize();)filter.setIgnored(true);
-							break;
-						case Position:
-							if(position == filter.getKey().getLocation().getBeginning().getOffset();)filter.setIgnored(true);
-							break;
-						case Interactivity:
-							if(interactivity == filter.getKey().isInteractive();)filter.setIgnored(true);
-							break;
-						case LastAction:
-							if(lastAction.equals(filter.getValue().getLastAction().getChange();)filter.setIgnored(true));
-							break;
-				}
-						
-					}
-			
-			*/	}
-				
-			/*  score = filter.getValue();
-				name = filter.getKey().getId().getName();
-				signature = filter.getKey().getId().getSignature();
-				parentType = filter.getKey().getId().getParentType();
-				path = filter.getKey().getLocation().getAbsolutePath();
-				contextSize = filter.getKey().getContext().getSize();
-				position = filter.getKey().getLocation().getBeginning().getOffset();
-				interactivity = filter.getKey().isInteractive();
-				lastAction = filter.getValue().getLastAction().getChange();
-				 */
-				
-			if(filter.getIgnored()==false) {	
-			filtered = filtered.filter(filter);
-			Set<Entry<IMethodDescription, Score>> result = filtered.collect(Collectors.toSet());
-			filterControl.setResultNumber(filter.getRule(), result.size());
-			filtered = result.stream();
-			}
-			
-			
-			/*Comparator<ScoreFilter> sortByScore = Comparator.comparing(ScoreFilter::getValue);
-			Comparator<ScoreFilter> sortByName = Comparator.comparing(ScoreFilter::getKey().getId().getName);
-			Comparator<ScoreFilter> sortBySignature = Comparator.comparing(ScoreFilter::getKey().getId().getSignature);
-			Comparator<ScoreFilter> sortByParentType = Comparator.comparing(ScoreFilter::getKey().getId().getParentType);
-			Comparator<ScoreFilter> sortByPath = Comparator.comparing(ScoreFilter::getKey().getLocation().getAbsolutePath);
-			Comparator<ScoreFilter> sortByContextSize = Comparator.comparing(ScoreFilter::getKey().getContext().size);
-			Comparator<ScoreFilter> sortByPosition = Comparator.comparing(ScoreFilter::getKey().getLocation().getBegining().getOffset);
-			Comparator<ScoreFilter> sortByInteractivity = Comparator.comparing(ScoreFilter::getKey().isInteractive);
-			Comparator<ScoreFilter> sortByLastAction = Comparator.comparing(ScoreFilter::getValue().getLastAction().getChange);
+			Double score;
+			String name;
+			String signature;
+			String parentType;
+			String path;
+			Double contextSize;
+			int position;
+			boolean interactivity;
+			String lastAction;
+
+			/*
+			 * for(SortingArg prevSort : previousSorts) { if (prevSort != null) { switch
+			 * (prevSort) { case Score: if(score == filter.getValue();)
+			 * filter.setIgnored(true); break; case Name: if(
+			 * name.equals(filter.getKey().getId().getName();)filter.setIgnored(true));
+			 * break; case Signature:
+			 * if(signature.equals(filter.getKey().getId().getSignature();)filter.setIgnored
+			 * (true)); break; case ParentType:
+			 * if(parentType.equals(filter.getKey().getId().getParentType();)filter.
+			 * setIgnored(true)); break; case Path:
+			 * if(path.equals(filter.getKey().getLocation().getAbsolutePath();)filter.
+			 * setIgnored(true)); break; case ContextSize: if(contextSize ==
+			 * filter.getKey().getContext().getSize();)filter.setIgnored(true); break; case
+			 * Position: if(position ==
+			 * filter.getKey().getLocation().getBeginning().getOffset();)filter.setIgnored(
+			 * true); break; case Interactivity: if(interactivity ==
+			 * filter.getKey().isInteractive();)filter.setIgnored(true); break; case
+			 * LastAction:
+			 * if(lastAction.equals(filter.getValue().getLastAction().getChange();)filter.
+			 * setIgnored(true)); break; }
+			 * 
+			 * }
+			 * 
+			 * }
 			 */
+
+			/*
+			 * score = filter.getValue(); name = filter.getKey().getId().getName();
+			 * signature = filter.getKey().getId().getSignature(); parentType =
+			 * filter.getKey().getId().getParentType(); path =
+			 * filter.getKey().getLocation().getAbsolutePath(); contextSize =
+			 * filter.getKey().getContext().getSize(); position =
+			 * filter.getKey().getLocation().getBeginning().getOffset(); interactivity =
+			 * filter.getKey().isInteractive(); lastAction =
+			 * filter.getValue().getLastAction().getChange();
+			 */
+
+			if (filter.getIgnored() == false) {
+				filtered = filtered.filter(filter);
+				Set<Entry<IMethodDescription, Score>> result = filtered.collect(Collectors.toSet());
+				filterControl.setResultNumber(filter.getRule(), result.size());
+				filtered = result.stream();
+				Object exam[] = filtered.toArray();
+				System.out.println(exam[0].getClass());
+				System.out.println(exam[1].getClass());
+				System.out.println(exam[2].getClass());
+				
+			}
+
+			/*
+			 * Comparator<ScoreFilter> sortByScore =
+			 * Comparator.comparing(ScoreFilter::getValue); Comparator<ScoreFilter>
+			 * sortByName = Comparator.comparing(ScoreFilter::getKey().getId().getName);
+			 * Comparator<ScoreFilter> sortBySignature =
+			 * Comparator.comparing(ScoreFilter::getKey().getId().getSignature);
+			 * Comparator<ScoreFilter> sortByParentType =
+			 * Comparator.comparing(ScoreFilter::getKey().getId().getParentType);
+			 * Comparator<ScoreFilter> sortByPath =
+			 * Comparator.comparing(ScoreFilter::getKey().getLocation().getAbsolutePath);
+			 * Comparator<ScoreFilter> sortByContextSize =
+			 * Comparator.comparing(ScoreFilter::getKey().getContext().size);
+			 * Comparator<ScoreFilter> sortByPosition =
+			 * Comparator.comparing(ScoreFilter::getKey().getLocation().getBegining().
+			 * getOffset); Comparator<ScoreFilter> sortByInteractivity =
+			 * Comparator.comparing(ScoreFilter::getKey().isInteractive);
+			 * Comparator<ScoreFilter> sortByLastAction =
+			 * Comparator.comparing(ScoreFilter::getValue().getLastAction().getChange);
+			 * 
+			 * List<Comparator<ScoreFilter>> comparators = new ArrayList<>();
+			 * 
+			 * 
+			 * 
+			 */
+
 		}
 		if (sorting != null) {
-			switch (sorting) {
-			case Score:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case Name:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case Signature:
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature()
-										.compareToIgnoreCase(b.getKey().getId().getSignature()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case ParentType:
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType()
-										.compareToIgnoreCase(b.getKey().getId().getParentType()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case Path:
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath()
-										.compareToIgnoreCase(b.getKey().getLocation().getAbsolutePath()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case ContextSize:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Integer(a.getKey().getContext().size()).compareTo(b.getKey().getContext().size()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case Position:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Integer(a.getKey().getLocation().getBegining().getOffset())
-										.compareTo(b.getKey().getLocation().getBegining().getOffset()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case Interactivity:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Boolean(a.getKey().isInteractive()).compareTo(b.getKey().isInteractive()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			case LastAction:
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0
-										: a.getValue().getLastAction().getChange()
-												.compareTo(b.getValue().getLastAction().getChange())))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				break;
-			default:
-				toDisplay = filtered.collect(Collectors.collectingAndThen(
-						Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
-				break;
-			}
-		} else {
-			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
-					Collections::unmodifiableMap));
+			
+			//toDisplay = filtered.sort(new ChainComparator(comparatorList));
+			
 		}
+			
+		else {
+
+			toDisplay = filtered
+					.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
+		}
+		
 		return toDisplay;
 	}
 
@@ -367,18 +319,44 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		dualListControl.eventlistRefreshRequested();
 		if (event.isEmpty() == false) {
 
-			for (int i = 0; i < event.size(); i++) {
-				String sortString = (String) event.get(i);
+			for (Object sortObject : event) {
+				String sortString = (String) sortObject;
 				sortString = sortString.replaceAll("\\s", "");
 				sorting = SortingArg.valueOf(sortString);
-				refreshView();
-				previousSorts.add(sorting);
-
+				switch (sorting) {
+				case Score:
+					// comparators.add(sortByScore);
+					break;
+				case Name:
+					// comparators.add(sortByName);
+					break;
+				case Signature:
+					// comparators.add(sortBySignature);
+					break;
+				case ParentType:
+					// comparators.add(sortByParentType);
+				case Path:
+					// comparators.add(sortByPath);
+					break;
+				case ContextSize:
+					// comparators.add(sortByContextSize);
+					break;
+				case Position:
+					// comparators.add(sortByPosition);
+					break;
+				case Interactivity:
+					// comparators.add(sortByInteractivity);
+					break;
+				case LastAction:
+					// comparators.add(sortByLastAction);
+					break;
+				}
 			}
-			previousSorts.clear();
-
 		}
 
+		refreshView();
+
+		// comparators.clear();
 	};
 
 	private IListener<ItemMoveObject> moveBetweenListsRequested = event -> {
