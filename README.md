@@ -76,6 +76,42 @@ You can install our plug-in directly from Eclipse IDE. Please use the [Install N
 
 To access all available features of iFL for Eclipse, please copy the `key` file next to your Eclipse executable, for further details see the description of the selected version.
 
+## Contributor's guide
+
+This section is a guideline for those developers who wish to contribute to the project.
+
+### Developing environment
+
++ Java JDK 1.8 (https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
++ Eclipse for Java developers (2018-12 or later version) (https://www.eclipse.org/downloads/)
++ PDE plug-in for Eclipse (In the newer versions of Eclipse, this plug-in is included in the basic installation. If it is not, it can be easily added by using Eclipse's "Install new software..." feature from the "Help" menu.)
+
+<img src="/media/screen_shot/install_pde.png" alt="install_pde" width="600px"/>
+
++ Maven (installation guide can be found here: https://maven.apache.org/install.html)
+
+### Setting up project dependencies
+
+After cloning the repository to a local machine, the dependencies of the project must be installed. To do this, navigate to the iFL4Eclipse\org.eclipse.sed.ifl.root\bundles\org.eclipse.sed.ifl.dependencies folder, open the command line and enter "mvn clean verify". This command will create a jar in the "target folder that includes the dependencies.
+Another dependency that is not included in the jar is Swing2SWT (downloadable from here: https://mvnrepository.com/artifact/org.eclipse.wb.rcp/swing2swt/1.6.0). The downloaded jar must be decompressed with an archiver (like 7zip) and the content jar (swing2swt.jar) along with the previously created dependencies jar should be moved to the iFL4Eclipse\org.eclipse.sed.ifl.root\bundles\org.eclipse.sed.ifl\libs folder.
+
+### Opening the project in Eclipse
+
+In Eclipse, choose the "Open project from file system..." option in the "File" menu. Choose the iFL4Eclipse\org.eclipse.sed.ifl.root\bundles\org.eclipse.sed.ifl folder as import source, check the checkbox in front of the folder then click "Finish". The project is now imported.
+Right click on the project and choose "Properties". Go to the "Java compiler" tab and set the compliance to 1.8.
+
+<img src="/media/screen_shot/jdk_compliance.png" alt="jdk_compliance" width="600px"/>
+
+Now go to the "Java build path" tab, choose "Libraries", then "Add JARs...". Select the dependencies jar and the swing2swt jar and click "Ok".
+
+<img src="/media/screen_shot/build_path.png" alt="build_path" width="600px"/>
+
+After this, navigate to the "Order and export" tab and check all of the checkboxes, then hit "Apply and close".
+  
+### How to run
+
+Right click on the project, choose "Run as...", then hit "Eclipse application".
+
 ## Contact us
 
 <img src="/media/szte.png" alt="szte" width="150px"/>
