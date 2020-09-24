@@ -1,0 +1,29 @@
+package org.eclipse.sed.ifl.control.comparator;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
+import org.eclipse.sed.ifl.model.source.IMethodDescription;
+
+public class ChainComparator implements Comparator<Entry<IMethodDescription, Score>> {
+
+	private List<Comparator<Entry<IMethodDescription, Score>>> comparators;
+
+	public ChainComparator(List<Comparator<Entry<IMethodDescription, Score>>> comparators) {
+		this.comparators = comparators;
+	}
+
+	@Override
+	public int compare(Entry<IMethodDescription, Score> o1, Entry<IMethodDescription, Score> o2) {
+		int result;
+		for (Comparator<Entry<IMethodDescription, Score>> comparator : comparators) {
+			if ((result = comparator.compare(o1, o2)) != 0) {
+				return result;
+			}
+		}
+		return 0;
+	}
+}

@@ -20,6 +20,16 @@ import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
+import org.eclipse.sed.ifl.control.comparator.ChainComparator;
+import org.eclipse.sed.ifl.control.comparator.ContextSizeComparator;
+import org.eclipse.sed.ifl.control.comparator.InteractivityComparator;
+import org.eclipse.sed.ifl.control.comparator.LastActionComparator;
+import org.eclipse.sed.ifl.control.comparator.NameComparator;
+import org.eclipse.sed.ifl.control.comparator.ParentTypeComparator;
+import org.eclipse.sed.ifl.control.comparator.PathComparator;
+import org.eclipse.sed.ifl.control.comparator.PositionComparator;
+import org.eclipse.sed.ifl.control.comparator.ScoreComparator;
+import org.eclipse.sed.ifl.control.comparator.SignatureComparator;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.score.filter.BooleanFilter;
@@ -38,7 +48,6 @@ import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
-import org.eclipse.sed.ifl.ide.gui.DualListPart;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.model.FilterModel;
@@ -210,279 +219,82 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
 		Map<IMethodDescription, Score> toDisplay = new HashMap<>();
 		for (ScoreFilter filter : filters) {
-			 Double score;
-			 String name;
-			 String signature;
-			 String parentType;
-			 String path;
-			 Double contextSize;
-			 int position;
-			 boolean interactivity;
-			 String lastAction;
-			 
-			 
-				/* for(SortingArg prevSort : previousSorts) {
-				/*	if (prevSort != null) {
-						switch (prevSort) {
-						case Score:
-							if(score == filter.getValue();) filter.setIgnored(true);
-							break;
-						case Name:
-							if(	name.equals(filter.getKey().getId().getName();)filter.setIgnored(true));
-							break;
-						case Signature:
-							if(signature.equals(filter.getKey().getId().getSignature();)filter.setIgnored(true));
-							break;
-						case ParentType:
-							if(parentType.equals(filter.getKey().getId().getParentType();)filter.setIgnored(true));
-							break;
-						case Path:
-							if(path.equals(filter.getKey().getLocation().getAbsolutePath();)filter.setIgnored(true));
-							break;
-						case ContextSize:
-							if(contextSize == filter.getKey().getContext().getSize();)filter.setIgnored(true);
-							break;
-						case Position:
-							if(position == filter.getKey().getLocation().getBeginning().getOffset();)filter.setIgnored(true);
-							break;
-						case Interactivity:
-							if(interactivity == filter.getKey().isInteractive();)filter.setIgnored(true);
-							break;
-						case LastAction:
-							if(lastAction.equals(filter.getValue().getLastAction().getChange();)filter.setIgnored(true));
-							break;
-				}
-						
-					}
-			
-				}  */
-				
-			/*  score = filter.getValue();
-				name = filter.getKey().getId().getName();
-				signature = filter.getKey().getId().getSignature();
-				parentType = filter.getKey().getId().getParentType();
-				path = filter.getKey().getLocation().getAbsolutePath();
-				contextSize = filter.getKey().getContext().getSize();
-				position = filter.getKey().getLocation().getBeginning().getOffset();
-				interactivity = filter.getKey().isInteractive();
-				lastAction = filter.getValue().getLastAction().getChange();
-				 */
-				
-			if(filter.getIgnored()==false) {	
 			filtered = filtered.filter(filter);
 			Set<Entry<IMethodDescription, Score>> result = filtered.collect(Collectors.toSet());
 			filterControl.setResultNumber(filter.getRule(), result.size());
 			filtered = result.stream();
-			}
-			
-			
-			/*Comparator<ScoreFilter> sortByScore = Comparator.comparing(ScoreFilter::getValue);
-			Comparator<ScoreFilter> sortByName = Comparator.comparing(ScoreFilter::getKey().getId().getName);
-			Comparator<ScoreFilter> sortBySignature = Comparator.comparing(ScoreFilter::getKey().getId().getSignature);
-			Comparator<ScoreFilter> sortByParentType = Comparator.comparing(ScoreFilter::getKey().getId().getParentType);
-			Comparator<ScoreFilter> sortByPath = Comparator.comparing(ScoreFilter::getKey().getLocation().getAbsolutePath);
-			Comparator<ScoreFilter> sortByContextSize = Comparator.comparing(ScoreFilter::getKey().getContext().size);
-			Comparator<ScoreFilter> sortByPosition = Comparator.comparing(ScoreFilter::getKey().getLocation().getBegining().getOffset);
-			Comparator<ScoreFilter> sortByInteractivity = Comparator.comparing(ScoreFilter::getKey().isInteractive);
-			Comparator<ScoreFilter> sortByLastAction = Comparator.comparing(ScoreFilter::getValue().getLastAction().getChange);
-			 */
-			
-		
-			
 		}
 		
-		
-		
-		if (sorting != null) {
-			switch (sorting) {
-			case Score:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByScore);
+		for (SortingArg sorting : previousSorts) {
+
+			if (sorting != null) {
+				switch (sorting) {
+				case Score:
+					comparators.add(new ScoreComparator());
+					break;
+				case Name:
+					comparators.add(new NameComparator());
+					break;
+				case Signature:
+					comparators.add(new SignatureComparator());
+					break;
+				case ParentType:
+					comparators.add(new ParentTypeComparator());
+					break;
+				case Path:
+					comparators.add(new PathComparator());
+					break;
+				case ContextSize:
+					comparators.add(new ContextSizeComparator());
+					break;
+				case Position:
+					comparators.add(new PositionComparator());
+					break;
+				case Interactivity:
+					comparators.add(new InteractivityComparator());
+					break;
+				case LastAction:
+					comparators.add(new LastActionComparator());
+					break;
+				default:
+					toDisplay = filtered.collect(Collectors.collectingAndThen(
+							Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
+					break;
 				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * a.getValue().compareTo(b.getValue()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByScore);
-				}
-				break;
-			case Name:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByName);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case Signature:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getSignature()
-										.compareToIgnoreCase(b.getKey().getId().getSignature()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortBySignature);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case ParentType:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getId().getParentType()
-										.compareToIgnoreCase(b.getKey().getId().getParentType()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByParentType);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case Path:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a,
-								b) -> (sorting.isDescending() ? -1 : 1) * a.getKey().getLocation().getAbsolutePath()
-										.compareToIgnoreCase(b.getKey().getLocation().getAbsolutePath()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByPath);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case ContextSize:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Integer(a.getKey().getContext().size()).compareTo(b.getKey().getContext().size()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(ContextSize);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-				}
-				break;
-			case Position:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Integer(a.getKey().getLocation().getBegining().getOffset())
-										.compareTo(b.getKey().getLocation().getBegining().getOffset()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByPosition);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case Interactivity:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* new Boolean(a.getKey().isInteractive()).compareTo(b.getKey().isInteractive()))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByInteractivity);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			case LastAction:
-				if(first==true) {
-				toDisplay = filtered
-						.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-								* (a.getValue().getLastAction() == null || b.getValue().getLastAction() == null ? 0
-										: a.getValue().getLastAction().getChange()
-												.compareTo(b.getValue().getLastAction().getChange())))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-				// comparators.add(sortByLastAction);
-				}
-				else {
-					toDisplay = ((Stream<Entry<IMethodDescription, Score>>) toDisplay)
-							.sorted((a, b) -> (sorting.isDescending() ? -1 : 1)
-									* a.getKey().getId().getName().compareToIgnoreCase(b.getKey().getId().getName()))
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-					// comparators.add(sortByName);
-					}
-				break;
-			default:
+
+			} else {
 				toDisplay = filtered.collect(Collectors.collectingAndThen(
 						Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
-				break;
 			}
-			
-			
-		} else {
-			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
-					Collections::unmodifiableMap));
+
 		}
-		
-		
-		
-		//System.out.println(toDisplay.values());
+
+		filtered.sorted(new ChainComparator(comparators));
+		toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
+				Collections::unmodifiableMap));
+
 		return toDisplay;
 	}
 
 	private SortingArg sorting;
 	private ArrayList<SortingArg> previousSorts;
-	boolean first = true;
+	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
 	private IListener<ArrayList> listRefreshRequested = event -> {
 		dualListControl.eventlistRefreshRequested();
+		previousSorts.add(SortingArg.Undefined);
 		if (event.isEmpty() == false) {
-
 			for (int i = 0; i < event.size(); i++) {
 				String sortString = (String) event.get(i);
 				sortString = sortString.replaceAll("\\s", "");
 				sorting = SortingArg.valueOf(sortString);
-				refreshView();
-				first = false;
 				previousSorts.add(sorting);
-				// comparators.clear();
-
 			}
-			previousSorts.clear();
-
 		}
 
+		refreshView();
+		comparators.clear();
+		previousSorts.clear();
 	};
 
 	private IListener<ItemMoveObject> moveBetweenListsRequested = event -> {

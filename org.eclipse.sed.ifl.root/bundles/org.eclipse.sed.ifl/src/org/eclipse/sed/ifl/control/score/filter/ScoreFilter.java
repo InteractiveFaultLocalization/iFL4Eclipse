@@ -14,7 +14,6 @@ public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription,
 	
 	private Boolean enabled;
 	
-	private boolean ignored=false;
 
 	public void Disable() {
 		enabled = false;
@@ -28,13 +27,6 @@ public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription,
 		enabled = value;
 	}
 	
-	public boolean getIgnored() {
-		return this.ignored;
-	}
-	
-	public void setIgnored(boolean value) {
-		ignored = value;
-	}
 	
 	@Override
 	public final boolean test(Entry<IMethodDescription, Score> arg0) {
