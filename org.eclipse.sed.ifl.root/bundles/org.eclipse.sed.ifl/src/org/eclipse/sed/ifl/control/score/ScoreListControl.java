@@ -97,6 +97,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private DualListControl<?> dualListControl;
 
+	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();;
+
 	@Override
 	public void init() {
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
@@ -224,10 +226,11 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			filterControl.setResultNumber(filter.getRule(), result.size());
 			filtered = result.stream();
 		}
-		
-		for (SortingArg sorting : previousSorts) {
 
-			if (sorting != null) {
+		if (previousSorts.isEmpty() == false) {
+
+			for (SortingArg sorting : previousSorts) {
+
 				switch (sorting) {
 				case Score:
 					comparators.add(new ScoreComparator());
@@ -261,15 +264,13 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 							Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 					break;
 				}
-
-			} else {
-				toDisplay = filtered.collect(Collectors.collectingAndThen(
-						Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 			}
-
+			filtered.sorted(new ChainComparator(comparators));
+		} else {
+			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
+					Collections::unmodifiableMap));
 		}
 
-		filtered.sorted(new ChainComparator(comparators));
 		toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
 				Collections::unmodifiableMap));
 
@@ -277,12 +278,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	}
 
 	private SortingArg sorting;
-	private ArrayList<SortingArg> previousSorts;
 	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
 	private IListener<ArrayList> listRefreshRequested = event -> {
 		dualListControl.eventlistRefreshRequested();
-		previousSorts.add(SortingArg.Undefined);
 		if (event.isEmpty() == false) {
 			for (int i = 0; i < event.size(); i++) {
 				String sortString = (String) event.get(i);

@@ -1,7 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
 public enum SortingArg {
-	Score, Name, Signature, ParentType, Path, Position, ContextSize, LastAction, Interactivity, Undefined;
+	Score, Name, Signature, ParentType, Path, Position, ContextSize, LastAction, Interactivity;
 	
 	private boolean descending;
 	
@@ -42,9 +42,6 @@ public enum SortingArg {
 			break;
 		case Interactivity:
 			rString = "Interactivity";
-			break;
-		case Undefined:
-			rString = "Undefined";
 			break;
 		}
 		return rString;
