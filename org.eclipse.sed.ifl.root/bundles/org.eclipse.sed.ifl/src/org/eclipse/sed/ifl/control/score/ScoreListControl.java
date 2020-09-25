@@ -97,7 +97,9 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private DualListControl<?> dualListControl;
 
-	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();;
+	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();
+	
+	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
 	@Override
 	public void init() {
@@ -260,25 +262,22 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					comparators.add(new LastActionComparator());
 					break;
 				default:
-					toDisplay = filtered.collect(Collectors.collectingAndThen(
-							Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 					break;
 				}
 			}
 			filtered.sorted(new ChainComparator(comparators));
+			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
+					Collections::unmodifiableMap));
+
 		} else {
 			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
 					Collections::unmodifiableMap));
 		}
 
-		toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
-				Collections::unmodifiableMap));
-
 		return toDisplay;
 	}
 
 	private SortingArg sorting;
-	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
 	private IListener<ArrayList> listRefreshRequested = event -> {
 		dualListControl.eventlistRefreshRequested();
