@@ -3,7 +3,7 @@ package org.eclipse.sed.ifl.control.score.filter;
 public class DoubleRule implements Rule {
 	
 	private String domain;
-	private double value;
+	private Double value;
 	private String relation;
 
 	public DoubleRule(String domain, double value, String relation) {
@@ -12,7 +12,7 @@ public class DoubleRule implements Rule {
 		this.relation = relation;
 	}
 
-	public double getValue() {
+	public Double getValue() {
 		return value;
 	}
 

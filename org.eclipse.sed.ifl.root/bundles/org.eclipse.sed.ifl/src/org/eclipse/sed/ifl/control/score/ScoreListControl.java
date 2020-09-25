@@ -252,7 +252,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	
 	private IListener<DoubleRule> newDoubleFilterAddedListener = rule -> {
 		filters.add(new DoubleFilter(true, rule));
-		System.out.println((int)rule.getValue());
 		refreshView();
 	};
 	

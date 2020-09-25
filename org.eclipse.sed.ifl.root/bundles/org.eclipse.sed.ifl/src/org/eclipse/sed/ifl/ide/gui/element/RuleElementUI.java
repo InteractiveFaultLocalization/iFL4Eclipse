@@ -134,10 +134,10 @@ public class RuleElementUI extends Composite {
 			rString = containsString.concat(((StringRule)this.rule).getValue());
 			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
 			break;
-		case "Position": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+		case "Position": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Integer.toString(((DoubleRule)this.rule).getValue().intValue()));
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_3.png"); ;
 			break;
-		case "Context size":  rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+		case "Context size":  rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Integer.toString(((DoubleRule)this.rule).getValue().intValue()));
 			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size.png");;
 			break;
 		case "Interactivity": rString = ((BooleanRule)this.rule).isValue() == true ? "interactive" : "not interactive";

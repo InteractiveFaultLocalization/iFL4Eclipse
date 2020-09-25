@@ -65,9 +65,9 @@ public class RuleCreatorDialog extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
+		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		shell.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ico8.png"));
-		shell.setSize(420, 382);
+		shell.setSize(420, 392);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
 		
