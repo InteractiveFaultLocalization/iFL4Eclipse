@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections.*;
+import org.apache.commons.collections.comparators.*;
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
@@ -98,8 +101,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 	private DualListControl<?> dualListControl;
 
 	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();
-	
+
 	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
+
+	private List<Entry<IMethodDescription, Score>> organized = new ArrayList<>();
 
 	@Override
 	public void init() {
@@ -262,12 +267,37 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					comparators.add(new LastActionComparator());
 					break;
 				default:
+					toDisplay = filtered.collect(Collectors.collectingAndThen(
+							Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
 					break;
 				}
 			}
-			filtered.sorted(new ChainComparator(comparators));
-			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
-					Collections::unmodifiableMap));
+			System.out.println(comparators.toString());
+
+			// Comparator comparatorlist = ComparatorUtils.chainedComparator(comparators);
+
+			Object[] tests;
+
+			// tests= filtered.sorted(new ChainComparator(comparators)).toArray();
+
+			// System.out.println(tests[0]);
+			// System.out.println(tests[1]); //tested out while commenting "toDisplay",
+			// since stream is closed
+			// System.out.println(tests[2]);
+			// System.out.println(tests[3]);
+
+			organized = filtered.sorted(new ChainComparator(comparators)).collect(Collectors.toList());
+
+			toDisplay = organized.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+			
+			//MapUtils.populateMap(toDisplay, organized, Entry::getKey);
+			
+
+			//toDisplay = filtered.sorted(new ChainComparator(comparators)).collect(Collectors
+			//		.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap)); // original
+																															// method
+
+			return toDisplay;
 
 		} else {
 			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),

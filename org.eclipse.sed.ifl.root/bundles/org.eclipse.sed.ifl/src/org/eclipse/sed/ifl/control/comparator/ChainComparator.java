@@ -20,7 +20,8 @@ public class ChainComparator implements Comparator<Entry<IMethodDescription, Sco
 	public int compare(Entry<IMethodDescription, Score> o1, Entry<IMethodDescription, Score> o2) {
 		int result;
 		for (Comparator<Entry<IMethodDescription, Score>> comparator : comparators) {
-			if ((result = comparator.compare(o1, o2)) != 0) {
+			 result = comparator.compare(o1, o2);
+			if (result != 0) {
 				return result;
 			}
 		}
