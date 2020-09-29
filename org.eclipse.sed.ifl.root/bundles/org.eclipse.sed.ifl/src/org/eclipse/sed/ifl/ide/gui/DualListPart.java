@@ -38,6 +38,10 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	private ArrayList<TItem> arrayLeft;
 	private ArrayList<TItem> arrayRight;
+	
+	private static ArrayList<String> arrayLeftBackup = new ArrayList<>();
+	private static ArrayList<String> arrayRightBackup = new ArrayList<>();
+	
 
 	private TItem selectedItem;
 	private int newIndex;
@@ -266,13 +270,37 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	public void refresh() {
 		listLeft.removeAll();
+		arrayLeftBackup.clear();
 		for (TItem item : arrayLeft) {
 			listLeft.add(String.valueOf(item));
+			arrayLeftBackup.add(String.valueOf(item));
 		}
 
 		listRight.removeAll();
+		arrayRightBackup.clear();
 		for (TItem item : arrayRight) {
 			listRight.add(String.valueOf(item));
+			arrayRightBackup.add(String.valueOf(item));
+		}
+		
+		listRefreshRequested.invoke(arrayRight);
+	}
+	
+	public void reload() {
+		listLeft.removeAll();
+		arrayLeft.clear();
+		for (String item : arrayLeftBackup) {
+			listLeft.add(item);
+			TItem tItem = (TItem) item;
+			arrayLeft.add(tItem);
+		}
+
+		listRight.removeAll();
+		arrayRight.clear();
+		for (String item : arrayRightBackup) {
+			listRight.add(item);
+			TItem tItem = (TItem) item;
+			arrayRight.add(tItem);
 		}
 		
 		listRefreshRequested.invoke(arrayRight);
@@ -417,6 +445,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite = parent;
 		composite.setLayout(gridLayout);
 		addUIElements(parent);
+		
+		if(arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
+		
 		TItem score = (TItem) "Score";
 		TItem name = (TItem) "Name";
 		TItem signature = (TItem) "Signature";
@@ -436,6 +467,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		leftAdd(position);
 		leftAdd(interactivity);
 		leftAdd(lastAction);
+		
+		}
+		
+		else {
+			this.reload();
+		}
 		
 		listLeft.addSelectionListener(new SelectionListener() {
 
