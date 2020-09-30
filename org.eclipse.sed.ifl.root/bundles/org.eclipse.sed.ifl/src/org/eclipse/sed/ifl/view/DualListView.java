@@ -15,12 +15,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-public class DualListView extends View implements IEmbeddable, IEmbedee {
+public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 
-	private DualListPart<?> dualListPart;
+	private DualListPart<TItem> dualListPart;
 
 	public DualListView() {
-		this.dualListPart = (DualListPart<?>) getPart();
+		this.dualListPart = (DualListPart<TItem>) getPart();
 	}
 
 	private IViewPart getPart() {
@@ -81,11 +81,15 @@ public class DualListView extends View implements IEmbeddable, IEmbedee {
 		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			this.dualListPart = (DualListPart<?>) page.showView(DualListPart.ID);
+			this.dualListPart = (DualListPart<TItem>) page.showView(DualListPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open dual list view.");
 		}
 		initUIListeners();
+	}
+	
+	public void enableOrdering() {
+		dualListPart.enableOrdering();
 	}
 
 	public void close() {

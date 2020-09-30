@@ -14,9 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.*;
-import org.apache.commons.collections.comparators.*;
-import org.apache.commons.lang.ArrayUtils;
+
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
@@ -86,7 +84,7 @@ import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
-public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
+public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListView> {
 
 	private BasicIflMethodScoreHandler handler = new BasicIflMethodScoreHandler(null);
 
@@ -118,9 +116,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		filterControl.setView(new FilterView());
 		filterControl.setModel(new FilterModel());
 
-		dualListControl = new DualListControl();
-		DualListView dualListView = new DualListView();
-		dualListControl.setView(new DualListView());
+		dualListControl = new DualListControl<TItem>();
+		dualListControl.setView(new DualListView<TItem>());
 		dualListControl.setModel(new DualListModel());
 		dualListControl.showDualListPart();
 
@@ -518,6 +515,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 					.get(0).getValue();
 			if (limit.isDefinit()) {
 				filterControl.enableFiltering();
+				dualListControl.enableOrdering();
 			}
 			MessageDialog.open(MessageDialog.INFORMATION, null, "iFL Score List",
 					"Only the top 10 source code items are displayed.\n"

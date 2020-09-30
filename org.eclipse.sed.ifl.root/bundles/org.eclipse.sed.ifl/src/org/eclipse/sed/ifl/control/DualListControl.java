@@ -2,7 +2,6 @@ package org.eclipse.sed.ifl.control;
 
 import java.util.ArrayList;
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -41,6 +40,10 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 
 	}
 
+	
+	public void enableOrdering() {
+		getView().enableOrdering();
+	}
 	
 	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
 
