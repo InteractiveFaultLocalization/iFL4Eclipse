@@ -104,8 +104,6 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 
 	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
-	private List<Entry<IMethodDescription, Score>> organized = new ArrayList<>();
-
 	@Override
 	public void init() {
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
@@ -233,8 +231,8 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 			filterControl.setResultNumber(filter.getRule(), result.size());
 			filtered = result.stream();
 		}
-
-		if (previousSorts.isEmpty() == false) {
+		
+		if (!previousSorts.isEmpty()) {
 
 			for (SortingArg sorting : previousSorts) {
 
@@ -266,44 +264,19 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				case LastAction:
 					comparators.add(new LastActionComparator());
 					break;
-				default:
-					toDisplay = filtered.collect(Collectors.collectingAndThen(
-							Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
-					break;
 				}
 			}
-			System.out.println(comparators.toString());
-
-			// Comparator comparatorlist = ComparatorUtils.chainedComparator(comparators);
-
-			Object[] tests;
-
-			// tests= filtered.sorted(new ChainComparator(comparators)).toArray();
-
-			// System.out.println(tests[0]);
-			// System.out.println(tests[1]); //tested out while commenting "toDisplay",
-			// since stream is closed
-			// System.out.println(tests[2]);
-			// System.out.println(tests[3]);
-
-			organized = filtered.sorted(new ChainComparator(comparators)).collect(Collectors.toList());
-
-			toDisplay = organized.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 			
-			//MapUtils.populateMap(toDisplay, organized, Entry::getKey);
+			toDisplay = filtered.sorted((a, b) -> new ChainComparator(comparators).compare(a, b))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 			
-
-			//toDisplay = filtered.sorted(new ChainComparator(comparators)).collect(Collectors
-			//		.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap)); // original
-																															// method
-
-			return toDisplay;
-
 		} else {
 			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
 					Collections::unmodifiableMap));
 		}
 
+		
+		
 		return toDisplay;
 	}
 

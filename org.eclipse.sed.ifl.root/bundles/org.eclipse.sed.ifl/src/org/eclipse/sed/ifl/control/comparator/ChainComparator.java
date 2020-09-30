@@ -3,9 +3,7 @@ package org.eclipse.sed.ifl.control.comparator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
-
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.model.source.IMethodDescription;
 
 public class ChainComparator implements Comparator<Entry<IMethodDescription, Score>> {
