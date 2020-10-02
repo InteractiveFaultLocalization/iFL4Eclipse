@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
@@ -50,6 +49,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
@@ -228,52 +228,86 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 			filterControl.setResultNumber(filter.getRule(), result.size());
 			filtered = result.stream();
 		}
-		
+
 		if (!previousSorts.isEmpty()) {
 
 			for (SortingArg sorting : previousSorts) {
 
 				switch (sorting) {
 				case Score:
-					comparators.add(new ScoreComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new ScoreComparator());
+					} else {
+						comparators.add(new ScoreComparator().reversed());
+					}
 					break;
 				case Name:
-					comparators.add(new NameComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new NameComparator());
+					} else {
+						comparators.add(new NameComparator().reversed());
+					}
 					break;
 				case Signature:
-					comparators.add(new SignatureComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new SignatureComparator());
+					} else {
+						comparators.add(new SignatureComparator().reversed());
+					}
 					break;
 				case ParentType:
-					comparators.add(new ParentTypeComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new ParentTypeComparator());
+					} else {
+						comparators.add(new ParentTypeComparator().reversed());
+					}
 					break;
 				case Path:
-					comparators.add(new PathComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new PathComparator());
+					} else {
+						comparators.add(new PathComparator().reversed());
+					}
 					break;
 				case ContextSize:
-					comparators.add(new ContextSizeComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new ContextSizeComparator());
+					} else {
+						comparators.add(new ContextSizeComparator().reversed());
+					}
 					break;
 				case Position:
-					comparators.add(new PositionComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new PositionComparator());
+					} else {
+						comparators.add(new PositionComparator().reversed());
+					}
 					break;
 				case Interactivity:
-					comparators.add(new InteractivityComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new InteractivityComparator());
+					} else {
+						comparators.add(new InteractivityComparator().reversed());
+					}
 					break;
 				case LastAction:
-					comparators.add(new LastActionComparator());
+					if (!sorting.isDescending()) {
+						comparators.add(new LastActionComparator());
+					} else {
+						comparators.add(new LastActionComparator().reversed());
+					}
 					break;
 				}
 			}
-			
+
 			toDisplay = filtered.sorted((a, b) -> new ChainComparator(comparators).compare(a, b))
-			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-			
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
 		} else {
 			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
 					Collections::unmodifiableMap));
 		}
 
-		
-		
 		return toDisplay;
 	}
 
@@ -283,9 +317,13 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventlistRefreshRequested();
 		if (event.isEmpty() == false) {
 			for (int i = 0; i < event.size(); i++) {
-				String sortString = (String) event.get(i);
+				DualListElement element = (DualListElement) event.get(i);
+				String sortString = element.getName();
 				sortString = sortString.replaceAll("\\s", "");
 				sorting = SortingArg.valueOf(sortString);
+				if (sorting.isDescending() != element.isDescending()) {
+					sorting.setDescending(!sorting.isDescending());
+				}
 				previousSorts.add(sorting);
 			}
 		}

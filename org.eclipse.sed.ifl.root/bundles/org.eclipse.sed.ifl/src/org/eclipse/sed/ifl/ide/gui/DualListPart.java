@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.util.ArrayList;
 import javax.inject.*;
 
+import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -39,8 +40,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private ArrayList<TItem> arrayLeft;
 	private ArrayList<TItem> arrayRight;
 
-	private static ArrayList<String> arrayLeftBackup = new ArrayList<>();
-	private static ArrayList<String> arrayRightBackup = new ArrayList<>();
+	private static ArrayList<DualListElement> arrayLeftBackup = new ArrayList<>();
+	private static ArrayList<DualListElement> arrayRightBackup = new ArrayList<>();
 	
 	private static Boolean orderingEnabled = false;
 
@@ -307,15 +308,17 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listLeft.removeAll();
 		arrayLeftBackup.clear();
 		for (TItem item : arrayLeft) {
-			listLeft.add(String.valueOf(item));
-			arrayLeftBackup.add(String.valueOf(item));
+			DualListElement element = (DualListElement) item;
+			listLeft.add(element.getName());
+			arrayLeftBackup.add((DualListElement) item);
 		}
 
 		listRight.removeAll();
 		arrayRightBackup.clear();
 		for (TItem item : arrayRight) {
-			listRight.add(String.valueOf(item));
-			arrayRightBackup.add(String.valueOf(item));
+			DualListElement element = (DualListElement) item;
+			listRight.add(element.getName());
+			arrayRightBackup.add((DualListElement) item);
 		}
 
 		listRefreshRequested.invoke(arrayRight);
@@ -324,18 +327,17 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void reload() {
 		listLeft.removeAll();
 		arrayLeft.clear();
-		for (String item : arrayLeftBackup) {
-			listLeft.add(item);
-			TItem tItem = (TItem) item;
-			arrayLeft.add(tItem);
+		for (DualListElement item : arrayLeftBackup) {
+			listLeft.add(item.getName());
+			arrayLeft.add((TItem) item);
 		}
 
 		listRight.removeAll();
 		arrayRight.clear();
-		for (String item : arrayRightBackup) {
-			listRight.add(item);
+		for (DualListElement item : arrayRightBackup) {
+			listRight.add(item.getName());
 			TItem tItem = (TItem) item;
-			arrayRight.add(tItem);
+			arrayRight.add((TItem) item);
 		}
 
 		listRefreshRequested.invoke(arrayRight);
@@ -483,15 +485,15 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 		if (arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
 
-			TItem score = (TItem) "Score";
-			TItem name = (TItem) "Name";
-			TItem signature = (TItem) "Signature";
-			TItem parentType = (TItem) "Parent Type";
-			TItem path = (TItem) "Path";
-			TItem contextSize = (TItem) "Context Size";
-			TItem position = (TItem) "Position";
-			TItem interactivity = (TItem) "Interactivity";
-			TItem lastAction = (TItem) "Last Action";
+			TItem score = (TItem) new DualListElement("Score",true);  //set to false after UI is completed!
+			TItem name = (TItem) new DualListElement("Name",false);
+			TItem signature = (TItem) new DualListElement("Signature",false);
+			TItem parentType = (TItem) new DualListElement("Parent Type",false);
+			TItem path = (TItem) new DualListElement("Path",false);
+			TItem contextSize = (TItem) new DualListElement("Context Size",false);
+			TItem position = (TItem) new DualListElement("Position",false);
+			TItem interactivity = (TItem) new DualListElement("Interactivity",false);
+			TItem lastAction = (TItem) new DualListElement("Last Action",false);
 
 			leftAdd(score);
 			leftAdd(name);
@@ -512,7 +514,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemIndex = arrayLeft.indexOf(listLeft.getSelection()[0]);
+				itemIndex = listLeft.indexOf(listLeft.getSelection()[0]);
 				whichList = SelectionLocation.LEFT;
 				listRight.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
@@ -525,7 +527,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listRight.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemIndex = arrayRight.indexOf(listRight.getSelection()[0]);
+				itemIndex = listRight.indexOf(listRight.getSelection()[0]);
 				whichList = SelectionLocation.RIGHT;
 				listLeft.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
