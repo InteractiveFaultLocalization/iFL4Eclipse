@@ -5,12 +5,22 @@ import javax.inject.*;
 
 import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
+import org.eclipse.sed.ifl.control.comparator.ContextSizeComparator;
+import org.eclipse.sed.ifl.control.comparator.InteractivityComparator;
+import org.eclipse.sed.ifl.control.comparator.LastActionComparator;
+import org.eclipse.sed.ifl.control.comparator.NameComparator;
+import org.eclipse.sed.ifl.control.comparator.ParentTypeComparator;
+import org.eclipse.sed.ifl.control.comparator.PathComparator;
+import org.eclipse.sed.ifl.control.comparator.PositionComparator;
+import org.eclipse.sed.ifl.control.comparator.ScoreComparator;
+import org.eclipse.sed.ifl.control.comparator.SignatureComparator;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.SWT;
@@ -23,6 +33,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.wb.swt.ResourceManager;
 
 enum SelectionLocation {
 	LEFT, RIGHT, UNSELECTED
@@ -42,7 +53,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	private static ArrayList<DualListElement> arrayLeftBackup = new ArrayList<>();
 	private static ArrayList<DualListElement> arrayRightBackup = new ArrayList<>();
-	
+
 	private static Boolean orderingEnabled = false;
 
 	private TItem selectedItem;
@@ -51,6 +62,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private SelectionLocation whichList;
 	private int itemIndex;
 	private ItemMoveObject<TItem> moveItem;
+	private DualListElement currentElement;
 
 	@FunctionalInterface
 	public interface elementStringer<TItem> {
@@ -60,7 +72,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Label leftLabel;
 	private Label rightLabel;
 	private Label infoLabel;
-	private Label activatedLabel;
+	private Label descendingLabel;
 	private List listLeft;
 	private List listRight;
 	private Button allRight;
@@ -71,6 +83,23 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Button oneDown;
 	private Button allLeft;
 	private Button allDown;
+	private Button scoreToggle;
+	private Button nameToggle;
+	private Button signatureToggle;
+	private Button parentTypeToggle;
+	private Button pathToggle;
+	private Button contextSizeToggle;
+	private Button positionToggle;
+	private Button interactivityToggle;
+	private Button lastActionToggle;
+	private Image allRightImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_right.png");
+	private Image allLeftImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_left.png");
+	private Image allUpImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_top.png");
+	private Image allDownImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_bottom.png");
+	private Image oneRightImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_right.png");
+	private Image oneLeftImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_left.png");
+	private Image oneUpImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_up.png");
+	private Image oneDownImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_down.png");
 	private GridLayout gridLayout;
 
 	public DualListPart() {
@@ -80,6 +109,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	private void addUIElements(Composite parent) {
 		selectedItem = null;
+		currentElement = null;
 		newIndex = 0;
 		swap = null;
 		whichList = SelectionLocation.UNSELECTED;
@@ -103,14 +133,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		infoLabel = new Label(parent, SWT.NONE);
 		infoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		infoLabel.setText("Load some defined scores to enable ordering.");
-		
-		new Label(parent, SWT.NONE).setText("");
-		
-		activatedLabel = new Label(parent, SWT.NONE);
-		activatedLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		activatedLabel.setText("Order your scores by (multiple) attributes.");
-		activatedLabel.setVisible(false);
-		
+
 		new Label(parent, SWT.NONE).setText("");
 
 		leftLabel = new Label(parent, SWT.NONE);
@@ -121,7 +144,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		new Label(parent, SWT.NONE).setText("");
 
 		rightLabel = new Label(parent, SWT.NONE);
-		rightLabel.setText("Sorting order");
+		rightLabel.setText("Attributes");
 		rightLabel.setVisible(false);
 		rightLabel.setData(labelData);
 
@@ -133,7 +156,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listLeft.setEnabled(false);
 
 		allRight = new Button(parent, SWT.PUSH);
-		allRight.setText("--> -->");
+		allRight.setImage(allRightImage);
 		allRight.setLayoutData(buttonData);
 		allRight.setSize(40, 40);
 		allRight.setVisible(false);
@@ -145,54 +168,131 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listRight.setEnabled(false);
 
 		allUp = new Button(parent, SWT.PUSH);
-		allUp.setText("Move to Top");
+		allUp.setImage(allUpImage);
 		allUp.setLayoutData(buttonData);
 		allUp.setSize(40, 40);
 		allUp.setVisible(false);
 		allUp.setEnabled(false);
 
 		oneRight = new Button(parent, SWT.PUSH);
-		oneRight.setText("-->");
+		oneRight.setImage(oneRightImage);
 		oneRight.setLayoutData(buttonData);
 		oneRight.setSize(40, 40);
 		oneRight.setVisible(false);
 		oneRight.setEnabled(false);
 
 		oneUp = new Button(parent, SWT.PUSH);
-		oneUp.setText("One Up");
+		oneUp.setImage(oneUpImage);
 		oneUp.setLayoutData(buttonData);
 		oneUp.setSize(40, 40);
 		oneUp.setVisible(false);
 		oneUp.setEnabled(false);
 
 		oneLeft = new Button(parent, SWT.PUSH);
-		oneLeft.setText("<--");
+		oneLeft.setImage(oneLeftImage);
 		oneLeft.setLayoutData(buttonData);
 		oneLeft.setSize(40, 40);
 		oneLeft.setVisible(false);
 		oneLeft.setEnabled(false);
 
 		oneDown = new Button(parent, SWT.PUSH);
-		oneDown.setText("One Down");
+		oneDown.setImage(oneDownImage);
 		oneDown.setLayoutData(buttonData);
 		oneDown.setSize(40, 40);
 		oneDown.setVisible(false);
 		oneDown.setEnabled(false);
 
 		allLeft = new Button(parent, SWT.PUSH);
-		allLeft.setText("<-- <--");
+		allLeft.setImage(allLeftImage);
 		allLeft.setLayoutData(buttonData);
 		allLeft.setSize(40, 40);
 		allLeft.setVisible(false);
 		allLeft.setEnabled(false);
 
 		allDown = new Button(parent, SWT.PUSH);
-		allDown.setText("Move to bottom");
+		allDown.setImage(allDownImage);
 		allDown.setLayoutData(buttonData);
 		allDown.setSize(40, 40);
 		allDown.setVisible(false);
 		allDown.setEnabled(false);
 
+		new Label(parent, SWT.NONE).setText("");
+
+		new Label(parent, SWT.NONE).setText("");
+
+		descendingLabel = new Label(parent, SWT.NONE);
+		descendingLabel.setData(labelData);
+		descendingLabel.setText("Sort by descending order: ");
+		descendingLabel.setVisible(false);
+
+		new Label(parent, SWT.NONE).setText("");
+
+		new Label(parent, SWT.NONE).setText("");
+
+		new Label(parent, SWT.NONE).setText("");
+
+		scoreToggle = new Button(parent, SWT.TOGGLE);
+		scoreToggle.setText("Score");
+		scoreToggle.setLayoutData(buttonData);
+		scoreToggle.setSize(40, 40);
+		scoreToggle.setVisible(false);
+		scoreToggle.setEnabled(false);
+
+		nameToggle = new Button(parent, SWT.TOGGLE);
+		nameToggle.setText("Name");
+		nameToggle.setLayoutData(buttonData);
+		nameToggle.setSize(40, 40);
+		nameToggle.setVisible(false);
+		nameToggle.setEnabled(false);
+
+		signatureToggle = new Button(parent, SWT.TOGGLE);
+		signatureToggle.setText("Signature");
+		signatureToggle.setLayoutData(buttonData);
+		signatureToggle.setSize(40, 40);
+		signatureToggle.setVisible(false);
+		signatureToggle.setEnabled(false);
+
+		parentTypeToggle = new Button(parent, SWT.TOGGLE);
+		parentTypeToggle.setText("Parent Type");
+		parentTypeToggle.setLayoutData(buttonData);
+		parentTypeToggle.setSize(40, 40);
+		parentTypeToggle.setVisible(false);
+		parentTypeToggle.setEnabled(false);
+
+		pathToggle = new Button(parent, SWT.TOGGLE);
+		pathToggle.setText("Path");
+		pathToggle.setLayoutData(buttonData);
+		pathToggle.setSize(40, 40);
+		pathToggle.setVisible(false);
+		pathToggle.setEnabled(false);
+
+		contextSizeToggle = new Button(parent, SWT.TOGGLE);
+		contextSizeToggle.setText("Context Size");
+		contextSizeToggle.setLayoutData(buttonData);
+		contextSizeToggle.setSize(40, 40);
+		contextSizeToggle.setVisible(false);
+		contextSizeToggle.setEnabled(false);
+
+		positionToggle = new Button(parent, SWT.TOGGLE);
+		positionToggle.setText("Position");
+		positionToggle.setLayoutData(buttonData);
+		positionToggle.setSize(40, 40);
+		positionToggle.setVisible(false);
+		positionToggle.setEnabled(false);
+
+		interactivityToggle = new Button(parent, SWT.TOGGLE);
+		interactivityToggle.setText("Interactivity");
+		interactivityToggle.setLayoutData(buttonData);
+		interactivityToggle.setSize(40, 40);
+		interactivityToggle.setVisible(false);
+		interactivityToggle.setEnabled(false);
+
+		lastActionToggle = new Button(parent, SWT.TOGGLE);
+		lastActionToggle.setText("Last Action");
+		lastActionToggle.setLayoutData(buttonData);
+		lastActionToggle.setSize(40, 40);
+		lastActionToggle.setVisible(false);
+		lastActionToggle.setEnabled(false);
 	}
 
 	@Override
@@ -233,6 +333,14 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	public void setRightLabel(String labelText) {
 		this.rightLabel.setText(labelText);
+	}
+
+	public String getInfpLabel() {
+		return infoLabel.getText();
+	}
+
+	public void setInfoLabel(String labelText) {
+		this.infoLabel.setText(labelText);
 	}
 
 	public String getAllRightText() {
@@ -299,6 +407,78 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		this.allDown.setText(buttonText);
 	}
 
+	public String getScoreToggleText() {
+		return scoreToggle.getText();
+	}
+
+	public void setScoreToggleText(String buttonText) {
+		this.scoreToggle.setText(buttonText);
+	}
+
+	public String getNameToggleText() {
+		return nameToggle.getText();
+	}
+
+	public void setNameToggleText(String buttonText) {
+		this.nameToggle.setText(buttonText);
+	}
+
+	public String getSignatureToggleText() {
+		return signatureToggle.getText();
+	}
+
+	public void setSignatureToggleText(String buttonText) {
+		this.signatureToggle.setText(buttonText);
+	}
+
+	public String getParentTypeToggleText() {
+		return parentTypeToggle.getText();
+	}
+
+	public void setParentTypeToggleText(String buttonText) {
+		this.parentTypeToggle.setText(buttonText);
+	}
+
+	public String getPathToggleText() {
+		return pathToggle.getText();
+	}
+
+	public void setPathToggleText(String buttonText) {
+		this.pathToggle.setText(buttonText);
+	}
+
+	public String getContextSizeToggleText() {
+		return contextSizeToggle.getText();
+	}
+
+	public void setContextSizeToggleText(String buttonText) {
+		this.contextSizeToggle.setText(buttonText);
+	}
+
+	public String getPositionToggleText() {
+		return positionToggle.getText();
+	}
+
+	public void setPositionToggleText(String buttonText) {
+		this.positionToggle.setText(buttonText);
+	}
+
+	public String getInteractivityToggleText() {
+		return interactivityToggle.getText();
+	}
+
+	public void setInteractivityToggleText(String buttonText) {
+		this.interactivityToggle.setText(buttonText);
+	}
+
+	public String getLastActionToggleText() {
+		return lastActionToggle.getText();
+	}
+
+	public void setLastActionToggleText(String buttonText) {
+		this.lastActionToggle.setText(buttonText);
+	}
+
 	public void itemizer(String item) {
 		TItem lElement = (TItem) item;
 		leftAdd(lElement);
@@ -363,9 +543,53 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		this.refresh();
 	}
 
+	public void switchToggle(String argument) {
+		switch (argument) {
+		case "Score":
+			scoreToggle.setVisible(!scoreToggle.getVisible());
+			scoreToggle.setEnabled(!scoreToggle.getEnabled());
+			break;
+		case "Name":
+			nameToggle.setVisible(!nameToggle.getVisible());
+			nameToggle.setEnabled(!nameToggle.getEnabled());
+			break;
+		case "Signature":
+			signatureToggle.setVisible(!signatureToggle.getVisible());
+			signatureToggle.setEnabled(!signatureToggle.getEnabled());
+			break;
+		case "Parent Type":
+			parentTypeToggle.setVisible(!parentTypeToggle.getVisible());
+			parentTypeToggle.setEnabled(!parentTypeToggle.getEnabled());
+			break;
+		case "Path":
+			pathToggle.setVisible(!pathToggle.getVisible());
+			pathToggle.setEnabled(!pathToggle.getEnabled());
+			break;
+		case "Context Size":
+			contextSizeToggle.setVisible(!contextSizeToggle.getVisible());
+			contextSizeToggle.setEnabled(!contextSizeToggle.getEnabled());
+			break;
+		case "Position":
+			positionToggle.setVisible(!positionToggle.getVisible());
+			positionToggle.setEnabled(!positionToggle.getEnabled());
+			break;
+		case "Interactivity":
+			interactivityToggle.setVisible(!interactivityToggle.getVisible());
+			interactivityToggle.setEnabled(!interactivityToggle.getEnabled());
+			break;
+		case "Last Action":
+			lastActionToggle.setVisible(!lastActionToggle.getVisible());
+			lastActionToggle.setEnabled(!lastActionToggle.getEnabled());
+			break;
+		}
+
+	}
+
 	public void moveBetweenAll(ArrayList<TItem> source, ArrayList<TItem> destination) {
 		for (TItem item : source) {
 			destination.add(item);
+			currentElement = (DualListElement) item;
+			switchToggle(currentElement.getName());
 		}
 		source.clear();
 		whichList = SelectionLocation.UNSELECTED;
@@ -378,6 +602,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 													// subtract 1 from size
 		destination.add(selectedItem);
 		source.remove(selectedItem);
+		currentElement = (DualListElement) selectedItem;
+		switchToggle(currentElement.getName());
 		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex, destinationIndex);
 
 	}
@@ -485,15 +711,15 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 		if (arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
 
-			TItem score = (TItem) new DualListElement("Score",true);  //set to false after UI is completed!
-			TItem name = (TItem) new DualListElement("Name",false);
-			TItem signature = (TItem) new DualListElement("Signature",false);
-			TItem parentType = (TItem) new DualListElement("Parent Type",false);
-			TItem path = (TItem) new DualListElement("Path",false);
-			TItem contextSize = (TItem) new DualListElement("Context Size",false);
-			TItem position = (TItem) new DualListElement("Position",false);
-			TItem interactivity = (TItem) new DualListElement("Interactivity",false);
-			TItem lastAction = (TItem) new DualListElement("Last Action",false);
+			TItem score = (TItem) new DualListElement("Score", false); // set to false after UI is completed!
+			TItem name = (TItem) new DualListElement("Name", false);
+			TItem signature = (TItem) new DualListElement("Signature", false);
+			TItem parentType = (TItem) new DualListElement("Parent Type", false);
+			TItem path = (TItem) new DualListElement("Path", false);
+			TItem contextSize = (TItem) new DualListElement("Context Size", false);
+			TItem position = (TItem) new DualListElement("Position", false);
+			TItem interactivity = (TItem) new DualListElement("Interactivity", false);
+			TItem lastAction = (TItem) new DualListElement("Last Action", false);
 
 			leftAdd(score);
 			leftAdd(name);
@@ -552,13 +778,11 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneDown.addListener(SWT.Selection, new moveInsideListListener());
 
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
-		
-		
+
 		if (orderingEnabled.booleanValue()) {
 			enableOrdering();
 		}
-		
-		
+
 	}
 
 	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
@@ -584,20 +808,19 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
 		return moveInsideListRequested;
 	}
-	
-	
+
 	public void enableOrdering() {
-		
-		infoLabel.setVisible(false);
-		activatedLabel.setVisible(true);
+
+		infoLabel.setText("Order your scores by (multiple) attributes.");
 		leftLabel.setVisible(true);
 		rightLabel.setVisible(true);
-		
+		descendingLabel.setVisible(true);
+
 		listLeft.setVisible(true);
 		listLeft.setEnabled(true);
 		listRight.setVisible(true);
 		listRight.setEnabled(true);
-		
+
 		allRight.setVisible(true);
 		allRight.setEnabled(true);
 		oneRight.setVisible(true);
