@@ -59,6 +59,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().add(openFiltersPartListener);
+		ui.eventOpenDualListPage().add(openDualListPartListener);
 		super.init();
 	}
 	
@@ -72,6 +73,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().remove(openFiltersPartListener);
+		ui.eventOpenDualListPage().remove(openDualListPartListener);
 		super.teardown();
 	}
 	
@@ -163,4 +165,14 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
 	
+
+	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
+		return openDualListPart;
+	}
+	
+	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
+	
 }
+

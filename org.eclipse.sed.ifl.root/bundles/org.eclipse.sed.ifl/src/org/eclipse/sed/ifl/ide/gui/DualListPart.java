@@ -5,19 +5,11 @@ import javax.inject.*;
 
 import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
-import org.eclipse.sed.ifl.control.comparator.ContextSizeComparator;
-import org.eclipse.sed.ifl.control.comparator.InteractivityComparator;
-import org.eclipse.sed.ifl.control.comparator.LastActionComparator;
-import org.eclipse.sed.ifl.control.comparator.NameComparator;
-import org.eclipse.sed.ifl.control.comparator.ParentTypeComparator;
-import org.eclipse.sed.ifl.control.comparator.PathComparator;
-import org.eclipse.sed.ifl.control.comparator.PositionComparator;
-import org.eclipse.sed.ifl.control.comparator.ScoreComparator;
-import org.eclipse.sed.ifl.control.comparator.SignatureComparator;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -61,6 +53,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private TItem swap;
 	private SelectionLocation whichList;
 	private int itemIndex;
+	private int toggleIndex;
 	private ItemMoveObject<TItem> moveItem;
 	private DualListElement currentElement;
 
@@ -518,6 +511,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			listRight.add(item.getName());
 			TItem tItem = (TItem) item;
 			arrayRight.add((TItem) item);
+			switchToggle(item.getName());
 		}
 
 		listRefreshRequested.invoke(arrayRight);
@@ -763,6 +757,20 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			}
 		});
 
+		SelectionListener toggleListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button source = (Button) e.getSource();
+				String buttonText = source.getText();
+				toggleIndex = listRight.indexOf(buttonText);
+				currentElement = (DualListElement) arrayRight.get(toggleIndex);
+				currentElement.setDescending(!currentElement.isDescending());
+				arrayRight.set(toggleIndex, (TItem) currentElement);
+				refresh();
+
+			}
+		};
+
 		allRight.addListener(SWT.Selection, new moveBetweenListsListener());
 
 		oneRight.addListener(SWT.Selection, new moveBetweenListsListener());
@@ -778,6 +786,24 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneDown.addListener(SWT.Selection, new moveInsideListListener());
 
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
+
+		scoreToggle.addSelectionListener(toggleListener);
+
+		nameToggle.addSelectionListener(toggleListener);
+
+		signatureToggle.addSelectionListener(toggleListener);
+
+		parentTypeToggle.addSelectionListener(toggleListener);
+
+		pathToggle.addSelectionListener(toggleListener);
+
+		contextSizeToggle.addSelectionListener(toggleListener);
+
+		positionToggle.addSelectionListener(toggleListener);
+
+		interactivityToggle.addSelectionListener(toggleListener);
+
+		lastActionToggle.addSelectionListener(toggleListener);
 
 		if (orderingEnabled.booleanValue()) {
 			enableOrdering();

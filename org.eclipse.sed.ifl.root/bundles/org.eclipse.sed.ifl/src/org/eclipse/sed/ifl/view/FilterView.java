@@ -75,6 +75,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventDeleteRules().add(deleteRulesListener);
 		filterPart.eventSortRuleAdded().add(sortListener);
 		filterPart.eventGetTopTenLimit().add(getTopTenLimitListener);
+		filterPart.eventOpenDualListPage().add(openDualListPartListener);
 	}
 	
 	private void removeUIListeners() {
@@ -85,6 +86,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventDeleteRules().remove(deleteRulesListener);
 		filterPart.eventSortRuleAdded().remove(sortListener);
 		filterPart.eventGetTopTenLimit().remove(getTopTenLimitListener);
+		filterPart.eventOpenDualListPage().remove(openDualListPartListener);
 	}
 	
 	@Override
@@ -191,6 +193,14 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private IListener<SortRule> sortListener = sortRequired::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
+		return openDualListPart;
+	}
+	
+	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
 	
 	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
 	

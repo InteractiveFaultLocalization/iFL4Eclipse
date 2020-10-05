@@ -119,7 +119,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl = new DualListControl<TItem>();
 		dualListControl.setView(new DualListView<TItem>());
 		dualListControl.setModel(new DualListModel());
-		dualListControl.showDualListPart();
 
 		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 		contextBasedOptionCreator.setModel(new ContextBasedOptionCreatorModel());
@@ -148,6 +147,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
 
 		getView().eventOpenFiltersPart().add(openFiltersPage);
+		getView().eventOpenDualListPart().add(openDualListPage);
 
 		filterControl.eventBooleanRuleAdded().add(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().add(newDoubleFilterAddedListener);
@@ -183,6 +183,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
+		getView().eventOpenDualListPart().remove(openDualListPage);
 
 		filterControl.eventBooleanRuleAdded().remove(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().remove(newDoubleFilterAddedListener);
@@ -347,6 +348,10 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private IListener<EmptyEvent> openFiltersPage = event -> {
 		filterControl.showFilterPart();
+	};
+	
+	private IListener<EmptyEvent> openDualListPage = event -> {
+		dualListControl.showDualListPart();
 	};
 
 	public void setHideUndefinedScores(Boolean status) {

@@ -4,6 +4,7 @@ package org.eclipse.sed.ifl.control.score.filter;
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -13,6 +14,8 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.FilterView;
 
 public class FilterControl extends Control<FilterModel, FilterView> {
+	
+	private DualListControl<?> dualListControl;
 	
 	public void showFilterPart() {
 		getView().showFilterPart();
@@ -31,6 +34,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventSortRequired().add(sortListener);
 		getView().eventDeleteRules().add(deleteRulesListener);
 		getView().eventGetTopTenLimit().add(getTopTenLimitListener);
+		getView().eventOpenDualListPart().add(openDualListPage);
 	}
 	
 	public void teardown() {
@@ -41,6 +45,7 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().eventSortRequired().remove(sortListener);
 		getView().eventDeleteRules().remove(deleteRulesListener);
 		getView().eventGetTopTenLimit().remove(getTopTenLimitListener);
+		getView().eventOpenDualListPart().remove(openDualListPage);
 		super.teardown();
 	}
 	
@@ -117,6 +122,10 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
 		return getTopTenLimit;
 	}
+	
+	private IListener<EmptyEvent> openDualListPage = event -> {
+		dualListControl.showDualListPart();
+	};
 	
 	private IListener<EmptyEvent> getTopTenLimitListener = getTopTenLimit::invoke;
 

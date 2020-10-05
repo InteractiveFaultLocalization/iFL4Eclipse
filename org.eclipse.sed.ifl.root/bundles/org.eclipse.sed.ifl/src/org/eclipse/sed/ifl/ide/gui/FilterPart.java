@@ -49,6 +49,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private ScrolledComposite scrolledComposite;
 	private Button resetAllButton;
 	private Composite rulesComposite;
+	private Button showDualListPartButton;
 
 	private static Boolean filterEnabled = false;
 
@@ -134,6 +135,26 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			}
 
 		});
+		
+		showDualListPartButton = new Button(parent, SWT.NONE);
+		showDualListPartButton.setText("Shodw ordering list");
+		showDualListPartButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				openDualListPage.invoke(new EmptyEvent());
+				
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {	
+			}
+			
+		});
+		
+		
+		
+		
 
 		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
 		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
@@ -269,6 +290,12 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
 		return booleanRuleAdded;
+	}
+	
+	private NonGenericListenerCollection<EmptyEvent> openDualListPage = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPage() {
+		return openDualListPage;
 	}
 
 	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
