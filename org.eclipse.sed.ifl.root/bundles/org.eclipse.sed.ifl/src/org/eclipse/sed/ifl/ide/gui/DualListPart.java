@@ -165,12 +165,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		listRight.setVisible(false);
 		listRight.setEnabled(false);
 
-		scoreToggle = new Button(parent, SWT.TOGGLE);
-		scoreToggle.setText("Descending");
-		scoreToggle.setLayoutData(buttonData);
-		scoreToggle.setSize(40, 40);
-		scoreToggle.setVisible(false);
-		scoreToggle.setEnabled(false);
+		
 
 		allUp = new Button(parent, SWT.PUSH);
 		allUp.setImage(allUpImage);
@@ -178,6 +173,13 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allUp.setSize(40, 40);
 		allUp.setVisible(false);
 		allUp.setEnabled(false);
+		
+		scoreToggle = new Button(parent, SWT.TOGGLE);
+		scoreToggle.setText("Descending");
+		scoreToggle.setLayoutData(buttonData);
+		scoreToggle.setSize(40, 40);
+		scoreToggle.setVisible(false);
+		scoreToggle.setEnabled(false);
 
 		oneRight = new Button(parent, SWT.PUSH);
 		oneRight.setImage(oneRightImage);
@@ -186,12 +188,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneRight.setVisible(false);
 		oneRight.setEnabled(false);
 
-		nameToggle = new Button(parent, SWT.TOGGLE);
-		nameToggle.setText("Descending");
-		nameToggle.setLayoutData(buttonData);
-		nameToggle.setSize(40, 40);
-		nameToggle.setVisible(false);
-		nameToggle.setEnabled(false);
 
 		oneUp = new Button(parent, SWT.PUSH);
 		oneUp.setImage(oneUpImage);
@@ -199,6 +195,13 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneUp.setSize(40, 40);
 		oneUp.setVisible(false);
 		oneUp.setEnabled(false);
+		
+		nameToggle = new Button(parent, SWT.TOGGLE);
+		nameToggle.setText("Descending");
+		nameToggle.setLayoutData(buttonData);
+		nameToggle.setSize(40, 40);
+		nameToggle.setVisible(false);
+		nameToggle.setEnabled(false);
 
 		oneLeft = new Button(parent, SWT.PUSH);
 		oneLeft.setImage(oneLeftImage);
@@ -207,6 +210,13 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneLeft.setVisible(false);
 		oneLeft.setEnabled(false);
 
+		oneDown = new Button(parent, SWT.PUSH);
+		oneDown.setImage(oneDownImage);
+		oneDown.setLayoutData(buttonData);
+		oneDown.setSize(40, 40);
+		oneDown.setVisible(false);
+		oneDown.setEnabled(false);
+		
 		signatureToggle = new Button(parent, SWT.TOGGLE);
 		signatureToggle.setText("Descending");
 		signatureToggle.setLayoutData(buttonData);
@@ -214,12 +224,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		signatureToggle.setVisible(false);
 		signatureToggle.setEnabled(false);
 
-		oneDown = new Button(parent, SWT.PUSH);
-		oneDown.setImage(oneDownImage);
-		oneDown.setLayoutData(buttonData);
-		oneDown.setSize(40, 40);
-		oneDown.setVisible(false);
-		oneDown.setEnabled(false);
 
 		allLeft = new Button(parent, SWT.PUSH);
 		allLeft.setImage(allLeftImage);
@@ -228,12 +232,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allLeft.setVisible(false);
 		allLeft.setEnabled(false);
 
-		parentTypeToggle = new Button(parent, SWT.TOGGLE);
-		parentTypeToggle.setText("Descending");
-		parentTypeToggle.setLayoutData(buttonData);
-		parentTypeToggle.setSize(40, 40);
-		parentTypeToggle.setVisible(false);
-		parentTypeToggle.setEnabled(false);
 
 		allDown = new Button(parent, SWT.PUSH);
 		allDown.setImage(allDownImage);
@@ -241,7 +239,15 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allDown.setSize(40, 40);
 		allDown.setVisible(false);
 		allDown.setEnabled(false);
+		
+		parentTypeToggle = new Button(parent, SWT.TOGGLE);
+		parentTypeToggle.setText("Descending");
+		parentTypeToggle.setLayoutData(buttonData);
+		parentTypeToggle.setSize(40, 40);
+		parentTypeToggle.setVisible(false);
+		parentTypeToggle.setEnabled(false);
 
+		new Label(parent, SWT.NONE).setText("");
 		new Label(parent, SWT.NONE).setText("");
 		new Label(parent, SWT.NONE).setText("");
 		new Label(parent, SWT.NONE).setText("");
@@ -525,11 +531,21 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			listRight.add(item.getName());
 			TItem tItem = (TItem) item;
 			arrayRight.add((TItem) item);
-			String argument = "Descending: " + item.getName();
-			switchToggle(argument, listRight.indexOf(item.getName()));
+			buttonRefresh(true);
 		}
 
 		listRefreshRequested.invoke(arrayRight);
+	}
+	
+	public void buttonRefresh(boolean toggle) {
+		for (TItem item : arrayRight) {
+			DualListElement element = (DualListElement) item;
+			String name = element.getName();
+			String argument = "Descending " + name;
+			switchToggle(argument, arrayRight.indexOf(item),toggle);
+		}
+		
+		
 	}
 
 	public void leftAdd(TItem item) {
@@ -552,51 +568,105 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		this.refresh();
 	}
 
-	public void switchToggle(String argument, int position) {
+	public void switchToggle(String argument, int position, boolean toggle) {
 		switch (position) {
 		case 0:
+			if(toggle) {
 			scoreToggle.setVisible(!scoreToggle.getVisible());
 			scoreToggle.setEnabled(!scoreToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			scoreToggle.setText(argument);
 			break;
 		case 1:
+			if(toggle) {
 			nameToggle.setVisible(!nameToggle.getVisible());
 			nameToggle.setEnabled(!nameToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			nameToggle.setText(argument);
 			break;
 		case 2:
+			if(toggle) {
 			signatureToggle.setVisible(!signatureToggle.getVisible());
 			signatureToggle.setEnabled(!signatureToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			signatureToggle.setText(argument);
 			break;
 		case 3:
+			if(toggle) {
 			parentTypeToggle.setVisible(!parentTypeToggle.getVisible());
 			parentTypeToggle.setEnabled(!parentTypeToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			parentTypeToggle.setText(argument);
 			break;
 		case 4:
+			if(toggle) {
 			pathToggle.setVisible(!pathToggle.getVisible());
 			pathToggle.setEnabled(!pathToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			pathToggle.setText(argument);
 			break;
 		case 5:
+			if(toggle) {
 			contextSizeToggle.setVisible(!contextSizeToggle.getVisible());
 			contextSizeToggle.setEnabled(!contextSizeToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			contextSizeToggle.setText(argument);
 			break;
 		case 6:
+			if(toggle) {
 			positionToggle.setVisible(!positionToggle.getVisible());
 			positionToggle.setEnabled(!positionToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			positionToggle.setText(argument);
 			break;
 		case 7:
+			if(toggle) {
 			interactivityToggle.setVisible(!interactivityToggle.getVisible());
 			interactivityToggle.setEnabled(!interactivityToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			interactivityToggle.setText(argument);
 			break;
 		case 8:
+			if(toggle) {
 			lastActionToggle.setVisible(!lastActionToggle.getVisible());
 			lastActionToggle.setEnabled(!lastActionToggle.getEnabled());
+			}
+			else {
+				scoreToggle.setVisible(true);
+				scoreToggle.setEnabled(true);
+			}
 			lastActionToggle.setText(argument);
 			break;
 		}
@@ -608,7 +678,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			destination.add(item);
 			currentElement = (DualListElement) item;
 			String argument = "Descending " + currentElement.getName();
-			switchToggle(argument, source.indexOf(item));
+			switchToggle(argument, source.indexOf(item),true);
 		}
 		source.clear();
 		whichList = SelectionLocation.UNSELECTED;
@@ -632,7 +702,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		currentElement = (DualListElement) selectedItem;
 		String argument = "Descending " + currentElement.getName();
 
-		switchToggle(argument, buttonIndex);
+		switchToggle(argument, buttonIndex,true);
+		buttonRefresh(false);
 		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex, destinationIndex);
 
 	}
@@ -654,6 +725,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		source.set(itemIndex, swap);
 		source.set(newIndex, selectedItem);
 		this.moveItem = new ItemMoveObject<TItem>(source, source, selectedItem, itemIndex, newIndex);
+		buttonRefresh(false);
 		return newIndex;
 	}
 
@@ -809,7 +881,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				case "Signature":
 					toggleIndex = 2;
 					break;
-				case "Parent Type":
+				case "Type":
 					toggleIndex = 3;
 					break;
 				case "Path":
