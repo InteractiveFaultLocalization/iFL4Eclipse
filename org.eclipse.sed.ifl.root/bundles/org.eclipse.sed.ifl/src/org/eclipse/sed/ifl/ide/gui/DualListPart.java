@@ -3,12 +3,16 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.util.ArrayList;
 import javax.inject.*;
 
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -21,7 +25,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
@@ -54,7 +61,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private SelectionLocation whichList;
 	private int itemIndex;
 	private int toggleIndex;
-	private int buttonIndex;
 	private ItemMoveObject<TItem> moveItem;
 	private DualListElement currentElement;
 
@@ -66,8 +72,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Label leftLabel;
 	private Label rightLabel;
 	private Label infoLabel;
-	private List listLeft;
-	private List listRight;
+	private Table tableLeft;
+	private Table tableRight;
 	private Button allRight;
 	private Button allUp;
 	private Button oneRight;
@@ -94,6 +100,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private Image oneUpImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_up.png");
 	private Image oneDownImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_down.png");
 	private GridLayout gridLayout;
+	private TableColumn nameColumn;
+	private TableColumn sortingColumn;
 
 	public DualListPart() {
 		System.out.println("dual list part ctr");
@@ -104,17 +112,18 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		selectedItem = null;
 		currentElement = null;
 		newIndex = 0;
-		buttonIndex = 0;
 		swap = null;
 		whichList = SelectionLocation.UNSELECTED;
 
 		arrayLeft = new ArrayList<TItem>();
 		arrayRight = new ArrayList<TItem>();
 
-		GridData listData = new GridData();
-		listData.horizontalAlignment = SWT.CENTER;
-		listData.verticalAlignment = SWT.FILL;
-		listData.verticalSpan = 16;
+		GridData tableData = new GridData();
+		tableData.grabExcessVerticalSpace = false;
+		tableData.grabExcessHorizontalSpace = true;
+		tableData.verticalAlignment = SWT.FILL;
+		tableData.horizontalAlignment = SWT.FILL;
+		
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -127,8 +136,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		infoLabel = new Label(parent, SWT.NONE);
 		infoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		infoLabel.setText("Load some defined scores to enable ordering.");
-
-		new Label(parent, SWT.NONE).setText("");
 
 		new Label(parent, SWT.NONE).setText("");
 
@@ -145,13 +152,21 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		rightLabel.setData(labelData);
 
 		new Label(parent, SWT.NONE).setText("");
+		
+		TableLayout tableLayout = new TableLayout();
+		tableLayout.addColumnData(new ColumnWeightData(50));
+		
+		TableEditor editorLeft = new TableEditor(tableLeft);
+		TableEditor editorRight = new TableEditor(tableRight);
 
-		new Label(parent, SWT.NONE).setText("");
-
-		listLeft = new List(parent, SWT.V_SCROLL);
-		listLeft.setLayoutData(listData);
-		listLeft.setVisible(false);
-		listLeft.setEnabled(false);
+		tableLeft = new Table(parent, SWT.HIDE_SELECTION | SWT.V_SCROLL);
+		tableLeft.setLayoutData(tableData);
+		tableLeft.setVisible(false);
+		tableLeft.setEnabled(false);
+		tableLeft.setLayout(tableLayout);
+		tableLeft.setLinesVisible(false);
+		tableLeft.setHeaderVisible(false);
+		createTableColumns(tableLeft);
 
 		allRight = new Button(parent, SWT.PUSH);
 		allRight.setImage(allRightImage);
@@ -159,12 +174,17 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allRight.setSize(40, 40);
 		allRight.setVisible(false);
 		allRight.setEnabled(false);
+		
+		tableLayout.addColumnData(new ColumnWeightData(50));
 
-		listRight = new List(parent, SWT.V_SCROLL);
-		listRight.setLayoutData(listData);
-		listRight.setVisible(false);
-		listRight.setEnabled(false);
-
+		tableRight = new Table(parent, SWT.HIDE_SELECTION | SWT.V_SCROLL);
+		tableRight.setLayoutData(tableData);
+		tableRight.setVisible(false);
+		tableRight.setEnabled(false);
+		tableRight.setLayout(tableLayout);
+		tableRight.setLinesVisible(false);
+		tableRight.setHeaderVisible(false);
+		createTableColumns(tableRight);
 		
 
 		allUp = new Button(parent, SWT.PUSH);
@@ -173,13 +193,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allUp.setSize(40, 40);
 		allUp.setVisible(false);
 		allUp.setEnabled(false);
-		
-		scoreToggle = new Button(parent, SWT.TOGGLE);
-		scoreToggle.setText("Descending");
-		scoreToggle.setLayoutData(buttonData);
-		scoreToggle.setSize(40, 40);
-		scoreToggle.setVisible(false);
-		scoreToggle.setEnabled(false);
 
 		oneRight = new Button(parent, SWT.PUSH);
 		oneRight.setImage(oneRightImage);
@@ -188,20 +201,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneRight.setVisible(false);
 		oneRight.setEnabled(false);
 
-
 		oneUp = new Button(parent, SWT.PUSH);
 		oneUp.setImage(oneUpImage);
 		oneUp.setLayoutData(buttonData);
 		oneUp.setSize(40, 40);
 		oneUp.setVisible(false);
 		oneUp.setEnabled(false);
-		
-		nameToggle = new Button(parent, SWT.TOGGLE);
-		nameToggle.setText("Descending");
-		nameToggle.setLayoutData(buttonData);
-		nameToggle.setSize(40, 40);
-		nameToggle.setVisible(false);
-		nameToggle.setEnabled(false);
 
 		oneLeft = new Button(parent, SWT.PUSH);
 		oneLeft.setImage(oneLeftImage);
@@ -216,14 +221,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		oneDown.setSize(40, 40);
 		oneDown.setVisible(false);
 		oneDown.setEnabled(false);
-		
-		signatureToggle = new Button(parent, SWT.TOGGLE);
-		signatureToggle.setText("Descending");
-		signatureToggle.setLayoutData(buttonData);
-		signatureToggle.setSize(40, 40);
-		signatureToggle.setVisible(false);
-		signatureToggle.setEnabled(false);
-
 
 		allLeft = new Button(parent, SWT.PUSH);
 		allLeft.setImage(allLeftImage);
@@ -232,76 +229,71 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		allLeft.setVisible(false);
 		allLeft.setEnabled(false);
 
-
 		allDown = new Button(parent, SWT.PUSH);
 		allDown.setImage(allDownImage);
 		allDown.setLayoutData(buttonData);
 		allDown.setSize(40, 40);
 		allDown.setVisible(false);
 		allDown.setEnabled(false);
-		
+
+		scoreToggle = new Button(parent, SWT.TOGGLE);
+		scoreToggle.setText("Score");
+		scoreToggle.setLayoutData(buttonData);
+		scoreToggle.setSize(40, 40);
+		scoreToggle.setVisible(false);
+		scoreToggle.setEnabled(false);
+
+		nameToggle = new Button(parent, SWT.TOGGLE);
+		nameToggle.setText("Name");
+		nameToggle.setLayoutData(buttonData);
+		nameToggle.setSize(40, 40);
+		nameToggle.setVisible(false);
+		nameToggle.setEnabled(false);
+
+		signatureToggle = new Button(parent, SWT.TOGGLE);
+		signatureToggle.setText("Signature");
+		signatureToggle.setLayoutData(buttonData);
+		signatureToggle.setSize(40, 40);
+		signatureToggle.setVisible(false);
+		signatureToggle.setEnabled(false);
+
 		parentTypeToggle = new Button(parent, SWT.TOGGLE);
-		parentTypeToggle.setText("Descending");
+		parentTypeToggle.setText("Parent Type");
 		parentTypeToggle.setLayoutData(buttonData);
 		parentTypeToggle.setSize(40, 40);
 		parentTypeToggle.setVisible(false);
 		parentTypeToggle.setEnabled(false);
 
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-
 		pathToggle = new Button(parent, SWT.TOGGLE);
-		pathToggle.setText("Descending");
+		pathToggle.setText("Path");
 		pathToggle.setLayoutData(buttonData);
 		pathToggle.setSize(40, 40);
 		pathToggle.setVisible(false);
 		pathToggle.setEnabled(false);
 
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-
 		contextSizeToggle = new Button(parent, SWT.TOGGLE);
-		contextSizeToggle.setText("Descending");
+		contextSizeToggle.setText("Context Size");
 		contextSizeToggle.setLayoutData(buttonData);
 		contextSizeToggle.setSize(40, 40);
 		contextSizeToggle.setVisible(false);
 		contextSizeToggle.setEnabled(false);
 
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-
 		positionToggle = new Button(parent, SWT.TOGGLE);
-		positionToggle.setText("Descending");
+		positionToggle.setText("Position");
 		positionToggle.setLayoutData(buttonData);
 		positionToggle.setSize(40, 40);
 		positionToggle.setVisible(false);
 		positionToggle.setEnabled(false);
 
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-
 		interactivityToggle = new Button(parent, SWT.TOGGLE);
-		interactivityToggle.setText("Descending");
+		interactivityToggle.setText("Interactivity");
 		interactivityToggle.setLayoutData(buttonData);
 		interactivityToggle.setSize(40, 40);
 		interactivityToggle.setVisible(false);
 		interactivityToggle.setEnabled(false);
 
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-		new Label(parent, SWT.NONE).setText("");
-
 		lastActionToggle = new Button(parent, SWT.TOGGLE);
-		lastActionToggle.setText("Descending");
+		lastActionToggle.setText("Last Action");
 		lastActionToggle.setLayoutData(buttonData);
 		lastActionToggle.setSize(40, 40);
 		lastActionToggle.setVisible(false);
@@ -496,56 +488,63 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		TItem lElement = (TItem) item;
 		leftAdd(lElement);
 	}
+	
+	private void createTableColumns(Table table) {
+		nameColumn = new TableColumn(table, SWT.LEFT);
+		nameColumn.setText("Attributes");
+		nameColumn.setResizable(false);
+		nameColumn.setWidth(50);
+		
+		if(table == tableRight) {
+		sortingColumn = new TableColumn(table, SWT.LEFT);
+		sortingColumn.setText("Sorting Order");
+		sortingColumn.setResizable(false);
+		sortingColumn.setWidth(50);
+		}
+	}
 
 	public void refresh() {
-		listLeft.removeAll();
+		tableLeft.removeAll();
 		arrayLeftBackup.clear();
 		for (TItem item : arrayLeft) {
 			DualListElement element = (DualListElement) item;
-			listLeft.add(element.getName());
-			arrayLeftBackup.add((DualListElement) item);
+			TableItem tableItem = new TableItem(tableLeft, SWT.NULL);;
+			tableItem.setText(tableLeft.indexOf(nameColumn), element.getName());
+			arrayLeftBackup.add(element);
 		}
 
-		listRight.removeAll();
+		tableRight.removeAll();
 		arrayRightBackup.clear();
 		for (TItem item : arrayRight) {
 			DualListElement element = (DualListElement) item;
-			listRight.add(element.getName());
-			arrayRightBackup.add((DualListElement) item);
+			TableItem tableItem = new TableItem(tableRight, SWT.NULL);
+			tableItem.setText(tableRight.indexOf(nameColumn), element.getName());
+			arrayRightBackup.add(element);
 		}
 
 		listRefreshRequested.invoke(arrayRight);
 	}
 
 	public void reload() {
-		listLeft.removeAll();
+		tableLeft.removeAll();
 		arrayLeft.clear();
 		for (DualListElement item : arrayLeftBackup) {
-			listLeft.add(item.getName());
+			TableItem tableItem = new TableItem(tableLeft, SWT.NULL);;
+			tableItem.setText(tableLeft.indexOf(nameColumn), item.getName());
 			arrayLeft.add((TItem) item);
 		}
 
-		listRight.removeAll();
+		tableRight.removeAll();
 		arrayRight.clear();
 		for (DualListElement item : arrayRightBackup) {
-			listRight.add(item.getName());
+			TableItem tableItem = new TableItem(tableRight, SWT.NULL);
+			tableItem.setText(tableRight.indexOf(nameColumn), item.getName());
 			TItem tItem = (TItem) item;
 			arrayRight.add((TItem) item);
-			buttonRefresh(true);
+			switchToggle(item.getName());
 		}
 
 		listRefreshRequested.invoke(arrayRight);
-	}
-	
-	public void buttonRefresh(boolean toggle) {
-		for (TItem item : arrayRight) {
-			DualListElement element = (DualListElement) item;
-			String name = element.getName();
-			String argument = "Descending " + name;
-			switchToggle(argument, arrayRight.indexOf(item),toggle);
-		}
-		
-		
 	}
 
 	public void leftAdd(TItem item) {
@@ -568,106 +567,43 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		this.refresh();
 	}
 
-	public void switchToggle(String argument, int position, boolean toggle) {
-		switch (position) {
-		case 0:
-			if(toggle) {
+	public void switchToggle(String argument) {
+		switch (argument) {
+		case "Score":
 			scoreToggle.setVisible(!scoreToggle.getVisible());
 			scoreToggle.setEnabled(!scoreToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			scoreToggle.setText(argument);
 			break;
-		case 1:
-			if(toggle) {
+		case "Name":
 			nameToggle.setVisible(!nameToggle.getVisible());
 			nameToggle.setEnabled(!nameToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			nameToggle.setText(argument);
 			break;
-		case 2:
-			if(toggle) {
+		case "Signature":
 			signatureToggle.setVisible(!signatureToggle.getVisible());
 			signatureToggle.setEnabled(!signatureToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			signatureToggle.setText(argument);
 			break;
-		case 3:
-			if(toggle) {
+		case "Parent Type":
 			parentTypeToggle.setVisible(!parentTypeToggle.getVisible());
 			parentTypeToggle.setEnabled(!parentTypeToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			parentTypeToggle.setText(argument);
 			break;
-		case 4:
-			if(toggle) {
+		case "Path":
 			pathToggle.setVisible(!pathToggle.getVisible());
 			pathToggle.setEnabled(!pathToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			pathToggle.setText(argument);
 			break;
-		case 5:
-			if(toggle) {
+		case "Context Size":
 			contextSizeToggle.setVisible(!contextSizeToggle.getVisible());
 			contextSizeToggle.setEnabled(!contextSizeToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			contextSizeToggle.setText(argument);
 			break;
-		case 6:
-			if(toggle) {
+		case "Position":
 			positionToggle.setVisible(!positionToggle.getVisible());
 			positionToggle.setEnabled(!positionToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			positionToggle.setText(argument);
 			break;
-		case 7:
-			if(toggle) {
+		case "Interactivity":
 			interactivityToggle.setVisible(!interactivityToggle.getVisible());
 			interactivityToggle.setEnabled(!interactivityToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			interactivityToggle.setText(argument);
 			break;
-		case 8:
-			if(toggle) {
+		case "Last Action":
 			lastActionToggle.setVisible(!lastActionToggle.getVisible());
 			lastActionToggle.setEnabled(!lastActionToggle.getEnabled());
-			}
-			else {
-				scoreToggle.setVisible(true);
-				scoreToggle.setEnabled(true);
-			}
-			lastActionToggle.setText(argument);
 			break;
 		}
 
@@ -677,8 +613,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		for (TItem item : source) {
 			destination.add(item);
 			currentElement = (DualListElement) item;
-			String argument = "Descending " + currentElement.getName();
-			switchToggle(argument, source.indexOf(item),true);
+			switchToggle(currentElement.getName());
 		}
 		source.clear();
 		whichList = SelectionLocation.UNSELECTED;
@@ -689,21 +624,10 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		selectedItem = source.get(itemIndex);
 		int destinationIndex = destination.size(); // since size is calculated before adding item, we don't need to
 													// subtract 1 from size
-		if (source == arrayLeft) {
-			buttonIndex = destinationIndex;
-		}
-
-		else {
-			buttonIndex = itemIndex;
-		}
-
 		destination.add(selectedItem);
 		source.remove(selectedItem);
 		currentElement = (DualListElement) selectedItem;
-		String argument = "Descending " + currentElement.getName();
-
-		switchToggle(argument, buttonIndex,true);
-		buttonRefresh(false);
+		switchToggle(currentElement.getName());
 		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex, destinationIndex);
 
 	}
@@ -725,11 +649,10 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		source.set(itemIndex, swap);
 		source.set(newIndex, selectedItem);
 		this.moveItem = new ItemMoveObject<TItem>(source, source, selectedItem, itemIndex, newIndex);
-		buttonRefresh(false);
 		return newIndex;
 	}
 
-	public void refreshSelectionBetweenOne(List source, List destination) {
+	public void refreshSelectionBetweenOne(Table source, Table destination) {
 		DualListPart.this.refresh();
 		source.setSelection(-1);
 		int newSelection = destination.getItemCount() - 1;
@@ -754,13 +677,13 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				case LEFT:
 					moveBetweenOne(arrayLeft, arrayRight, itemIndex);
 					whichList = SelectionLocation.RIGHT;
-					refreshSelectionBetweenOne(listLeft, listRight);
+					refreshSelectionBetweenOne(tableLeft, tableRight);
 					itemIndex = arrayRight.size() - 1;
 					break;
 				case RIGHT:
 					moveBetweenOne(arrayRight, arrayLeft, itemIndex);
 					whichList = SelectionLocation.LEFT;
-					refreshSelectionBetweenOne(listRight, listLeft);
+					refreshSelectionBetweenOne(tableRight, tableLeft);
 					itemIndex = arrayLeft.size() - 1;
 					break;
 				}
@@ -783,14 +706,14 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			case LEFT: {
 				newIndex = moveInside(arrayLeft, itemIndex, selectedButton);
 				DualListPart.this.refresh();
-				listLeft.setSelection(newIndex);
+				tableLeft.setSelection(newIndex);
 				itemIndex = newIndex;
 				break;
 			}
 			case RIGHT:
 				newIndex = moveInside(arrayRight, itemIndex, selectedButton);
 				DualListPart.this.refresh();
-				listRight.setSelection(newIndex);
+				tableRight.setSelection(newIndex);
 				itemIndex = newIndex;
 				break;
 			}
@@ -804,7 +727,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void createPartControl(Composite parent) {
 
 		gridLayout = new GridLayout();
-		gridLayout.numColumns = 5;
+		gridLayout.numColumns = 4;
 		gridLayout.makeColumnsEqualWidth = false;
 		composite = parent;
 		composite.setLayout(gridLayout);
@@ -812,7 +735,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 		if (arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
 
-			TItem score = (TItem) new DualListElement("Score", false);
+			TItem score = (TItem) new DualListElement("Score", false); // set to false after UI is completed!
 			TItem name = (TItem) new DualListElement("Name", false);
 			TItem signature = (TItem) new DualListElement("Signature", false);
 			TItem parentType = (TItem) new DualListElement("Parent Type", false);
@@ -838,12 +761,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			this.reload();
 		}
 
-		listLeft.addSelectionListener(new SelectionListener() {
+		tableLeft.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemIndex = listLeft.indexOf(listLeft.getSelection()[0]);
+				itemIndex = tableLeft.indexOf(tableLeft.getSelection()[0]);
 				whichList = SelectionLocation.LEFT;
-				listRight.setSelection(-1);
+				tableRight.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
 			}
 
@@ -851,12 +774,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			}
 		});
 
-		listRight.addSelectionListener(new SelectionListener() {
+		tableRight.addSelectionListener(new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent event) {
-				itemIndex = listRight.indexOf(listRight.getSelection()[0]);
+				itemIndex = tableRight.indexOf(tableRight.getSelection()[0]);
 				whichList = SelectionLocation.RIGHT;
-				listLeft.setSelection(-1);
+				tableLeft.setSelection(-1);
 				selectionRequested.invoke(itemIndex);
 			}
 
@@ -869,38 +792,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			public void widgetSelected(SelectionEvent e) {
 				Button source = (Button) e.getSource();
 				String buttonText = source.getText();
-
-				switch (buttonText) {
-
-				case "Score":
-					toggleIndex = 0;
-					break;
-				case "Name":
-					toggleIndex = 1;
-					break;
-				case "Signature":
-					toggleIndex = 2;
-					break;
-				case "Type":
-					toggleIndex = 3;
-					break;
-				case "Path":
-					toggleIndex = 4;
-					break;
-				case "Context Size":
-					toggleIndex = 5;
-					break;
-				case "Position":
-					toggleIndex = 6;
-					break;
-				case "Interactivity":
-					toggleIndex = 7;
-					break;
-				case "Last Action":
-					toggleIndex = 8;
-					break;
-				}
-
+				TableItem tableItem = new TableItem(tableRight, SWT.NULL);
+				tableItem.setText(buttonText);
+				toggleIndex = tableRight.indexOf(tableItem);
 				currentElement = (DualListElement) arrayRight.get(toggleIndex);
 				currentElement.setDescending(!currentElement.isDescending());
 				arrayRight.set(toggleIndex, (TItem) currentElement);
@@ -979,10 +873,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		leftLabel.setVisible(true);
 		rightLabel.setVisible(true);
 
-		listLeft.setVisible(true);
-		listLeft.setEnabled(true);
-		listRight.setVisible(true);
-		listRight.setEnabled(true);
+		tableLeft.setVisible(true);
+		tableLeft.setEnabled(true);
+		tableLeft.setLinesVisible(true);
+		tableRight.setVisible(true);
+		tableRight.setEnabled(true);
+		tableRight.setLinesVisible(true);
 
 		allRight.setVisible(true);
 		allRight.setEnabled(true);
@@ -1012,4 +908,5 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void dispose() {
 		this.getSite().getPage().hideView(this);
 	}
+	
 }
