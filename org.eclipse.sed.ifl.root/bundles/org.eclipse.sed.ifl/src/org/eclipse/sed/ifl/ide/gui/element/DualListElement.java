@@ -2,13 +2,13 @@ package org.eclipse.sed.ifl.ide.gui.element;
 
 
 
-public class DualListElement {
+public class DualListElement<TItem> {
 	
 	private String name;
 	private boolean descending;
 	
-	public DualListElement(String name, boolean descending) {
-		this.name = name;
+	public DualListElement(TItem item, boolean descending) {
+		this.name = item.toString();
 		this.descending = descending;
 	}
 	
