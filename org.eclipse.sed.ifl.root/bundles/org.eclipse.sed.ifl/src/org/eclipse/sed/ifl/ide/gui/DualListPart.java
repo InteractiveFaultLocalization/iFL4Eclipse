@@ -17,15 +17,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
-import org.eclipse.sed.ifl.control.comparator.ContextSizeComparator;
-import org.eclipse.sed.ifl.control.comparator.InteractivityComparator;
-import org.eclipse.sed.ifl.control.comparator.LastActionComparator;
-import org.eclipse.sed.ifl.control.comparator.NameComparator;
-import org.eclipse.sed.ifl.control.comparator.ParentTypeComparator;
-import org.eclipse.sed.ifl.control.comparator.PathComparator;
-import org.eclipse.sed.ifl.control.comparator.PositionComparator;
-import org.eclipse.sed.ifl.control.comparator.ScoreComparator;
-import org.eclipse.sed.ifl.control.comparator.SignatureComparator;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -43,7 +34,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -80,7 +70,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	private int itemIndex;
 	private int toggleIndex;
 	private ItemMoveObject<TItem> moveItem;
-	private DualListElement currentElement;
+	private DualListElement<TItem> currentElement;
 
 	@FunctionalInterface
 	public interface elementStringer<TItem> {
@@ -172,7 +162,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		columnLeftName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				DualListElement dualElement = (DualListElement) element;
+				DualListElement<Object> dualElement = new DualListElement<Object>(element,false);
 				return dualElement.getName();
 			}
 		});
@@ -196,7 +186,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		columnRightName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				DualListElement dualElement = (DualListElement) element;
+				DualListElement<Object> dualElement = new DualListElement<Object>(element,false);
 				return dualElement.getName();
 			}
 		});
@@ -207,7 +197,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			public void update(ViewerCell cell) {
 
 				TableItem item = (TableItem) cell.getItem();
-				DualListElement dualElement = (DualListElement) cell.getElement();
+				DualListElement<Object> dualElement = new DualListElement<Object>(cell.getElement(),false);
 				Button button;
 				button = new Button((Composite) cell.getViewerRow().getControl(),SWT.TOGGLE);
 				switch (dualElement.getName()) {
@@ -618,7 +608,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 	public void moveBetweenAll(ArrayList<TItem> source, ArrayList<TItem> destination) {
 		for (TItem item : source) {
 			destination.add(item);
-			currentElement = (DualListElement) item;
+			currentElement = new DualListElement<TItem>(item,false);
 			// switchToggle(currentElement.getName());
 		}
 		source.clear();
@@ -632,7 +622,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 													// subtract 1 from size
 		destination.add(selectedItem);
 		source.remove(selectedItem);
-		currentElement = (DualListElement) selectedItem;
+		currentElement = new DualListElement<TItem>(selectedItem,false);
 		// switchToggle(currentElement.getName());
 		this.moveItem = new ItemMoveObject<TItem>(source, destination, selectedItem, itemIndex, destinationIndex);
 
@@ -741,15 +731,15 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 		if (arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
 
-			DualListElement score = new DualListElement("Score", false); // set to false after UI is completed!
-			DualListElement name = new DualListElement("Name", false);
-			DualListElement signature = new DualListElement("Signature", false);
-			DualListElement parentType = new DualListElement("Parent Type", false);
-			DualListElement path = new DualListElement("Path", false);
-			DualListElement contextSize = new DualListElement("Context Size", false);
-			DualListElement position = new DualListElement("Position", false);
-			DualListElement interactivity = new DualListElement("Interactivity", false);
-			DualListElement lastAction = new DualListElement("Last Action", false);
+			DualListElement<String> score = new DualListElement<String>("Score", false); // set to false after UI is completed!
+			DualListElement<String> name = new DualListElement<String>("Name", false);
+			DualListElement<String> signature = new DualListElement<String>("Signature", false);
+			DualListElement<String> parentType = new DualListElement<String>("Parent Type", false);
+			DualListElement<String> path = new DualListElement<String>("Path", false);
+			DualListElement<String> contextSize = new DualListElement<String>("Context Size", false);
+			DualListElement<String> position = new DualListElement<String>("Position", false);
+			DualListElement<String> interactivity = new DualListElement<String>("Interactivity", false);
+			DualListElement<String> lastAction = new DualListElement<String>("Last Action", false);
 
 			arrayLeftBackup.add(score);
 			arrayLeftBackup.add(name);
