@@ -7,10 +7,11 @@ public class DualListElement<TItem> {
 	private String name;
 	private boolean descending;
 	
-	public DualListElement(TItem item, boolean descending) {
+	public DualListElement(TItem item, boolean descending) {	
 		this.name = item.toString();
 		this.descending = descending;
 	}
+	
 	
 	public String getName() {
 		return name;
