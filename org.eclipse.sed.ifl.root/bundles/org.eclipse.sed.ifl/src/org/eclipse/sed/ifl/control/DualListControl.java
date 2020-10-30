@@ -1,7 +1,10 @@
 package org.eclipse.sed.ifl.control;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sed.ifl.control.Control;
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -16,65 +19,65 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 
 	public void init() {
 		initUIListeners();
+		initModelListeners();
 		super.init();
 	}
 
 	public void teardown() {
 		removeUIListeners();
+		removeModelListeners();
 		super.teardown();
 	}
 
 	private void initUIListeners() {
-		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
-		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
-		getView().eventSelectionRequested().add(selectionRequestedListener);
-		getView().eventListRefreshRequested().add(listRefreshRequestedListener);
-
+		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
+		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 	}
 
-	public void removeUIListeners() {
-		getView().eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
-		getView().eventMoveInsideListRequested().add(moveInsideListRequestedListener);
-		getView().eventSelectionRequested().remove(selectionRequestedListener);
-		getView().eventListRefreshRequested().remove(listRefreshRequestedListener);
-
+	private void initModelListeners() {
+		getModel().eventAttributeListChanged().add(attributeListRefreshRequestedListener);
+		getModel().eventSortingListChanged().add(sortingListRefreshRequestedListener);
 	}
-
 	
+	public void removeUIListeners() {
+		getView().eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
+		getView().eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
+	}
+	
+	public void removeModelListeners() {
+		getModel().eventAttributeListChanged().remove(attributeListRefreshRequestedListener);
+		getModel().eventSortingListChanged().remove(sortingListRefreshRequestedListener);
+	}
+
 	public void enableOrdering() {
 		getView().enableOrdering();
 	}
 	
-	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ArrayList> eventlistRefreshRequested() {
-		return listRefreshRequested;
+	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+		return attributeListRefreshRequested;
 	}
 
-	private IListener<ArrayList> listRefreshRequestedListener = listRefreshRequested::invoke;
+	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = attributeListRefreshRequested::invoke;
 	
-	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
-		return selectionRequested;
+	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+		return sortingListRefreshRequested;
 	}
-
-	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
-
-	private NonGenericListenerCollection<ItemMoveObject> moveBetweenListsRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveBetweenListsRequested() {
-		return moveBetweenListsRequested;
-	}
-
-	private IListener<ItemMoveObject> moveBetweenListsRequestedListener = moveBetweenListsRequested::invoke;
-
-	private NonGenericListenerCollection<ItemMoveObject> moveInsideListRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
-		return moveInsideListRequested;
-	}
-
-	private IListener<ItemMoveObject> moveInsideListRequestedListener = moveInsideListRequested::invoke;
-
+	
+	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
+	
+	private IListener<valami> attributeListChangeRequestedListener = event -> {
+		//TODO: bejövõ event megmondja, hogy milyen item hova lett mozgatva, és itt lenne a logika, ami összerakja az új listát
+		ArrayList<SortingArg> newAttributeList = new ArrayList<SortingArg>();
+		getModel().setAttributeList(newAttributeList);
+	};
+	
+	private IListener<valami> sortingListChangeRequestedListener = event -> {
+		//TODO: bejövõ event megmondja, hogy milyen item hova lett mozgatva, és itt lenne a logika, ami összerakja az új listát
+		ArrayList<SortingArg> newSortingList = new ArrayList<SortingArg>();
+		getModel().setSortingList(newSortingList); 
+	};
 }
