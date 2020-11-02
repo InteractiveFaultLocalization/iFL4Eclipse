@@ -21,6 +21,7 @@ import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
@@ -44,36 +45,31 @@ enum SelectionLocation {
 	LEFT, RIGHT, UNSELECTED
 }
 
-public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbedee {
-
+public class DualListPart<TItem extends SortingArg> extends ViewPart implements IEmbeddable, IEmbedee {
+	// generic extends: generic constraints utánanézés.
+	// interface föléfalazása
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
 
 	@Inject
 	IWorkbench workbench;
 
-	private Composite composite;
-
-	private ArrayList<DualListElement<TItem>> arrayLeft = new ArrayList<DualListElement<TItem>>();
-	private ArrayList<DualListElement<TItem>> arrayRight = new ArrayList<DualListElement<TItem>>();
-	private static ArrayList<DualListElement> arrayLeftBackup = new ArrayList<>();
-	private static ArrayList<DualListElement> arrayRightBackup = new ArrayList<>();
-
+	private Composite composite; // DualListElement helyett SortingArg
 	private static Boolean orderingEnabled = false;
-
 	private boolean elementDescending;
-	private DualListElement<TItem> selectedElement;
+	private SortingArg selectedArgument;
 	private DualListElement<TItem> swapElement;
 	private DualListElement<TItem> toggleElement;
 	private int elementIndex;
 	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
 	private List<String> enumNames;
-	private Map<String, Boolean> elementMap = new HashMap<>();
+	private Map<String, Boolean> elementMap = new HashMap<>(); // DualListElement-ként tárolni
+																// Object reference equals-nek utánanézni
 	private SelectionLocation whichList;
 	private String elementName;
 
 	@FunctionalInterface
-	public interface elementStringer<TItem> {
+	public interface HumanReadable<TItem> { // TODO: átnevezés(humanReadable)
 		String getAsString(TItem t);
 	}
 
@@ -109,7 +105,7 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	private void addUIElements(Composite parent) {
 		elementDescending = false;
-		selectedElement = null;
+		selectedArgument = null;
 		swapElement = null;
 		toggleElement = null;
 		elementIndex = 0;
@@ -155,8 +151,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		columnLeftName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				DualListElement<Object> dualElement = (DualListElement<Object>) element;
-				return dualElement.getName();
+				SortingArg sortingElement = (SortingArg) element;
+				return sortingElement.getDomain();
 			}
 		});
 		viewerLeft.getControl().setLayoutData(gridData);
@@ -179,8 +175,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		columnRightName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				DualListElement<Object> dualElement = (DualListElement<Object>) element;
-				return dualElement.getName();
+				SortingArg sortingElement = (SortingArg) element;
+				return sortingElement.getDomain();
 			}
 		});
 		columnRightButton.getColumn().setWidth(200);
@@ -202,7 +198,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 				} else {
 					button.setImage(ascendImage);
 					button.setToolTipText("Ascending");
-				}
+				} // Teljesen új listener, csak a képváltoztatásra
+					// Az event ahonnan jött, azt állítja át
+					// A kép a gomb állapotától függ
 				button.addListener(SWT.TOGGLE, new Listener() {
 					@Override
 					public void handleEvent(Event event) {
@@ -211,7 +209,8 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 						DualListPart.this.elementMap.replace(DualListPart.this.elementName,
 								DualListPart.this.elementDescending);
 						int elementIndex = DualListPart.this.arrayRight.indexOf(toggleElement);
-						DualListPart.this.arrayRight.set(elementIndex, toggleElement);
+						DualListPart.this.arrayRight.set(elementIndex, toggleElement); // TODO: Ezt megcsinálni
+																						// normálisan
 						if (DualListPart.this.elementDescending) {
 							button.setToolTipText("Ascending");
 							button.setImage(ascendImage);
@@ -317,19 +316,10 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite.setParent(parent);
 	}
 
-	public ArrayList<DualListElement<TItem>> getArrayLeft() {
-		return arrayLeft;
-	}
-
-	public ArrayList<DualListElement<TItem>> getArrayRight() {
-		return arrayRight;
-	}
-
-	public String getArrayElementbyIndex(ArrayList<DualListElement<TItem>> source, int extractIndex,
-			elementStringer<TItem> function) {
-		DualListElement<TItem> extractedElement = source.get(extractIndex);
-		String extractedString = extractedElement.getName();
-		return extractedString;
+	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) {
+		TableItem extractedItem = source.getItem(extractIndex);
+		SortingArg argument = (SortingArg) extractedItem.getData();
+		return argument.getDomain();
 	}
 
 	public String getInfoLabel() {
@@ -404,96 +394,9 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		this.allDown.setImage(buttonImage);
 	}
 
-	public void refresh() {
-		tableLeft.removeAll();
-		viewerLeft.setInput(arrayLeft);
-		viewerLeft.refresh();
-
-		tableRight.removeAll();
-		viewerRight.setInput(arrayRight);
-		viewerRight.refresh();
-
-		listRefreshRequested.invoke(arrayLeft);
-		listRefreshRequested.invoke(arrayRight);
-	}
-
-	public void reload() {
-		tableLeft.removeAll();
-		arrayLeft.clear();
-		for (DualListElement element : arrayLeftBackup) {
-			arrayLeft.add(element);
-		}
-		viewerLeft.setInput(arrayLeftBackup);
-
-		tableRight.removeAll();
-		arrayRight.clear();
-		for (DualListElement element : arrayRightBackup) {
-			arrayRight.add(element);
-		}
-		viewerRight.setInput(arrayLeftBackup);
-
-		listRefreshRequested.invoke(arrayLeft);
-		listRefreshRequested.invoke(arrayRight);
-
-	}
-
-	public void leftAdd(TItem item) {
-		DualListElement<TItem> element = new DualListElement<TItem>(item, false);
-		arrayLeft.add(element);
-		elementMap.put(element.getName(), element.isDescending());
-		this.refresh();
-	}
-
-	public void leftRemove(TItem item) {
-		DualListElement<TItem> element = new DualListElement<TItem>(item, false);
-		arrayLeft.remove(element);
-		elementMap.remove(element.getName());
-		this.refresh();
-	}
-
-	public void rightAdd(TItem item) {
-		DualListElement<TItem> element = new DualListElement<TItem>(item, false);
-		arrayRight.add(element);
-		elementMap.put(elementName, element.isDescending());
-		this.refresh();
-	}
-
-	public void rightRemove(TItem item) {
-		DualListElement<TItem> element = new DualListElement<TItem>(item, false);
-		arrayRight.remove(element);
-		elementMap.remove(element.getName());
-		this.refresh();
-	}
-
-	public void moveBetweenAll(ArrayList<DualListElement<TItem>> source,
-			ArrayList<DualListElement<TItem>> destination) {
-		for (DualListElement<TItem> element : source) {
-			destination.add(element);
-			// switchToggle(currentElement.getName());
-		}
-		source.clear();
-		whichList = SelectionLocation.UNSELECTED;
-
-	}
-
-	public ItemMoveObject<TItem> moveBetweenOne(ArrayList<DualListElement<TItem>> source,
-			ArrayList<DualListElement<TItem>> destination, int elementIndex) {
-		selectedElement = source.get(elementIndex);
-		int destinationIndex = destination.size();
-		destination.add(selectedElement);
-		source.remove(selectedElement);
-		// switchToggle(currentElement.getName());
-		ItemMoveObject<TItem> itemMoveObject;
-		itemMoveObject = new ItemMoveObject<TItem>(source, destination, selectedElement, elementIndex,
-				destinationIndex);
-		return itemMoveObject;
-
-	}
-
-	public ItemMoveObject<TItem> moveInside(ArrayList<DualListElement<TItem>> source, int elementIndex,
-			Widget selectedButton) {
-		int length = source.size();
-		selectedElement = source.get(elementIndex);
+	public ItemMoveObject<TItem> moveInside(Table source, int elementIndex, Widget selectedButton) {
+		int length = source.getItemCount();
+		selectedArgument = (SortingArg) source.getItem(elementIndex).getData();
 
 		if (selectedButton.equals(allUp))
 			newIndex = 0;
@@ -504,16 +407,12 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		else if (selectedButton.equals(oneDown))
 			newIndex = elementIndex + 1;
 
-		swapElement = source.get(newIndex);
-		source.set(elementIndex, swapElement);
-		source.set(newIndex, selectedElement);
 		ItemMoveObject<TItem> itemMoveObject;
-		itemMoveObject = new ItemMoveObject<TItem>(source, source, selectedElement, elementIndex, newIndex);
+		itemMoveObject = new ItemMoveObject<TItem>(source, source, selectedArgument, -1, newIndex);
 		return itemMoveObject;
 	}
 
 	public void refreshSelectionBetweenOne(Table source, Table destination) {
-		DualListPart.this.refresh();
 		source.setSelection(-1);
 		int newSelection = destination.getItemCount() - 1;
 		destination.setSelection(newSelection);
@@ -525,33 +424,46 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		public void handleEvent(Event event) {
 
 			if (event.widget.equals(allRight)) {
-				moveBetweenAll(arrayLeft, arrayRight);
-				DualListPart.this.refresh();
+				moveObject = new ItemMoveObject(tableLeft, tableRight, null, -1, -1);
+				sortingListChangeRequestedListener.invoke(moveObject);
+				moveObject = new ItemMoveObject(tableRight, tableLeft, null, -2, -1);
+				attributeListChangeRequestedListener.invoke(moveObject);
+				whichList = SelectionLocation.UNSELECTED;
+
 			} else if (event.widget.equals(allLeft)) {
-				moveBetweenAll(arrayRight, arrayLeft);
-				DualListPart.this.refresh();
+				moveObject = new ItemMoveObject(tableRight, tableLeft, null, -1, -1);
+				attributeListChangeRequestedListener.invoke(moveObject);
+				moveObject = new ItemMoveObject(tableLeft, tableRight, null, -2, -1);
+				sortingListChangeRequestedListener.invoke(moveObject);
+				whichList = SelectionLocation.UNSELECTED;
+
 			} else {
 				switch (whichList) {
 				case UNSELECTED:
 					break;
-				case LEFT:
-					moveObject = moveBetweenOne(arrayLeft, arrayRight, elementIndex);
-					whichList = SelectionLocation.RIGHT;
-					refreshSelectionBetweenOne(tableLeft, tableRight);
-					elementIndex = arrayRight.size() - 1;
-					break;
 				case RIGHT:
-					moveObject = moveBetweenOne(arrayRight, arrayLeft, elementIndex);
+					SortingArg argument = (SortingArg) tableLeft.getItem(elementIndex).getData();
+					int tableSize = tableRight.getItemCount();
+					moveObject = new ItemMoveObject(tableLeft, tableRight, argument, elementIndex, tableSize);
+					sortingListChangeRequestedListener.invoke(moveObject);
+					moveObject = new ItemMoveObject(tableRight, tableLeft, null, -2, elementIndex);
+					attributeListChangeRequestedListener.invoke(moveObject);
+					whichList = SelectionLocation.RIGHT;
+					elementIndex = tableSize;
+					break;
+				case LEFT:
+					SortingArg argument1 = (SortingArg) tableRight.getItem(elementIndex).getData();
+					int tableSize1 = tableLeft.getItemCount();
+					moveObject = new ItemMoveObject(tableRight, tableLeft, argument1, elementIndex, tableSize1);
+					attributeListChangeRequestedListener.invoke(moveObject);
+					moveObject = new ItemMoveObject(tableLeft, tableRight, null, elementIndex, -1);
+					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.LEFT;
-					refreshSelectionBetweenOne(tableRight, tableLeft);
-					elementIndex = arrayLeft.size() - 1;
+					elementIndex = tableSize1;
 					break;
 				}
 			}
 
-			moveBetweenListsRequested.invoke(moveObject); // TODO: DualListControlban átalakító logika(esemény)(String
-															// map
-															// enum)
 			selectionRequested.invoke(elementIndex);
 		}
 	}
@@ -566,20 +478,19 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 			case UNSELECTED:
 				break;
 			case LEFT: {
-				moveObject = moveInside(arrayLeft, elementIndex, selectedButton);
-				DualListPart.this.refresh();
+				moveObject = moveInside(tableLeft, elementIndex, selectedButton);
+				attributeListChangeRequestedListener.invoke(moveObject);
 				tableLeft.setSelection(moveObject.getDestinationIndex());
 				elementIndex = newIndex;
 				break;
 			}
 			case RIGHT:
-				moveObject = moveInside(arrayRight, elementIndex, selectedButton);
-				DualListPart.this.refresh();
+				moveObject = moveInside(tableRight, elementIndex, selectedButton);
+				sortingListChangeRequestedListener.invoke(moveObject);
 				tableRight.setSelection(moveObject.getDestinationIndex());
 				elementIndex = newIndex;
 				break;
 			}
-			moveInsideListRequested.invoke(moveObject);
 			selectionRequested.invoke(moveObject.getDestinationIndex());
 		}
 
@@ -594,28 +505,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 		composite = parent;
 		composite.setLayout(gridLayout);
 		addUIElements(parent);
-
-		if (arrayLeftBackup.isEmpty() && arrayRightBackup.isEmpty()) {
-
-			enumNames = Stream.of(SortingArg.values()).map(Enum::name).collect(Collectors.toList());
-
-			for (String attribute : enumNames) {
-				TItem attributeItem = (TItem) attribute;
-				leftAdd(attributeItem);
-			} // TODO: Part close event(ha van)
-				// TODO: PartAccessor class (megnézni mikor semmisül meg az objektum)
-
-			viewerLeft.setInput(arrayLeft);
-			viewerLeft.refresh();
-			tableLeft = viewerLeft.getTable();
-			viewerRight.refresh();
-			tableRight = viewerRight.getTable();
-
-		}
-
-		else {
-			this.reload();
-		}
 
 		viewerLeft.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
@@ -696,29 +585,34 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	}
 
-	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ArrayList> eventListRefreshRequested() {
-		return listRefreshRequested;
-	}
-
+	
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
 		return selectionRequested;
 	}
 
-	private NonGenericListenerCollection<ItemMoveObject> moveBetweenListsRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> sortingListChangeRequestedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveBetweenListsRequested() {
-		return moveBetweenListsRequested;
+	public INonGenericListenerCollection<ItemMoveObject> eventSortingListRefreshRequested() {
+		return sortingListChangeRequestedListener;
 	}
 
-	private NonGenericListenerCollection<ItemMoveObject> moveInsideListRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<ItemMoveObject> attributeListChangeRequestedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
-		return moveInsideListRequested;
+	public INonGenericListenerCollection<ItemMoveObject> eventAttributeListRefreshRequested() {
+		return attributeListChangeRequestedListener;
 	}
+	
+	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = event -> {
+		viewerRight.setInput(event);
+		viewerRight.refresh();
+	};
+	
+	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = event -> {
+		viewerLeft.setInput(event);
+		viewerLeft.refresh();
+	};
 
 	public void enableOrdering() {
 
@@ -758,15 +652,6 @@ public class DualListPart<TItem> extends ViewPart implements IEmbeddable, IEmbed
 
 	@Override
 	public void dispose() {
-		arrayLeftBackup.clear();
-		for (DualListElement<TItem> element : arrayLeft) {
-			arrayLeftBackup.add(element);
-		}
-
-		arrayRightBackup.clear();
-		for (DualListElement<TItem> element : arrayRight) {
-			arrayRightBackup.add(element);
-		}
 
 		this.getSite().getPage().hideView(this);
 	}
