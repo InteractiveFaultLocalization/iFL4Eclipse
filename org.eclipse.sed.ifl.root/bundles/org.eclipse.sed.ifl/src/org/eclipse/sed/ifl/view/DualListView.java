@@ -1,7 +1,10 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sed.ifl.control.ItemMoveObject;
+import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.DualListPart;
@@ -17,7 +20,8 @@ import org.eclipse.ui.PlatformUI;
 
 public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 
-	private DualListPart<TItem> dualListPart;
+	private DualListPart<TItem> dualListPart; // TODO: DualListPart<TItem extends SortingArg> beállítása, de ez ugyanúgy
+												// nem jó neki :(
 
 	public DualListView() {
 		this.dualListPart = (DualListPart<TItem>) getPart();
@@ -52,17 +56,11 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private void initUIListeners() {
-		dualListPart.eventMoveBetweenListsRequested().add(moveBetweenListsRequestedListener);
-		dualListPart.eventMoveInsideListRequested().add(moveInsideListRequestedListener);
 		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
-		dualListPart.eventListRefreshRequested().add(listRefreshRequestedListener);
 	}
 
 	private void removeUIListeners() {
-		dualListPart.eventMoveBetweenListsRequested().remove(moveBetweenListsRequestedListener);
-		dualListPart.eventMoveInsideListRequested().remove(moveInsideListRequestedListener);
 		dualListPart.eventSelectionRequested().remove(selectionRequestedListener);
-		dualListPart.eventListRefreshRequested().remove(listRefreshRequestedListener);
 	}
 
 	@Override
@@ -87,7 +85,7 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 		}
 		initUIListeners();
 	}
-	
+
 	public void enableOrdering() {
 		dualListPart.enableOrdering();
 	}
@@ -97,14 +95,22 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 			dualListPart.getSite().getPage().hideView(dualListPart);
 		}
 	}
-	
-	private NonGenericListenerCollection<ArrayList> listRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ArrayList> eventListRefreshRequested() {
-		return listRefreshRequested;
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
+		return attributeListChangeRequested;
 	}
-	
-	private IListener<ArrayList> listRefreshRequestedListener = listRefreshRequested::invoke;
+
+	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = attributeListChangeRequested::invoke;
+
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListChangeRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListChangeRequested() {
+		return sortingListChangeRequested;
+	}
+
+	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = sortingListChangeRequested::invoke;
 
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
@@ -113,21 +119,14 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
+	
+	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = event -> {
+		dualListPart.setSortingTable(event);
+	};
+	
+	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = event -> {
+		dualListPart.setAttributeTable(event);
+	};
 
-	private NonGenericListenerCollection<ItemMoveObject> moveBetweenListsRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveBetweenListsRequested() {
-		return moveBetweenListsRequested;
-	}
-
-	private IListener<ItemMoveObject> moveBetweenListsRequestedListener = moveBetweenListsRequested::invoke;
-
-	private NonGenericListenerCollection<ItemMoveObject> moveInsideListRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject> eventMoveInsideListRequested() {
-		return moveInsideListRequested;
-	}
-
-	private IListener<ItemMoveObject> moveInsideListRequestedListener = moveInsideListRequested::invoke;
 
 }

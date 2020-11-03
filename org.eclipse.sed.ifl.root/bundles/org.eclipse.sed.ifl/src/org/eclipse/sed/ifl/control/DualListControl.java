@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.DualListView;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class DualListControl<TItem> extends Control<DualListModel, DualListView> {
 
@@ -31,7 +33,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 	}
 
 	private void initUIListeners() {
-		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
+		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener); //TODO: fix this warning
 		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 	}
 
@@ -70,7 +72,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 
 	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
 
-	private IListener<ItemMoveObject> attributeListChangeRequestedListener = event -> {
+	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> {
 		ArrayList<SortingArg> newAttributeList = new ArrayList<SortingArg>();
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newAttributeList = null;
@@ -93,10 +95,11 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 			newAttributeList = event.getDestinationArray();
 			newAttributeList.add(event.getItem());
 		}
-		getModel().setAttributeList(newAttributeList);
+		ObservableList<SortingArg> newObservableAttributeList = FXCollections.observableArrayList(newAttributeList);
+		getModel().setAttributeList(newObservableAttributeList);
 	};
 
-	private IListener<ItemMoveObject> sortingListChangeRequestedListener = event -> {
+	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
 		ArrayList<SortingArg> newSortingList = new ArrayList<SortingArg>();
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newSortingList = null;
@@ -121,6 +124,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 			newSortingList = event.getDestinationArray();
 			newSortingList.add(event.getItem());
 		}
-		getModel().setSortingList(newSortingList);
+		ObservableList<SortingArg> newObservableSortingList = FXCollections.observableArrayList(newSortingList);
+		getModel().setSortingList(newObservableSortingList);
 	};
 }

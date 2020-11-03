@@ -31,6 +31,7 @@ public class DualListModel extends EmptyModel {
 
 	public void setAttributeList(ObservableList<SortingArg> attributeList) {
 		this.attributeList = attributeList;
+		attributeListChangedListener.invoke(attributeList);
 	}
 
 	public ObservableList<SortingArg> getSortingList() {
@@ -39,6 +40,7 @@ public class DualListModel extends EmptyModel {
 
 	public void setSortingList(ObservableList<SortingArg> sortingList) {
 		this.sortingList = sortingList;
+		sortingListChangedListener.invoke(sortingList);
 	}
 
 	private NonGenericListenerCollection<List<SortingArg>> attributeListChangedListener = new NonGenericListenerCollection<>();
