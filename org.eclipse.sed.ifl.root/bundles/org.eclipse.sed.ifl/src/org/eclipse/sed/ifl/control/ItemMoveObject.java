@@ -1,11 +1,7 @@
 package org.eclipse.sed.ifl.control;
 
 import java.util.ArrayList;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.score.SortingArg;
-import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 

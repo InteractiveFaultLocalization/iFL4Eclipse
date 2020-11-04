@@ -1,7 +1,9 @@
 package org.eclipse.sed.ifl.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -15,6 +17,7 @@ public class DualListModel extends EmptyModel {
 	
 	private ObservableList<SortingArg> attributeList = FXCollections.observableArrayList();
 	private ObservableList<SortingArg> sortingList = FXCollections.observableArrayList();
+	private Map<String,SortingArg> elementMap = new HashMap<>(); 
 	
 	public DualListModel(ArrayList<SortingArg> attributes) {
 		for(SortingArg arg : attributes) {

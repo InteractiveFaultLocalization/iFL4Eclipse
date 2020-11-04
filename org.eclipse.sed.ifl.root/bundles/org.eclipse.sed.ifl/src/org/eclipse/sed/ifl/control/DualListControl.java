@@ -14,7 +14,7 @@ import org.eclipse.sed.ifl.view.DualListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class DualListControl<TItem> extends Control<DualListModel, DualListView> {
+public class DualListControl<TItem> extends Control<DualListModel, DualListView<TItem>> {
 
 	public void showDualListPart() {
 		getView().showDualListPart();
@@ -33,7 +33,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView>
 	}
 
 	private void initUIListeners() {
-		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener); //TODO: fix this warning
+		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener); 
 		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 	}
 

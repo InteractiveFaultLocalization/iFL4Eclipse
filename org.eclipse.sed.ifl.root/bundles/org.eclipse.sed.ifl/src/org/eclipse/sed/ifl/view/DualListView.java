@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.view;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.ItemMoveObject;
@@ -20,11 +20,10 @@ import org.eclipse.ui.PlatformUI;
 
 public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 
-	private DualListPart<TItem> dualListPart; // TODO: DualListPart<TItem extends SortingArg> beállítása, de ez ugyanúgy
-												// nem jó neki :(
+	private DualListPart<? extends SortingArg> dualListPart; 
 
 	public DualListView() {
-		this.dualListPart = (DualListPart<TItem>) getPart();
+		this.dualListPart = (DualListPart<? extends SortingArg>) getPart();
 	}
 
 	private IViewPart getPart() {
@@ -79,7 +78,7 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			this.dualListPart = (DualListPart<TItem>) page.showView(DualListPart.ID);
+			this.dualListPart = (DualListPart<? extends SortingArg>) page.showView(DualListPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open dual list view.");
 		}

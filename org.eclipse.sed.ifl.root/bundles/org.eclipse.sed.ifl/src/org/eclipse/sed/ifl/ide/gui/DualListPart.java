@@ -1,11 +1,7 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.*;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -50,7 +46,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	@Inject
 	IWorkbench workbench;
 
-	private Composite composite; // DualListElement helyett SortingArg
+	private Composite composite;
 	private static Boolean orderingEnabled = false;
 	private boolean elementDescending;
 	private SortingArg selectedArgument;
@@ -60,8 +56,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
 	private List<String> enumNames;
-	private Map<String, Boolean> elementMap = new HashMap<>(); // DualListElement-ként tárolni
-																// Object reference equals-nek utánanézni
+	
+																
 	private SelectionLocation whichList;
 	private String elementName;
 
@@ -185,7 +181,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				TableItem item = (TableItem) cell.getItem();
 				toggleElement = (SortingArg) item.getData();
 				elementName = toggleElement.getDomain();
-				elementDescending = elementMap.get(toggleElement.getDomain());
+				//elementDescending = elementMap.get(toggleElement.getDomain());
 				Button button;
 				button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE); // tagek, eventen belül
 																								// külön.
@@ -203,8 +199,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 					public void handleEvent(Event event) {
 						DualListPart.this.elementDescending = !DualListPart.this.elementDescending;
 						DualListPart.this.toggleElement.setDescending(DualListPart.this.elementDescending);
-						DualListPart.this.elementMap.replace(DualListPart.this.elementName,
-								DualListPart.this.elementDescending);
+						//DualListPart.this.elementMap.replace(DualListPart.this.elementName,
+								//DualListPart.this.elementDescending);
 						//int elementIndex = DualListPart.this.arrayRight.indexOf(toggleElement);
 						//DualListPart.this.arrayRight.set(elementIndex, toggleElement); // TODO: Ezt megcsinálni
 																						// normálisan

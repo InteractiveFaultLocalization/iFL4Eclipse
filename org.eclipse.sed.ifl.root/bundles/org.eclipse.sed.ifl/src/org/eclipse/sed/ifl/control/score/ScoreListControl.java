@@ -19,7 +19,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.bi.faced.MethodScoreHandler;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.DualListControl;
-import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.control.comparator.ChainComparator;
 import org.eclipse.sed.ifl.control.comparator.ContextSizeComparator;
 import org.eclipse.sed.ifl.control.comparator.InteractivityComparator;
@@ -49,8 +48,6 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
-import org.eclipse.sed.ifl.ide.gui.element.DualListElement;
-import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
@@ -77,7 +74,6 @@ import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
-import org.eclipse.sed.ifl.view.DualListView;
 import org.eclipse.sed.ifl.view.FilterView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
@@ -117,8 +113,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		filterControl.setModel(new FilterModel());
 
 		dualListControl = new DualListControl<TItem>();
-		dualListControl.setView(new DualListView<TItem>());
-		dualListControl.setModel(new DualListModel());
+		
 
 		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 		contextBasedOptionCreator.setModel(new ContextBasedOptionCreatorModel());
@@ -157,10 +152,9 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		filterControl.eventGetTopTenLimit().add(getTopTenLimitListener);
 
-		dualListControl.eventMoveBetweenListsRequested().add(moveBetweenListsRequested);
-		dualListControl.eventMoveInsideListRequested().add(moveInsideListRequested);
-		dualListControl.eventSelectionRequested().add(selectionRequested);
-		dualListControl.eventlistRefreshRequested().add(listRefreshRequested);
+		dualListControl.eventAttributeListRefreshRequested().add(attributeListRefreshRequested);
+		dualListControl.eventSortingListRefreshRequested().add(sortingListRefreshRequested);
+		
 
 		getView().eventSortRequired().add(sortListener);
 
@@ -193,10 +187,8 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		filterControl.eventGetTopTenLimit().remove(getTopTenLimitListener);
 
-		dualListControl.eventMoveBetweenListsRequested().remove(moveBetweenListsRequested);
-		dualListControl.eventMoveInsideListRequested().remove(moveInsideListRequested);
-		dualListControl.eventSelectionRequested().remove(selectionRequested);
-		dualListControl.eventlistRefreshRequested().remove(listRefreshRequested);
+		dualListControl.eventAttributeListRefreshRequested().remove(attributeListRefreshRequested);
+		dualListControl.eventSortingListRefreshRequested().remove(sortingListRefreshRequested);
 
 		getView().eventSortRequired().remove(sortListener);
 
@@ -314,15 +306,12 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private SortingArg sorting;
 
-	private IListener<ArrayList> listRefreshRequested = event -> {
-		dualListControl.eventlistRefreshRequested();
+	private IListener<List<SortingArg>> sortingListRefreshRequested = event -> {
+		dualListControl.eventSortingListRefreshRequested();
 		if (event.isEmpty() == false) {
-			for (int i = 0; i < event.size(); i++) {
-				DualListElement element = (DualListElement) event.get(i);
-				String sortString = element.getName();
-				sortString = sortString.replaceAll("\\s", "");
-				sorting = SortingArg.valueOf(sortString);
-				if (sorting.isDescending() != element.isDescending()) {
+			for (SortingArg argument : event) {
+				sorting = argument;
+				if (sorting.isDescending() != argument.isDescending()) {
 					sorting.setDescending(!sorting.isDescending());
 				}
 				previousSorts.add(sorting);
@@ -334,17 +323,12 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		previousSorts.clear();
 	};
 
-	private IListener<ItemMoveObject> moveBetweenListsRequested = event -> {
-		dualListControl.eventMoveBetweenListsRequested();
+	private IListener<List<SortingArg>> attributeListRefreshRequested = event -> {
+		dualListControl.eventAttributeListRefreshRequested();
 	};
 
-	private IListener<ItemMoveObject> moveInsideListRequested = event -> {
-		dualListControl.eventMoveInsideListRequested();
-	};
 
-	private IListener<Integer> selectionRequested = event -> {
-		dualListControl.eventSelectionRequested();
-	};
+	
 
 	private IListener<EmptyEvent> openFiltersPage = event -> {
 		filterControl.showFilterPart();
