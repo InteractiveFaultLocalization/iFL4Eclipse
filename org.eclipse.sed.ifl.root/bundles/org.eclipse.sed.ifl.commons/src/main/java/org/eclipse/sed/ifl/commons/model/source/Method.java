@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.model.source;
+package main.java.org.eclipse.sed.ifl.commons.model.source;
 
 import java.util.ArrayList;
 import java.util.Collections;

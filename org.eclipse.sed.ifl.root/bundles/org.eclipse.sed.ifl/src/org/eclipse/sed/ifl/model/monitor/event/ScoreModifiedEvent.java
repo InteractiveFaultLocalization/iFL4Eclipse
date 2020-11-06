@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.model.monitor.resource.CodeElement;
-
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreModifiedEvent extends Event {
 	public ScoreModifiedEvent(Map<Relativeable<Defineable<Double>>, Map<IMethodDescription, Defineable<Double>>> loggingMap) {

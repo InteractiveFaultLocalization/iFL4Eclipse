@@ -17,7 +17,9 @@ Automatic-Module-Name: org.eclipse.sed.ifl
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  libs/org.eclipse.sed.ifl.dependencies.jar,
- libs/swing2swt.jar
+ libs/swing2swt.jar,
+ libs/org.eclipse.sed.ifl.commons.jar,
+ libs/org.eclipse.sed.ifl.scorelib.jar
 Export-Package: .,
  org.eclipse.sed.ifl.bi.faced,
  org.eclipse.sed.ifl.bi.faced.execution,
@@ -45,7 +47,6 @@ Export-Package: .,
  org.eclipse.sed.ifl.model.score,
  org.eclipse.sed.ifl.model.score.history,
  org.eclipse.sed.ifl.model.session,
- org.eclipse.sed.ifl.model.source,
  org.eclipse.sed.ifl.model.user.identification,
  org.eclipse.sed.ifl.model.user.interaction,
  org.eclipse.sed.ifl.util,

@@ -5,7 +5,8 @@ import java.util.HashMap;
 import org.eclipse.sed.ifl.model.monitor.resource.CodeElement;
 import org.eclipse.sed.ifl.model.monitor.resource.File;
 import org.eclipse.sed.ifl.model.monitor.resource.LineInfo;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class NavigationEvent extends Event {
 

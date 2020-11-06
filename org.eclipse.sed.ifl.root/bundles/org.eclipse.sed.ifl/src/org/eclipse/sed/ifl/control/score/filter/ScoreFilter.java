@@ -4,7 +4,8 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription, Score>> {
 	public ScoreFilter(Boolean enabled) {

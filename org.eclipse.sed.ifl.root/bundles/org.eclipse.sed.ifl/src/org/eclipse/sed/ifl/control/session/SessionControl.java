@@ -28,11 +28,6 @@ import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
-import org.eclipse.sed.ifl.model.source.CodeChunkLocation;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.source.Method;
-import org.eclipse.sed.ifl.model.source.MethodIdentity;
-import org.eclipse.sed.ifl.model.source.Position;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -45,6 +40,12 @@ import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.CodeChunkLocation;
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import main.java.org.eclipse.sed.ifl.commons.model.source.Method;
+import main.java.org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import main.java.org.eclipse.sed.ifl.commons.model.source.Position;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;
