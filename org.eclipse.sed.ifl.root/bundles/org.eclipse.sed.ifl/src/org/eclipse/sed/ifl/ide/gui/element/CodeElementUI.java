@@ -10,9 +10,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.score.history.Monument;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

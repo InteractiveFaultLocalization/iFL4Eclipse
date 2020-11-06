@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.bi.faced.execution.IMavenExecutor;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public abstract class MethodScoreHandler {
 

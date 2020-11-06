@@ -14,11 +14,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.swt.SWT;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 

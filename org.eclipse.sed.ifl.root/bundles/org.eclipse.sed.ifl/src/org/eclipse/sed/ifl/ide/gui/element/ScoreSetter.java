@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -40,6 +39,9 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 import org.eclipse.swt.layout.GridData;
 
 public class ScoreSetter extends Composite {

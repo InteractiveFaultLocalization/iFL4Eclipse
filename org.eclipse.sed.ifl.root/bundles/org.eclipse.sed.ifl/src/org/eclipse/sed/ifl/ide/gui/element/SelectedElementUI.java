@@ -6,6 +6,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -13,7 +15,6 @@ import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;

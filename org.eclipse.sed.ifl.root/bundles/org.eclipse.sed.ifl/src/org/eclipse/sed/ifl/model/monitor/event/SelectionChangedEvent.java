@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.sed.ifl.model.monitor.resource.CodeElement;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
+
+import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class SelectionChangedEvent extends Event {
 
