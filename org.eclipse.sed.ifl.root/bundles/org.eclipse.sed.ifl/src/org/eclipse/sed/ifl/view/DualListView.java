@@ -55,7 +55,7 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private void initUIListeners() {
-		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
+		dualListPart.eventSelectionRequested().add(selectionRequestedListener);		
 	}
 
 	private void removeUIListeners() {
@@ -94,6 +94,14 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 			dualListPart.getSite().getPage().hideView(dualListPart);
 		}
 	}
+	
+	private NonGenericListenerCollection<SortingArg> orderingDirectionChanged = new NonGenericListenerCollection<>();
+	
+	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+		return orderingDirectionChanged;
+	}
+	
+	private IListener<SortingArg> orderingDirectionChangedListener = orderingDirectionChanged::invoke;
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequested = new NonGenericListenerCollection<>();
 

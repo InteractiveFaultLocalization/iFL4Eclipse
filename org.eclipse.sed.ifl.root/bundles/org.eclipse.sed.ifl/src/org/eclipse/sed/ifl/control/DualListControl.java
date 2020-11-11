@@ -35,6 +35,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 	private void initUIListeners() {
 		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener); 
 		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
+		getView().eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
 	}
 
 	private void initModelListeners() {
@@ -45,6 +46,7 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 	public void removeUIListeners() {
 		getView().eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
 		getView().eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
+		getView().eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
 	}
 
 	public void removeModelListeners() {
@@ -55,6 +57,21 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 	public void enableOrdering() {
 		getView().enableOrdering();
 	}
+	
+	private NonGenericListenerCollection<SortingArg> orderingDirectionChanged = new NonGenericListenerCollection<>();
+	
+	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+		return orderingDirectionChanged;
+	}
+	
+	private IListener<SortingArg> orderingDirectionChangedListener = event -> {
+		ObservableList<SortingArg> newSortingList = getModel().getSortingList();
+		SortingArg originalArg = event;
+		originalArg.setDescending(!originalArg.isDescending());
+		int swapIndex = newSortingList.indexOf(originalArg);
+		newSortingList.set(swapIndex,event);
+		getModel().setSortingList(newSortingList);
+	};
 
 	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 

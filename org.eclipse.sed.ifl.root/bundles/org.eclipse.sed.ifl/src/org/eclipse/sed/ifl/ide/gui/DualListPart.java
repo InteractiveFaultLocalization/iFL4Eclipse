@@ -74,6 +74,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	private Button oneDown;
 	private Button allLeft;
 	private Button allDown;
+	private Button currentButton;
 	private GridLayout gridLayout;
 	private Image allRightImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_right.png");
 	private Image allLeftImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_left.png");
@@ -179,46 +180,27 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			public void update(ViewerCell cell) {
 
 				TableItem item = (TableItem) cell.getItem();
-				toggleElement = (SortingArg) item.getData();
-				elementName = toggleElement.getDomain();
-				//elementDescending = elementMap.get(toggleElement.getDomain());
-				Button button;
-				button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE); // tagek, eventen belül
-																								// külön.
-				if (elementDescending) {
-					button.setImage(descendImage);
-					button.setToolTipText(cell.getElement().toString());
-				} else {
-					button.setImage(ascendImage);
-					button.setToolTipText("Ascending");
-				} // Teljesen új listener, csak a képváltoztatásra
-					// Az event ahonnan jött, azt állítja át
-					// A kép a gomb állapotától függ
-				button.addListener(SWT.TOGGLE, new Listener() {
+				toggleElement = (SortingArg) item.getData();;
+				currentButton = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE); 
+				if(!toggleElement.isDescending()) {
+					currentButton.setImage(ascendImage);
+					currentButton.addListener(SWT.Selection, new descendImageSetListener());
+				}
+				else {
+					currentButton.setImage(descendImage);
+					currentButton.addListener(SWT.Selection, new ascendImageSetListener());
+				}
+				currentButton.addListener(SWT.TOGGLE, new Listener() {
 					@Override
 					public void handleEvent(Event event) {
-						DualListPart.this.elementDescending = !DualListPart.this.elementDescending;
-						DualListPart.this.toggleElement.setDescending(DualListPart.this.elementDescending);
-						//DualListPart.this.elementMap.replace(DualListPart.this.elementName,
-								//DualListPart.this.elementDescending);
-						//int elementIndex = DualListPart.this.arrayRight.indexOf(toggleElement);
-						//DualListPart.this.arrayRight.set(elementIndex, toggleElement); // TODO: Ezt megcsinálni
-																						// normálisan
-						if (DualListPart.this.elementDescending) {
-							button.setToolTipText("Ascending");
-							button.setImage(ascendImage);
-						}
-
-						else {
-							button.setToolTipText("Descending");
-							button.setImage(descendImage);
-						}
+						DualListPart.this.toggleElement.setDescending(!DualListPart.this.toggleElement.isDescending());
+						orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
 					}
 				});
 				TableEditor editor = new TableEditor(item.getParent());
 				editor.grabHorizontal = true;
 				editor.grabVertical = true;
-				editor.setEditor(button, item, cell.getColumnIndex());
+				editor.setEditor(currentButton, item, cell.getColumnIndex());
 				editor.layout();
 			}
 
@@ -518,6 +500,28 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		}
 
 	}
+	
+	public class ascendImageSetListener implements Listener {
+
+		@Override
+		public void handleEvent(Event event) {
+			DualListPart.this.currentButton.setImage(ascendImage);
+			DualListPart.this.currentButton.removeListener(SWT.Selection, new ascendImageSetListener());
+			DualListPart.this.currentButton.addListener(SWT.Selection, new descendImageSetListener());
+		}
+
+	}
+	
+	public class descendImageSetListener implements Listener {
+
+		@Override
+		public void handleEvent(Event event) {
+			DualListPart.this.currentButton.setImage(descendImage);
+			DualListPart.this.currentButton.removeListener(SWT.Selection, new descendImageSetListener());
+			DualListPart.this.currentButton.addListener(SWT.Selection, new ascendImageSetListener());
+		}
+
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -603,6 +607,12 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		}
 
 	}
+	
+	private NonGenericListenerCollection<SortingArg> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
+	
+	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+		return orderingDirectionChangedListener;
+	}
 
 	
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
@@ -613,13 +623,13 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListChangeRequestedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListRefreshRequested() {
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListChangeRequested() {
 		return sortingListChangeRequestedListener;
 	}
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequestedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListRefreshRequested() {
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequestedListener;
 	}
 	

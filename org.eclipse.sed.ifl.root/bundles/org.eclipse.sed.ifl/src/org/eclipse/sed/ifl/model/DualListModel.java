@@ -17,7 +17,6 @@ public class DualListModel extends EmptyModel {
 	
 	private ObservableList<SortingArg> attributeList = FXCollections.observableArrayList();
 	private ObservableList<SortingArg> sortingList = FXCollections.observableArrayList();
-	private Map<String,SortingArg> elementMap = new HashMap<>(); 
 	
 	public DualListModel(ArrayList<SortingArg> attributes) {
 		for(SortingArg arg : attributes) {
@@ -44,6 +43,12 @@ public class DualListModel extends EmptyModel {
 	public void setSortingList(ObservableList<SortingArg> sortingList) {
 		this.sortingList = sortingList;
 		sortingListChangedListener.invoke(sortingList);
+	}
+	
+	private NonGenericListenerCollection<SortingArg> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
+	
+	public NonGenericListenerCollection<SortingArg> orderingDirectionChanged() {
+		return orderingDirectionChangedListener;
 	}
 
 	private NonGenericListenerCollection<List<SortingArg>> attributeListChangedListener = new NonGenericListenerCollection<>();
