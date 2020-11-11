@@ -56,13 +56,12 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
 	private List<String> enumNames;
-	
-																
+
 	private SelectionLocation whichList;
 	private String elementName;
 
 	@FunctionalInterface
-	public interface HumanReadable<TItem> { 
+	public interface HumanReadable<TItem> {
 		String getAsString(TItem t);
 	}
 
@@ -180,15 +179,17 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			public void update(ViewerCell cell) {
 
 				TableItem item = (TableItem) cell.getItem();
-				toggleElement = (SortingArg) item.getData();;
-				currentButton = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE); 
-				if(!toggleElement.isDescending()) {
+				toggleElement = (SortingArg) item.getData();
+				;
+				currentButton = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
+				if (!toggleElement.isDescending()) {
 					currentButton.setImage(ascendImage);
-					currentButton.addListener(SWT.Selection, new descendImageSetListener());
-				}
-				else {
+					currentButton.removeListener(SWT.Selection, ascendImageSetListener);
+					currentButton.addListener(SWT.Selection, descendImageSetListener);
+				} else {
 					currentButton.setImage(descendImage);
-					currentButton.addListener(SWT.Selection, new ascendImageSetListener());
+					currentButton.removeListener(SWT.Selection, descendImageSetListener);
+					currentButton.addListener(SWT.Selection, ascendImageSetListener);
 				}
 				currentButton.addListener(SWT.TOGGLE, new Listener() {
 					@Override
@@ -368,32 +369,32 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	public void setAllDownImage(Image buttonImage) {
 		this.allDown.setImage(buttonImage);
 	}
-	
+
 	public ArrayList<SortingArg> getSortingTable() {
 		TableItem tableItems[] = this.sortingTable.getItems();
 		ArrayList<SortingArg> sortingList = new ArrayList<SortingArg>();
-		for(TableItem item : tableItems) {
+		for (TableItem item : tableItems) {
 			SortingArg argument = (SortingArg) item.getData();
 			sortingList.add(argument);
 		}
 		return sortingList;
 	}
-	
+
 	public void setSortingTable(List<SortingArg> sortingList) {
 		sortingViewer.setInput(sortingList);
 		sortingViewer.refresh();
 	}
-	
+
 	public ArrayList<SortingArg> getAttributeTable() {
 		TableItem tableItems[] = this.attributeTable.getItems();
 		ArrayList<SortingArg> attributeList = new ArrayList<SortingArg>();
-		for(TableItem item : tableItems) {
+		for (TableItem item : tableItems) {
 			SortingArg argument = (SortingArg) item.getData();
 			attributeList.add(argument);
 		}
 		return attributeList;
 	}
-	
+
 	public void setAttributeTable(List<SortingArg> argumentList) {
 		attributeViewer.setInput(argumentList);
 		attributeViewer.refresh();
@@ -449,7 +450,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				case RIGHT:
 					SortingArg argument = (SortingArg) attributeTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, argument, elementIndex, tableSize);
+					moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, argument, elementIndex,
+							tableSize);
 					sortingListChangeRequestedListener.invoke(moveObject);
 					moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, null, -2, elementIndex);
 					attributeListChangeRequestedListener.invoke(moveObject);
@@ -459,7 +461,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				case LEFT:
 					SortingArg argument1 = (SortingArg) sortingTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, argument1, elementIndex, tableSize1);
+					moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, argument1, elementIndex,
+							tableSize1);
 					attributeListChangeRequestedListener.invoke(moveObject);
 					moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, null, elementIndex, -1);
 					sortingListChangeRequestedListener.invoke(moveObject);
@@ -500,28 +503,28 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		}
 
 	}
-	
-	public class ascendImageSetListener implements Listener {
+
+	public Listener ascendImageSetListener = new Listener() {
 
 		@Override
 		public void handleEvent(Event event) {
 			DualListPart.this.currentButton.setImage(ascendImage);
-			DualListPart.this.currentButton.removeListener(SWT.Selection, new ascendImageSetListener());
-			DualListPart.this.currentButton.addListener(SWT.Selection, new descendImageSetListener());
+			DualListPart.this.currentButton.removeListener(SWT.Selection, ascendImageSetListener);
+			DualListPart.this.currentButton.addListener(SWT.Selection, descendImageSetListener);
 		}
 
-	}
-	
-	public class descendImageSetListener implements Listener {
+	};
+
+	public Listener descendImageSetListener = new Listener() {
 
 		@Override
 		public void handleEvent(Event event) {
 			DualListPart.this.currentButton.setImage(descendImage);
-			DualListPart.this.currentButton.removeListener(SWT.Selection, new descendImageSetListener());
-			DualListPart.this.currentButton.addListener(SWT.Selection, new ascendImageSetListener());
+			DualListPart.this.currentButton.removeListener(SWT.Selection, descendImageSetListener);
+			DualListPart.this.currentButton.addListener(SWT.Selection, ascendImageSetListener);
 		}
 
-	}
+	};
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -607,14 +610,13 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		}
 
 	}
-	
+
 	private NonGenericListenerCollection<SortingArg> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
-	
+
 	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
 		return orderingDirectionChangedListener;
 	}
 
-	
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
@@ -632,8 +634,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequestedListener;
 	}
-	
-	
+
 	public void enableOrdering() {
 
 		infoLabel.setText("Order your scores by (multiple) attributes.");
