@@ -18,6 +18,8 @@ import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
@@ -48,17 +50,13 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
-	private boolean elementDescending;
 	private SortingArg selectedArgument;
-	private SortingArg swapElement;
 	private SortingArg toggleElement;
 	private int elementIndex;
 	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
-	private List<String> enumNames;
 
 	private SelectionLocation whichList;
-	private String elementName;
 
 	@FunctionalInterface
 	public interface HumanReadable<TItem> {
@@ -75,16 +73,6 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	private Button allDown;
 	private Button currentButton;
 	private GridLayout gridLayout;
-	private Image allRightImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_right.png");
-	private Image allLeftImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_left.png");
-	private Image allUpImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_top.png");
-	private Image allDownImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_bottom.png");
-	private Image oneRightImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_right.png");
-	private Image oneLeftImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_left.png");
-	private Image oneUpImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_up.png");
-	private Image oneDownImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_down.png");
-	private Image ascendImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png");
-	private Image descendImage = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png");
 	private Label infoLabel;
 	private Table attributeTable;
 	private Table sortingTable;
@@ -97,14 +85,11 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	}
 
 	private void addUIElements(Composite parent) {
-		elementDescending = false;
 		selectedArgument = null;
-		swapElement = null;
 		toggleElement = null;
 		elementIndex = 0;
 		newIndex = 0;
 		whichList = SelectionLocation.UNSELECTED;
-		elementName = "";
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -180,24 +165,14 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 				TableItem item = (TableItem) cell.getItem();
 				toggleElement = (SortingArg) item.getData();
-				;
-				currentButton = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
+				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
 				if (!toggleElement.isDescending()) {
-					currentButton.setImage(ascendImage);
-					currentButton.removeListener(SWT.Selection, ascendImageSetListener);
-					currentButton.addListener(SWT.Selection, descendImageSetListener);
+					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 				} else {
-					currentButton.setImage(descendImage);
-					currentButton.removeListener(SWT.Selection, descendImageSetListener);
-					currentButton.addListener(SWT.Selection, ascendImageSetListener);
+					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 				}
-				currentButton.addListener(SWT.TOGGLE, new Listener() {
-					@Override
-					public void handleEvent(Event event) {
-						DualListPart.this.toggleElement.setDescending(!DualListPart.this.toggleElement.isDescending());
-						orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
-					}
-				});
+				button.addSelectionListener(new sortDirectionImageListener());
+				button = currentButton;
 				TableEditor editor = new TableEditor(item.getParent());
 				editor.grabHorizontal = true;
 				editor.grabVertical = true;
@@ -217,56 +192,56 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		new Label(parent, SWT.NONE).setText("");
 
 		allRight = new Button(parent, SWT.PUSH);
-		allRight.setImage(allRightImage);
+		allRight.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_right.png"));
 		allRight.setLayoutData(buttonData);
 		allRight.setSize(40, 40);
 		allRight.setVisible(false);
 		allRight.setEnabled(false);
 
 		allUp = new Button(parent, SWT.PUSH);
-		allUp.setImage(allUpImage);
+		allUp.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_top.png"));
 		allUp.setLayoutData(buttonData);
 		allUp.setSize(40, 40);
 		allUp.setVisible(false);
 		allUp.setEnabled(false);
 
 		oneRight = new Button(parent, SWT.PUSH);
-		oneRight.setImage(oneRightImage);
+		oneRight.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_right.png"));
 		oneRight.setLayoutData(buttonData);
 		oneRight.setSize(40, 40);
 		oneRight.setVisible(false);
 		oneRight.setEnabled(false);
 
 		oneUp = new Button(parent, SWT.PUSH);
-		oneUp.setImage(oneUpImage);
+		oneUp.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_up.png"));
 		oneUp.setLayoutData(buttonData);
 		oneUp.setSize(40, 40);
 		oneUp.setVisible(false);
 		oneUp.setEnabled(false);
 
 		oneLeft = new Button(parent, SWT.PUSH);
-		oneLeft.setImage(oneLeftImage);
+		oneLeft.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_left.png"));
 		oneLeft.setLayoutData(buttonData);
 		oneLeft.setSize(40, 40);
 		oneLeft.setVisible(false);
 		oneLeft.setEnabled(false);
 
 		oneDown = new Button(parent, SWT.PUSH);
-		oneDown.setImage(oneDownImage);
+		oneDown.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_down.png"));
 		oneDown.setLayoutData(buttonData);
 		oneDown.setSize(40, 40);
 		oneDown.setVisible(false);
 		oneDown.setEnabled(false);
 
 		allLeft = new Button(parent, SWT.PUSH);
-		allLeft.setImage(allLeftImage);
+		allLeft.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_all_left.png"));
 		allLeft.setLayoutData(buttonData);
 		allLeft.setSize(40, 40);
 		allLeft.setVisible(false);
 		allLeft.setEnabled(false);
 
 		allDown = new Button(parent, SWT.PUSH);
-		allDown.setImage(allDownImage);
+		allDown.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_to_bottom.png"));
 		allDown.setLayoutData(buttonData);
 		allDown.setSize(40, 40);
 		allDown.setVisible(false);
@@ -504,26 +479,26 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	}
 
-	public Listener ascendImageSetListener = new Listener() {
+	public class sortDirectionImageListener implements SelectionListener {
 
 		@Override
-		public void handleEvent(Event event) {
-			DualListPart.this.currentButton.setImage(ascendImage);
-			DualListPart.this.currentButton.removeListener(SWT.Selection, ascendImageSetListener);
-			DualListPart.this.currentButton.addListener(SWT.Selection, descendImageSetListener);
+		public void widgetSelected(SelectionEvent e) {
+			Button source = (Button) e.getSource();
+			DualListPart.this.currentButton = source;
+			if (source.getSelection()) {
+				DualListPart.this.currentButton
+						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
+			} else {
+				DualListPart.this.currentButton
+						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+			}
+			DualListPart.this.toggleElement.setDescending(source.getSelection());
+			orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
 		}
-
-	};
-
-	public Listener descendImageSetListener = new Listener() {
 
 		@Override
-		public void handleEvent(Event event) {
-			DualListPart.this.currentButton.setImage(descendImage);
-			DualListPart.this.currentButton.removeListener(SWT.Selection, descendImageSetListener);
-			DualListPart.this.currentButton.addListener(SWT.Selection, ascendImageSetListener);
+		public void widgetDefaultSelected(SelectionEvent e) {
 		}
-
 	};
 
 	@Override
@@ -556,19 +531,6 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			}
 		});
 
-		/*
-		 * SelectionListener toggleListener = new SelectionAdapter() {
-		 * 
-		 * @Override public void widgetSelected(SelectionEvent e) { Button source =
-		 * (Button) e.getSource(); String buttonText = source.getText(); toggleIndex =
-		 * listRight.indexOf(buttonText); currentElement = (DualListElement)
-		 * arrayRight.get(toggleIndex);
-		 * currentElement.setDescending(!currentElement.isDescending());
-		 * arrayRight.set(toggleIndex, (TItem) currentElement); refresh();
-		 * 
-		 * } };
-		 */
-
 		allRight.addListener(SWT.Selection, new moveBetweenListsListener());
 
 		oneRight.addListener(SWT.Selection, new moveBetweenListsListener());
@@ -584,26 +546,6 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		oneDown.addListener(SWT.Selection, new moveInsideListListener());
 
 		allDown.addListener(SWT.Selection, new moveInsideListListener());
-
-		/*
-		 * scoreToggle.addSelectionListener(toggleListener);
-		 * 
-		 * nameToggle.addSelectionListener(toggleListener);
-		 * 
-		 * signatureToggle.addSelectionListener(toggleListener);
-		 * 
-		 * parentTypeToggle.addSelectionListener(toggleListener);
-		 * 
-		 * pathToggle.addSelectionListener(toggleListener);
-		 * 
-		 * contextSizeToggle.addSelectionListener(toggleListener);
-		 * 
-		 * positionToggle.addSelectionListener(toggleListener);
-		 * 
-		 * interactivityToggle.addSelectionListener(toggleListener);
-		 * 
-		 * lastActionToggle.addSelectionListener(toggleListener);
-		 */
 
 		if (orderingEnabled.booleanValue()) {
 			enableOrdering();

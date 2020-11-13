@@ -1,6 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,6 +49,7 @@ import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
 import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
+import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.AbortEvent;
@@ -74,6 +76,7 @@ import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
+import org.eclipse.sed.ifl.view.DualListView;
 import org.eclipse.sed.ifl.view.FilterView;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
@@ -96,6 +99,10 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();
 
+	private ArrayList<SortingArg> dualListArray = new ArrayList<SortingArg>(Arrays.asList(SortingArg.values()));
+
+
+
 	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
 	@Override
@@ -112,8 +119,10 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		filterControl.setView(new FilterView());
 		filterControl.setModel(new FilterModel());
 
+
 		dualListControl = new DualListControl<TItem>();
-		
+		dualListControl.setView(new DualListView<>());
+		dualListControl.setModel(new DualListModel(dualListArray));
 
 		contextBasedOptionCreator = new ContextBasedOptionCreatorControl();
 		contextBasedOptionCreator.setModel(new ContextBasedOptionCreatorModel());
@@ -154,7 +163,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		dualListControl.eventAttributeListRefreshRequested().add(attributeListRefreshRequested);
 		dualListControl.eventSortingListRefreshRequested().add(sortingListRefreshRequested);
-		
 
 		getView().eventSortRequired().add(sortListener);
 
@@ -327,13 +335,10 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventAttributeListRefreshRequested();
 	};
 
-
-	
-
 	private IListener<EmptyEvent> openFiltersPage = event -> {
 		filterControl.showFilterPart();
 	};
-	
+
 	private IListener<EmptyEvent> openDualListPage = event -> {
 		dualListControl.showDualListPart();
 	};

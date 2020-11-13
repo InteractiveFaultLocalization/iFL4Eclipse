@@ -55,11 +55,17 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private void initUIListeners() {
-		dualListPart.eventSelectionRequested().add(selectionRequestedListener);		
+		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
+		dualListPart.eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
+		dualListPart.eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
+		dualListPart.eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
 	}
 
 	private void removeUIListeners() {
 		dualListPart.eventSelectionRequested().remove(selectionRequestedListener);
+		dualListPart.eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
+		dualListPart.eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
+		dualListPart.eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
 	}
 
 	@Override

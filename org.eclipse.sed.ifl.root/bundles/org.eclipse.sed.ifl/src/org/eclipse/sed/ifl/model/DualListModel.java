@@ -1,9 +1,7 @@
 package org.eclipse.sed.ifl.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
