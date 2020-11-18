@@ -12,10 +12,9 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
-import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
@@ -41,7 +40,7 @@ enum SelectionLocation {
 	LEFT, RIGHT, UNSELECTED
 }
 
-public class DualListPart<TItem extends SortingArg> extends ViewPart implements IEmbeddable, IEmbedee {
+public class DualListPart<TItem extends Sortable> extends ViewPart implements IEmbeddable, IEmbedee {
 	// generic extends: generic constraints utánanézés.
 	// interface föléfalazása
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
@@ -51,8 +50,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
-	private SortingArg selectedArgument;
-	private SortingArg toggleElement;
+	private Sortable selectedArgument;
+	private Sortable toggleElement;
 	private int elementIndex;
 	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
@@ -130,8 +129,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		columnLeftName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				SortingArg sortingElement = (SortingArg) element;
-				return sortingElement.getDomain();
+				return ((Sortable)element).getName();
 			}
 		});
 		attributeViewer.getControl().setLayoutData(gridData);
@@ -154,8 +152,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		columnRightName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				SortingArg sortingElement = (SortingArg) element;
-				return sortingElement.getDomain();
+				return ((Sortable)element).getName();
 			}
 		});
 		columnRightButton.getColumn().setWidth(200);
@@ -165,9 +162,9 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			public void update(ViewerCell cell) {
 
 				TableItem item = (TableItem) cell.getItem();
-				toggleElement = (SortingArg) item.getData();
+				toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
-				if (!toggleElement.isDescending()) {
+				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 				} else {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
@@ -270,8 +267,8 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) { //function is not used
 		TableItem extractedItem = source.getItem(extractIndex);
-		SortingArg argument = (SortingArg) extractedItem.getData();
-		return argument.getDomain();
+		Sortable argument = (Sortable) extractedItem.getData();
+		return argument.getName();
 	}
 
 	public String getInfoLabel() {
@@ -346,39 +343,39 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		this.allDown.setImage(buttonImage);
 	}
 
-	public ArrayList<SortingArg> getSortingTable() {
+	public ArrayList<Sortable> getSortingTable() {
 		TableItem tableItems[] = this.sortingTable.getItems();
-		ArrayList<SortingArg> sortingList = new ArrayList<SortingArg>();
+		ArrayList<Sortable> sortingList = new ArrayList<Sortable>();
 		for (TableItem item : tableItems) {
-			SortingArg argument = (SortingArg) item.getData();
+			Sortable argument = (Sortable) item.getData();
 			sortingList.add(argument);
 		}
 		return sortingList;
 	}
 
-	public void setSortingTable(List<SortingArg> sortingList) {
+	public void setSortingTable(List<Sortable> sortingList) {
 		sortingViewer.setInput(sortingList);
 		sortingViewer.refresh();
 	}
 
-	public ArrayList<SortingArg> getAttributeTable() {
+	public ArrayList<Sortable> getAttributeTable() {
 		TableItem tableItems[] = this.attributeTable.getItems();
-		ArrayList<SortingArg> attributeList = new ArrayList<SortingArg>();
+		ArrayList<Sortable> attributeList = new ArrayList<Sortable>();
 		for (TableItem item : tableItems) {
-			SortingArg argument = (SortingArg) item.getData();
+			Sortable argument = (Sortable) item.getData();
 			attributeList.add(argument);
 		}
 		return attributeList;
 	}
 
-	public void setAttributeTable(List<SortingArg> argumentList) {
+	public void setAttributeTable(List<Sortable> argumentList) {
 		attributeViewer.setInput(argumentList);
 		attributeViewer.refresh();
 	}
 
 	public ItemMoveObject<TItem> moveInside(Table source, int elementIndex, Widget selectedButton) {
 		int length = source.getItemCount();
-		selectedArgument = (SortingArg) source.getItem(elementIndex).getData();
+		selectedArgument = (Sortable) source.getItem(elementIndex).getData();
 
 		if (selectedButton.equals(allUp))
 			newIndex = 0;
@@ -424,7 +421,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				case UNSELECTED:
 					break;
 				case RIGHT:
-					SortingArg argument = (SortingArg) attributeTable.getItem(elementIndex).getData();
+					Sortable argument = (Sortable) attributeTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
 					moveObject = new ItemMoveObject<TItem>(argument, elementIndex,
 							tableSize);
@@ -435,7 +432,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 					elementIndex = tableSize;
 					break;
 				case LEFT:
-					SortingArg argument1 = (SortingArg) sortingTable.getItem(elementIndex).getData();
+					Sortable argument1 = (Sortable) sortingTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
 					moveObject = new ItemMoveObject<TItem>( argument1, elementIndex,
 							tableSize1);
@@ -489,11 +486,12 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			if (source.getSelection()) {
 				DualListPart.this.currentButton
 						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
+				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Descending);
 			} else {
 				DualListPart.this.currentButton
 						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
-			DualListPart.this.toggleElement.setDescending(source.getSelection());
 			orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
 		}
 
@@ -554,9 +552,9 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	}
 
-	private NonGenericListenerCollection<SortingArg> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Sortable> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+	public NonGenericListenerCollection<Sortable> eventOrderingDirectionChanged() {
 		return orderingDirectionChangedListener;
 	}
 
@@ -579,16 +577,16 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 	}
 	
 
-	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventAttributeListRefreshRequested() {
 		return attributeListRefreshRequested;
 	}
 
 	
-	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventSortingListRefreshRequested() {
 		return sortingListRefreshRequested;
 	}
 

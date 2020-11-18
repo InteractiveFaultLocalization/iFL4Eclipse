@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.ide.gui.element.SelectedElementUI;
@@ -255,12 +254,6 @@ public class ScoreListUI extends Composite {
 
 	public INonGenericListenerCollection<IMethodDescription> eventOpenDetailsRequired() {
 		return openDetailsRequired;
-	}
-
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
-		return sortRequired;
 	}
 
 	public void addListenersAndMenuToCards(List<CodeElementUI> cards) {

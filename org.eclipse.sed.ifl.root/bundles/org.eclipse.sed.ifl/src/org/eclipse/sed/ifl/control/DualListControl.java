@@ -4,7 +4,7 @@ package org.eclipse.sed.ifl.control;
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -14,7 +14,7 @@ import org.eclipse.sed.ifl.view.DualListView;
 
 import javafx.collections.ObservableList;
 
-public class DualListControl<TItem extends SortingArg> extends Control<DualListModel, DualListView<TItem>> {
+public class DualListControl<TItem extends Sortable> extends Control<DualListModel, DualListView<TItem>> {
 
 	public void showDualListPart() {
 		getView().showDualListPart();
@@ -58,16 +58,17 @@ public class DualListControl<TItem extends SortingArg> extends Control<DualListM
 		getView().enableOrdering();
 	}
 	
-	private NonGenericListenerCollection<SortingArg> orderingDirectionChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
 	
-	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+	public NonGenericListenerCollection<Sortable> eventOrderingDirectionChanged() {
 		return orderingDirectionChanged;
 	}
 	
-	private IListener<SortingArg> orderingDirectionChangedListener = event -> {
-		ObservableList<SortingArg> newSortingList = getModel().getSortingList();
-		SortingArg originalArg = event;
-		originalArg.setDescending(!originalArg.isDescending());
+	private IListener<Sortable> orderingDirectionChangedListener = event -> {
+		ObservableList<Sortable> newSortingList = getModel().getSortingList();
+		Sortable originalArg = event;
+		originalArg.setSortingDirection(originalArg.getSortingDirection().equals(Sortable.SortingDirection.Ascending) ? 
+				Sortable.SortingDirection.Descending : Sortable.SortingDirection.Ascending);
 		int swapIndex = newSortingList.indexOf(originalArg);
 		newSortingList.set(swapIndex,event);
 		getModel().setSortingList(newSortingList);
@@ -75,27 +76,27 @@ public class DualListControl<TItem extends SortingArg> extends Control<DualListM
 	
 	//Left
 
-	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventAttributeListRefreshRequested() {
 		return attributeListRefreshRequested;
 	}
 
-	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = attributeListRefreshRequested::invoke;
+	private IListener<List<Sortable>> attributeListRefreshRequestedListener = attributeListRefreshRequested::invoke;
 
 	
 	//Right
 	
-	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventSortingListRefreshRequested() {
 		return sortingListRefreshRequested;
 	}
 
-	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
+	private IListener<List<Sortable>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
 
 	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { //array from model
-		ObservableList<SortingArg> newAttributeList;
+		ObservableList<Sortable> newAttributeList;
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newAttributeList = null;
 		} else if (event.getSourceIndex() == -2) {
@@ -105,10 +106,10 @@ public class DualListControl<TItem extends SortingArg> extends Control<DualListM
 			newAttributeList = getModel().getSortingList();
 		} else if(event.getSourceIndex() == -1) {
 			newAttributeList = getModel().getAttributeList();
-			SortingArg selectedArgument = event.getItem();
+			Sortable selectedArgument = event.getItem();
 			int selectedIndex = newAttributeList.indexOf(selectedArgument);
 			int swapIndex = event.getDestinationIndex();
-			SortingArg swapArgument = newAttributeList.get(swapIndex);
+			Sortable swapArgument = newAttributeList.get(swapIndex);
 			newAttributeList.set(selectedIndex, swapArgument);
 			newAttributeList.set(swapIndex, event.getItem());
 		}
@@ -121,7 +122,7 @@ public class DualListControl<TItem extends SortingArg> extends Control<DualListM
 	};
 
 	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
-		ObservableList<SortingArg> newSortingList;
+		ObservableList<Sortable> newSortingList;
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newSortingList = null;
 		}
@@ -133,10 +134,10 @@ public class DualListControl<TItem extends SortingArg> extends Control<DualListM
 			newSortingList = getModel().getAttributeList();
 		} else if(event.getSourceIndex() == -1) {
 			newSortingList = getModel().getSortingList();
-			SortingArg selectedArgument = event.getItem();
+			Sortable selectedArgument = event.getItem();
 			int selectedIndex = newSortingList.indexOf(selectedArgument);
 			int swapIndex = event.getDestinationIndex();
-			SortingArg swapArgument = newSortingList.get(swapIndex);
+			Sortable swapArgument = newSortingList.get(swapIndex);
 			newSortingList.set(selectedIndex, swapArgument);
 			newSortingList.set(swapIndex, event.getItem());
 		}

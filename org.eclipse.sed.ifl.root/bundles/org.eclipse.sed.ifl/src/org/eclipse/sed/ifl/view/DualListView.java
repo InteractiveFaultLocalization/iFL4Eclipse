@@ -4,7 +4,7 @@ import java.util.List;
 
 
 import org.eclipse.sed.ifl.control.ItemMoveObject;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.DualListPart;
@@ -18,7 +18,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-public class DualListView<TItem extends SortingArg> extends View implements IEmbeddable, IEmbedee {
+public class DualListView<TItem extends Sortable> extends View implements IEmbeddable, IEmbedee {
 
 	private DualListPart<TItem> dualListPart;
 
@@ -103,13 +103,13 @@ public class DualListView<TItem extends SortingArg> extends View implements IEmb
 
 	// refresht beépíteni
 
-	private NonGenericListenerCollection<SortingArg> orderingDirectionChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
+	public NonGenericListenerCollection<Sortable> eventOrderingDirectionChanged() {
 		return orderingDirectionChanged;
 	}
 
-	private IListener<SortingArg> orderingDirectionChangedListener = orderingDirectionChanged::invoke;
+	private IListener<Sortable> orderingDirectionChangedListener = orderingDirectionChanged::invoke;
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequested = new NonGenericListenerCollection<>();
 
@@ -134,23 +134,23 @@ public class DualListView<TItem extends SortingArg> extends View implements IEmb
 
 	}
 
-	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventAttributeListRefreshRequested() {
 		return attributeListRefreshRequested;
 	}
 
-	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = event -> {
+	private IListener<List<Sortable>> attributeListRefreshRequestedListener = event -> {
 		dualListPart.setAttributeTable(event);
 	};
 
-	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+	public INonGenericListenerCollection<List<Sortable>> eventSortingListRefreshRequested() {
 		return sortingListRefreshRequested;
 	}
 
-	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = event -> {
+	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
 		dualListPart.setSortingTable(event);
 	};
 

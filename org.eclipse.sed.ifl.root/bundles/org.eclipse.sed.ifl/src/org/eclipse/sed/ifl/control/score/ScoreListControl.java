@@ -1,7 +1,6 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -97,11 +96,9 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private DualListControl<?> dualListControl;
 
-	private ArrayList<SortingArg> previousSorts = new ArrayList<SortingArg>();
+	private ArrayList<Sortable> previousSorts = new ArrayList<Sortable>();
 
-	private ArrayList<SortingArg> dualListArray = new ArrayList<SortingArg>(Arrays.asList(SortingArg.values()));
-
-
+	private ArrayList<Sortable> dualListArray = createSortingAttributes();
 
 	private List<Comparator<Entry<IMethodDescription, Score>>> comparators = new ArrayList<>();
 
@@ -164,8 +161,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventAttributeListRefreshRequested().add(attributeListRefreshRequested);
 		dualListControl.eventSortingListRefreshRequested().add(sortingListRefreshRequested);
 
-		getView().eventSortRequired().add(sortListener);
-
 		super.init();
 	}
 
@@ -198,8 +193,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventAttributeListRefreshRequested().remove(attributeListRefreshRequested);
 		dualListControl.eventSortingListRefreshRequested().remove(sortingListRefreshRequested);
 
-		getView().eventSortRequired().remove(sortListener);
-
 		super.teardown();
 		activityMonitor = null;
 		scoreHistory = null;
@@ -216,6 +209,15 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	};
 
+	private ArrayList<Sortable> createSortingAttributes(){
+		ArrayList<Sortable> list = new ArrayList<>();
+		List<String> domainList = Stream.of(SortingArg.values()).map(SortingArg::name).collect(Collectors.toList());
+		for (String name : domainList) {
+			list.add(new MethodSortingArg(name, Sortable.SortingDirection.Ascending));
+		}
+		return list;
+	}
+	
 	private List<ScoreFilter> filters = new ArrayList<>();
 
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
@@ -232,67 +234,67 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		if (!previousSorts.isEmpty()) {
 
-			for (SortingArg sorting : previousSorts) {
+			for (Sortable sorting : previousSorts) {
 
-				switch (sorting) {
-				case Score:
-					if (!sorting.isDescending()) {
+				switch (sorting.getName()) {
+				case "Score":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new ScoreComparator());
 					} else {
 						comparators.add(new ScoreComparator().reversed());
 					}
 					break;
-				case Name:
-					if (!sorting.isDescending()) {
+				case "Name":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new NameComparator());
 					} else {
 						comparators.add(new NameComparator().reversed());
 					}
 					break;
-				case Signature:
-					if (!sorting.isDescending()) {
+				case "Signature":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new SignatureComparator());
 					} else {
 						comparators.add(new SignatureComparator().reversed());
 					}
 					break;
-				case ParentType:
-					if (!sorting.isDescending()) {
+				case "ParentType":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new ParentTypeComparator());
 					} else {
 						comparators.add(new ParentTypeComparator().reversed());
 					}
 					break;
-				case Path:
-					if (!sorting.isDescending()) {
+				case "Path":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new PathComparator());
 					} else {
 						comparators.add(new PathComparator().reversed());
 					}
 					break;
-				case ContextSize:
-					if (!sorting.isDescending()) {
+				case "ContextSize":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new ContextSizeComparator());
 					} else {
 						comparators.add(new ContextSizeComparator().reversed());
 					}
 					break;
-				case Position:
-					if (!sorting.isDescending()) {
+				case "Position":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new PositionComparator());
 					} else {
 						comparators.add(new PositionComparator().reversed());
 					}
 					break;
-				case Interactivity:
-					if (!sorting.isDescending()) {
+				case "Interactivity":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new InteractivityComparator());
 					} else {
 						comparators.add(new InteractivityComparator().reversed());
 					}
 					break;
-				case LastAction:
-					if (!sorting.isDescending()) {
+				case "LastAction":
+					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 						comparators.add(new LastActionComparator());
 					} else {
 						comparators.add(new LastActionComparator().reversed());
@@ -312,15 +314,15 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		return toDisplay;
 	}
 
-	private SortingArg sorting;
+	private Sortable sorting;
 
-	private IListener<List<SortingArg>> sortingListRefreshRequested = event -> {
+	private IListener<List<Sortable>> sortingListRefreshRequested = event -> {
 		dualListControl.eventSortingListRefreshRequested();
 		if (event.isEmpty() == false) {
-			for (SortingArg argument : event) {
+			for (Sortable argument : event) {
 				sorting = argument;
-				if (sorting.isDescending() != argument.isDescending()) {
-					sorting.setDescending(!sorting.isDescending());
+				if (!sorting.getSortingDirection().equals(argument.getSortingDirection())) {
+					sorting.setSortingDirection(argument.getSortingDirection());
 				}
 				previousSorts.add(sorting);
 			}
@@ -331,7 +333,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		previousSorts.clear();
 	};
 
-	private IListener<List<SortingArg>> attributeListRefreshRequested = event -> {
+	private IListener<List<Sortable>> attributeListRefreshRequested = event -> {
 		dualListControl.eventAttributeListRefreshRequested();
 	};
 
@@ -495,11 +497,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		// scoreUpdatedListener already refreshed it,
 		// but the history do not contains the monuments requested to display. Search
 		// history-saving-bug for more.
-		refreshView();
-	};
-
-	private IListener<SortingArg> sortListener = event -> {
-		sorting = event;
 		refreshView();
 	};
 

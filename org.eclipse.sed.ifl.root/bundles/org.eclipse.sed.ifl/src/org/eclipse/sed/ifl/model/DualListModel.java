@@ -3,7 +3,7 @@ package org.eclipse.sed.ifl.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 
@@ -13,11 +13,11 @@ import javafx.collections.ObservableList;
 
 public class DualListModel extends EmptyModel {
 	
-	private ObservableList<SortingArg> attributeList = FXCollections.observableArrayList();
-	private ObservableList<SortingArg> sortingList = FXCollections.observableArrayList();
+	private ObservableList<Sortable> attributeList = FXCollections.observableArrayList();
+	private ObservableList<Sortable> sortingList = FXCollections.observableArrayList();
 	
-	public DualListModel(ArrayList<SortingArg> attributes) {
-		for(SortingArg arg : attributes) {
+	public DualListModel(ArrayList<Sortable> attributes) {
+		for(Sortable arg : attributes) {
 			this.attributeList.add(arg);
 		}
 		
@@ -25,43 +25,43 @@ public class DualListModel extends EmptyModel {
 		this.sortingList.addListener(changeListener);
 	}
 	
-	public ObservableList<SortingArg> getAttributeList() {
+	public ObservableList<Sortable> getAttributeList() {
 		return attributeList;
 	}
 
-	public void setAttributeList(ObservableList<SortingArg> attributeList) {
+	public void setAttributeList(ObservableList<Sortable> attributeList) {
 		this.attributeList = attributeList;
 		attributeListChangedListener.invoke(attributeList);
 	}
 
-	public ObservableList<SortingArg> getSortingList() {
+	public ObservableList<Sortable> getSortingList() {
 		return sortingList;
 	}
 
-	public void setSortingList(ObservableList<SortingArg> sortingList) {
+	public void setSortingList(ObservableList<Sortable> sortingList) {
 		this.sortingList = sortingList;
 		sortingListChangedListener.invoke(sortingList);
 	}
 	
-	private NonGenericListenerCollection<SortingArg> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Sortable> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
 	
-	public NonGenericListenerCollection<SortingArg> orderingDirectionChanged() {
+	public NonGenericListenerCollection<Sortable> orderingDirectionChanged() {
 		return orderingDirectionChangedListener;
 	}
 
-	private NonGenericListenerCollection<List<SortingArg>> attributeListChangedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> attributeListChangedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListChanged() {
+	public INonGenericListenerCollection<List<Sortable>> eventAttributeListChanged() {
 		return attributeListChangedListener;
 	}
 	
-	private NonGenericListenerCollection<List<SortingArg>> sortingListChangedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Sortable>> sortingListChangedListener = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<SortingArg>> eventSortingListChanged() {
+	public INonGenericListenerCollection<List<Sortable>> eventSortingListChanged() {
 		return sortingListChangedListener;
 	}
 	
-	private ListChangeListener<SortingArg> changeListener = c -> {
+	private ListChangeListener<Sortable> changeListener = c -> {
 		while(c.next()) {
 			if(c.getList().equals(attributeList)) {
 				attributeListChangedListener.invoke(attributeList);
