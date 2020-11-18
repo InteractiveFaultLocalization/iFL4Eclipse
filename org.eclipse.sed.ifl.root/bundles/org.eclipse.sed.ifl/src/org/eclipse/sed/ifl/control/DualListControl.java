@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.control;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
@@ -11,10 +11,10 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.DualListView;
 
-import javafx.collections.FXCollections;
+
 import javafx.collections.ObservableList;
 
-public class DualListControl<TItem> extends Control<DualListModel, DualListView<TItem>> {
+public class DualListControl<TItem extends SortingArg> extends Control<DualListModel, DualListView<TItem>> {
 
 	public void showDualListPart() {
 		getView().showDualListPart();
@@ -72,6 +72,8 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 		newSortingList.set(swapIndex,event);
 		getModel().setSortingList(newSortingList);
 	};
+	
+	//Left
 
 	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
@@ -81,6 +83,9 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 
 	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = attributeListRefreshRequested::invoke;
 
+	
+	//Right
+	
 	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
@@ -89,17 +94,17 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 
 	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
 
-	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> {
-		ArrayList<SortingArg> newAttributeList = new ArrayList<SortingArg>();
+	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { //array from model
+		ObservableList<SortingArg> newAttributeList;
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newAttributeList = null;
 		} else if (event.getSourceIndex() == -2) {
-			newAttributeList = event.getDestinationArray();
+			newAttributeList = getModel().getAttributeList();
 			newAttributeList.remove(event.getDestinationIndex());
 		} else if (event.getSourceIndex() == -1 && event.getDestinationIndex() == -1) {
-			newAttributeList = event.getSourceArray();
+			newAttributeList = getModel().getSortingList();
 		} else if(event.getSourceIndex() == -1) {
-			newAttributeList = event.getSourceArray();
+			newAttributeList = getModel().getAttributeList();
 			SortingArg selectedArgument = event.getItem();
 			int selectedIndex = newAttributeList.indexOf(selectedArgument);
 			int swapIndex = event.getDestinationIndex();
@@ -109,26 +114,25 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 		}
 		
 		else {
-			newAttributeList = event.getDestinationArray();
+			newAttributeList = getModel().getAttributeList();
 			newAttributeList.add(event.getItem());
 		}
-		ObservableList<SortingArg> newObservableAttributeList = FXCollections.observableArrayList(newAttributeList);
-		getModel().setAttributeList(newObservableAttributeList);
+		getModel().setAttributeList(newAttributeList);
 	};
 
 	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
-		ArrayList<SortingArg> newSortingList = new ArrayList<SortingArg>();
+		ObservableList<SortingArg> newSortingList;
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newSortingList = null;
 		}
 
 		else if (event.getSourceIndex() == -2) {
-			newSortingList = event.getDestinationArray();
+			newSortingList = getModel().getSortingList();
 			newSortingList.remove(event.getDestinationIndex());
 		} else if (event.getSourceIndex() == -1 && event.getDestinationIndex() == -1) {
-			newSortingList = event.getSourceArray();
+			newSortingList = getModel().getAttributeList();
 		} else if(event.getSourceIndex() == -1) {
-			newSortingList = event.getSourceArray();
+			newSortingList = getModel().getSortingList();
 			SortingArg selectedArgument = event.getItem();
 			int selectedIndex = newSortingList.indexOf(selectedArgument);
 			int swapIndex = event.getDestinationIndex();
@@ -138,10 +142,9 @@ public class DualListControl<TItem> extends Control<DualListModel, DualListView<
 		}
 
 		else {
-			newSortingList = event.getDestinationArray();
+			newSortingList = getModel().getSortingList();
 			newSortingList.add(event.getItem());
 		}
-		ObservableList<SortingArg> newObservableSortingList = FXCollections.observableArrayList(newSortingList);
-		getModel().setSortingList(newObservableSortingList);
+		getModel().setSortingList(newSortingList);
 	};
 }

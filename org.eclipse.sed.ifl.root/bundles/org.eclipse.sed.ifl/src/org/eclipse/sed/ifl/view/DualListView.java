@@ -1,7 +1,7 @@
 package org.eclipse.sed.ifl.view;
 
-
 import java.util.List;
+
 
 import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.control.score.SortingArg;
@@ -18,12 +18,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
+public class DualListView<TItem extends SortingArg> extends View implements IEmbeddable, IEmbedee {
 
-	private DualListPart<? extends SortingArg> dualListPart; 
+	private DualListPart<TItem> dualListPart;
 
 	public DualListView() {
-		this.dualListPart = (DualListPart<? extends SortingArg>) getPart();
+		this.dualListPart = (DualListPart<TItem>) getPart();
 	}
 
 	private IViewPart getPart() {
@@ -84,7 +84,7 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			this.dualListPart = (DualListPart<? extends SortingArg>) page.showView(DualListPart.ID);
+			this.dualListPart = (DualListPart<TItem>) page.showView(DualListPart.ID);
 		} catch (PartInitException e) {
 			System.out.println("Could not open dual list view.");
 		}
@@ -100,13 +100,15 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 			dualListPart.getSite().getPage().hideView(dualListPart);
 		}
 	}
-	
+
+	// refresht beépíteni
+
 	private NonGenericListenerCollection<SortingArg> orderingDirectionChanged = new NonGenericListenerCollection<>();
-	
+
 	public NonGenericListenerCollection<SortingArg> eventOrderingDirectionChanged() {
 		return orderingDirectionChanged;
 	}
-	
+
 	private IListener<SortingArg> orderingDirectionChangedListener = orderingDirectionChanged::invoke;
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequested = new NonGenericListenerCollection<>();
@@ -129,17 +131,29 @@ public class DualListView<TItem> extends View implements IEmbeddable, IEmbedee {
 
 	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
 		return selectionRequested;
+
 	}
 
-	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
-	
-	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = event -> {
-		dualListPart.setSortingTable(event);
-	};
-	
+	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+		return attributeListRefreshRequested;
+	}
+
 	private IListener<List<SortingArg>> attributeListRefreshRequestedListener = event -> {
 		dualListPart.setAttributeTable(event);
 	};
 
+	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+		return sortingListRefreshRequested;
+	}
+
+	private IListener<List<SortingArg>> sortingListRefreshRequestedListener = event -> {
+		dualListPart.setSortingTable(event);
+	};
+
+	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
 
 }

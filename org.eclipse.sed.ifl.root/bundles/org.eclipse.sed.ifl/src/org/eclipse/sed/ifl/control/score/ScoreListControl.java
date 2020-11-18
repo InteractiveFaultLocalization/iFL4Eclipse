@@ -120,7 +120,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		filterControl.setModel(new FilterModel());
 
 
-		dualListControl = new DualListControl<TItem>();
+		dualListControl = new DualListControl<>();
 		dualListControl.setView(new DualListView<>());
 		dualListControl.setModel(new DualListModel(dualListArray));
 

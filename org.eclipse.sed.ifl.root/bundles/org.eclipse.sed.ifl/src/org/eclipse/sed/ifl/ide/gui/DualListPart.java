@@ -15,6 +15,7 @@ import org.eclipse.sed.ifl.control.ItemMoveObject;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
@@ -267,7 +268,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		composite.setParent(parent);
 	}
 
-	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) {
+	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) { //function is not used
 		TableItem extractedItem = source.getItem(extractIndex);
 		SortingArg argument = (SortingArg) extractedItem.getData();
 		return argument.getDomain();
@@ -389,7 +390,7 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 			newIndex = elementIndex + 1;
 
 		ItemMoveObject<TItem> itemMoveObject;
-		itemMoveObject = new ItemMoveObject<TItem>(source, source, selectedArgument, -1, newIndex);
+		itemMoveObject = new ItemMoveObject<TItem>( selectedArgument, -1, newIndex);
 		return itemMoveObject;
 	}
 
@@ -405,16 +406,16 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 		public void handleEvent(Event event) {
 
 			if (event.widget.equals(allRight)) {
-				moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, null, -1, -1);
+				moveObject = new ItemMoveObject<TItem>( null, -1, -1);
 				sortingListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, null, -2, -1);
+				moveObject = new ItemMoveObject<TItem>( null, -2, -1);
 				attributeListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
 			} else if (event.widget.equals(allLeft)) {
-				moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, null, -1, -1);
+				moveObject = new ItemMoveObject<TItem>( null, -1, -1);
 				attributeListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, null, -2, -1);
+				moveObject = new ItemMoveObject<TItem>( null, -2, -1);
 				sortingListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
@@ -425,10 +426,10 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				case RIGHT:
 					SortingArg argument = (SortingArg) attributeTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, argument, elementIndex,
+					moveObject = new ItemMoveObject<TItem>(argument, elementIndex,
 							tableSize);
 					sortingListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, null, -2, elementIndex);
+					moveObject = new ItemMoveObject<TItem>( null, -2, elementIndex);
 					attributeListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.RIGHT;
 					elementIndex = tableSize;
@@ -436,10 +437,10 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 				case LEFT:
 					SortingArg argument1 = (SortingArg) sortingTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(sortingTable, attributeTable, argument1, elementIndex,
+					moveObject = new ItemMoveObject<TItem>( argument1, elementIndex,
 							tableSize1);
 					attributeListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>(attributeTable, sortingTable, null, elementIndex, -1);
+					moveObject = new ItemMoveObject<TItem>(null, elementIndex, -1);
 					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.LEFT;
 					elementIndex = tableSize1;
@@ -575,6 +576,20 @@ public class DualListPart<TItem extends SortingArg> extends ViewPart implements 
 
 	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequestedListener;
+	}
+	
+
+	private NonGenericListenerCollection<List<SortingArg>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<SortingArg>> eventAttributeListRefreshRequested() {
+		return attributeListRefreshRequested;
+	}
+
+	
+	private NonGenericListenerCollection<List<SortingArg>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<SortingArg>> eventSortingListRefreshRequested() {
+		return sortingListRefreshRequested;
 	}
 
 	public void enableOrdering() {
