@@ -3,7 +3,7 @@ package org.eclipse.sed.ifl.control;
 
 import java.util.List;
 
-import org.eclipse.sed.ifl.control.Control;
+
 import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
@@ -82,7 +82,13 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		return attributeListRefreshRequested;
 	}
 
-	private IListener<List<Sortable>> attributeListRefreshRequestedListener = attributeListRefreshRequested::invoke;
+	private IListener<List<Sortable>> attributeListRefreshRequestedListener = event -> {
+		System.out.println("Did the program get here?");
+		getView().attributeListRefresh(event);
+		for(Sortable sort : event) {
+			System.out.println(sort);
+		}
+	};
 
 	
 	//Right
@@ -93,7 +99,9 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		return sortingListRefreshRequested;
 	}
 
-	private IListener<List<Sortable>> sortingListRefreshRequestedListener = sortingListRefreshRequested::invoke;
+	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
+		getView().sortingListRefresh(event);
+	};
 
 	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { //array from model
 		ObservableList<Sortable> newAttributeList;

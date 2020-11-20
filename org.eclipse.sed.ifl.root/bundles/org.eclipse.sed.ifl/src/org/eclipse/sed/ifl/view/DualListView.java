@@ -59,6 +59,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		dualListPart.eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
 		dualListPart.eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 		dualListPart.eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
+		
 	}
 
 	private void removeUIListeners() {
@@ -67,6 +68,15 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		dualListPart.eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
 		dualListPart.eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
 	}
+	
+	public void attributeListRefresh(List<Sortable> attributeList) {
+		attributeListRefreshRequestedListener.invoke(attributeList);
+	}
+	
+	public void sortingListRefresh(List<Sortable> sortingList) {
+		sortingListRefreshRequestedListener.invoke(sortingList);
+	}
+
 
 	@Override
 	public void embed(IEmbeddable embedded) {

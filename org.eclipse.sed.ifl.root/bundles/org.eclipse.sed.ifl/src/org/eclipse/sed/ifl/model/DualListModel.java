@@ -23,6 +23,7 @@ public class DualListModel extends EmptyModel {
 		
 		this.attributeList.addListener(changeListener);
 		this.sortingList.addListener(changeListener);
+		attributeListChangedListener.invoke(attributeList);
 	}
 	
 	public ObservableList<Sortable> getAttributeList() {
