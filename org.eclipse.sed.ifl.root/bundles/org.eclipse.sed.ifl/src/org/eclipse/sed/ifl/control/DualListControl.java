@@ -56,6 +56,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	public void enableOrdering() {
 		getView().enableOrdering();
+		setAttributeList();
 	}
 	
 	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
@@ -90,6 +91,9 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		}
 	};
 
+	private void setAttributeList() {
+		getView().attributeListRefresh(getModel().getAttributeList());
+	}
 	
 	//Right
 	
