@@ -204,7 +204,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		allUp.setEnabled(false);
 
 		oneRight = new Button(parent, SWT.PUSH);
-		oneRight.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_right.png"));
+		oneRight.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_right.png"));
 		oneRight.setLayoutData(buttonData);
 		oneRight.setSize(40, 40);
 		oneRight.setVisible(false);
@@ -218,7 +218,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		oneUp.setEnabled(false);
 
 		oneLeft = new Button(parent, SWT.PUSH);
-		oneLeft.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_left.png"));
+		oneLeft.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/move_one_left.png"));
 		oneLeft.setLayoutData(buttonData);
 		oneLeft.setSize(40, 40);
 		oneLeft.setVisible(false);
@@ -421,24 +421,24 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				case UNSELECTED:
 					break;
 				case RIGHT:
-					Sortable argument = (Sortable) attributeTable.getItem(elementIndex).getData();
+					Sortable argument = (Sortable) sortingTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
 					moveObject = new ItemMoveObject<TItem>(argument, elementIndex,
 							tableSize);
-					sortingListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>( null, -2, elementIndex);
 					attributeListChangeRequestedListener.invoke(moveObject);
+					moveObject = new ItemMoveObject<TItem>( argument, -2, elementIndex);
+					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.RIGHT;
 					elementIndex = tableSize;
 					break;
 				case LEFT:
-					Sortable argument1 = (Sortable) sortingTable.getItem(elementIndex).getData();
+					Sortable argument1 = (Sortable) attributeTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
 					moveObject = new ItemMoveObject<TItem>( argument1, elementIndex,
 							tableSize1);
-					attributeListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>(null, elementIndex, -1);
 					sortingListChangeRequestedListener.invoke(moveObject);
+					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex);
+					attributeListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.LEFT;
 					elementIndex = tableSize1;
 					break;
