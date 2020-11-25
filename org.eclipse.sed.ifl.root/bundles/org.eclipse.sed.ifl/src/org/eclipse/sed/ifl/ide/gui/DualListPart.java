@@ -18,6 +18,8 @@ import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -71,7 +73,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	private Button oneDown;
 	private Button allLeft;
 	private Button allDown;
-	private Button currentButton;
 	private GridLayout gridLayout;
 	private Label infoLabel;
 	private Table attributeTable;
@@ -176,6 +177,12 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				editor.grabVertical = true;
 				editor.setEditor(button, item, cell.getColumnIndex());
 				editor.layout();
+				item.addDisposeListener(new DisposeListener() {
+					public void widgetDisposed(DisposeEvent e) {
+						button.dispose();
+						editor.dispose();
+					}
+				});
 			}
 
 		});
@@ -427,6 +434,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 					moveObject = new ItemMoveObject<TItem>(argument, elementIndex, tableSize);
 					attributeListChangeRequestedListener.invoke(moveObject);
 					moveObject = new ItemMoveObject<TItem>(argument, -2, elementIndex);
+					sortingTable.removeAll();
 					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.RIGHT;
 					elementIndex = tableSize;
@@ -435,6 +443,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 					Sortable argument1 = (Sortable) attributeTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
 					moveObject = new ItemMoveObject<TItem>(argument1, elementIndex, tableSize1);
+					sortingTable.removeAll();
 					sortingListChangeRequestedListener.invoke(moveObject);
 					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex);
 					attributeListChangeRequestedListener.invoke(moveObject);
@@ -443,7 +452,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 					break;
 				}
 			}
-
 			selectionRequested.invoke(elementIndex);
 		}
 	}
@@ -466,6 +474,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			}
 			case RIGHT:
 				moveObject = moveInside(sortingTable, elementIndex, selectedButton);
+				sortingTable.removeAll();
 				sortingListChangeRequestedListener.invoke(moveObject);
 				sortingTable.setSelection(moveObject.getDestinationIndex());
 				elementIndex = newIndex;
