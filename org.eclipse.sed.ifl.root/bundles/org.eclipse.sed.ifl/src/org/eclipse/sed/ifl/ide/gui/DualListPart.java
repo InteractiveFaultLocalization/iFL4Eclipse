@@ -166,15 +166,16 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+					button.setVisible(true);
 				} else {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
+					button.setVisible(true);
 				}
 				button.addSelectionListener(new sortDirectionImageListener());
-				button = currentButton;
 				TableEditor editor = new TableEditor(item.getParent());
 				editor.grabHorizontal = true;
 				editor.grabVertical = true;
-				editor.setEditor(currentButton, item, cell.getColumnIndex());
+				editor.setEditor(button, item, cell.getColumnIndex());
 				editor.layout();
 			}
 
