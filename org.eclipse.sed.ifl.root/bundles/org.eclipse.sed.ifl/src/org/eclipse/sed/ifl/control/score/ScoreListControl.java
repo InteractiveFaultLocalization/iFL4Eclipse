@@ -160,7 +160,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		dualListControl.eventAttributeListRefreshRequested().add(attributeListRefreshRequested);
 		dualListControl.eventSortingListRefreshRequested().add(sortingListRefreshRequested);
-
+		dualListControl.eventOrderingRefreshRequested().add(orderingRefreshRequested);
 		super.init();
 	}
 
@@ -192,6 +192,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 		dualListControl.eventAttributeListRefreshRequested().remove(attributeListRefreshRequested);
 		dualListControl.eventSortingListRefreshRequested().remove(sortingListRefreshRequested);
+		dualListControl.eventOrderingRefreshRequested().remove(orderingRefreshRequested);
 
 		super.teardown();
 		activityMonitor = null;
@@ -316,8 +317,8 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private Sortable sorting;
 
-	private IListener<List<Sortable>> sortingListRefreshRequested = event -> {
-		dualListControl.eventSortingListRefreshRequested();
+	private IListener<List<Sortable>> orderingRefreshRequested = event -> {
+		dualListControl.eventOrderingRefreshRequested();
 		if (event.isEmpty() == false) {
 			for (Sortable argument : event) {
 				sorting = argument;
@@ -331,6 +332,10 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		refreshView();
 		comparators.clear();
 		previousSorts.clear();
+	};
+	
+	private IListener<List<Sortable>> sortingListRefreshRequested = event -> {
+		dualListControl.eventSortingListRefreshRequested();
 	};
 
 	private IListener<List<Sortable>> attributeListRefreshRequested = event -> {

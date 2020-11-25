@@ -129,7 +129,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		columnLeftName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return ((Sortable)element).getName();
+				return ((Sortable) element).getName();
 			}
 		});
 		attributeViewer.getControl().setLayoutData(gridData);
@@ -152,7 +152,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		columnRightName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return ((Sortable)element).getName();
+				return ((Sortable) element).getName();
 			}
 		});
 		columnRightButton.getColumn().setWidth(200);
@@ -166,10 +166,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
-					button.setVisible(true);
 				} else {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
-					button.setVisible(true);
+					button.setSelection(true);
 				}
 				button.addSelectionListener(new sortDirectionImageListener());
 				TableEditor editor = new TableEditor(item.getParent());
@@ -266,7 +265,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		composite.setParent(parent);
 	}
 
-	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) { //function is not used
+	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) { // function is
+																											// not used
 		TableItem extractedItem = source.getItem(extractIndex);
 		Sortable argument = (Sortable) extractedItem.getData();
 		return argument.getName();
@@ -388,7 +388,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			newIndex = elementIndex + 1;
 
 		ItemMoveObject<TItem> itemMoveObject;
-		itemMoveObject = new ItemMoveObject<TItem>( selectedArgument, -1, newIndex);
+		itemMoveObject = new ItemMoveObject<TItem>(selectedArgument, -1, newIndex);
 		return itemMoveObject;
 	}
 
@@ -404,16 +404,16 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		public void handleEvent(Event event) {
 
 			if (event.widget.equals(allRight)) {
-				moveObject = new ItemMoveObject<TItem>( null, -1, -1);
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1);
 				sortingListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>( null, -2, -1);
+				moveObject = new ItemMoveObject<TItem>(null, -2, -1);
 				attributeListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
 			} else if (event.widget.equals(allLeft)) {
-				moveObject = new ItemMoveObject<TItem>( null, -1, -1);
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1);
 				attributeListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>( null, -2, -1);
+				moveObject = new ItemMoveObject<TItem>(null, -2, -1);
 				sortingListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
@@ -424,10 +424,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				case RIGHT:
 					Sortable argument = (Sortable) sortingTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(argument, elementIndex,
-							tableSize);
+					moveObject = new ItemMoveObject<TItem>(argument, elementIndex, tableSize);
 					attributeListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>( argument, -2, elementIndex);
+					moveObject = new ItemMoveObject<TItem>(argument, -2, elementIndex);
 					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.RIGHT;
 					elementIndex = tableSize;
@@ -435,8 +434,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				case LEFT:
 					Sortable argument1 = (Sortable) attributeTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>( argument1, elementIndex,
-							tableSize1);
+					moveObject = new ItemMoveObject<TItem>(argument1, elementIndex, tableSize1);
 					sortingListChangeRequestedListener.invoke(moveObject);
 					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex);
 					attributeListChangeRequestedListener.invoke(moveObject);
@@ -483,14 +481,11 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			Button source = (Button) e.getSource();
-			DualListPart.this.currentButton = source;
 			if (source.getSelection()) {
-				DualListPart.this.currentButton
-						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
+				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Descending);
 			} else {
-				DualListPart.this.currentButton
-						.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
 			orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
@@ -576,7 +571,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequestedListener;
 	}
-	
 
 	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
 
@@ -584,7 +578,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		return attributeListRefreshRequested;
 	}
 
-	
 	private NonGenericListenerCollection<List<Sortable>> sortingListRefreshRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<List<Sortable>> eventSortingListRefreshRequested() {

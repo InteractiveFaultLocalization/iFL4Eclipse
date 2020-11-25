@@ -41,6 +41,7 @@ public class DualListModel extends EmptyModel {
 	public void setSortingList(ObservableList<Sortable> sortingList) {
 		this.sortingList = sortingList;
 		sortingListChangedListener.invoke(sortingList);
+		orderingRefreshedListener.invoke(sortingList);
 	}
 	
 	private NonGenericListenerCollection<Sortable> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
@@ -59,6 +60,12 @@ public class DualListModel extends EmptyModel {
 
 	public INonGenericListenerCollection<List<Sortable>> eventSortingListChanged() {
 		return sortingListChangedListener;
+	}
+	
+	private NonGenericListenerCollection<List<Sortable>> orderingRefreshedListener = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<Sortable>> eventOrderingRefresh() {
+		return orderingRefreshedListener;
 	}
 	
 	private ListChangeListener<Sortable> changeListener = c -> {

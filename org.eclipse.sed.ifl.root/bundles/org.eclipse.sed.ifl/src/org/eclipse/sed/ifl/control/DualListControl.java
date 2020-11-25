@@ -38,6 +38,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private void initModelListeners() {
 		getModel().eventAttributeListChanged().add(attributeListRefreshRequestedListener);
 		getModel().eventSortingListChanged().add(sortingListRefreshRequestedListener);
+		getModel().eventOrderingRefresh().add(orderingRefreshRequestedListener);
 	}
 
 	public void removeUIListeners() {
@@ -49,6 +50,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	public void removeModelListeners() {
 		getModel().eventAttributeListChanged().remove(attributeListRefreshRequestedListener);
 		getModel().eventSortingListChanged().remove(sortingListRefreshRequestedListener);
+		getModel().eventOrderingRefresh().remove(orderingRefreshRequestedListener);
 	}
 
 	public void enableOrdering() {
@@ -100,8 +102,16 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
 		getView().sortingListRefresh(event);
 	};
+	
+	private NonGenericListenerCollection<List<Sortable>> orderingRefreshRequested = new NonGenericListenerCollection<>();
 
-	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { // array from model
+	public INonGenericListenerCollection<List<Sortable>> eventOrderingRefreshRequested() {
+		return orderingRefreshRequested;
+	}
+
+	private IListener<List<Sortable>> orderingRefreshRequestedListener = orderingRefreshRequested::invoke;
+
+	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { 
 		ObservableList<Sortable> newAttributeList;
 		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
 			newAttributeList = getModel().getAttributeList();
