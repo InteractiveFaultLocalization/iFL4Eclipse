@@ -490,11 +490,11 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			Button source = (Button) e.getSource();
-			if (source.getSelection()) {
-				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
+			if (!source.getSelection()) {
+				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Descending);
 			} else {
-				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
 			orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
