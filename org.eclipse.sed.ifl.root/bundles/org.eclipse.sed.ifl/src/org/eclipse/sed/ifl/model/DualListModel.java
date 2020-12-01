@@ -73,7 +73,7 @@ public class DualListModel extends EmptyModel {
 			if(c.getList().equals(attributeList)) {
 				attributeListChangedListener.invoke(attributeList);
 			} else if (c.getList().equals(sortingList)) {
-				sortingListChangedListener.invoke(sortingList);
+				sortingListChangedListener.invoke(sortingList); //else ágnál exception
 			}
 		}
 	};

@@ -166,24 +166,27 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				TableItem item = (TableItem) cell.getItem();
 				toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
+				System.out.println(toggleElement.getName() + toggleElement.getSortingDirection()); //Sortable helyett
+																									//egyedi kulcs
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
+					button.setSelection(false);
 				} else {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 					button.setSelection(true);
 				}
-				button.addSelectionListener(new sortDirectionImageListener());
 				TableEditor editor = new TableEditor(item.getParent());
 				editor.grabHorizontal = true;
 				editor.grabVertical = true;
-				editor.setEditor(button, item, cell.getColumnIndex());
-				editor.layout();
 				item.addDisposeListener(new DisposeListener() {
 					public void widgetDisposed(DisposeEvent e) {
 						button.dispose();
 						editor.dispose();
 					}
 				});
+				editor.setEditor(button, item, cell.getColumnIndex());
+				button.addSelectionListener(new sortDirectionImageListener());
+				editor.layout();
 			}
 
 		});
@@ -362,6 +365,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	}
 
 	public void setSortingTable(List<Sortable> sortingList) {
+		sortingTable.removeAll();
 		sortingViewer.setInput(sortingList);
 		sortingViewer.refresh();
 	}
@@ -384,7 +388,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	public ItemMoveObject<TItem> moveInside(Table source, int elementIndex, Widget selectedButton) {
 		int length = source.getItemCount();
 		selectedArgument = (Sortable) source.getItem(elementIndex).getData();
-
 		if (selectedButton.equals(allUp))
 			newIndex = 0;
 		else if (selectedButton.equals(allDown))
@@ -406,7 +409,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 			if (event.widget.equals(allRight)) {
 				operationType = OperationType.MOVEALL;
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType);
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType); //csak a moveall
 				sortingListChangeRequestedListener.invoke(moveObject);
 				operationType = OperationType.WIPE;
 				moveObject = new ItemMoveObject<TItem>(null, -2, -1, operationType);
@@ -543,8 +546,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 		oneLeft.addListener(SWT.Selection, new moveBetweenListsListener());
 
-		allLeft.addListener(SWT.Selection, new moveBetweenListsListener());
-
+		allLeft.addListener(SWT.Selection, new moveBetweenListsListener()); // paraméteres lambdahívásokra kicseréli
+																			//+ 2 event
 		allUp.addListener(SWT.Selection, new moveInsideListListener());
 
 		oneUp.addListener(SWT.Selection, new moveInsideListListener());
