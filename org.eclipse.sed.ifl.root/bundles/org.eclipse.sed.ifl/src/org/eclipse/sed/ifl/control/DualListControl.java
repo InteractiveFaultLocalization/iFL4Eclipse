@@ -113,15 +113,19 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { 
 		ObservableList<Sortable> newAttributeList;
-		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
+		ObservableList<Sortable> sortingList = getModel().getSortingList();
+		if (event.getOperationType().toString().equals("WIPE")) {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.clear();
-		} else if (event.getSourceIndex() == -2) {
+		} else if (event.getOperationType().toString().equals("REMOVE")) {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.remove(event.getItem());
-		} else if (event.getSourceIndex() == -1 && event.getDestinationIndex() == -1) {
-			newAttributeList = getModel().getSortingList();
-		} else if (event.getSourceIndex() == -1) {
+		} else if (event.getOperationType().toString().equals("MOVEALL")) {
+			newAttributeList= getModel().getAttributeList();
+			for(Sortable sortable : sortingList) {
+				newAttributeList.add(sortable);
+			}
+		} else if (event.getOperationType().toString().equals("MOVEINSIDE")) {
 			newAttributeList = getModel().getAttributeList();
 			Sortable selectedArgument = event.getItem();
 			int selectedIndex = newAttributeList.indexOf(selectedArgument);
@@ -131,7 +135,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 			newAttributeList.set(swapIndex, event.getItem());
 		}
 
-		else {
+		else  {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.add(event.getItem());
 		}
@@ -140,16 +144,20 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
 		ObservableList<Sortable> newSortingList;
-		if (event.getSourceIndex() == -2 && event.getDestinationIndex() == -1) {
+		ObservableList<Sortable> attributeList = getModel().getAttributeList();
+		if (event.getOperationType().toString().equals("WIPE")) {
 			newSortingList = getModel().getSortingList();
 			newSortingList.clear();
 		}
-		else if (event.getSourceIndex() == -2) {
+		else if (event.getOperationType().toString().equals("REMOVE")) {
 			newSortingList = getModel().getSortingList();
 			newSortingList.remove(event.getItem());
-		} else if (event.getSourceIndex() == -1 && event.getDestinationIndex() == -1) {
-			newSortingList = getModel().getAttributeList();
-		} else if (event.getSourceIndex() == -1) {
+		} else if (event.getOperationType().toString().equals("MOVEALL")) {
+			newSortingList = getModel().getSortingList();
+			for(Sortable sortable : attributeList) {
+				newSortingList.add(sortable);
+			}
+		} else if (event.getOperationType().toString().equals("MOVEINSIDE")) {
 			newSortingList = getModel().getSortingList();
 			Sortable selectedArgument = event.getItem();
 			int selectedIndex = newSortingList.indexOf(selectedArgument);

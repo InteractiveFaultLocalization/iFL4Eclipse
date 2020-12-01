@@ -39,9 +39,6 @@ public class DualListModel extends EmptyModel {
 	}
 
 	public void setSortingList(ObservableList<Sortable> sortingList) {
-		for(Sortable item: sortingList) {
-			System.out.println(item.getName() + item.getSortingDirection());
-		}
 		this.sortingList = sortingList;
 		sortingListChangedListener.invoke(sortingList);
 		orderingRefreshedListener.invoke(sortingList);

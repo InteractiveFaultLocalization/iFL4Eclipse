@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.ItemMoveObject;
+import org.eclipse.sed.ifl.control.OperationType;
 import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -43,8 +44,6 @@ enum SelectionLocation {
 }
 
 public class DualListPart<TItem extends Sortable> extends ViewPart implements IEmbeddable, IEmbedee {
-	// generic extends: generic constraints utánanézés.
-	// interface föléfalazása
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
 
 	@Inject
@@ -59,6 +58,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	private ItemMoveObject<TItem> moveObject;
 
 	private SelectionLocation whichList;
+	private OperationType operationType;
 
 	@FunctionalInterface
 	public interface HumanReadable<TItem> {
@@ -91,6 +91,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		elementIndex = 0;
 		newIndex = 0;
 		whichList = SelectionLocation.UNSELECTED;
+		operationType = OperationType.ADD;
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -272,8 +273,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		composite.setParent(parent);
 	}
 
-	public String getArrayElementbyIndex(Table source, int extractIndex, HumanReadable<TItem> function) { // function is
-																											// not used
+	public String getArrayElementbyIndex(Table source, int extractIndex) {
 		TableItem extractedItem = source.getItem(extractIndex);
 		Sortable argument = (Sortable) extractedItem.getData();
 		return argument.getName();
@@ -355,8 +355,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		TableItem tableItems[] = this.sortingTable.getItems();
 		ArrayList<Sortable> sortingList = new ArrayList<Sortable>();
 		for (TableItem item : tableItems) {
-			Sortable argument = (Sortable) item.getData();
-			sortingList.add(argument);
+			Sortable sortable = (Sortable) item.getData();
+			sortingList.add(sortable);
 		}
 		return sortingList;
 	}
@@ -395,15 +395,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			newIndex = elementIndex + 1;
 
 		ItemMoveObject<TItem> itemMoveObject;
-		itemMoveObject = new ItemMoveObject<TItem>(selectedArgument, -1, newIndex);
+		operationType = OperationType.MOVEINSIDE;
+		itemMoveObject = new ItemMoveObject<TItem>(selectedArgument, -1, newIndex, operationType);
 		return itemMoveObject;
-	}
-
-	public void refreshSelectionBetweenOne(Table source, Table destination) {
-		source.setSelection(-1);
-		int newSelection = destination.getItemCount() - 1;
-		destination.setSelection(newSelection);
-		this.moveObject.setDestinationIndex(newSelection);
 	}
 
 	public class moveBetweenListsListener implements Listener {
@@ -411,16 +405,20 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		public void handleEvent(Event event) {
 
 			if (event.widget.equals(allRight)) {
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1);
+				operationType = OperationType.MOVEALL;
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType);
 				sortingListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>(null, -2, -1);
+				operationType = OperationType.WIPE;
+				moveObject = new ItemMoveObject<TItem>(null, -2, -1, operationType);
 				attributeListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
 			} else if (event.widget.equals(allLeft)) {
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1);
+				operationType = OperationType.MOVEALL;
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType);
 				attributeListChangeRequestedListener.invoke(moveObject);
-				moveObject = new ItemMoveObject<TItem>(null, -2, -1);
+				operationType = OperationType.WIPE;
+				moveObject = new ItemMoveObject<TItem>(null, -2, -1, operationType);
 				sortingListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
@@ -431,9 +429,11 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				case RIGHT:
 					Sortable argument = (Sortable) sortingTable.getItem(elementIndex).getData();
 					int tableSize = sortingTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(argument, elementIndex, tableSize);
+					operationType = OperationType.ADD;
+					moveObject = new ItemMoveObject<TItem>(argument, elementIndex, tableSize, operationType);
 					attributeListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>(argument, -2, elementIndex);
+					operationType = OperationType.REMOVE;
+					moveObject = new ItemMoveObject<TItem>(argument, -2, elementIndex, operationType);
 					sortingTable.removeAll();
 					sortingListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.RIGHT;
@@ -442,10 +442,12 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				case LEFT:
 					Sortable argument1 = (Sortable) attributeTable.getItem(elementIndex).getData();
 					int tableSize1 = attributeTable.getItemCount();
-					moveObject = new ItemMoveObject<TItem>(argument1, elementIndex, tableSize1);
+					operationType = OperationType.ADD;
+					moveObject = new ItemMoveObject<TItem>(argument1, elementIndex, tableSize1, operationType);
 					sortingTable.removeAll();
 					sortingListChangeRequestedListener.invoke(moveObject);
-					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex);
+					operationType = OperationType.REMOVE;
+					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex, operationType);
 					attributeListChangeRequestedListener.invoke(moveObject);
 					whichList = SelectionLocation.LEFT;
 					elementIndex = tableSize1;
