@@ -1,5 +1,5 @@
 package org.eclipse.sed.ifl.control;
 
 public enum OperationType {
-	WIPE, REMOVE, MOVEALL,MOVEINSIDE,ADD
+	REMOVEALL, REMOVE, MOVEALL,MOVEINSIDE,ADD
 }

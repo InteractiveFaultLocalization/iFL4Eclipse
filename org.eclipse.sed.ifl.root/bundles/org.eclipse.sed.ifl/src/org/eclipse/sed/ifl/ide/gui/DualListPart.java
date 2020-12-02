@@ -409,20 +409,14 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 			if (event.widget.equals(allRight)) {
 				operationType = OperationType.MOVEALL;
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType); //csak a moveall
+				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType); 
 				sortingListChangeRequestedListener.invoke(moveObject);
-				operationType = OperationType.WIPE;
-				moveObject = new ItemMoveObject<TItem>(null, -2, -1, operationType);
-				attributeListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
 			} else if (event.widget.equals(allLeft)) {
 				operationType = OperationType.MOVEALL;
 				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType);
 				attributeListChangeRequestedListener.invoke(moveObject);
-				operationType = OperationType.WIPE;
-				moveObject = new ItemMoveObject<TItem>(null, -2, -1, operationType);
-				sortingListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.UNSELECTED;
 
 			} else {

@@ -18,18 +18,18 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	public void init() {
-		initUIListeners(); //InitView rename
+		initViewListeners();
 		initModelListeners();
 		super.init();
 	}
 
 	public void teardown() {
-		removeUIListeners();
+		removeViewListeners();
 		removeModelListeners();
 		super.teardown();
 	}
 
-	private void initUIListeners() {
+	private void initViewListeners() {
 		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
 		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 		getView().eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
@@ -41,7 +41,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getModel().eventOrderingRefresh().add(orderingRefreshRequestedListener);
 	}
 
-	public void removeUIListeners() {
+	public void removeViewListeners() {
 		getView().eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
 		getView().eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
 		getView().eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
@@ -55,7 +55,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	public void enableOrdering() {
 		getView().enableOrdering();
-		setAttributeList();
+		refreshAttributeListOnView();
 	}
 
 	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
@@ -87,8 +87,16 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getView().attributeListRefresh(event);
 	};
 
-	private void setAttributeList() { //Rename: refresh vagy update (onView)
+	private void refreshAttributeListOnView() {
 		getView().attributeListRefresh(getModel().getAttributeList());
+	}
+
+	private void clearSortingList(ItemMoveObject<TItem> moveObject) {
+		sortingListChangeRequestedListener.invoke(moveObject);
+	}
+
+	private void clearAttributeList(ItemMoveObject<TItem> moveObject) {
+		attributeListChangeRequestedListener.invoke(moveObject);
 	}
 
 	// Right
@@ -102,7 +110,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
 		getView().sortingListRefresh(event);
 	};
-	
+
 	private NonGenericListenerCollection<List<Sortable>> orderingRefreshRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<List<Sortable>> eventOrderingRefreshRequested() {
@@ -111,20 +119,25 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	private IListener<List<Sortable>> orderingRefreshRequestedListener = orderingRefreshRequested::invoke;
 
-	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> { 
+	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> {
 		ObservableList<Sortable> newAttributeList;
 		ObservableList<Sortable> sortingList = getModel().getSortingList();
-		if (event.getOperationType().equals(OperationType.WIPE)) {
+		if (event.getOperationType().equals(OperationType.REMOVEALL)) {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.clear();
 		} else if (event.getOperationType().equals(OperationType.REMOVE)) {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.remove(event.getItem());
 		} else if (event.getOperationType().equals(OperationType.MOVEALL)) {
-			newAttributeList= getModel().getAttributeList();
-			for(Sortable sortable : sortingList) {
+			newAttributeList = getModel().getAttributeList();
+			for (Sortable sortable : sortingList) {
 				newAttributeList.add(sortable);
 			}
+			OperationType operationType = OperationType.REMOVEALL;
+			ItemMoveObject<TItem> moveObject = event;
+			moveObject.setOperationType(operationType);
+			clearSortingList(moveObject);
+
 		} else if (event.getOperationType().equals(OperationType.MOVEINSIDE)) {
 			newAttributeList = getModel().getAttributeList();
 			Sortable selectedArgument = event.getItem();
@@ -135,7 +148,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 			newAttributeList.set(swapIndex, event.getItem());
 		}
 
-		else  {
+		else {
 			newAttributeList = getModel().getAttributeList();
 			newAttributeList.add(event.getItem());
 		}
@@ -145,18 +158,21 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
 		ObservableList<Sortable> newSortingList;
 		ObservableList<Sortable> attributeList = getModel().getAttributeList();
-		if (event.getOperationType().equals(OperationType.WIPE)) {
+		if (event.getOperationType().equals(OperationType.REMOVEALL)) {
 			newSortingList = getModel().getSortingList();
 			newSortingList.clear();
-		}
-		else if (event.getOperationType().equals(OperationType.REMOVE)) {
+		} else if (event.getOperationType().equals(OperationType.REMOVE)) {
 			newSortingList = getModel().getSortingList();
 			newSortingList.remove(event.getItem());
 		} else if (event.getOperationType().equals(OperationType.MOVEALL)) {
 			newSortingList = getModel().getSortingList();
-			for(Sortable sortable : attributeList) {
+			for (Sortable sortable : attributeList) {
 				newSortingList.add(sortable);
 			}
+			OperationType operationType = OperationType.REMOVEALL;
+			ItemMoveObject<TItem> moveObject = event;
+			moveObject.setOperationType(operationType);
+			clearAttributeList(moveObject);
 		} else if (event.getOperationType().equals(OperationType.MOVEINSIDE)) {
 			newSortingList = getModel().getSortingList();
 			Sortable selectedArgument = event.getItem();

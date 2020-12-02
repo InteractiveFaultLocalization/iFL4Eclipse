@@ -111,7 +111,6 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		}
 	}
 
-	// refresht beépíteni
 
 	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
 

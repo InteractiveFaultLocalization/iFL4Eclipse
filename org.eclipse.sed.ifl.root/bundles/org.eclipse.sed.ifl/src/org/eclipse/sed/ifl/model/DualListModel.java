@@ -73,7 +73,10 @@ public class DualListModel extends EmptyModel {
 			if(c.getList().equals(attributeList)) {
 				attributeListChangedListener.invoke(attributeList);
 			} else if (c.getList().equals(sortingList)) {
-				sortingListChangedListener.invoke(sortingList); //else ágnál exception
+				sortingListChangedListener.invoke(sortingList);
+			}
+			else {
+				throw new UnsupportedOperationException("This list is ot supported by this class.");
 			}
 		}
 	};

@@ -38,4 +38,8 @@ public class ItemMoveObject<TItem extends Sortable> {
 	public OperationType getOperationType() {
 		return operationType;
 	}
+	
+	public void setOperationType(OperationType operationType) {
+		this.operationType = operationType;
+	}
 }
