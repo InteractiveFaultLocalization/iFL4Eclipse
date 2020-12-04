@@ -29,12 +29,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
@@ -51,10 +48,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
-	private Sortable selectedArgument;
 	private Sortable toggleElement;
 	private int elementIndex;
-	private int newIndex;
 	private ItemMoveObject<TItem> moveObject;
 
 	private SelectionLocation whichList;
@@ -86,10 +81,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	}
 
 	private void addUIElements(Composite parent) {
-		selectedArgument = null;
 		toggleElement = null;
 		elementIndex = 0;
-		newIndex = 0;
 		whichList = SelectionLocation.UNSELECTED;
 		operationType = OperationType.ADD;
 
@@ -166,8 +159,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				TableItem item = (TableItem) cell.getItem();
 				toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
-				System.out.println(toggleElement.getName() + toggleElement.getSortingDirection()); //Sortable helyett
-																									//egyedi kulcs
+				// Sortable helyett
+				// egyedi kulcs
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 					button.setSelection(false);
@@ -385,105 +378,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.refresh();
 	}
 
-	public ItemMoveObject<TItem> moveInside(Table source, int elementIndex, Widget selectedButton) {
-		int length = source.getItemCount();
-		selectedArgument = (Sortable) source.getItem(elementIndex).getData();
-		if (selectedButton.equals(allUp))
-			newIndex = 0;
-		else if (selectedButton.equals(allDown))
-			newIndex = length - 1;
-		else if (selectedButton.equals(oneUp))
-			newIndex = elementIndex - 1;
-		else if (selectedButton.equals(oneDown))
-			newIndex = elementIndex + 1;
-
-		ItemMoveObject<TItem> itemMoveObject;
-		operationType = OperationType.MOVEINSIDE;
-		itemMoveObject = new ItemMoveObject<TItem>(selectedArgument, -1, newIndex, operationType);
-		return itemMoveObject;
-	}
-
-	public class moveBetweenListsListener implements Listener {
-		@Override
-		public void handleEvent(Event event) {
-
-			if (event.widget.equals(allRight)) {
-				operationType = OperationType.MOVEALL;
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType); 
-				sortingListChangeRequestedListener.invoke(moveObject);
-				whichList = SelectionLocation.UNSELECTED;
-
-			} else if (event.widget.equals(allLeft)) {
-				operationType = OperationType.MOVEALL;
-				moveObject = new ItemMoveObject<TItem>(null, -1, -1, operationType);
-				attributeListChangeRequestedListener.invoke(moveObject);
-				whichList = SelectionLocation.UNSELECTED;
-
-			} else {
-				switch (whichList) {
-				case UNSELECTED:
-					break;
-				case RIGHT:
-					Sortable argument = (Sortable) sortingTable.getItem(elementIndex).getData();
-					int tableSize = sortingTable.getItemCount();
-					operationType = OperationType.ADD;
-					moveObject = new ItemMoveObject<TItem>(argument, elementIndex, tableSize, operationType);
-					attributeListChangeRequestedListener.invoke(moveObject);
-					operationType = OperationType.REMOVE;
-					moveObject = new ItemMoveObject<TItem>(argument, -2, elementIndex, operationType);
-					sortingTable.removeAll();
-					sortingListChangeRequestedListener.invoke(moveObject);
-					whichList = SelectionLocation.RIGHT;
-					elementIndex = tableSize;
-					break;
-				case LEFT:
-					Sortable argument1 = (Sortable) attributeTable.getItem(elementIndex).getData();
-					int tableSize1 = attributeTable.getItemCount();
-					operationType = OperationType.ADD;
-					moveObject = new ItemMoveObject<TItem>(argument1, elementIndex, tableSize1, operationType);
-					sortingTable.removeAll();
-					sortingListChangeRequestedListener.invoke(moveObject);
-					operationType = OperationType.REMOVE;
-					moveObject = new ItemMoveObject<TItem>(argument1, -2, elementIndex, operationType);
-					attributeListChangeRequestedListener.invoke(moveObject);
-					whichList = SelectionLocation.LEFT;
-					elementIndex = tableSize1;
-					break;
-				}
-			}
-			selectionRequested.invoke(elementIndex);
-		}
-	}
-
-	public class moveInsideListListener implements Listener {
-
-		@Override
-		public void handleEvent(Event event) {
-			Widget selectedButton = event.widget;
-
-			switch (whichList) {
-			case UNSELECTED:
-				break;
-			case LEFT: {
-				moveObject = moveInside(attributeTable, elementIndex, selectedButton);
-				attributeListChangeRequestedListener.invoke(moveObject);
-				attributeTable.setSelection(moveObject.getDestinationIndex());
-				elementIndex = newIndex;
-				break;
-			}
-			case RIGHT:
-				moveObject = moveInside(sortingTable, elementIndex, selectedButton);
-				sortingTable.removeAll();
-				sortingListChangeRequestedListener.invoke(moveObject);
-				sortingTable.setSelection(moveObject.getDestinationIndex());
-				elementIndex = newIndex;
-				break;
-			}
-			selectionRequested.invoke(moveObject.getDestinationIndex());
-		}
-
-	}
-
 	public class sortDirectionImageListener implements SelectionListener {
 
 		@Override
@@ -534,21 +428,104 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			}
 		});
 
-		allRight.addListener(SWT.Selection, new moveBetweenListsListener());
+		allRight.addListener(SWT.Selection, event -> {
+			operationType = OperationType.MOVEALL;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			sortingListChangeRequestedListener.invoke(moveObject);
+			whichList = SelectionLocation.UNSELECTED;
+		});
 
-		oneRight.addListener(SWT.Selection, new moveBetweenListsListener());
+		oneRight.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ADD;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				sortingListChangeRequestedListener.invoke(moveObject);
+				whichList = SelectionLocation.RIGHT;
+				elementIndex = sortingTable.getItemCount();
+				selectionRequested.invoke(elementIndex);
 
-		oneLeft.addListener(SWT.Selection, new moveBetweenListsListener());
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				throw new UnsupportedOperationException("The selected item is already in the sorting list.");
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
 
-		allLeft.addListener(SWT.Selection, new moveBetweenListsListener()); // paraméteres lambdahívásokra kicseréli
-																			//+ 2 event
-		allUp.addListener(SWT.Selection, new moveInsideListListener());
+		oneLeft.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ADD;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				throw new UnsupportedOperationException("The selected item is already in the attribute list.");
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				attributeListChangeRequestedListener.invoke(moveObject);
+				whichList = SelectionLocation.LEFT;
+				elementIndex = attributeTable.getItemCount();
+				selectionRequested.invoke(elementIndex);
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
 
-		oneUp.addListener(SWT.Selection, new moveInsideListListener());
+		allLeft.addListener(SWT.Selection, event -> {
+			operationType = OperationType.MOVEALL;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			attributeListChangeRequestedListener.invoke(moveObject);
+			whichList = SelectionLocation.UNSELECTED;
+		});
 
-		oneDown.addListener(SWT.Selection, new moveInsideListListener());
+		allUp.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ALLUP;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				attributeListButtonPressedListener.invoke(moveObject);
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				sortingListButtonPressedListener.invoke(moveObject);
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
 
-		allDown.addListener(SWT.Selection, new moveInsideListListener());
+		oneUp.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ONEUP;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				attributeListButtonPressedListener.invoke(moveObject);
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				sortingListButtonPressedListener.invoke(moveObject);
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
+
+		oneDown.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ONEDOWN;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				attributeListButtonPressedListener.invoke(moveObject);
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				sortingListButtonPressedListener.invoke(moveObject);
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
+
+		allDown.addListener(SWT.Selection, event -> {
+			operationType = OperationType.ALLDOWN;
+			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
+			if (whichList == SelectionLocation.LEFT) {
+				attributeListButtonPressedListener.invoke(moveObject);
+			}
+			if (whichList == SelectionLocation.RIGHT) {
+				sortingListButtonPressedListener.invoke(moveObject);
+			} else {
+				throw new UnsupportedOperationException("No item is selected.");
+			}
+		});
 
 		if (orderingEnabled.booleanValue()) {
 			enableOrdering();
@@ -574,10 +551,22 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		return sortingListChangeRequestedListener;
 	}
 
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListButtonPressedListener = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListButtonPressed() {
+		return attributeListButtonPressedListener;
+	}
+
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequestedListener = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequestedListener;
+	}
+
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListButtonPressedListener = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListButtonPressed() {
+		return sortingListButtonPressedListener;
 	}
 
 	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();

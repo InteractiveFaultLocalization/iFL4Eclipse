@@ -56,7 +56,9 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private void initUIListeners() {
 		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
+		dualListPart.eventAttributeListButtonPressed().add(attributeListButtonPressedListener);
 		dualListPart.eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
+		dualListPart.eventSortingListButtonPressed().add(sortingListButtonPressedListener);
 		dualListPart.eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
 		dualListPart.eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
 		
@@ -64,7 +66,9 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private void removeUIListeners() {
 		dualListPart.eventSelectionRequested().remove(selectionRequestedListener);
+		dualListPart.eventAttributeListButtonPressed().remove(attributeListButtonPressedListener);
 		dualListPart.eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
+		dualListPart.eventSortingListButtonPressed().remove(sortingListButtonPressedListener);
 		dualListPart.eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
 		dualListPart.eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
 	}
@@ -125,8 +129,16 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
 		return attributeListChangeRequested;
 	}
-
+	
 	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = attributeListChangeRequested::invoke;
+	
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListButtonPressed = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListButtonPressed() {
+		return attributeListButtonPressed;
+	}
+
+	private IListener<ItemMoveObject<TItem>> attributeListButtonPressedListener = attributeListButtonPressed::invoke;
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListChangeRequested = new NonGenericListenerCollection<>();
 
@@ -135,6 +147,14 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	}
 
 	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = sortingListChangeRequested::invoke;
+	
+	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListButtonPressed = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListButtonPressed() {
+		return sortingListButtonPressed;
+	}
+
+	private IListener<ItemMoveObject<TItem>> sortingListButtonPressedListener = sortingListButtonPressed::invoke;
 
 	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
 
