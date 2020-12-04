@@ -40,7 +40,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private void initModelListeners() {
 		getModel().eventAttributeListChanged().add(attributeListRefreshRequestedListener);
 		getModel().eventSortingListChanged().add(sortingListRefreshRequestedListener);
-		getModel().eventOrderingRefresh().add(orderingRefreshRequestedListener);
 	}
 
 	public void removeViewListeners() {
@@ -54,7 +53,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	public void removeModelListeners() {
 		getModel().eventAttributeListChanged().remove(attributeListRefreshRequestedListener);
 		getModel().eventSortingListChanged().remove(sortingListRefreshRequestedListener);
-		getModel().eventOrderingRefresh().remove(orderingRefreshRequestedListener);
 	}
 
 	public void enableOrdering() {
@@ -111,17 +109,16 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		return sortingListRefreshRequested;
 	}
 
+	private NonGenericListenerCollection<List<Sortable>> updateSorting = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<Sortable>> eventUpdateSorting() {
+		return updateSorting;
+	}
+	
 	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
+		updateSorting.invoke(event);
 		getView().sortingListRefresh(event);
 	};
-
-	private NonGenericListenerCollection<List<Sortable>> orderingRefreshRequested = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<List<Sortable>> eventOrderingRefreshRequested() {
-		return orderingRefreshRequested;
-	}
-
-	private IListener<List<Sortable>> orderingRefreshRequestedListener = orderingRefreshRequested::invoke;
 
 	private IListener<ItemMoveObject<TItem>> attributeListButtonPressedListener = event -> {
 		ItemMoveObject<TItem> moveObject = event;
