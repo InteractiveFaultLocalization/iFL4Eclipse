@@ -362,6 +362,10 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		sortingViewer.setInput(sortingList);
 		sortingViewer.refresh();
 	}
+	
+	public void setSortingTableSelection(int selection) {
+		sortingTable.setSelection(selection);
+	}
 
 	public ArrayList<Sortable> getAttributeTable() {
 		TableItem tableItems[] = this.attributeTable.getItems();
@@ -377,6 +381,11 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.setInput(argumentList);
 		attributeViewer.refresh();
 	}
+	
+	public void setAttributeTableSelection(int selection) {
+		attributeTable.setSelection(selection);
+	}
+	
 
 	public class sortDirectionImageListener implements SelectionListener {
 
@@ -414,7 +423,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				elementIndex = attributeTable.getSelectionIndex();
 				whichList = SelectionLocation.LEFT;
 				sortingTable.setSelection(-1);
-				selectionRequested.invoke(elementIndex);
 			}
 		});
 
@@ -424,7 +432,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				elementIndex = sortingTable.getSelectionIndex();
 				whichList = SelectionLocation.RIGHT;
 				attributeTable.setSelection(-1);
-				selectionRequested.invoke(elementIndex);
 			}
 		});
 
@@ -442,7 +449,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				sortingListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.RIGHT;
 				elementIndex = sortingTable.getItemCount();
-				selectionRequested.invoke(elementIndex);
 
 			}
 			if (whichList == SelectionLocation.RIGHT) {
@@ -462,7 +468,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				attributeListChangeRequestedListener.invoke(moveObject);
 				whichList = SelectionLocation.LEFT;
 				elementIndex = attributeTable.getItemCount();
-				selectionRequested.invoke(elementIndex);
 			} else {
 				throw new UnsupportedOperationException("No item is selected.");
 			}
@@ -539,10 +544,16 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		return orderingDirectionChangedListener;
 	}
 
-	private NonGenericListenerCollection<Integer> selectionRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Integer> attributeListSelectionRequested = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Integer> eventSelectionRequested() {
-		return selectionRequested;
+	public INonGenericListenerCollection<Integer> eventAttributeListSelectionRequested() {
+		return attributeListSelectionRequested;
+	}
+	
+	private NonGenericListenerCollection<Integer> sortingListSelectionRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Integer> eventSortingListSelectionRequested() {
+		return sortingListSelectionRequested;
 	}
 
 	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListChangeRequestedListener = new NonGenericListenerCollection<>();

@@ -55,7 +55,8 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	}
 
 	private void initUIListeners() {
-		dualListPart.eventSelectionRequested().add(selectionRequestedListener);
+		dualListPart.eventAttributeListSelectionRequested().add(attributeListSelectionRequestedListener);
+		dualListPart.eventSortingListSelectionRequested().add(sortingListSelectionRequestedListener);
 		dualListPart.eventAttributeListButtonPressed().add(attributeListButtonPressedListener);
 		dualListPart.eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
 		dualListPart.eventSortingListButtonPressed().add(sortingListButtonPressedListener);
@@ -65,7 +66,8 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	}
 
 	private void removeUIListeners() {
-		dualListPart.eventSelectionRequested().remove(selectionRequestedListener);
+		dualListPart.eventAttributeListSelectionRequested().remove(attributeListSelectionRequestedListener);
+		dualListPart.eventSortingListSelectionRequested().remove(sortingListSelectionRequestedListener);
 		dualListPart.eventAttributeListButtonPressed().remove(attributeListButtonPressedListener);
 		dualListPart.eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
 		dualListPart.eventSortingListButtonPressed().remove(sortingListButtonPressedListener);
@@ -79,6 +81,14 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	
 	public void sortingListRefresh(List<Sortable> sortingList) {
 		sortingListRefreshRequestedListener.invoke(sortingList);
+	}
+	
+	public void attributeListSelectionRefresh(int selection) {
+		attributeListSelectionRequestedListener.invoke(selection);
+	}
+	
+	public void sortingListSelectionRefresh(int selection) {
+		sortingListSelectionRequestedListener.invoke(selection);
 	}
 
 
@@ -183,6 +193,26 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		dualListPart.setSortingTable(event);
 	};
 
-	private IListener<Integer> selectionRequestedListener = selectionRequested::invoke;
+	private NonGenericListenerCollection<Integer> attributeListSelectionRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Integer> eventAttributeListSelectionRequested() {
+		return attributeListSelectionRequested;
+	}
+
+	private IListener<Integer> attributeListSelectionRequestedListener = event -> {
+		dualListPart.setAttributeTableSelection(event);
+		System.out.println("View "+ event);
+	};
+	
+	private NonGenericListenerCollection<Integer> sortingListSelectionRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<Integer> eventSortingListSelectionRequested() {
+		return sortingListSelectionRequested;
+	}
+
+	private IListener<Integer> sortingListSelectionRequestedListener = event -> {
+		dualListPart.setSortingTableSelection(event);
+		System.out.println("View "+ event);
+	};
 
 }
