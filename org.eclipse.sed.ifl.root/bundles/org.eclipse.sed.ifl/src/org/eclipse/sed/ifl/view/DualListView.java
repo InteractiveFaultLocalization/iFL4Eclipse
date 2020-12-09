@@ -201,7 +201,6 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private IListener<Integer> attributeListSelectionRequestedListener = event -> {
 		dualListPart.setAttributeTableSelection(event);
-		System.out.println("View "+ event);
 	};
 	
 	private NonGenericListenerCollection<Integer> sortingListSelectionRequested = new NonGenericListenerCollection<>();
@@ -212,7 +211,6 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private IListener<Integer> sortingListSelectionRequestedListener = event -> {
 		dualListPart.setSortingTableSelection(event);
-		System.out.println("View "+ event);
 	};
 
 }

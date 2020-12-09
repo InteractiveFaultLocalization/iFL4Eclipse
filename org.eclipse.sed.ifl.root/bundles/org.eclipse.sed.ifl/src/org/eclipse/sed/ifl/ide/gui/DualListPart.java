@@ -159,6 +159,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				TableItem item = (TableItem) cell.getItem();
 				toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
+				button.setData(toggleElement);
 				// Sortable helyett
 				// egyedi kulcs
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
@@ -365,6 +366,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	
 	public void setSortingTableSelection(int selection) {
 		sortingTable.setSelection(selection);
+		if(selection != -1) {
+			elementIndex = selection;
+		}
 	}
 
 	public ArrayList<Sortable> getAttributeTable() {
@@ -384,6 +388,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	
 	public void setAttributeTableSelection(int selection) {
 		attributeTable.setSelection(selection);
+		if(selection != -1) {
+			elementIndex = selection;
+		}
 	}
 	
 
@@ -392,14 +399,15 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			Button source = (Button) e.getSource();
+			Sortable element = (Sortable) source.getData();
 			if (!source.getSelection()) {
 				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
-				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Descending);
+				element.setSortingDirection(Sortable.SortingDirection.Descending);
 			} else {
 				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
-				DualListPart.this.toggleElement.setSortingDirection(Sortable.SortingDirection.Ascending);
+				element.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
-			orderingDirectionChangedListener.invoke(DualListPart.this.toggleElement);
+			orderingDirectionChangedListener.invoke(element);
 		}
 
 		@Override

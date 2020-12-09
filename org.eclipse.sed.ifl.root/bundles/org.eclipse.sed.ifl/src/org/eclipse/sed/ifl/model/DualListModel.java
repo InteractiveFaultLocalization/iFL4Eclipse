@@ -40,7 +40,6 @@ public class DualListModel extends EmptyModel {
 		attributeListChangedListener.invoke(attributeList);
 		attributeListSelectionChangedListener.invoke(attributeListSelection);
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
-		System.out.println("Model "+ attributeListSelection + sortingListSelection);
 	}
 
 	public ObservableList<Sortable> getSortingList() {
@@ -56,7 +55,6 @@ public class DualListModel extends EmptyModel {
 		sortingListChangedListener.invoke(sortingList);
 		attributeListSelectionChangedListener.invoke(attributeListSelection);
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
-		System.out.println("Model "+ attributeListSelection + sortingListSelection);
 	}
 
 	private NonGenericListenerCollection<List<Sortable>> attributeListChangedListener = new NonGenericListenerCollection<>();

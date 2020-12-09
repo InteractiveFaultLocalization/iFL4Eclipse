@@ -132,7 +132,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	
 	private IListener<Integer> attributeListSelectionRequestedListener = event -> {
 		getView().attributeListSelectionRefresh(event);
-		System.out.println("Control "+ event);
 	};
 
 	
@@ -144,7 +143,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	
 	private IListener<Integer> sortingListSelectionRequestedListener = event -> {
 		getView().sortingListSelectionRefresh(event);
-		System.out.println("Control "+ event);
 	};
 
 
