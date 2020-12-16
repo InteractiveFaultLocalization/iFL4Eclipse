@@ -27,6 +27,10 @@ public class BinaryMethodCoverageData<T extends Number> implements CoverageData<
 	public void reset() {
 		data.clear();
 	}
+	
+	public Set<T> getData(){
+		return data;
+	}
 
 	@Override
 	public void saveData(final File dataFile) {
@@ -39,6 +43,10 @@ public class BinaryMethodCoverageData<T extends Number> implements CoverageData<
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void print() {
+		System.out.println(data.toString());
 	}
 
 }
