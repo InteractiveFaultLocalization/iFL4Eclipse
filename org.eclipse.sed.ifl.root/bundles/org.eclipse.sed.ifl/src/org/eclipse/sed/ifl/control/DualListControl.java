@@ -30,10 +30,14 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private void initViewListeners() {
-		getView().eventAttributeListButtonPressed().add(attributeListButtonPressedListener);
-		getView().eventAttributeListChangeRequested().add(attributeListChangeRequestedListener);
-		getView().eventSortingListButtonPressed().add(sortingListButtonPressedListener);
-		getView().eventSortingListChangeRequested().add(sortingListChangeRequestedListener);
+		getView().eventAddAllToSortingListRequested().add(addAllToSortingListRequestedListener);
+		getView().eventAddOneToSortingListRequested().add(addOneToSortingListRequestedListener);
+		getView().eventRemoveAllFromSortingListRequested().add(removeAllFromSortingListRequestedListener);
+		getView().eventRemoveOneFromSortingListRequested().add(removeOneFromSortingListRequestedListener);
+		getView().eventMoveOneDownInSortingListRequested().add(moveOneDownInSortingListRequestedListener);
+		getView().eventMoveOneUpInSortingListRequested().add(moveOneUpInSortingListRequestedListener);
+		getView().eventMoveToTopInSortingListRequested().add(moveToTopInSortingListRequestedListener);
+		getView().eventMoveToBottomInSortingListRequested().add(moveToBottomInSortingListRequestedListener);
 		getView().eventOrderingDirectionChanged().add(orderingDirectionChangedListener);
 	}
 
@@ -45,10 +49,14 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	public void removeViewListeners() {
-		getView().eventAttributeListButtonPressed().remove(attributeListButtonPressedListener);
-		getView().eventAttributeListChangeRequested().remove(attributeListChangeRequestedListener);
-		getView().eventSortingListButtonPressed().remove(sortingListButtonPressedListener);
-		getView().eventSortingListChangeRequested().remove(sortingListChangeRequestedListener);
+		getView().eventAddAllToSortingListRequested().remove(addAllToSortingListRequestedListener);
+		getView().eventAddOneToSortingListRequested().remove(addOneToSortingListRequestedListener);
+		getView().eventRemoveAllFromSortingListRequested().remove(removeAllFromSortingListRequestedListener);
+		getView().eventRemoveOneFromSortingListRequested().remove(removeOneFromSortingListRequestedListener);
+		getView().eventMoveOneDownInSortingListRequested().remove(moveOneDownInSortingListRequestedListener);
+		getView().eventMoveOneUpInSortingListRequested().remove(moveOneUpInSortingListRequestedListener);
+		getView().eventMoveToTopInSortingListRequested().remove(moveToTopInSortingListRequestedListener);
+		getView().eventMoveToBottomInSortingListRequested().remove(moveToBottomInSortingListRequestedListener);
 		getView().eventOrderingDirectionChanged().remove(orderingDirectionChangedListener);
 	}
 
@@ -63,6 +71,97 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getView().enableOrdering();
 		refreshAttributeListOnView();
 	}
+
+	private NonGenericListenerCollection<Sortable> addAllToSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventAddAllToSortingListRequested() {
+		return addAllToSortingListRequested;
+	}
+
+	private IListener<Sortable> addAllToSortingListRequestedListener = event -> {
+		ObservableList<Sortable> attributeList = getModel().getAttributeList();
+		for (Sortable sortable : attributeList) {
+			getModel().addToSortingList(sortable);
+		}
+	};
+
+	private NonGenericListenerCollection<Sortable> addOneToSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventAddOneToSortingListRequested() {
+		return addOneToSortingListRequested;
+	}
+
+	private IListener<Sortable> addOneToSortingListRequestedListener = event -> {
+		getModel().addToSortingList(event);
+	};
+
+	private NonGenericListenerCollection<Sortable> removeOneFromSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventRemoveOneFromSortingListRequested() {
+		return removeOneFromSortingListRequested;
+	}
+
+	private IListener<Sortable> removeOneFromSortingListRequestedListener = event -> {
+		getModel().removeFromSortingList(event);
+
+	};
+
+	private NonGenericListenerCollection<Sortable> removeAllFromSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventRemoveAllFromSortingListRequested() {
+		return removeAllFromSortingListRequested;
+	}
+
+	private IListener<Sortable> removeAllFromSortingListRequestedListener = event -> {
+		ObservableList<Sortable> sortingList = getModel().getSortingList();
+		for (Sortable sortable : sortingList) {
+			getModel().removeFromSortingList(sortable);
+		}
+	};
+
+	private NonGenericListenerCollection<Sortable> moveToTopInSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveToTopInSortingListRequested() {
+		return moveToTopInSortingListRequested;
+	}
+
+	private IListener<Sortable> moveToTopInSortingListRequestedListener = event -> {
+		int sourceIndex = getModel().getSortingList().indexOf(event);
+		getModel().moveInsideSortingList(event, sourceIndex, 0);
+	};
+
+	private NonGenericListenerCollection<Sortable> moveOneUpInSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveOneUpInSortingListRequested() {
+		return moveOneUpInSortingListRequested;
+	}
+
+	private IListener<Sortable> moveOneUpInSortingListRequestedListener = event -> {
+		int sourceIndex = getModel().getSortingList().indexOf(event);
+		getModel().moveInsideSortingList(event, sourceIndex, sourceIndex-1);
+	};
+
+	private NonGenericListenerCollection<Sortable> moveToBottomInSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveToBottomInSortingListRequested() {
+		return moveToBottomInSortingListRequested;
+	}
+
+	private IListener<Sortable> moveToBottomInSortingListRequestedListener = event -> {
+		int sourceIndex = getModel().getSortingList().indexOf(event);
+		getModel().moveInsideSortingList(event, sourceIndex, getModel().getSortingList().size()-1);
+	};
+
+	private NonGenericListenerCollection<Sortable> moveOneDownInSortingListRequested = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventmoveOneDownInSortingListRequested() {
+		return moveOneDownInSortingListRequested;
+	}
+
+	private IListener<Sortable> moveOneDownInSortingListRequestedListener = event -> {
+		int sourceIndex = getModel().getSortingList().indexOf(event);
+		getModel().moveInsideSortingList(event, sourceIndex, sourceIndex+1);
+	};
 
 	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
 
@@ -97,13 +196,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getView().attributeListRefresh(getModel().getAttributeList());
 	}
 
-	private void changeSortingList(ItemMoveObject<TItem> moveObject) {
-		sortingListChangeRequestedListener.invoke(moveObject);
-	}
-
-	private void changeAttributeList(ItemMoveObject<TItem> moveObject) {
-		attributeListChangeRequestedListener.invoke(moveObject);
-	}
 
 	// Right
 
@@ -118,157 +210,30 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	public INonGenericListenerCollection<List<Sortable>> eventUpdateSorting() {
 		return updateSorting;
 	}
-	
+
 	private IListener<List<Sortable>> sortingListRefreshRequestedListener = event -> {
 		updateSorting.invoke(event);
 		getView().sortingListRefresh(event);
 	};
-	
+
 	private NonGenericListenerCollection<Integer> attributeListSelectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventAttributeListSelectionRequested() {
 		return attributeListSelectionRequested;
 	}
-	
+
 	private IListener<Integer> attributeListSelectionRequestedListener = event -> {
 		getView().attributeListSelectionRefresh(event);
 	};
 
-	
 	private NonGenericListenerCollection<Integer> sortingListSelectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventSortingListSelectionRequested() {
 		return sortingListSelectionRequested;
 	}
-	
+
 	private IListener<Integer> sortingListSelectionRequestedListener = event -> {
 		getView().sortingListSelectionRefresh(event);
 	};
 
-
-
-	private IListener<ItemMoveObject<TItem>> attributeListButtonPressedListener = event -> {
-		ItemMoveObject<TItem> moveObject = event;
-		int length = getModel().getAttributeList().size();
-		int sourceIndex = event.getSourceIndex();
-		if (event.getOperationType().equals(OperationType.ALLUP))
-			moveObject.setDestinationIndex(0);
-		else if (event.getOperationType().equals(OperationType.ALLDOWN))
-			moveObject.setDestinationIndex(length - 1);
-		else if (event.getOperationType().equals(OperationType.ONEUP))
-			moveObject.setDestinationIndex(sourceIndex - 1);
-		else if (event.getOperationType().equals(OperationType.ONEDOWN))
-			moveObject.setDestinationIndex(sourceIndex + 1);
-
-		OperationType operationType = OperationType.MOVEINSIDE;
-		moveObject.setOperationType(operationType);
-		changeAttributeList(moveObject);
-
-	};
-
-	private IListener<ItemMoveObject<TItem>> attributeListChangeRequestedListener = event -> {
-		ObservableList<Sortable> newAttributeList;
-		ObservableList<Sortable> sortingList = getModel().getSortingList();
-		if (event.getOperationType().equals(OperationType.REMOVEALL)) {
-			newAttributeList = getModel().getAttributeList();
-			newAttributeList.clear();
-			getModel().setAttributeListSelection(-1);
-		} else if (event.getOperationType().equals(OperationType.REMOVE)) {
-			newAttributeList = getModel().getAttributeList();
-			getModel().setAttributeListSelection(-1);
-			newAttributeList.remove(newAttributeList.get(event.getSourceIndex()));
-		} else if (event.getOperationType().equals(OperationType.MOVEALL)) {
-			newAttributeList = getModel().getAttributeList();
-			for (Sortable sortable : sortingList) {
-				newAttributeList.add(sortable);
-			}
-			OperationType operationType = OperationType.REMOVEALL;
-			ItemMoveObject<TItem> moveObject = event;
-			moveObject.setOperationType(operationType);
-			changeSortingList(moveObject);
-			getModel().setAttributeListSelection(-1);
-		} else if (event.getOperationType().equals(OperationType.MOVEINSIDE)) {
-			newAttributeList = getModel().getAttributeList();
-			Sortable selectedArgument = newAttributeList.get(event.getSourceIndex());
-			int selectedIndex = newAttributeList.indexOf(selectedArgument);
-			int swapIndex = event.getDestinationIndex();
-			Sortable swapArgument = newAttributeList.get(swapIndex);
-			newAttributeList.set(selectedIndex, swapArgument);
-			newAttributeList.set(swapIndex, selectedArgument);
-			getModel().setAttributeListSelection(swapIndex);
-		}
-
-		else {
-			newAttributeList = getModel().getAttributeList();
-			newAttributeList.add(sortingList.get(event.getSourceIndex()));
-			OperationType operationType = OperationType.REMOVE;
-			ItemMoveObject<TItem> moveObject = event;
-			moveObject.setOperationType(operationType);
-			changeSortingList(moveObject);
-			getModel().setAttributeListSelection(newAttributeList.size());
-		}
-		getModel().setAttributeList(newAttributeList);
-	};
-
-	private IListener<ItemMoveObject<TItem>> sortingListButtonPressedListener = event -> {
-		ItemMoveObject<TItem> moveObject = event;
-		int length = getModel().getSortingList().size();
-		int sourceIndex = event.getSourceIndex();
-		if (event.getOperationType().equals(OperationType.ALLUP))
-			moveObject.setDestinationIndex(0);
-		else if (event.getOperationType().equals(OperationType.ALLDOWN))
-			moveObject.setDestinationIndex(length - 1);
-		else if (event.getOperationType().equals(OperationType.ONEUP))
-			moveObject.setDestinationIndex(sourceIndex - 1);
-		else if (event.getOperationType().equals(OperationType.ONEDOWN))
-			moveObject.setDestinationIndex(sourceIndex + 1);
-
-		OperationType operationType = OperationType.MOVEINSIDE;
-		moveObject.setOperationType(operationType);
-		changeSortingList(moveObject);
-	};
-
-	private IListener<ItemMoveObject<TItem>> sortingListChangeRequestedListener = event -> {
-		ObservableList<Sortable> newSortingList;
-		ObservableList<Sortable> attributeList = getModel().getAttributeList();
-		if (event.getOperationType().equals(OperationType.REMOVEALL)) {
-			newSortingList = getModel().getSortingList();
-			newSortingList.clear();
-			getModel().setSortingListSelection(-1);
-		} else if (event.getOperationType().equals(OperationType.REMOVE)) {
-			newSortingList = getModel().getSortingList();
-			newSortingList.remove(event.getSourceIndex());
-			getModel().setSortingListSelection(-1);
-		} else if (event.getOperationType().equals(OperationType.MOVEALL)) {
-			newSortingList = getModel().getSortingList();
-			for (Sortable sortable : attributeList) {
-				newSortingList.add(sortable);
-			}
-			OperationType operationType = OperationType.REMOVEALL;
-			ItemMoveObject<TItem> moveObject = event;
-			moveObject.setOperationType(operationType);
-			changeAttributeList(moveObject);
-			getModel().setSortingListSelection(-1);
-		} else if (event.getOperationType().equals(OperationType.MOVEINSIDE)) {
-			newSortingList = getModel().getSortingList();
-			Sortable selectedArgument = newSortingList.get(event.getSourceIndex());
-			int selectedIndex = newSortingList.indexOf(selectedArgument);
-			int swapIndex = event.getDestinationIndex();
-			Sortable swapArgument = newSortingList.get(swapIndex);
-			newSortingList.set(selectedIndex, swapArgument);
-			newSortingList.set(swapIndex, selectedArgument);
-			getModel().setSortingListSelection(swapIndex);
-		}
-
-		else {
-			newSortingList = getModel().getSortingList();
-			newSortingList.add(attributeList.get(event.getSourceIndex()));
-			OperationType operationType = OperationType.REMOVE;
-			ItemMoveObject<TItem> moveObject = event;
-			moveObject.setOperationType(operationType);
-			changeAttributeList(moveObject);
-			getModel().setSortingListSelection(newSortingList.size());
-		}
-		getModel().setSortingList(newSortingList);
-	};
 }

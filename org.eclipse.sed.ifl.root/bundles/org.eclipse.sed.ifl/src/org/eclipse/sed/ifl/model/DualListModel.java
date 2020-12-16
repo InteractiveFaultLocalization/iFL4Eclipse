@@ -33,11 +33,11 @@ public class DualListModel extends EmptyModel {
 	
 	public void setAttributeListSelection(int selection) {
 		this.attributeListSelection = selection;
+		attributeListSelectionChangedListener.invoke(attributeListSelection);
 	}
 
 	public void setAttributeList(ObservableList<Sortable> attributeList) {
 		this.attributeList = attributeList;
-		attributeListChangedListener.invoke(attributeList);
 		attributeListSelectionChangedListener.invoke(attributeListSelection);
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
@@ -48,13 +48,45 @@ public class DualListModel extends EmptyModel {
 	
 	public void setSortingListSelection(int selection) {
 		this.sortingListSelection = selection;
+		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
 
 	public void setSortingList(ObservableList<Sortable> sortingList) {
 		this.sortingList = sortingList;
-		sortingListChangedListener.invoke(sortingList);
 		attributeListSelectionChangedListener.invoke(attributeListSelection);
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
+	}
+	
+	public void addToSortingList(Sortable sortable) {
+		this.sortingList.add(sortable);
+		this.attributeList.remove(sortable);
+		this.attributeListSelection = -1;
+		this.sortingListSelection = this.sortingList.size();
+		attributeListSelectionChangedListener.invoke(attributeListSelection);
+		sortingListSelectionChangedListener.invoke(sortingListSelection);
+	}
+	
+	public void removeFromSortingList(Sortable sortable) {
+		this.sortingList.remove(sortable);
+		this.attributeList.add(sortable);
+		this.sortingListSelection = -1;
+		this.attributeListSelection = this.attributeList.size();
+		attributeListSelectionChangedListener.invoke(attributeListSelection);
+		sortingListSelectionChangedListener.invoke(sortingListSelection);
+		
+	}
+	
+	public void moveInsideSortingList(Sortable sortable, int sourceIndex, int destinationIndex) {
+		Sortable swap = this.sortingList.get(destinationIndex);
+		if(destinationIndex < 0) {
+			destinationIndex = 0;
+		}
+		if(destinationIndex >= this.sortingList.size()) {
+			destinationIndex = this.sortingList.size()-1;
+		}
+		this.sortingList.set(destinationIndex, sortable);
+		this.sortingList.set(sourceIndex, swap);
+		setSortingListSelection(destinationIndex);
 	}
 
 	private NonGenericListenerCollection<List<Sortable>> attributeListChangedListener = new NonGenericListenerCollection<>();

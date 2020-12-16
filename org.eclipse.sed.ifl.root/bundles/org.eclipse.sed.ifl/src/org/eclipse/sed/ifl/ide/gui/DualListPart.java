@@ -11,8 +11,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.sed.ifl.control.ItemMoveObject;
-import org.eclipse.sed.ifl.control.OperationType;
 import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -49,11 +47,10 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
 	private Sortable toggleElement;
+	private Sortable movedElement;
 	private int elementIndex;
-	private ItemMoveObject<TItem> moveObject;
 
 	private SelectionLocation whichList;
-	private OperationType operationType;
 
 	@FunctionalInterface
 	public interface HumanReadable<TItem> {
@@ -82,9 +79,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	private void addUIElements(Composite parent) {
 		toggleElement = null;
+		movedElement = null;
 		elementIndex = 0;
 		whichList = SelectionLocation.UNSELECTED;
-		operationType = OperationType.ADD;
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -363,10 +360,10 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		sortingViewer.setInput(sortingList);
 		sortingViewer.refresh();
 	}
-	
+
 	public void setSortingTableSelection(int selection) {
 		sortingTable.setSelection(selection);
-		if(selection != -1) {
+		if (selection != -1) {
 			elementIndex = selection;
 		}
 	}
@@ -385,14 +382,13 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.setInput(argumentList);
 		attributeViewer.refresh();
 	}
-	
+
 	public void setAttributeTableSelection(int selection) {
 		attributeTable.setSelection(selection);
-		if(selection != -1) {
+		if (selection != -1) {
 			elementIndex = selection;
 		}
 	}
-	
 
 	public class sortDirectionImageListener implements SelectionListener {
 
@@ -429,6 +425,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				elementIndex = attributeTable.getSelectionIndex();
+				TableItem selectedItem = attributeTable.getItem(elementIndex);
+				movedElement = (Sortable) selectedItem.getData();
 				whichList = SelectionLocation.LEFT;
 				sortingTable.setSelection(-1);
 			}
@@ -438,112 +436,101 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				elementIndex = sortingTable.getSelectionIndex();
+				TableItem selectedItem = sortingTable.getItem(elementIndex);
+				movedElement = (Sortable) selectedItem.getData();
 				whichList = SelectionLocation.RIGHT;
 				attributeTable.setSelection(-1);
 			}
 		});
 
 		allRight.addListener(SWT.Selection, event -> {
-			operationType = OperationType.MOVEALL;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			sortingListChangeRequestedListener.invoke(moveObject);
+			addAllToSortingListRequestedListener.invoke(movedElement);
 			whichList = SelectionLocation.UNSELECTED;
 		});
 
 		oneRight.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ADD;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				sortingListChangeRequestedListener.invoke(moveObject);
-				whichList = SelectionLocation.RIGHT;
-				elementIndex = sortingTable.getItemCount();
-
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				throw new UnsupportedOperationException("The selected item is already in the sorting list.");
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			addOneToSortingListRequestedListener.invoke(movedElement);
+			whichList = SelectionLocation.RIGHT;
 		});
 
 		oneLeft.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ADD;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				throw new UnsupportedOperationException("The selected item is already in the attribute list.");
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				attributeListChangeRequestedListener.invoke(moveObject);
-				whichList = SelectionLocation.LEFT;
-				elementIndex = attributeTable.getItemCount();
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			removeOneFromSortingListRequestedListener.invoke(movedElement);
+			whichList = SelectionLocation.LEFT;
 		});
 
 		allLeft.addListener(SWT.Selection, event -> {
-			operationType = OperationType.MOVEALL;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			attributeListChangeRequestedListener.invoke(moveObject);
+			removeAllFromSortingListRequestedListener.invoke(movedElement);
 			whichList = SelectionLocation.UNSELECTED;
 		});
 
 		allUp.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ALLUP;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				attributeListButtonPressedListener.invoke(moveObject);
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				sortingListButtonPressedListener.invoke(moveObject);
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			moveToTopInSortingListRequestedListener.invoke(movedElement);
 		});
 
 		oneUp.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ONEUP;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				attributeListButtonPressedListener.invoke(moveObject);
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				sortingListButtonPressedListener.invoke(moveObject);
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			moveOneUpInSortingListRequestedListener.invoke(movedElement);
 		});
 
 		oneDown.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ONEDOWN;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				attributeListButtonPressedListener.invoke(moveObject);
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				sortingListButtonPressedListener.invoke(moveObject);
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			moveOneDownInSortingListRequestedListener.invoke(movedElement);
 		});
 
 		allDown.addListener(SWT.Selection, event -> {
-			operationType = OperationType.ALLDOWN;
-			moveObject = new ItemMoveObject<TItem>(elementIndex, 0, operationType);
-			if (whichList == SelectionLocation.LEFT) {
-				attributeListButtonPressedListener.invoke(moveObject);
-			}
-			if (whichList == SelectionLocation.RIGHT) {
-				sortingListButtonPressedListener.invoke(moveObject);
-			} else {
-				throw new UnsupportedOperationException("No item is selected.");
-			}
+			moveToBottomInSortingListRequestedListener.invoke(movedElement);
 		});
 
 		if (orderingEnabled.booleanValue()) {
 			enableOrdering();
 		}
 
+	}
+
+	private NonGenericListenerCollection<Sortable> addAllToSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventAddAllToSortingListRequested() {
+		return addAllToSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> addOneToSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventAddOneToSortingListRequested() {
+		return addOneToSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> removeOneFromSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventRemoveOneFromSortingListRequested() {
+		return removeOneFromSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> removeAllFromSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventRemoveAllFromSortingListRequested() {
+		return removeAllFromSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> moveToTopInSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveToTopInSortingListRequested() {
+		return moveToTopInSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> moveOneUpInSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveOneUpInSortingListRequested() {
+		return moveOneUpInSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> moveToBottomInSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveToBottomInSortingListRequested() {
+		return moveToBottomInSortingListRequestedListener;
+	}
+
+	private NonGenericListenerCollection<Sortable> moveOneDownInSortingListRequestedListener = new NonGenericListenerCollection<>();
+
+	public NonGenericListenerCollection<Sortable> eventMoveOneDownInSortingListRequested() {
+		return moveOneDownInSortingListRequestedListener;
 	}
 
 	private NonGenericListenerCollection<Sortable> orderingDirectionChangedListener = new NonGenericListenerCollection<>();
@@ -557,35 +544,11 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	public INonGenericListenerCollection<Integer> eventAttributeListSelectionRequested() {
 		return attributeListSelectionRequested;
 	}
-	
+
 	private NonGenericListenerCollection<Integer> sortingListSelectionRequested = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<Integer> eventSortingListSelectionRequested() {
 		return sortingListSelectionRequested;
-	}
-
-	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListChangeRequestedListener = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListChangeRequested() {
-		return sortingListChangeRequestedListener;
-	}
-
-	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListButtonPressedListener = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListButtonPressed() {
-		return attributeListButtonPressedListener;
-	}
-
-	private NonGenericListenerCollection<ItemMoveObject<TItem>> attributeListChangeRequestedListener = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventAttributeListChangeRequested() {
-		return attributeListChangeRequestedListener;
-	}
-
-	private NonGenericListenerCollection<ItemMoveObject<TItem>> sortingListButtonPressedListener = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<ItemMoveObject<TItem>> eventSortingListButtonPressed() {
-		return sortingListButtonPressedListener;
 	}
 
 	private NonGenericListenerCollection<List<Sortable>> attributeListRefreshRequested = new NonGenericListenerCollection<>();
