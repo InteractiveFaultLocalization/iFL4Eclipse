@@ -1,6 +1,8 @@
 package org.eclipse.sed.ifl.control;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.model.DualListModel;
@@ -79,10 +81,8 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> addAllToSortingListRequestedListener = event -> {
-		ObservableList<Sortable> attributeList = getModel().getAttributeList();
-		for (Sortable sortable : attributeList) {
-			getModel().addToSortingList(sortable);
-		}
+		List<Sortable> attributeList = getModel().getAttributeList().stream().collect(Collectors.toList());
+		getModel().addToSortingList(attributeList);
 	};
 
 	private NonGenericListenerCollection<Sortable> addOneToSortingListRequested = new NonGenericListenerCollection<>();
@@ -92,7 +92,13 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> addOneToSortingListRequestedListener = event -> {
-		getModel().addToSortingList(event);
+		if (event != null) {
+			List<Sortable> attributeList = new ArrayList<Sortable>();
+			attributeList.add(event);
+			getModel().addToSortingList(attributeList);
+		}
+		else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 	};
 
 	private NonGenericListenerCollection<Sortable> removeOneFromSortingListRequested = new NonGenericListenerCollection<>();
@@ -102,7 +108,13 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> removeOneFromSortingListRequestedListener = event -> {
-		getModel().removeFromSortingList(event);
+		if (event != null) {
+			List<Sortable> sortingList = new ArrayList<Sortable>();
+			sortingList.add(event);
+			getModel().removeFromSortingList(sortingList);
+		}
+		else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 
 	};
 
@@ -113,10 +125,8 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> removeAllFromSortingListRequestedListener = event -> {
-		ObservableList<Sortable> sortingList = getModel().getSortingList();
-		for (Sortable sortable : sortingList) {
-			getModel().removeFromSortingList(sortable);
-		}
+		List<Sortable> sortingList = getModel().getSortingList().stream().collect(Collectors.toList());
+		getModel().removeFromSortingList(sortingList);
 	};
 
 	private NonGenericListenerCollection<Sortable> moveToTopInSortingListRequested = new NonGenericListenerCollection<>();
@@ -126,8 +136,11 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> moveToTopInSortingListRequestedListener = event -> {
-		int sourceIndex = getModel().getSortingList().indexOf(event);
-		getModel().moveInsideSortingList(event, sourceIndex, 0);
+		if (event != null) {
+			int sourceIndex = getModel().getSortingList().indexOf(event);
+			getModel().moveInsideSortingList(event, sourceIndex, 0);
+		} else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 	};
 
 	private NonGenericListenerCollection<Sortable> moveOneUpInSortingListRequested = new NonGenericListenerCollection<>();
@@ -137,8 +150,11 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> moveOneUpInSortingListRequestedListener = event -> {
-		int sourceIndex = getModel().getSortingList().indexOf(event);
-		getModel().moveInsideSortingList(event, sourceIndex, sourceIndex-1);
+		if (event != null) {
+			int sourceIndex = getModel().getSortingList().indexOf(event);
+			getModel().moveInsideSortingList(event, sourceIndex, sourceIndex - 1);
+		} else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 	};
 
 	private NonGenericListenerCollection<Sortable> moveToBottomInSortingListRequested = new NonGenericListenerCollection<>();
@@ -148,8 +164,11 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> moveToBottomInSortingListRequestedListener = event -> {
-		int sourceIndex = getModel().getSortingList().indexOf(event);
-		getModel().moveInsideSortingList(event, sourceIndex, getModel().getSortingList().size()-1);
+		if (event != null) {
+			int sourceIndex = getModel().getSortingList().indexOf(event);
+			getModel().moveInsideSortingList(event, sourceIndex, getModel().getSortingList().size() - 1);
+		} else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 	};
 
 	private NonGenericListenerCollection<Sortable> moveOneDownInSortingListRequested = new NonGenericListenerCollection<>();
@@ -159,8 +178,11 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> moveOneDownInSortingListRequestedListener = event -> {
-		int sourceIndex = getModel().getSortingList().indexOf(event);
-		getModel().moveInsideSortingList(event, sourceIndex, sourceIndex+1);
+		if (event != null) {
+			int sourceIndex = getModel().getSortingList().indexOf(event);
+			getModel().moveInsideSortingList(event, sourceIndex, sourceIndex + 1);
+		} else
+			throw new UnsupportedOperationException("Valid item to move is not selected.");
 	};
 
 	private NonGenericListenerCollection<Sortable> orderingDirectionChanged = new NonGenericListenerCollection<>();
@@ -195,7 +217,6 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private void refreshAttributeListOnView() {
 		getView().attributeListRefresh(getModel().getAttributeList());
 	}
-
 
 	// Right
 

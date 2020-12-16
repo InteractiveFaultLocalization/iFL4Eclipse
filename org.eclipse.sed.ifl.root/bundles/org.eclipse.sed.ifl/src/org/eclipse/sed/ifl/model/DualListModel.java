@@ -57,22 +57,22 @@ public class DualListModel extends EmptyModel {
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
 	
-	public void addToSortingList(Sortable sortable) {
+	public void addToSortingList(List<Sortable> sortables) {
+		for(Sortable sortable: sortables) {
 		this.sortingList.add(sortable);
 		this.attributeList.remove(sortable);
-		this.attributeListSelection = -1;
-		this.sortingListSelection = this.sortingList.size();
-		attributeListSelectionChangedListener.invoke(attributeListSelection);
-		sortingListSelectionChangedListener.invoke(sortingListSelection);
+		}
+		setAttributeListSelection(-1);
+		setSortingListSelection(this.sortingList.size());
 	}
 	
-	public void removeFromSortingList(Sortable sortable) {
+	public void removeFromSortingList(List<Sortable> sortables) {
+		for(Sortable sortable: sortables) {
 		this.sortingList.remove(sortable);
 		this.attributeList.add(sortable);
-		this.sortingListSelection = -1;
-		this.attributeListSelection = this.attributeList.size();
-		attributeListSelectionChangedListener.invoke(attributeListSelection);
-		sortingListSelectionChangedListener.invoke(sortingListSelection);
+		}
+		setSortingListSelection(-1);
+		setAttributeListSelection(this.attributeList.size());
 		
 	}
 	

@@ -34,10 +34,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
 
-enum SelectionLocation {
-	LEFT, RIGHT, UNSELECTED
-}
-
 public class DualListPart<TItem extends Sortable> extends ViewPart implements IEmbeddable, IEmbedee {
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
 
@@ -47,10 +43,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
 	private Sortable toggleElement;
-	private Sortable movedElement;
-	private int elementIndex;
-
-	private SelectionLocation whichList;
+	private Sortable movedElementInAttribute;
+	private Sortable movedElementInSorting;
 
 	@FunctionalInterface
 	public interface HumanReadable<TItem> {
@@ -79,9 +73,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	private void addUIElements(Composite parent) {
 		toggleElement = null;
-		movedElement = null;
-		elementIndex = 0;
-		whichList = SelectionLocation.UNSELECTED;
+		movedElementInAttribute = null;
+		movedElementInSorting = null;
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -157,8 +150,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
 				button.setData(toggleElement);
-				// Sortable helyett
-				// egyedi kulcs
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
 					button.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/ascend.png"));
 					button.setSelection(false);
@@ -363,9 +354,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	public void setSortingTableSelection(int selection) {
 		sortingTable.setSelection(selection);
-		if (selection != -1) {
-			elementIndex = selection;
-		}
 	}
 
 	public ArrayList<Sortable> getAttributeTable() {
@@ -385,9 +373,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	public void setAttributeTableSelection(int selection) {
 		attributeTable.setSelection(selection);
-		if (selection != -1) {
-			elementIndex = selection;
-		}
 	}
 
 	public class sortDirectionImageListener implements SelectionListener {
@@ -424,59 +409,57 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				elementIndex = attributeTable.getSelectionIndex();
-				TableItem selectedItem = attributeTable.getItem(elementIndex);
-				movedElement = (Sortable) selectedItem.getData();
-				whichList = SelectionLocation.LEFT;
+				TableItem[] items = attributeTable.getSelection();
+				if(items.length>0) {
+				movedElementInAttribute = (Sortable) items[0].getData();
+				movedElementInSorting = null;
 				sortingTable.setSelection(-1);
+				}
 			}
 		});
 
 		sortingViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				elementIndex = sortingTable.getSelectionIndex();
-				TableItem selectedItem = sortingTable.getItem(elementIndex);
-				movedElement = (Sortable) selectedItem.getData();
-				whichList = SelectionLocation.RIGHT;
+				TableItem[] items = sortingTable.getSelection();
+				if(items.length>0) {
+				movedElementInSorting = (Sortable) items[0].getData();
+				movedElementInAttribute = null;
 				attributeTable.setSelection(-1);
+				}
 			}
 		});
 
 		allRight.addListener(SWT.Selection, event -> {
-			addAllToSortingListRequestedListener.invoke(movedElement);
-			whichList = SelectionLocation.UNSELECTED;
+			addAllToSortingListRequestedListener.invoke(movedElementInAttribute);
 		});
 
 		oneRight.addListener(SWT.Selection, event -> {
-			addOneToSortingListRequestedListener.invoke(movedElement);
-			whichList = SelectionLocation.RIGHT;
+			addOneToSortingListRequestedListener.invoke(movedElementInAttribute);
 		});
 
 		oneLeft.addListener(SWT.Selection, event -> {
-			removeOneFromSortingListRequestedListener.invoke(movedElement);
-			whichList = SelectionLocation.LEFT;
+			removeOneFromSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		allLeft.addListener(SWT.Selection, event -> {
-			removeAllFromSortingListRequestedListener.invoke(movedElement);
-			whichList = SelectionLocation.UNSELECTED;
+			removeAllFromSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		allUp.addListener(SWT.Selection, event -> {
-			moveToTopInSortingListRequestedListener.invoke(movedElement);
+			moveToTopInSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		oneUp.addListener(SWT.Selection, event -> {
-			moveOneUpInSortingListRequestedListener.invoke(movedElement);
+			moveOneUpInSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		oneDown.addListener(SWT.Selection, event -> {
-			moveOneDownInSortingListRequestedListener.invoke(movedElement);
+			moveOneDownInSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		allDown.addListener(SWT.Selection, event -> {
-			moveToBottomInSortingListRequestedListener.invoke(movedElement);
+			moveToBottomInSortingListRequestedListener.invoke(movedElementInSorting);
 		});
 
 		if (orderingEnabled.booleanValue()) {
