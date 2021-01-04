@@ -6,7 +6,9 @@ import javax.inject.*;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -91,7 +93,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		gridData.grabExcessHorizontalSpace = false;
 		gridData.grabExcessVerticalSpace = false;
 		gridData.horizontalAlignment = GridData.CENTER;
-		gridData.heightHint = 70;
+		gridData.heightHint = 180;
+		gridData.widthHint = 200;
 
 		infoLabel = new Label(parent, SWT.NONE);
 		infoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
@@ -120,6 +123,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.getControl().setLayoutData(gridData);
 
 		attributeTable = attributeViewer.getTable();
+		TableLayout attributeTableLayout = new TableLayout();
+		attributeTable.setLayout(attributeTableLayout);
+		attributeTableLayout.addColumnData(new ColumnWeightData(100));
 		attributeTable.setHeaderVisible(false);
 		attributeTable.setLinesVisible(false);
 		attributeTable.setVisible(false);
@@ -175,6 +181,10 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		sortingViewer.getControl().setLayoutData(gridData);
 
 		sortingTable = sortingViewer.getTable();
+		TableLayout sortingTableLayout = new TableLayout();
+		sortingTable.setLayout(sortingTableLayout);
+		sortingTableLayout.addColumnData(new ColumnWeightData(50));
+		sortingTableLayout.addColumnData(new ColumnWeightData(50));
 		sortingTable.setHeaderVisible(false);
 		sortingTable.setLinesVisible(false);
 		sortingTable.setVisible(false);
@@ -388,6 +398,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 				element.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
+			System.out.println(element.getName() + " " + element.getSortingDirection());
 			orderingDirectionChangedListener.invoke(element);
 		}
 
