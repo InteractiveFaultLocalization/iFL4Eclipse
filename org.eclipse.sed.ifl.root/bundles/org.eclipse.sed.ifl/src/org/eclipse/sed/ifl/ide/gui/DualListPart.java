@@ -398,7 +398,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 				source.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/descend.png"));
 				element.setSortingDirection(Sortable.SortingDirection.Ascending);
 			}
-			System.out.println(element.getName() + " " + element.getSortingDirection());
 			orderingDirectionChangedListener.invoke(element);
 		}
 
