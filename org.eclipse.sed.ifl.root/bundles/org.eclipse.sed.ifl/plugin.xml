@@ -104,6 +104,23 @@
             restorable="false">
       </view>
    </extension>
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Fault Localization Filters"
+            id="org.eclipse.sed.ifl">
+      </category>
+      <view
+            allowMultiple="false"
+            category="org.eclipse.sed.ifl"
+            class="org.eclipse.sed.ifl.ide.gui.DualListPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLDualListView"
+            inject="true"
+            name="Interactive Fault Localization Sorting List"
+            restorable="false">
+      </view>
+   </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
@@ -114,6 +131,22 @@
                relationship="stack"
                ratio="0.5"
                visible="false">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="org.eclipse.sed.ifl.views.IFLDebugView"
+               relative="org.eclipse.ui.views.ProblemView"
+               relationship="stack"
+               ratio="0.5"
+               visible="true">
          </view>
       </perspectiveExtension>
       <perspectiveExtension
