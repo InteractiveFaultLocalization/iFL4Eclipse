@@ -27,7 +27,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 
 	public ActivityMonitorControl(ActivityMonitorModel model) {
 		super.setModel(model);
-		model.setMacAddress(determineMacAddress());
 	}
 
 	private static Boolean showError = true;
@@ -45,6 +44,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 					enabled = false;
 				}
 				if (enabled) {
+					getModel().setMacAddress(determineMacAddress());
 						getModel().insertEvent(event);
 						System.out.printf("new %s are logged\n", event.toString());	
 						showMissingInfo = true;

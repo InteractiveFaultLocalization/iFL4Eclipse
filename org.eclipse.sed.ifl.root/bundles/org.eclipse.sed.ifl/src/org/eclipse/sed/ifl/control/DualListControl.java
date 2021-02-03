@@ -11,8 +11,6 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.DualListView;
 
-import javafx.collections.ObservableList;
-
 public class DualListControl<TItem extends Sortable> extends Control<DualListModel, DualListView<TItem>> {
 
 	public void showDualListPart() {
@@ -192,14 +190,22 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	}
 
 	private IListener<Sortable> orderingDirectionChangedListener = event -> {
-		ObservableList<Sortable> newSortingList = getModel().getSortingList();
-		Sortable originalArg = event;
-		originalArg.setSortingDirection(originalArg.getSortingDirection().equals(Sortable.SortingDirection.Ascending)
-				? Sortable.SortingDirection.Descending
-				: Sortable.SortingDirection.Ascending);
-		int swapIndex = newSortingList.indexOf(originalArg);
-		newSortingList.set(swapIndex, event);
-		getModel().setSortingList(newSortingList);
+		Sortable originalArg = getModel().getSortingList().stream()
+				.filter(original -> event.equals(original))
+				.findAny()
+				.orElse(null);
+		if(originalArg != null) {
+			//System.out.println("before:   " + ((Object)originalArg.directionProperty).toString());
+			//System.out.println("before:   " + Integer.toHexString(((Object)originalArg.directionProperty).hashCode()));
+			originalArg.setSortingDirection(originalArg.getSortingDirection().equals(Sortable.SortingDirection.Ascending)
+					? Sortable.SortingDirection.Descending
+					: Sortable.SortingDirection.Ascending);
+			//TODO: find out why it is necessary to explicitly call the directionProperty of the Sortable object for the ObservableList
+			// to detect the changes
+			System.out.println(originalArg.directionProperty);
+			//System.out.println(((Object)originalArg.directionProperty).toString());
+			//System.out.println(Integer.toHexString(((Object)originalArg.directionProperty).hashCode()));
+		}
 	};
 
 	// Left

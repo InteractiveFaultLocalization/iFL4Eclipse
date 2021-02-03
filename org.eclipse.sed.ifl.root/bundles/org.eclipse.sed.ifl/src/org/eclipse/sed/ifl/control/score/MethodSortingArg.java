@@ -1,14 +1,15 @@
 package org.eclipse.sed.ifl.control.score;
 
-public class MethodSortingArg implements Sortable {
+import javafx.beans.property.SimpleStringProperty;
+
+public class MethodSortingArg extends Sortable {
 	
 	private SortingDirection direction;
 	
-	private String name;
-	
 	public MethodSortingArg(String name, SortingDirection direction) {
-		this.name = name;
 		this.direction = direction;
+		this.nameProperty = new SimpleStringProperty(name);
+		this.directionProperty = new SimpleStringProperty(direction.name());
 	}
 	
 	@Override
@@ -19,11 +20,12 @@ public class MethodSortingArg implements Sortable {
 	@Override
 	public void setSortingDirection(SortingDirection direction) {
 		this.direction = direction;
+		this.directionProperty.set(direction.name());
 	}
 
 	@Override
 	public String getName() {
-		return this.name;
+		return this.nameProperty.get();
 	}
 
 }

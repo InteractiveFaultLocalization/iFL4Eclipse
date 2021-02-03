@@ -7,14 +7,34 @@ import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.util.Callback;
 
 public class DualListModel extends EmptyModel {
 	
-	private ObservableList<Sortable> attributeList = FXCollections.observableArrayList();
-	private ObservableList<Sortable> sortingList = FXCollections.observableArrayList();
+	private ObservableList<Sortable> attributeList = FXCollections.observableArrayList(
+			 new Callback<Sortable, Observable[]>() {
+                 @Override
+                 public Observable[] call(Sortable param) {
+                     return new Observable[]{
+                             param.nameProperty(),
+                             param.directionProperty()
+                     };
+                 }
+             });
+	private ObservableList<Sortable> sortingList = FXCollections.observableArrayList(
+			new Callback<Sortable, Observable[]>() {
+                @Override
+                public Observable[] call(Sortable param) {
+                    return new Observable[]{
+                            param.nameProperty(),
+                            param.directionProperty()
+                    };
+                }
+            });
 	private int attributeListSelection = -1;
 	private int sortingListSelection = -1;
 	
@@ -50,17 +70,17 @@ public class DualListModel extends EmptyModel {
 		this.sortingListSelection = selection;
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
-
+/*
 	public void setSortingList(ObservableList<Sortable> sortingList) {
 		this.sortingList = sortingList;
 		attributeListSelectionChangedListener.invoke(attributeListSelection);
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
-	
+*/	
 	public void addToSortingList(List<Sortable> sortables) {
 		for(Sortable sortable: sortables) {
-		this.sortingList.add(sortable);
-		this.attributeList.remove(sortable);
+			this.sortingList.add(sortable);
+			this.attributeList.remove(sortable);
 		}
 		setAttributeListSelection(-1);
 		setSortingListSelection(this.sortingList.size());
@@ -68,8 +88,8 @@ public class DualListModel extends EmptyModel {
 	
 	public void removeFromSortingList(List<Sortable> sortables) {
 		for(Sortable sortable: sortables) {
-		this.sortingList.remove(sortable);
-		this.attributeList.add(sortable);
+			this.sortingList.remove(sortable);
+			this.attributeList.add(sortable);
 		}
 		setSortingListSelection(-1);
 		setAttributeListSelection(this.attributeList.size());
@@ -77,13 +97,14 @@ public class DualListModel extends EmptyModel {
 	}
 	
 	public void moveInsideSortingList(Sortable sortable, int sourceIndex, int destinationIndex) {
-		Sortable swap = this.sortingList.get(destinationIndex);
+		assert (destinationIndex >= 0 && destinationIndex <= this.sortingList.size()-1);
 		if(destinationIndex < 0) {
 			destinationIndex = 0;
 		}
 		if(destinationIndex >= this.sortingList.size()) {
 			destinationIndex = this.sortingList.size()-1;
 		}
+		Sortable swap = this.sortingList.get(destinationIndex);
 		this.sortingList.set(destinationIndex, sortable);
 		this.sortingList.set(sourceIndex, swap);
 		setSortingListSelection(destinationIndex);
@@ -113,8 +134,21 @@ public class DualListModel extends EmptyModel {
 		return sortingListSelectionChangedListener;
 	}
 	
-	private ListChangeListener<Sortable> changeListener = c -> {
-		while(c.next()) {
+	private ListChangeListener<Sortable> changeListener = new ListChangeListener<Sortable>() {
+		public void onChanged(Change<? extends Sortable> c) {
+			while(c.next()) {
+				if(c.getList().equals(attributeList)) {
+					attributeListChangedListener.invoke(attributeList);
+				} else if (c.getList().equals(sortingList)) {
+					sortingListChangedListener.invoke(sortingList);
+				}
+				else {
+					throw new UnsupportedOperationException("This list is not supported by this class.");
+				}
+			}
+		}
+		/*while(c.next()) {
+			System.out.println(c.getList().equals(sortingList));
 			if(c.getList().equals(attributeList)) {
 				attributeListChangedListener.invoke(attributeList);
 			} else if (c.getList().equals(sortingList)) {
@@ -123,7 +157,7 @@ public class DualListModel extends EmptyModel {
 			else {
 				throw new UnsupportedOperationException("This list is ot supported by this class.");
 			}
-		}
+		}*/
 	};
 }
 	
