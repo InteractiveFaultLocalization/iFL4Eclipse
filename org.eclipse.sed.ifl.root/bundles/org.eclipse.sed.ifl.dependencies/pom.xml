@@ -66,6 +66,11 @@
 	<dependencies>
 		<!-- here goes the dependencies -->
 		<dependency>
+			<groupId>com.zenjava</groupId>
+			<artifactId>javafx-maven-plugin</artifactId>
+			<version>8.1.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
 			<artifactId>neo4j-gremlin</artifactId>
 			<version>3.4.0</version>
