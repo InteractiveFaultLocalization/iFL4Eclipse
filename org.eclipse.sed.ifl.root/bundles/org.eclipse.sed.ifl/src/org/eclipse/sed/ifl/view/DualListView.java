@@ -8,6 +8,7 @@ import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.DualListPart;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.swt.widgets.Composite;
@@ -31,7 +32,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		if (view != null || page.isPartVisible(view)) {
 			page.hideView(view);
 		}
-		EU.tryUnchecked(() -> page.showView(DualListPart.ID));
+		EU.tryUnchecked(() -> page.showView(DualListPart.ID, null, IWorkbenchPage.VIEW_CREATE));
 		view = page.findView(DualListPart.ID);
 		if (view == null) {
 			throw new RuntimeException();
@@ -130,13 +131,13 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		}
 	}
 
-	private NonGenericListenerCollection<Sortable> addAllToSortingListRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> addAllToSortingListRequested = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<Sortable> eventAddAllToSortingListRequested() {
+	public NonGenericListenerCollection<EmptyEvent> eventAddAllToSortingListRequested() {
 		return addAllToSortingListRequested;
 	}
 
-	private IListener<Sortable> addAllToSortingListRequestedListener = addAllToSortingListRequested::invoke;
+	private IListener<EmptyEvent> addAllToSortingListRequestedListener = addAllToSortingListRequested::invoke;
 
 	private NonGenericListenerCollection<Sortable> addOneToSortingListRequested = new NonGenericListenerCollection<>();
 
@@ -154,13 +155,13 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private IListener<Sortable> removeOneFromSortingListRequestedListener = removeOneFromSortingListRequested::invoke;
 
-	private NonGenericListenerCollection<Sortable> removeAllFromSortingListRequested = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> removeAllFromSortingListRequested = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<Sortable> eventRemoveAllFromSortingListRequested() {
+	public NonGenericListenerCollection<EmptyEvent> eventRemoveAllFromSortingListRequested() {
 		return removeAllFromSortingListRequested;
 	}
 
-	private IListener<Sortable> removeAllFromSortingListRequestedListener = removeAllFromSortingListRequested::invoke;
+	private IListener<EmptyEvent> removeAllFromSortingListRequestedListener = removeAllFromSortingListRequested::invoke;
 
 	private NonGenericListenerCollection<Sortable> moveToTopInSortingListRequested = new NonGenericListenerCollection<>();
 

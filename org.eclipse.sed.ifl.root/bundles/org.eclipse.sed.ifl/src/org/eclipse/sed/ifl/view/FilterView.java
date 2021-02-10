@@ -3,7 +3,6 @@ package org.eclipse.sed.ifl.view;
 
 import java.util.List;
 
-import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
@@ -27,8 +26,6 @@ import org.eclipse.ui.PlatformUI;
 public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	private FilterPart filterPart;
-	//private FilterParams filterParam;
-	private Boolean setScoreNeeded = false;
 	
 	public FilterView() {
 		this.filterPart = (FilterPart) getPart();
@@ -41,7 +38,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		if (view != null || page.isPartVisible(view)) {
 			page.hideView(view);
 		}
-		EU.tryUnchecked(() -> page.showView(FilterPart.ID));
+		EU.tryUnchecked(() -> page.showView(FilterPart.ID, null, IWorkbenchPage.VIEW_CREATE));
 		view = page.findView(FilterPart.ID);
 		if (view == null) {
 			throw new RuntimeException();
@@ -75,7 +72,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventDeleteRules().add(deleteRulesListener);
 		filterPart.eventSortRuleAdded().add(sortListener);
 		filterPart.eventGetTopTenLimit().add(getTopTenLimitListener);
-		filterPart.eventOpenDualListPage().add(openDualListPartListener);
 	}
 	
 	private void removeUIListeners() {
@@ -86,7 +82,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 		filterPart.eventDeleteRules().remove(deleteRulesListener);
 		filterPart.eventSortRuleAdded().remove(sortListener);
 		filterPart.eventGetTopTenLimit().remove(getTopTenLimitListener);
-		filterPart.eventOpenDualListPage().remove(openDualListPartListener);
 	}
 	
 	@Override
@@ -110,9 +105,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 			System.out.println("Could not open filters view.");
 		}
 		initUIListeners();
-		if(setScoreNeeded) {
-			//setScoreFilter(filterParam.getMin(), filterParam.getMax(), filterParam.getCurrent());
-		}
 	}
 	
 	public void close() {
@@ -124,27 +116,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	public void applyTopScorePreset(Double limit) {
 		filterPart.applyTopScorePreset(limit);
 	}
-	
-	/*
-	public void setScoreFilter(double min, double max, double current) {
-		try {
-			filterPart.setScoreFilter(min, max, current);
-		} catch (SWTException e) {
-			filterParam = new FilterParams(min, max, current);
-			setScoreNeeded = true;
-		}
-	}
-	*/
-	
-	/*
-	public void setScoreFilter(double min, double max) {
-		try {	
-			filterPart.setScoreFilter(min, max);
-		} catch (SWTException e) {
-			filterParam = new FilterParams(min, max);
-		}
-	}
-	*/
 	
 	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
 	
@@ -193,14 +164,6 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private IListener<SortRule> sortListener = sortRequired::invoke;
-	
-	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
-		return openDualListPart;
-	}
-	
-	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
 	
 	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
 	

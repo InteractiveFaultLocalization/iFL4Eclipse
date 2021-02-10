@@ -565,13 +565,13 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		return rvList;
 	}
 
-	public void resetFilterState() {
-		filterControl.resetFilterState();
-
-	}
-
 	public void closeFilterPart() {
 		filterControl.close();
+
+	}
+	
+	public void closeDualListPart() {
+		dualListControl.close();
 
 	}
 }

@@ -70,13 +70,7 @@ public class DualListModel extends EmptyModel {
 		this.sortingListSelection = selection;
 		sortingListSelectionChangedListener.invoke(sortingListSelection);
 	}
-/*
-	public void setSortingList(ObservableList<Sortable> sortingList) {
-		this.sortingList = sortingList;
-		attributeListSelectionChangedListener.invoke(attributeListSelection);
-		sortingListSelectionChangedListener.invoke(sortingListSelection);
-	}
-*/	
+
 	public void addToSortingList(List<Sortable> sortables) {
 		for(Sortable sortable: sortables) {
 			this.sortingList.add(sortable);
@@ -147,17 +141,6 @@ public class DualListModel extends EmptyModel {
 				}
 			}
 		}
-		/*while(c.next()) {
-			System.out.println(c.getList().equals(sortingList));
-			if(c.getList().equals(attributeList)) {
-				attributeListChangedListener.invoke(attributeList);
-			} else if (c.getList().equals(sortingList)) {
-				sortingListChangedListener.invoke(sortingList);
-			}
-			else {
-				throw new UnsupportedOperationException("This list is ot supported by this class.");
-			}
-		}*/
 	};
 }
 	

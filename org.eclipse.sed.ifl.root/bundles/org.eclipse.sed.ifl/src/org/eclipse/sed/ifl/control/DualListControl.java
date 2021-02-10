@@ -8,6 +8,7 @@ import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.model.DualListModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.DualListView;
 
@@ -78,7 +79,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		return addAllToSortingListRequested;
 	}
 
-	private IListener<Sortable> addAllToSortingListRequestedListener = event -> {
+	private IListener<EmptyEvent> addAllToSortingListRequestedListener = event -> {
 		List<Sortable> attributeList = getModel().getAttributeList().stream().collect(Collectors.toList());
 		getModel().addToSortingList(attributeList);
 	};
@@ -122,7 +123,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		return removeAllFromSortingListRequested;
 	}
 
-	private IListener<Sortable> removeAllFromSortingListRequestedListener = event -> {
+	private IListener<EmptyEvent> removeAllFromSortingListRequestedListener = event -> {
 		List<Sortable> sortingList = getModel().getSortingList().stream().collect(Collectors.toList());
 		getModel().removeFromSortingList(sortingList);
 	};
@@ -262,5 +263,9 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 	private IListener<Integer> sortingListSelectionRequestedListener = event -> {
 		getView().sortingListSelectionRefresh(event);
 	};
+
+	public void close() {
+		getView().close();
+	}
 
 }

@@ -49,7 +49,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	private ScrolledComposite scrolledComposite;
 	private Button resetAllButton;
 	private Composite rulesComposite;
-	private Button showDualListPartButton;
 
 	private static Boolean filterEnabled = false;
 
@@ -96,26 +95,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			}
 
 		});
-
-		resetAllButton = new Button(parent, SWT.NONE);
-		resetAllButton.setEnabled(false);
-		resetAllButton.setText("Reset all");
-		resetAllButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				deleteRules.invoke(rules);
-				for (Control control : rulesComposite.getChildren()) {
-					control.dispose();
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-		});
-
+				
 		choosePresetButton = new Button(parent, SWT.NONE);
 		choosePresetButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		choosePresetButton.setText("Choose preset");
@@ -136,26 +116,25 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 		});
 		
-		showDualListPartButton = new Button(parent, SWT.NONE);
-		showDualListPartButton.setText("Shodw ordering list");
-		showDualListPartButton.addSelectionListener(new SelectionListener() {
+		resetAllButton = new Button(parent, SWT.NONE);
+		resetAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		resetAllButton.setEnabled(false);
+		resetAllButton.setText("Reset all");
+		resetAllButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				openDualListPage.invoke(new EmptyEvent());
-				
+				deleteRules.invoke(rules);
+				for (Control control : rulesComposite.getChildren()) {
+					control.dispose();
+				}
+			}
+				@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {	
-			}
-			
 		});
 		
-		
-		
-		
-
 		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
 		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
 		gd_scrolledComposite.widthHint = 360;
@@ -290,12 +269,6 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
 		return booleanRuleAdded;
-	}
-	
-	private NonGenericListenerCollection<EmptyEvent> openDualListPage = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPage() {
-		return openDualListPage;
 	}
 
 	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();

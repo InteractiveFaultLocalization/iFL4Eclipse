@@ -17,6 +17,7 @@ import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.DisposeEvent;
@@ -44,9 +45,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
-	private Sortable toggleElement;
-	private Sortable movedElementInAttribute;
-	private Sortable movedElementInSorting;
 
 	@FunctionalInterface
 	public interface HumanReadable<TItem> {
@@ -74,9 +72,6 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 	}
 
 	private void addUIElements(Composite parent) {
-		toggleElement = null;
-		movedElementInAttribute = null;
-		movedElementInSorting = null;
 
 		GridData buttonData = new GridData();
 		buttonData.horizontalAlignment = SWT.CENTER;
@@ -153,7 +148,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 			public void update(ViewerCell cell) {
 
 				TableItem item = (TableItem) cell.getItem();
-				toggleElement = (Sortable) item.getData();
+				Sortable toggleElement = (Sortable) item.getData();
 				Button button = new Button((Composite) cell.getViewerRow().getControl(), SWT.TOGGLE);
 				button.setData(toggleElement);
 				if (toggleElement.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
@@ -419,57 +414,65 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		attributeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				TableItem[] items = attributeTable.getSelection();
-				if(items.length>0) {
-				movedElementInAttribute = (Sortable) items[0].getData();
-				movedElementInSorting = null;
 				sortingTable.setSelection(-1);
-				}
 			}
 		});
 
 		sortingViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				TableItem[] items = sortingTable.getSelection();
-				if(items.length>0) {
-				movedElementInSorting = (Sortable) items[0].getData();
-				movedElementInAttribute = null;
 				attributeTable.setSelection(-1);
-				}
 			}
 		});
 
 		allRight.addListener(SWT.Selection, event -> {
-			addAllToSortingListRequestedListener.invoke(movedElementInAttribute);
+			addAllToSortingListRequestedListener.invoke(new EmptyEvent());
 		});
 
 		oneRight.addListener(SWT.Selection, event -> {
-			addOneToSortingListRequestedListener.invoke(movedElementInAttribute);
+			TableItem[] items = attributeTable.getSelection();
+			if (items.length == 1) {
+				addOneToSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
-
+		
 		oneLeft.addListener(SWT.Selection, event -> {
-			removeOneFromSortingListRequestedListener.invoke(movedElementInSorting);
+			TableItem[] items = sortingTable.getSelection();
+			if (items.length == 1) {
+				removeOneFromSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
 
 		allLeft.addListener(SWT.Selection, event -> {
-			removeAllFromSortingListRequestedListener.invoke(movedElementInSorting);
+			removeAllFromSortingListRequestedListener.invoke(new EmptyEvent());
 		});
 
 		allUp.addListener(SWT.Selection, event -> {
-			moveToTopInSortingListRequestedListener.invoke(movedElementInSorting);
+			TableItem[] items = sortingTable.getSelection();
+			if (items.length == 1) {
+				moveToTopInSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
 
 		oneUp.addListener(SWT.Selection, event -> {
-			moveOneUpInSortingListRequestedListener.invoke(movedElementInSorting);
+			TableItem[] items = sortingTable.getSelection();
+			if (items.length == 1) {
+				moveOneUpInSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
 
 		oneDown.addListener(SWT.Selection, event -> {
-			moveOneDownInSortingListRequestedListener.invoke(movedElementInSorting);
+			TableItem[] items = sortingTable.getSelection();
+			if (items.length == 1) {
+				moveOneDownInSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
 
 		allDown.addListener(SWT.Selection, event -> {
-			moveToBottomInSortingListRequestedListener.invoke(movedElementInSorting);
+			TableItem[] items = sortingTable.getSelection();
+			if (items.length == 1) {
+				moveToBottomInSortingListRequestedListener.invoke((Sortable)items[0].getData());
+			}
 		});
 
 		if (orderingEnabled.booleanValue()) {
@@ -478,9 +481,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 	}
 
-	private NonGenericListenerCollection<Sortable> addAllToSortingListRequestedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> addAllToSortingListRequestedListener = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<Sortable> eventAddAllToSortingListRequested() {
+	public NonGenericListenerCollection<EmptyEvent> eventAddAllToSortingListRequested() {
 		return addAllToSortingListRequestedListener;
 	}
 
@@ -496,9 +499,9 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		return removeOneFromSortingListRequestedListener;
 	}
 
-	private NonGenericListenerCollection<Sortable> removeAllFromSortingListRequestedListener = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<EmptyEvent> removeAllFromSortingListRequestedListener = new NonGenericListenerCollection<>();
 
-	public NonGenericListenerCollection<Sortable> eventRemoveAllFromSortingListRequested() {
+	public NonGenericListenerCollection<EmptyEvent> eventRemoveAllFromSortingListRequested() {
 		return removeAllFromSortingListRequestedListener;
 	}
 
