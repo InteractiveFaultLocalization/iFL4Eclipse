@@ -16,6 +16,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	public void showDualListPart() {
 		getView().showDualListPart();
+		refreshView();
 	}
 
 	public void init() {
@@ -70,9 +71,9 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 
 	public void enableOrdering() {
 		getView().enableOrdering();
-		refreshAttributeListOnView();
+		refreshView();
 	}
-
+	
 	private NonGenericListenerCollection<Sortable> addAllToSortingListRequested = new NonGenericListenerCollection<>();
 
 	public NonGenericListenerCollection<Sortable> eventAddAllToSortingListRequested() {
@@ -221,8 +222,9 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getView().attributeListRefresh(event);
 	};
 
-	private void refreshAttributeListOnView() {
+	private void refreshView() {
 		getView().attributeListRefresh(getModel().getAttributeList());
+		getView().sortingListRefresh(getModel().getSortingList());
 	}
 
 	// Right

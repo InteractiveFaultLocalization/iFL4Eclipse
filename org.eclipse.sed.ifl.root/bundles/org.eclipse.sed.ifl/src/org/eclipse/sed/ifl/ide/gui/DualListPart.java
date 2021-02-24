@@ -102,13 +102,13 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		new Label(parent, SWT.NONE).setText("");
 
 		attributeViewer = new TableViewer(parent, SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-
 		attributeViewer.setContentProvider(ArrayContentProvider.getInstance());
 		TableViewerColumn columnLeftName = new TableViewerColumn(attributeViewer, SWT.CENTER);
 		columnLeftName.getColumn().setWidth(200);
 		columnLeftName.getColumn().setText("Attribute");
 		columnLeftName.getColumn().setResizable(true);
 		columnLeftName.getColumn().setMoveable(true);
+		
 		columnLeftName.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {

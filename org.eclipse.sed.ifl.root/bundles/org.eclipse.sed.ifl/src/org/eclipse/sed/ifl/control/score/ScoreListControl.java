@@ -319,6 +319,8 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private IListener<List<Sortable>> updateSorting = event -> {
 		if (event.isEmpty() == false) {
+			comparators.clear();
+			previousSorts.clear();
 			for (Sortable argument : event) {
 				sorting = argument;
 				if (!sorting.getSortingDirection().equals(argument.getSortingDirection())) {
@@ -329,8 +331,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		}
 
 		refreshView();
-		comparators.clear();
-		previousSorts.clear();
 	};
 	
 	private IListener<List<Sortable>> sortingListRefreshRequested = event -> {
@@ -536,25 +536,15 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 	};
 
 	private IListener<EmptyEvent> scoreLoadedListener = __ -> {
-		Map<IMethodDescription, Defineable<Double>> rawScores = getModel().getRawScore().entrySet().stream()
-				.sorted((a, b) -> -1 * a.getValue().compareTo(b.getValue()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-		Optional<Defineable<Double>> min = rawScores.values().stream().filter(score -> score.isDefinit())
-				.min(Comparator.comparing(score -> score.getValue()));
-		Optional<Defineable<Double>> max = rawScores.values().stream().filter(score -> score.isDefinit())
-				.max(Comparator.comparing(score -> score.getValue()));
-		if (rawScores.size() > TOP_SCORE_LIMIT && min.isPresent() && max.isPresent()) {
-			Defineable<Double> limit = rawScores.entrySet().stream().skip(TOP_SCORE_LIMIT).collect(Collectors.toList())
-					.get(0).getValue();
-			if (limit.isDefinit()) {
-				filterControl.enableFiltering();
-				dualListControl.enableOrdering();
-			}
-			MessageDialog.open(MessageDialog.INFORMATION, null, "iFL Score List",
-					"Only the top 10 source code items are displayed.\n"
-							+ "You can set the filters to show more or less items.",
-					SWT.NONE);
-		}
+
+		filterControl.enableFiltering();
+		dualListControl.enableOrdering();
+		/*
+		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL Score List",
+				"Only the top 10 source code items are displayed.\n"
+						+ "You can set the filters to show more or less items.",
+				SWT.NONE);
+		*/
 	};
 
 	private List<String> getElementNames(IUserFeedback event) {
