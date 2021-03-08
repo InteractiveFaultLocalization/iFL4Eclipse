@@ -6,42 +6,58 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Arrays;
 
 import main.java.hu.szte.sed.coverage.BinaryMethodCoverageData;
-import main.java.hu.szte.sed.coverage.ChainCoverageData;
-import main.java.hu.szte.sed.coverage.CoverageData;
-import main.java.hu.szte.sed.coverage.NumericMethodCoverageData;
 
 public class TrcReader implements ITrcReader {
 
 	@Override
-	public Map<Short, int[]> readTrc(String trcDir) {
+	public Map<Short, int[]> readTrc(String trcDir, Short[] methodIDs) {
 		
 		File[] trcs = new File(trcDir).listFiles();
 		Map<Short, int[]> map = new HashMap<Short, int[]>();
 		
+		for(Short s : methodIDs) {
+			map.put(s, new int[4]);
+		}
+		
 		for(File trc : trcs) {
+			
+			if(trc.getName().equals("trace.trc.names"))break;
+			
 			try {
-				FileInputStream fin = new FileInputStream(trc);
+				FileInputStream fin = new FileInputStream(trc); 
 				DataInputStream din = new DataInputStream(fin);
+				/*
+				din.readshort();
+				din.readshort();
+				din.readshort();
+				din.readshort();
 				short s = din.readShort();
 				switch (s) {
-					case 0:{
-						readBinary(trc, map);
-					}
 					case 1:{
-						readCount(trc, map);
+							readBinary(trc, map);
 					}
 					case 2:{
+						readCount(trc, map);
+					}
+					case 4:{
 						readChainAsCount(trc, map);
 					}
+				}*/
+				readBinary(trc, map);
+				for(Entry<Short, int[]> entry : map.entrySet()) {
+					System.out.print(entry.getKey()+" ");
+					System.out.println(Arrays.toString(entry.getValue()));
 				}
-				
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
+			}
+			catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 			
@@ -51,10 +67,14 @@ public class TrcReader implements ITrcReader {
 	}
 	
 	@Override
-	public Map<Short[], int[]> readTrcChain(String trcDir) {
+	public Map<Short[], int[]> readTrcChain(String trcDir, Short[][] chains) {
 		
 		File[] trcs = new File(trcDir).listFiles();
 		Map<Short[], int[]> map = new HashMap<Short[], int[]>();
+		
+		for(Short[] s : chains) {
+			map.put(s, new int[4]);
+		}
 		
 		for(File trc : trcs) {
 			readChainAsChain(trc, map);
@@ -63,7 +83,6 @@ public class TrcReader implements ITrcReader {
 		return map;
 	}
 
-	@Override
 	public Map<Short, int[]> readBinary(File trc, Map<Short, int[]> map) {
 		BinaryMethodCoverageData<Short> bin = new BinaryMethodCoverageData<Short>();
 		try {
@@ -78,20 +97,36 @@ public class TrcReader implements ITrcReader {
 			e.printStackTrace();
 		}
 		Boolean b = isTestSuccessful(trc);
+		Set<Short> set = new HashSet(map.keySet());
 		Iterator i = bin.getData().iterator();
 		while(i.hasNext()) {
-			short s = (short) i.next();
-			int[] count = map.get(s);
-			if(b) {count[0]++;}
-			else {count[1]++;}
-			map.put((Short)s, count);
+			Short s = (short) i.next();
+			if(map.containsKey(s)) {
+				int[] count = map.get(s);
+			
+				if(b) {count[0]++;}
+				else {count[1]++;}
+				map.put(s, count);
+				set.remove(s);
+			}
 		}
+		
+		Iterator<Short> it = set.iterator();
+		while(it.hasNext()) {
+			Short s = it.next();
+			int[] count = map.get(s);
+			
+			if(b) {count[2]++;}
+			else {count[3]++;}
+			map.put(s, count);
+		}
+		
 		return map;
 	}
 
-	@Override
 	public Map<Short, int[]> readCount(File trc, Map<Short, int[]> map) {
 		Boolean b = isTestSuccessful(trc);
+		Set<Short> set = new HashSet(map.keySet());
 		try {
 			FileInputStream fin = new FileInputStream(trc);
 			DataInputStream din = new DataInputStream(fin);
@@ -99,14 +134,11 @@ public class TrcReader implements ITrcReader {
 				short s = din.readShort();
 				if(map.containsKey(s)) {
 					int[] count = map.get(s);
+				
 					if(b) {count[0] += din.read();}
 					else {count[1] += din.read();}
 					map.put(s, count);
-				} else {
-					int[] count = new int[2];
-					if(b) {count[0] += din.read();}
-					else {count[1] += din.read();}
-					map.put(s, count);
+					set.remove(s);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -114,12 +146,23 @@ public class TrcReader implements ITrcReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		Iterator<Short> it = set.iterator();
+		while(it.hasNext()) {
+			Short s = it.next();
+			int[] count = map.get(s);
+			
+			if(b) {count[2]++;}
+			else {count[3]++;}
+			map.put(s, count);
+		}
+		
 		return map;
 	}
 
-	@Override
 	public Map<Short, int[]> readChainAsCount(File trc, Map<Short, int[]> map) {
 		Boolean b = isTestSuccessful(trc);
+		Set<Short> set = new HashSet(map.keySet());
 		try {
 			FileInputStream fin = new FileInputStream(trc);
 			DataInputStream din = new DataInputStream(fin);
@@ -131,16 +174,15 @@ public class TrcReader implements ITrcReader {
 				}
 				s = din.readShort();
 				for(int i=0; i<d.length; i++) {
-					if(map.containsKey(d[i])) {
-						int[] count = map.get(d[i]);
-						if(b) {count[0] += s;}
-						else {count[1] += s;}
-						map.put(d[i], count);
-					} else {
-						int[] count = new int[2];
-						if(b) {count[0] += s;}
-						else {count[1] += s;}
-						map.put(d[i], count);
+					int[] count = map.get(d[i]);
+					for(Entry<Short, int[]> entry : map.entrySet()){
+						count = entry.getValue();
+						if(map.containsKey(entry.getKey())) {
+							if(b) {count[0] += s;}
+							else {count[1] += s;}
+							map.put(d[i], count);
+						}
+						set.remove(entry.getKey());
 					}
 				}
 			}
@@ -149,10 +191,20 @@ public class TrcReader implements ITrcReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		Iterator<Short> it = set.iterator();
+		while(it.hasNext()) {
+			Short s = it.next();
+			int[] count = map.get(s);
+			
+			if(b) {count[2]++;}
+			else {count[3]++;}
+			map.put(s, count);
+		}
+		
 		return map;
 	}
 	
-	@Override
 	public Map<Short[], int[]> readChainAsChain(File trc, Map<Short[], int[]> map) {
 		Boolean b = isTestSuccessful(trc);
 		try {
@@ -166,16 +218,17 @@ public class TrcReader implements ITrcReader {
 					d[i] = din.readShort();
 				}
 				s = din.readShort();
-				if(map.containsKey(d)) {
-					int[] count = map.get(d);
-					if(b) {count[0] += s;}
-					else {count[1] += s;}
-					map.put(d, count);
-				} else {
-					int[] count = new int[2];
-					if(b) {count[0] += s;}
-					else {count[1] += s;}
-					map.put(d, count);
+				for(Entry<Short[], int[]> entry : map.entrySet()){
+					int count[] = entry.getValue();
+					if(d.equals( entry.getKey())) {
+						if(b) {count[0] += s;}
+						else {count[1] += s;}
+						map.put(d, count);
+					}else{
+						if(b) {count[0] += s;}
+						else {count[1] += s;}
+						map.put(d, count);
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
