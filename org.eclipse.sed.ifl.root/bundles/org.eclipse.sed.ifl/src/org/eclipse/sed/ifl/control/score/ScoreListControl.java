@@ -556,12 +556,12 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 	}
 
 	public void closeFilterPart() {
+		filterControl.terminate();
 		filterControl.close();
-
 	}
 	
 	public void closeDualListPart() {
+		dualListControl.terminate();
 		dualListControl.close();
-
 	}
 }

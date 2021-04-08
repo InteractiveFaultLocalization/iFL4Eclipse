@@ -251,4 +251,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 		dualListPart.setSortingTableSelection(event);
 	};
 
+	public void terminatePart() {
+		dualListPart.terminate();
+	}
 }

@@ -109,7 +109,7 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	
 	public void close() {
 		if(filterPart.getSite().getPart() != null) {
-			filterPart.getSite().getPage().hideView(filterPart);
+			filterPart.getSite().getPage().hideView(filterPart);;
 		}
 	}
 	
@@ -180,5 +180,9 @@ public class FilterView extends View implements IEmbeddable, IEmbedee {
 	public void setResultNumber(Rule rule, int count) {
 		filterPart.setResultNumber(rule, count);
 		
+	}
+
+	public void terminatePart() {
+		filterPart.terminate();
 	}
 }

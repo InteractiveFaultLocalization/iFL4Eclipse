@@ -51,6 +51,10 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().close();
 	}
 	
+	public void terminate() {
+		getView().terminatePart();
+	}
+	
 	public void applyTopScorePreset(Double limit) {
 		getView().applyTopScorePreset(limit);
 	}

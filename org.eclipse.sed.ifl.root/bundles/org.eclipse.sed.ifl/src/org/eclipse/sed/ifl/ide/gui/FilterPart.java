@@ -298,6 +298,15 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		filterEnabled = true;
 	}
 
+	public void terminate() {
+		deleteRules.invoke(rules);
+		rules.clear();
+		for (Control control : rulesComposite.getChildren()) {
+			control.dispose();
+		}
+		filterEnabled = false;
+	}
+	
 	public void applyTopScorePreset(Double limit) {
 		ruleCreatedListener.invoke(new DoubleRule("Score", limit, ">="));
 	}

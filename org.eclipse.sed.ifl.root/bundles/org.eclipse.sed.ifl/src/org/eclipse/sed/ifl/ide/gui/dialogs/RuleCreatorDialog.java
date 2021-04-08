@@ -10,7 +10,6 @@ import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.RuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.SortRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;

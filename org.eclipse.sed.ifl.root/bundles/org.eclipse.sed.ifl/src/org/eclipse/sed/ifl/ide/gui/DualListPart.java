@@ -600,4 +600,8 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 
 		this.getSite().getPage().hideView(this);
 	}
+	
+	public void terminate() {
+		orderingEnabled = false;
+	}
 }

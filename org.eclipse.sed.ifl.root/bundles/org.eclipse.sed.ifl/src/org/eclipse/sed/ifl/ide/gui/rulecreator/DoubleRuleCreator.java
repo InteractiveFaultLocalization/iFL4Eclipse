@@ -67,7 +67,7 @@ public class DoubleRuleCreator extends Composite implements RuleCreator{
 			}
 		} catch (NumberFormatException e) {
 			MessageDialog.open(MessageDialog.ERROR, null, "Input is not a number", "The provided input is not a number."
-					+ "Please enter a string that can be converted into a number.", SWT.NONE);
+					+ " Please enter a string that can be converted into a number.", SWT.NONE);
 		} catch (IllegalArgumentException e) {
 			MessageDialog.open(MessageDialog.ERROR, null, "Input number is out of range", 
 					"The provided input is out of range. The filter value must be >=0 and <=1.", SWT.NONE);

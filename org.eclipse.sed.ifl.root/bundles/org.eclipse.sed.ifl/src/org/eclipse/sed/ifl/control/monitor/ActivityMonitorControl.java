@@ -90,6 +90,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 			InetAddress ip = InetAddress.getLocalHost();
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
 			macAddressByte = ni.getHardwareAddress();
+			socket.close();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not determine ip address\n");
 		} catch (SocketException e) {

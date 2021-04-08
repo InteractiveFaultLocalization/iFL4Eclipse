@@ -270,4 +270,7 @@ public class DualListControl<TItem extends Sortable> extends Control<DualListMod
 		getView().close();
 	}
 
+	public void terminate() {
+		getView().terminatePart();
+	}
 }

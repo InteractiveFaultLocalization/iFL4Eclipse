@@ -11,9 +11,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.wb.swt.ResourceManager;
 
 public class StringRuleCreator extends Composite implements RuleCreator{
