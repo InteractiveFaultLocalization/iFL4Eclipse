@@ -75,24 +75,9 @@ public class ScoreListUI extends Composite {
 
 	private void requestNavigateToContextSelection() {
 		if (checkSelectedNotNull()) {
-
-			List<IMethodDescription> contextList = new ArrayList<IMethodDescription>();
-			for (Entry<IMethodDescription, Score> selected : selectedList) {
-				IMethodDescription entry = selected.getKey();
-				List<MethodIdentity> context = entry.getContext();
-				for (Control item : cardsComposite.getDisplayedCards()) {
-					for (MethodIdentity target : context) {
-						if (item.getData() instanceof IMethodDescription
-								&& target.equals(((IMethodDescription) item.getData()).getId())) {
-							contextList.add((IMethodDescription) item.getData());
-							String path = ((CodeElementUI) item).getPositionValueLabel().getText();
-							int offset = Integer.parseInt(((CodeElementUI) item).getPositionValueLabel().getText());
-							System.out.println("navigation requested to: " + path + ":" + offset);
-						}
-					}
-				}
+			for(Entry<IMethodDescription, Score> selected : selectedList) {
+				navigateToContext.invoke(selected);
 			}
-			navigateToContext.invoke(contextList);
 		}
 	}
 
@@ -244,9 +229,9 @@ public class ScoreListUI extends Composite {
 		return navigateToRequired;
 	}
 
-	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> navigateToContext = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 

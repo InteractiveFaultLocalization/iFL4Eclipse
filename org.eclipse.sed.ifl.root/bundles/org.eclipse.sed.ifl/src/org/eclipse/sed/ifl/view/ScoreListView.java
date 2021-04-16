@@ -113,13 +113,13 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
-	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	
-	private IListener<List<IMethodDescription>> navigateToContextListener = navigateToContext::invoke;
+	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);

@@ -446,7 +446,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		} else {
 			boolean confirmed = false;
 			CustomInputDialog dialog = new CustomInputDialog(Display.getCurrent().getActiveShell(),
-					"Terminal choice confirmation:" + event.getChoice().getTitle(),
+					"Terminal choice confirmation: " + event.getChoice().getTitle(),
 					"You choose an option which will end this iFL session with a "
 							+ (effect.isSuccessFul() ? "successful" : "unsuccessful") + " result.\n"
 							+ "Please confim that you intend to mark the selected code elements by typing their name next to them in the text areas. Element names are case-sensitive.",
@@ -511,11 +511,20 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		activityMonitor.log(new NavigationEvent(event));
 	};
 
-	private IListener<List<IMethodDescription>> navigateToContextListener = event -> {
-		for (IMethodDescription method : event) {
+	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = entry -> {
+		Map<IMethodDescription,Score> scores = getModel().getScores();
+		for(MethodIdentity methodId : entry.getKey().getContext()) {
+			for(IMethodDescription method : scores.keySet()) {
+				if (methodId.equals(method.getId())) {
+					editor.open(method.getLocation().getAbsolutePath(), method.getLocation().getBegining().getOffset());
+					activityMonitor.log(new NavigationEvent(method));
+				}
+			}
+		}
+		/*for (MethodIdentity methodId : entry) {
 			editor.open(method.getLocation().getAbsolutePath(), method.getLocation().getBegining().getOffset());
 			activityMonitor.log(new NavigationEvent(method));
-		}
+		}*/
 	};
 
 	private static final int TOP_SCORE_LIMIT = 9;
