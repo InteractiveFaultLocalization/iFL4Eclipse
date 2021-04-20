@@ -1,4 +1,4 @@
-package main.java.hu.szte.sed.util;
+package hu.szte.sed.util;
 
 public enum Granularity {
 

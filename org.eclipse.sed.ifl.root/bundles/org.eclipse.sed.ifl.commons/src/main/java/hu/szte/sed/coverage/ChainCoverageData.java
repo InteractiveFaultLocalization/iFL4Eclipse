@@ -1,4 +1,4 @@
-package main.java.hu.szte.sed.coverage;
+package hu.szte.sed.coverage;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -6,10 +6,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import main.java.hu.szte.sed.graph.algorithm.Preorder;
-import main.java.hu.szte.sed.graph.data.Node;
-import main.java.hu.szte.sed.graph.visitor.ChainCollectorVisitor;
-import main.java.hu.szte.sed.util.Constants;
+import hu.szte.sed.graph.algorithm.Preorder;
+import hu.szte.sed.graph.data.Node;
+import hu.szte.sed.graph.visitor.ChainCollectorVisitor;
+import hu.szte.sed.util.Constants;
 
 public class ChainCoverageData<T extends Number> implements CoverageData<T> {
 

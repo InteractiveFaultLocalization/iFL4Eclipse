@@ -1,6 +1,6 @@
-package main.java.hu.szte.sed.graph.visitor;
+package hu.szte.sed.graph.visitor;
 
-import main.java.hu.szte.sed.graph.data.Node;
+import hu.szte.sed.graph.data.Node;
 
 public interface Visitor<T extends Number> {
 

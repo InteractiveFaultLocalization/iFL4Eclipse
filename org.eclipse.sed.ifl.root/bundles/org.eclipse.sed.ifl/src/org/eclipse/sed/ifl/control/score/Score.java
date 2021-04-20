@@ -4,7 +4,7 @@ import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class Score extends Defineable<Double> {
 	

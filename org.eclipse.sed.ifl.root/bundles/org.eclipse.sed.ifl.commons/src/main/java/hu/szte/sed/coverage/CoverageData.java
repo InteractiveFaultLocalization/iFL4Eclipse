@@ -1,4 +1,4 @@
-package main.java.hu.szte.sed.coverage;
+package hu.szte.sed.coverage;
 
 import java.io.File;
 

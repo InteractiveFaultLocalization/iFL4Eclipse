@@ -58,8 +58,8 @@ import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-import main.java.org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 

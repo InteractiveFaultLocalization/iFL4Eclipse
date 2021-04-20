@@ -1,9 +1,9 @@
-package main.java.hu.szte.sed.graph.algorithm;
+package hu.szte.sed.graph.algorithm;
 
 import java.util.List;
 
-import main.java.hu.szte.sed.graph.data.Node;
-import main.java.hu.szte.sed.graph.visitor.Visitor;
+import hu.szte.sed.graph.data.Node;
+import hu.szte.sed.graph.visitor.Visitor;
 
 public class Preorder<T extends Number> {
 

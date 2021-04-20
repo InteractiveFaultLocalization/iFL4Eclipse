@@ -20,8 +20,8 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-import main.java.org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {

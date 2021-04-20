@@ -1,4 +1,4 @@
-package main.java.hu.szte.sed.util;
+package hu.szte.sed.util;
 
 import java.util.HashMap;
 import java.util.Map;

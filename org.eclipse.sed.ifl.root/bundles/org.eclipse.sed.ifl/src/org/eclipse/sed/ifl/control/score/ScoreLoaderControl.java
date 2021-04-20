@@ -19,7 +19,7 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.swt.SWT;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 

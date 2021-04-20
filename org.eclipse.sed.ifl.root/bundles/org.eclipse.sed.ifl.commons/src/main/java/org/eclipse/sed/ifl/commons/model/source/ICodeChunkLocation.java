@@ -1,4 +1,4 @@
-package main.java.org.eclipse.sed.ifl.commons.model.source;
+package org.eclipse.sed.ifl.commons.model.source;
 
 public interface ICodeChunkLocation {
 	public String getAbsolutePath();

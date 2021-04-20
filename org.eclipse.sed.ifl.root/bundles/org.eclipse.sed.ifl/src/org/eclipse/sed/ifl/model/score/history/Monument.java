@@ -6,7 +6,7 @@ import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class Monument<TScore extends Defineable<Double>, TSubject extends IMethodDescription, TCause extends IUserFeedback> {
 	private TScore newScore;
