@@ -6,6 +6,9 @@ import java.util.Map.Entry;
 
 import javax.script.*;
 
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
+
 public class ScoreCalculator implements IScoreCalculator {
 
 	@Override
@@ -37,10 +40,10 @@ public class ScoreCalculator implements IScoreCalculator {
 	}
 	
 	private double tarantula(int[] success) throws ScoreException {
-		int ep = success[0];
-		int ef = success[1];
-		int np = success[2];
-		int nf = success[3];
+		double ep = success[0];
+		double ef = success[1];
+		double np = success[2];
+		double nf = success[3];
 		
 		try {
 			return ef/(ef+nf)/(ef/(ef+nf)+ep/(ep+np));
@@ -50,10 +53,10 @@ public class ScoreCalculator implements IScoreCalculator {
 	}
 	
 	private double ochiai(int[] success) throws ScoreException {
-		int ep = success[0];
-		int ef = success[1];
-		int np = success[2];
-		int nf = success[3];
+		double ep = success[0];
+		double ef = success[1];
+		double np = success[2];
+		double nf = success[3];
 		
 		try {
 			return ef/((ef+nf)*(ef+ep));
@@ -63,23 +66,27 @@ public class ScoreCalculator implements IScoreCalculator {
 	}
 
 	private double eval(int[] success, String eval) throws ScoreException {
-		int ep = success[0];
-		int ef = success[1];
-		int np = success[2];
-		int nf = success[3];
+		double ep = success[0];
+		double ef = success[1];
+		double np = success[2];
+		double nf = success[3];
 		
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+		//ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 		
 		eval = eval.replace("ep", String.valueOf(ep));
 		eval = eval.replace("ef", String.valueOf(ef));
 		eval = eval.replace("np", String.valueOf(np));
 		eval = eval.replace("nf", String.valueOf(nf));
 		
+		Expression e;
+		
 		try {
-			return (double) engine.eval(eval);
-		} catch (Exception e) {
+			e = new ExpressionBuilder(eval).build();
+		} catch (Exception ex) {
 			throw new ScoreException("Eval score error, you probably tried to devide with 0.");
 		}
+		
+		return e.evaluate();
 	}
 	
 }

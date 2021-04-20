@@ -33,25 +33,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<plugin>
-				<groupId>com.coderplus.maven.plugins</groupId>
-				<artifactId>copy-rename-maven-plugin</artifactId>
-				<version>1.0</version>
-				<executions>
-					<execution>
-						<id>copyBuiltDependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<sourceFile>./target/org.eclipse.sed.ifl.commons-0.0.1-SNAPSHOT.jar</sourceFile>
-							<destinationFile>../org.eclipse.sed.ifl.scorelib/libs/org.eclipse.sed.ifl.commons.jar</destinationFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 </project>

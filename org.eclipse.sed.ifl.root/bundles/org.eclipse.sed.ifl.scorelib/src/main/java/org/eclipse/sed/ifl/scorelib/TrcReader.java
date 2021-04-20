@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Arrays;
 
-import main.java.hu.szte.sed.coverage.BinaryMethodCoverageData;
-
 public class TrcReader implements ITrcReader {
 
 	@Override
@@ -84,12 +82,12 @@ public class TrcReader implements ITrcReader {
 	}
 
 	public Map<Short, int[]> readBinary(File trc, Map<Short, int[]> map) {
-		BinaryMethodCoverageData<Short> bin = new BinaryMethodCoverageData<Short>();
+		Set<Short> bin = new HashSet<Short>();
 		try {
 			FileInputStream fin = new FileInputStream(trc);
 			DataInputStream din = new DataInputStream(fin);
 			while(din.available()>0) {
-				bin.enter(din.readShort());
+				bin.add(din.readShort());
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -98,7 +96,7 @@ public class TrcReader implements ITrcReader {
 		}
 		Boolean b = isTestSuccessful(trc);
 		Set<Short> set = new HashSet(map.keySet());
-		Iterator i = bin.getData().iterator();
+		Iterator i = bin.iterator();
 		while(i.hasNext()) {
 			Short s = (short) i.next();
 			if(map.containsKey(s)) {
