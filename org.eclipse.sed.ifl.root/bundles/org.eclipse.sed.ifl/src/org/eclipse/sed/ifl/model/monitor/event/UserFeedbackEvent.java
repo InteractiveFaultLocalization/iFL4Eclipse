@@ -7,7 +7,7 @@ import org.eclipse.sed.ifl.model.monitor.resource.Option;
 import org.eclipse.sed.ifl.model.monitor.resource.User;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class UserFeedbackEvent extends Event {
 

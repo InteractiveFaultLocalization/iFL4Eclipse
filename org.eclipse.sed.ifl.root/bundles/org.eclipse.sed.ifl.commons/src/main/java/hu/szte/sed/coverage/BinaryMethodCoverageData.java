@@ -1,6 +1,6 @@
-package main.java.hu.szte.sed.coverage;
+package hu.szte.sed.coverage;
 
-import static main.java.hu.szte.sed.util.DataOutputStreamHelper.writeNumber;
+import static hu.szte.sed.util.DataOutputStreamHelper.writeNumber;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;

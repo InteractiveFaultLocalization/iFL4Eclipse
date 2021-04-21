@@ -41,11 +41,11 @@ import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.CodeChunkLocation;
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-import main.java.org.eclipse.sed.ifl.commons.model.source.Method;
-import main.java.org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
-import main.java.org.eclipse.sed.ifl.commons.model.source.Position;
+import org.eclipse.sed.ifl.commons.model.source.CodeChunkLocation;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Method;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.Position;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;

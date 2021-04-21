@@ -13,7 +13,7 @@ import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;

@@ -8,7 +8,7 @@ import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
 
-import main.java.org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistoryView> {
 

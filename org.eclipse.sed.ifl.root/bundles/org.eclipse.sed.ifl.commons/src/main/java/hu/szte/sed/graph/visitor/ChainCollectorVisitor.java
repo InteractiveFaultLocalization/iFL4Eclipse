@@ -1,13 +1,13 @@
-package main.java.hu.szte.sed.graph.visitor;
+package hu.szte.sed.graph.visitor;
 
-import static main.java.hu.szte.sed.util.DataOutputStreamHelper.writeNumber;
+import static hu.szte.sed.util.DataOutputStreamHelper.writeNumber;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Stack;
 
-import main.java.hu.szte.sed.graph.data.Node;
-import main.java.hu.szte.sed.util.Constants;
+import hu.szte.sed.graph.data.Node;
+import hu.szte.sed.util.Constants;
 
 public class ChainCollectorVisitor<T extends Number> implements Visitor<T> {
 
