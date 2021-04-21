@@ -1,6 +1,9 @@
 package org.eclipse.sed.ifl.commons.model.source;
 
 import java.util.List;
+import java.util.Map;
+
+import org.eclipse.sed.ifl.control.score.Score;
 
 public interface IMethodDescription {
 	public MethodIdentity getId();
@@ -18,4 +21,12 @@ public interface IMethodDescription {
 	public boolean isInteractive();
 	
 	public void setInteractivity(boolean interactivity);
+	
+	public Map<Line, Score> getLines();
+	
+	public void setLines(Map<Line, Score> lines);
+	
+	public void addLine(Line line, Score score);
+	
+	public void removeLine(Line line);
 }

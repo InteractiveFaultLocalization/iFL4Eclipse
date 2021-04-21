@@ -2,7 +2,11 @@ package org.eclipse.sed.ifl.commons.model.source;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.eclipse.sed.ifl.control.score.Score;
 
 public class Method implements IMethodDescription {
 
@@ -10,6 +14,7 @@ public class Method implements IMethodDescription {
 	private CodeChunkLocation location;
 	private List<MethodIdentity> context = new ArrayList<>();
 	private boolean interactivity = true;
+	private Map<Line, Score> lines = new HashMap<>();
 	
 	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink, List<MethodIdentity> context) {
 		this(id, location, context);
@@ -105,5 +110,36 @@ public class Method implements IMethodDescription {
 
 	public void setInteractivity(boolean interactivity) {
 		this.interactivity = interactivity;
+	}
+
+	@Override
+	public Map<Line, Score> getLines() {
+		return lines;
+	}
+
+	@Override
+	public void setLines(Map<Line, Score> lines) {
+		if(!this.lines.isEmpty()) {
+			for(Line line : this.lines.keySet()) {
+				line.setMethod(null);
+			}
+		}
+		this.lines = lines;
+		for(Line line : this.lines.keySet()) {
+			line.setMethod(this);
+		}
+		
+	}
+
+	@Override
+	public void addLine(Line line, Score score) {
+		line.setMethod(this);
+		lines.put(line, score);
+	}
+
+	@Override
+	public void removeLine(Line line) {
+		lines.remove(line);
+		line.setMethod(null);
 	}
 }
