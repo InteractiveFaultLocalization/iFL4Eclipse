@@ -1,7 +1,9 @@
 package org.eclipse.sed.ifl.model.score;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -15,6 +17,7 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Line;
 
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
@@ -71,15 +74,27 @@ public class ScoreListModel extends EmptyModel {
 		return changes;
 	}
 	
-	public int loadScore(Map<ScoreLoaderControl.Entry, Score> rawScores) {
+	public int loadScore(List<ScoreLoaderControl.Entry> rawEntries) {
 		int count = 0;
+		
+		Map<String, List<ScoreLoaderControl.Entry>> entriesByMethods = sortEntriesByMethods(rawEntries);
+		
 		Map<IMethodDescription, Score> entries = new HashMap<>();
-		for (Entry<ScoreLoaderControl.Entry, Score> raw : rawScores.entrySet()) {
+		for (Entry<String, List<ScoreLoaderControl.Entry>> raw : entriesByMethods.entrySet()) {
 			for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
-				if (entry.getKey().getId().toCSVKey().equals(raw.getKey().getName())) {
-					entries.put(entry.getKey(), raw.getValue());
-					entry.getKey().setDetailsLink(raw.getKey().getDetailsLink());
-					entry.getKey().setInteractivity(raw.getKey().isInteractive());
+				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
+					// line score-ok közül a max lesz a method score
+					double methodScoreValue = Double.MIN_VALUE;
+					for(ScoreLoaderControl.Entry lineInfo : raw.getValue()) {
+						if(lineInfo.getScore() > methodScoreValue) {
+							methodScoreValue = lineInfo.getScore();
+						}
+						entry.getKey().addLine(new Line(lineInfo.getLineNumber()), new Score(lineInfo.getScore()));
+					}
+					entries.put(entry.getKey(), new Score(methodScoreValue));
+					// TODO : aggregáció linkre és interactivity-re a for-okon belül, mint a score-ra
+					//entry.getKey().setDetailsLink(...);
+					//entry.getKey().setInteractivity(...);
 					count++;
 				}
 			}
@@ -88,6 +103,20 @@ public class ScoreListModel extends EmptyModel {
 		System.out.println(count + "/" + scores.size() + " scores will be updated");
 		scoreLoaded.invoke(new EmptyEvent());
 		return count;
+	}
+	
+	private Map<String, List<ScoreLoaderControl.Entry>> sortEntriesByMethods(List<ScoreLoaderControl.Entry> rawEntries) {
+		Map<String, List<ScoreLoaderControl.Entry>> entriesByMethods = new HashMap<>();
+		for(ScoreLoaderControl.Entry entry : rawEntries) {
+			if(entriesByMethods.containsKey(entry.getName())) {
+				entriesByMethods.get(entry.getName()).add(entry);
+			} else {
+				List<ScoreLoaderControl.Entry> entries = new ArrayList<>();
+				entries.add(entry);
+				entriesByMethods.put(entry.getName(), entries);
+			}
+		}
+		return entriesByMethods;
 	}
 
 	private NonGenericListenerCollection<EmptyEvent> scoreLoaded = new NonGenericListenerCollection<>();

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
@@ -33,25 +35,37 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	
 	private boolean interactivity;
 	private static final String UNIQUE_NAME_HEADER = "name";
-	private static final String SCORE_HEADER = "score";
+	private static final String SCORE_HEADER = "ochiai";
 	private static final String INTERACTIVITY_HEADER = "interactive";
 	private static final String DETAILS_LINK_HEADER = "details";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
 	
 	public class Entry {
 		private String name;
+		private long lineNumber;
+		private double score;
 		private String detailsLink;
 		private boolean interactivity;
 		
-		public Entry(String name, String detailsLink, boolean interactivity) {
+		public Entry(String name, long lineNumber, double score, String detailsLink, boolean interactivity) {
 			super();
 			this.name = name;
+			this.lineNumber = lineNumber;
+			this.score = score;
 			this.detailsLink = detailsLink;
 			this.interactivity = interactivity;
 		}
 
 		public String getName() {
 			return name;
+		}
+		
+		public long getLineNumber() {
+			return lineNumber;
+		}
+
+		public double getScore() {
+			return score;
 		}
 
 		public String getDetailsLink() {
@@ -72,12 +86,16 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			try {
 				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 				int recordCount = 0;
-				Map<Entry, Score> loadedScores = new HashMap<>(); 
+				List<Entry> loadedScores = new ArrayList<>();
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
-					double value = Double.parseDouble(record.get(SCORE_HEADER));
-					if (value > 1 || value < 0) {
+					// kötőjel választja el a metódus infót a sor számától
+					String[] splitNameAndLineNumber = name.split("-");
+					String methodInfoName = splitNameAndLineNumber[0];
+					long lineNumber = Long.parseLong(splitNameAndLineNumber[1]);
+					double score = Double.parseDouble(record.get(SCORE_HEADER));
+					if (score > 1 || score < 0) {
 						MessageDialog.open(
 							MessageDialog.ERROR, null,
 							"Error during iFL score loading",
@@ -86,11 +104,10 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 							SWT.NONE);
 						return;
 					}
-					
+					// az interactivity és details link most nincs a csv-ben
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
-					Score score = new Score(value);
-					loadedScores.put(entry, score);
+					Entry entry = new Entry(methodInfoName, lineNumber, score, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+					loadedScores.add(entry);
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
 				System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
