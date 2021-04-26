@@ -35,14 +35,17 @@ public class DoubleFilter extends ScoreFilter {
 	@Override
 	protected boolean check(Entry<IMethodDescription, Score> arg0) {
 		boolean rValue = true;
-		boolean isScore = false;
+		//boolean isScore = false;
 		
 		double target = 0.0;
 		
 		switch(this.domain) {
 		case "Score":
+			if(!arg0.getValue().isDefinit()) {
+				return true;
+			}
 			target = arg0.getValue().getValue();
-			isScore = true;
+			//isScore = true;
 			break;
 		case "Position":
 			target = arg0.getKey().getLocation().getBegining().getOffset();
@@ -70,10 +73,11 @@ public class DoubleFilter extends ScoreFilter {
 			break;
 		}
 		
+		/*
 		if(isScore) {
 			rValue = rValue || !arg0.getValue().isDefinit();
 		}
-		
+		*/
 		
 		return rValue;
 	}

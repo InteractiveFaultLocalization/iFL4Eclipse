@@ -213,6 +213,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 
 	public void setResultNumber(Rule rule, int resultNumber) {
+		if (rulesComposite.isDisposed()) {
+			return;
+		}
 		for (Control control : rulesComposite.getChildren()) {
 			if (rule == ((RuleElementUI) control).getRule()) {
 				((RuleElementUI) control).setResultNumber(resultNumber);
@@ -301,8 +304,10 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public void terminate() {
 		deleteRules.invoke(rules);
 		rules.clear();
-		for (Control control : rulesComposite.getChildren()) {
-			control.dispose();
+		if(!rulesComposite.isDisposed()) {
+			for (Control control : rulesComposite.getChildren()) {
+				control.dispose();
+			}
 		}
 		filterEnabled = false;
 	}

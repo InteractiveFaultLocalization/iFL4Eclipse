@@ -105,6 +105,20 @@ public class ScoreListUI extends Composite {
 		return rValue;
 	}
 
+	private boolean checkSelectedUndefined() {
+		boolean rValue = true;
+		for (Entry<IMethodDescription, Score> selected : selectedList) {
+			if (!selected.getValue().isDefinit()) {
+				MessageDialog.open(MessageDialog.ERROR, null, "Undefined elements selected",
+						"Code elements with undefined scores are selected. Feedback can only be given on elements whose score is defined.",
+						SWT.NONE);
+				rValue = false;
+				break;
+			}
+		}
+		return rValue;
+	}
+	
 	private NonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> selectionChanged = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> eventSelectionChanged() {
@@ -560,10 +574,12 @@ public class ScoreListUI extends Composite {
 					if (checkSelectedNotNull()) {
 						if (checkSelectedInteractive()) {
 							if (option.getId().equals("CONTEXT_BASED_OPTION")) {
-								List<IMethodDescription> subjects = selectedList.stream()
-										.map(selection -> selection.getKey()).collect(Collectors
-												.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-								customOptionSelected.invoke(subjects);
+								if (checkSelectedUndefined()) {
+									List<IMethodDescription> subjects = selectedList.stream()
+											.map(selection -> selection.getKey()).collect(Collectors
+											.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+									customOptionSelected.invoke(subjects);
+								}
 							} else {
 								Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();
 								try {
