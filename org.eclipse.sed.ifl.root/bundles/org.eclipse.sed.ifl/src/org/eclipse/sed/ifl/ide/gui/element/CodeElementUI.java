@@ -8,12 +8,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -297,7 +297,7 @@ public class CodeElementUI extends Composite {
 	        return super.forceFocus();
 	    }
 
-	 //gyerek bármi állítása kerüljön ki egy lambdába, õsosztály
+	 //gyerek bï¿½rmi ï¿½llï¿½tï¿½sa kerï¿½ljï¿½n ki egy lambdï¿½ba, ï¿½sosztï¿½ly
 	 
 	public void setChildrenBackgroundColor() {
 		for(Control control: this.getChildren()) {

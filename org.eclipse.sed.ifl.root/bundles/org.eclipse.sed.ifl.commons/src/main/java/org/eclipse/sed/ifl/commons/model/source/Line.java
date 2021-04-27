@@ -5,7 +5,8 @@ public class Line {
 	private long sourceFileLineNumber;
 	private IMethodDescription method;
 	
-	public Line(long sourceFileLineNumber) {
+	
+	protected Line(long sourceFileLineNumber) {
 		super();
 		this.sourceFileLineNumber = sourceFileLineNumber;
 	}
@@ -13,14 +14,36 @@ public class Line {
 	public long getSourceFileLineNumber() {
 		return sourceFileLineNumber;
 	}
-	public void setSourceFileLineNumber(long sourceFileLineNumber) {
+	protected void setSourceFileLineNumber(long sourceFileLineNumber) {
 		this.sourceFileLineNumber = sourceFileLineNumber;
 	}
 	public IMethodDescription getMethod() {
 		return method;
 	}
-	public void setMethod(IMethodDescription method) {
+	protected void setMethod(IMethodDescription method) {
 		this.method = method;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + (int) (sourceFileLineNumber ^ (sourceFileLineNumber >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Line other = (Line) obj;
+		if (sourceFileLineNumber != other.sourceFileLineNumber)
+			return false;
+		return true;
+	}
 }

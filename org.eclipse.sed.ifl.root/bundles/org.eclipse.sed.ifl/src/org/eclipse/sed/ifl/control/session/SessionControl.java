@@ -18,7 +18,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
@@ -46,6 +45,7 @@ import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.Method;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.commons.model.source.Position;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class SessionControl extends Control<SessionModel, SessionView> {
 	private IJavaProject selectedProject;

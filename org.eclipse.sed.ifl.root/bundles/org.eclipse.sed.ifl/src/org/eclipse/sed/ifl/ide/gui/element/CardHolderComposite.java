@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
@@ -43,7 +43,7 @@ public class CardHolderComposite extends Composite {
 		GridLayout gl_cardArea = new GridLayout(4, true);
 		cardArea.setLayout(gl_cardArea);
 
-		//nyilacskák helyére fancy ikonok
+		//nyilacskï¿½k helyï¿½re fancy ikonok
 		buttonArea = new Composite(this, SWT.NONE);
 		RowLayout rl_buttonArea = new RowLayout(SWT.HORIZONTAL);
 		rl_buttonArea.marginWidth = 5;
@@ -181,7 +181,7 @@ public class CardHolderComposite extends Composite {
 		return rvList;
 	}
 	
-	//change fölös
+	//change fï¿½lï¿½s
 	public void setPageCount(int currentPage, int change) {
 		if(currentPage+change >= 1 && currentPage+change <= contents.size()) {
 			setPageContent(currentPage+change);

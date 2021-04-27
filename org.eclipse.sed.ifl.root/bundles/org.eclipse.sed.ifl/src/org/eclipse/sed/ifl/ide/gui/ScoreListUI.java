@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
@@ -45,7 +44,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
-
+import org.eclipse.sed.ifl.commons.model.source.Score;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;

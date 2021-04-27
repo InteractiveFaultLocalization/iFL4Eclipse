@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.sed.ifl.control.score.Score;
+import org.eclipse.sed.ifl.commons.model.exception.LineNotFoundException;
 
 public class Method implements IMethodDescription {
 
@@ -118,28 +118,41 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public void setLines(Map<Line, Score> lines) {
-		if(!this.lines.isEmpty()) {
-			for(Line line : this.lines.keySet()) {
-				line.setMethod(null);
-			}
+	public void setLines(Map<Long, Score> lines) {
+		for(Map.Entry<Long, Score> line : lines.entrySet()) {
+			addLine(line.getKey(), line.getValue());
 		}
-		this.lines = lines;
-		for(Line line : this.lines.keySet()) {
-			line.setMethod(this);
-		}
-		
 	}
 
+	// TODO: add semaphore if concurrent execution is introduced
 	@Override
-	public void addLine(Line line, Score score) {
-		line.setMethod(this);
-		lines.put(line, score);
+	public void addLine(long lineNumber, Score score) {
+		Line newLine = createLine(lineNumber);
+		if(!lines.containsKey(newLine)) {
+			newLine.setMethod(this);
+			lines.put(newLine, score);
+		} else {
+			lines.put(newLine, score);
+		}
+	}
+	
+	private Line createLine(long lineNumber) {
+		return new Line(lineNumber);
 	}
 
 	@Override
 	public void removeLine(Line line) {
-		lines.remove(line);
-		line.setMethod(null);
+		Line originalLine = getLineFromLines(line);
+		lines.remove(originalLine);
+		originalLine.setMethod(null);
+	}
+	
+	private Line getLineFromLines(Line line) {
+		for(Line key : lines.keySet()) {
+			if(key.equals(line)) {
+				return key;
+			}
+		}
+		throw new LineNotFoundException();
 	}
 }

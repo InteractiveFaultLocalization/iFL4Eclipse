@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -22,6 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 
 public class ScoreListView extends View implements IEmbeddable, IEmbedee {

@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 

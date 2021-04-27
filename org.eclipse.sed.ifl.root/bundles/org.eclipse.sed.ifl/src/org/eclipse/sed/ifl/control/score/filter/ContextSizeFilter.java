@@ -2,9 +2,8 @@ package org.eclipse.sed.ifl.control.score.filter;
 
 import java.util.Map.Entry;
 
-import org.eclipse.sed.ifl.control.score.Score;
-
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class ContextSizeFilter extends ScoreFilter {
 
