@@ -13,29 +13,13 @@ public class Method implements IMethodDescription {
 	private MethodIdentity id;
 	private CodeChunkLocation location;
 	private List<MethodIdentity> context = new ArrayList<>();
-	private boolean interactivity = true;
 	private Map<Line, Score> lines = new HashMap<>();
-	
-	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink, List<MethodIdentity> context) {
-		this(id, location, context);
-		this.detailsLink = detailsLink;
-	}
 	
 	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context) {
 		super();
 		this.id = id;
 		this.location = location;
 		this.context.addAll(context);
-	}
-	
-	public Method(MethodIdentity id, CodeChunkLocation location, List<MethodIdentity> context, Boolean interactivity) {
-		this(id, location, context);
-		this.interactivity = interactivity;
-	}
-	
-	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink) {
-		this(id, location);
-		this.detailsLink = detailsLink;
 	}
 	
 	public Method(MethodIdentity id, CodeChunkLocation location) {
@@ -85,36 +69,6 @@ public class Method implements IMethodDescription {
 	@Override
 	public String toString() {
 		return "Method [id=" + id + ", location=" + location + ", size(context)=" + context.size() + "]";
-	}
-
-	private String detailsLink = null;
-	
-	@Override
-	public String getDetailsLink() {
-		return detailsLink;
-	}
-
-	@Override
-	public boolean hasDetailsLink() {
-		return detailsLink != null;
-	}
-
-	@Override
-	public void setDetailsLink(String link) {
-		this.detailsLink = link;
-	}
-
-	public boolean isInteractive() {
-		return interactivity;
-	}
-
-	public void setInteractivity(boolean interactivity) {
-		this.interactivity = interactivity;
-	}
-
-	@Override
-	public Map<Line, Score> getLines() {
-		return lines;
 	}
 
 	@Override

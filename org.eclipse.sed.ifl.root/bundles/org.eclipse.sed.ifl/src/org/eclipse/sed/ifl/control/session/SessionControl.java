@@ -21,7 +21,6 @@ import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
-import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
@@ -84,16 +83,6 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		}
 		return false;
 	};
-
-	private boolean setInteractivity(Random r) {
-		boolean rValue = r.nextBoolean();
-		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
-		}
-	}
 	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
@@ -103,7 +92,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		Random r = new Random();
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), setInteractivity(r)))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods)))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
@@ -118,7 +107,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl();
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl();

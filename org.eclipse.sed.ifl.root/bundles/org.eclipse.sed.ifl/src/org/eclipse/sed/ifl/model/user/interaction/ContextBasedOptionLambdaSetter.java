@@ -45,7 +45,7 @@ public class ContextBasedOptionLambdaSetter {
 				// interactive. If it is, then the return function calculates the new score; if it is not, the
 				// return function is null (it won't change anything). 
 				
-				 relativeable.getValue().isDefinit() ? item -> (item.getKey().isInteractive() && item.getValue().isDefinit()) ? contextBasedFeedbackValueSetter(relativeable, item.getValue()) : null : null;
+				 relativeable.getValue().isDefinit() ? item -> (item.getValue().isDefinit()) ? contextBasedFeedbackValueSetter(relativeable, item.getValue()) : null : null;
 		return returnFunction;
 	}
 }

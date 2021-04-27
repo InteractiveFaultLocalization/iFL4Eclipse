@@ -111,18 +111,6 @@ public class ScoreListUI extends Composite {
 		return rValue;
 	}
 	
-	private boolean checkSelectedInteractive() {
-		boolean rValue = true;
-		for(Entry<IMethodDescription, Score> selected : selectedList) {
-			if(!selected.getKey().isInteractive()) {
-				MessageDialog.open(MessageDialog.ERROR, null, "Non-interactive elements selected", "Non-interactive code elements are selected. Feedback can only be given on elements whose interactivity is set to enabled.", SWT.NONE);
-				rValue = false;
-				break;
-			}
-		}
-		return rValue;
-	}
-	
 	private NonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> selectionChanged = new NonGenericListenerCollection<>();
 
 	
@@ -287,7 +275,7 @@ public class ScoreListUI extends Composite {
 				}
 				*/
 			});
-			if(((Score)element.getData("score")).isDefinit() && ((IMethodDescription)element.getData()).isInteractive()) {
+			if(((Score)element.getData("score")).isDefinit()) {
 				element.setMenu(contextMenu);
 			} else {
 				element.setMenu(nonInteractiveContextMenu);
@@ -430,7 +418,6 @@ public class ScoreListUI extends Composite {
 		
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
 		addNavigationOptions(nonInteractiveContextMenu);
-		addDetailsOptions(nonInteractiveContextMenu);
 	}
 	
 	public void createContexMenu(Iterable<Option> options) {
@@ -443,52 +430,6 @@ public class ScoreListUI extends Composite {
 		addDisabledFeedbackOptions(nonInteractiveContextMenu);
 		addNavigationOptions(contextMenu);
 		addNavigationOptions(nonInteractiveContextMenu);
-		addDetailsOptions(contextMenu);
-		addDetailsOptions(nonInteractiveContextMenu);
-	}
-	
-	
-	private void addDetailsOptions(Menu menu) {
-		new MenuItem(menu, SWT.SEPARATOR);
-		MenuItem openDetails = new MenuItem(menu, SWT.NONE);
-		menu.addMenuListener(new MenuListener() {
-			
-			@Override
-			public void menuShown(MenuEvent e) {
-				if(checkSelectedNotNull()) {
-					for (Entry<IMethodDescription, Score> item : selectedList) {
-						IMethodDescription sourceItem = item.getKey();
-						if (sourceItem.hasDetailsLink()) {
-							openDetails.setEnabled(true);
-							return;
-						}
-					}
-					openDetails.setEnabled(false);
-				}
-			}
-			
-			@Override
-			public void menuHidden(MenuEvent e) { }
-		});
-		openDetails.setText("Open details...");
-		openDetails.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/open-details16.png"));
-		openDetails.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(checkSelectedNotNull()) {
-					for (Entry<IMethodDescription, Score> item : selectedList) {
-						IMethodDescription sourceItem = item.getKey();
-						if (sourceItem.hasDetailsLink()) {
-							openDetailsRequired.invoke(sourceItem);
-						}
-					}
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) { }
-		});
 	}
 
 	private void addDisabledFeedbackOptions(Menu menu) {
@@ -547,28 +488,6 @@ public class ScoreListUI extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if(checkSelectedNotNull()) {
-						if(checkSelectedInteractive()) {
-							if(option.getId().equals("CONTEXT_BASED_OPTION")) {
-								List<IMethodDescription> subjects = selectedList.stream()
-										.map(selection -> selection.getKey())
-										.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-								customOptionSelected.invoke(subjects);
-							} else {
-								Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();							
-								try {
-									for(Entry<IMethodDescription, Score> element : selectedList) {
-										assert element instanceof Entry<?, ?>;
-										subjects.put(element.getKey(),
-												new Defineable<Double>(element.getValue().getValue()));
-									}
-								
-								UserFeedback feedback = new UserFeedback(option, subjects);
-								optionSelected.invoke(feedback);
-								} catch (UnsupportedOperationException undefinedScore) {
-									MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback", "Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
-								}
-							}
-						}
 					}
 				}
 
