@@ -40,24 +40,24 @@ import org.eclipse.wb.swt.SWTResourceManager;
 public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLFilterView";
-	
-	@Inject IWorkbench workbench;
-	
+
+	@Inject
+	IWorkbench workbench;
+
 	private Composite composite;
 	private Button addRuleButton;
 	private ScrolledComposite scrolledComposite;
 	private Button resetAllButton;
 	private Composite rulesComposite;
-	
+
 	private static Boolean filterEnabled = false;
-	
+
 	private static List<Rule> rules = new ArrayList<>();
-	
+
 	public FilterPart() {
 		System.out.println("filter part ctr");
 	}
 
-	
 	@Override
 	public void embed(IEmbeddable embedded) {
 		embedded.setParent(composite);
@@ -70,13 +70,14 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	@Override
 	public void createPartControl(Composite parent) {
+
 		composite = parent;
 		composite.setLayout(new GridLayout(3, false));
-		
+
 		enableInfoLabel = new Label(parent, SWT.NONE);
 		enableInfoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		enableInfoLabel.setText("Load some defined scores to enable filtering.");
-		
+
 		addRuleButton = new Button(parent, SWT.NONE);
 		addRuleButton.setEnabled(false);
 		addRuleButton.setText("Add rule");
@@ -92,28 +93,9 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-			
-		});
-		
-		resetAllButton = new Button(parent, SWT.NONE);
-		resetAllButton.setEnabled(false);
-		resetAllButton.setText("Reset all");
-		resetAllButton.addSelectionListener(new SelectionListener() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				deleteRules.invoke(rules);
-				for(Control control : rulesComposite.getChildren()) {
-					control.dispose();
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-			
 		});
-		
+				
 		choosePresetButton = new Button(parent, SWT.NONE);
 		choosePresetButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		choosePresetButton.setText("Choose preset");
@@ -122,7 +104,8 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				PresetChooserDialog presetDialog = new PresetChooserDialog(Display.getCurrent().getActiveShell(), SWT.NONE);
+				PresetChooserDialog presetDialog = new PresetChooserDialog(Display.getCurrent().getActiveShell(),
+						SWT.NONE);
 				presetDialog.eventPresetChosen().add(presetChosenListener);
 				presetDialog.open();
 			}
@@ -130,79 +113,96 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-			
+
+		});
+		
+		resetAllButton = new Button(parent, SWT.NONE);
+		resetAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		resetAllButton.setEnabled(false);
+		resetAllButton.setText("Reset all");
+		resetAllButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				deleteRules.invoke(rules);
+				for (Control control : rulesComposite.getChildren()) {
+					control.dispose();
+				}
+			}
+				@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+
 		});
 		
 		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
 		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
-		 gd_scrolledComposite.widthHint = 360;
-		 gd_scrolledComposite.heightHint = 280;
-		scrolledComposite.setLayoutData( gd_scrolledComposite);
+		gd_scrolledComposite.widthHint = 360;
+		gd_scrolledComposite.heightHint = 280;
+		scrolledComposite.setLayoutData(gd_scrolledComposite);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
-		
+
 		rulesComposite = new Composite(scrolledComposite, SWT.NONE);
 		rulesComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		rulesComposite.setSize(new Point(360, 280));
 		rulesComposite.setLayout(new GridLayout(1, false));
 		scrolledComposite.setContent(rulesComposite);
 		scrolledComposite.setMinSize(rulesComposite.getSize());
-		
+
 		System.out.println(rules.size());
-		
-		if(filterEnabled.booleanValue())
-		{
+
+		if (filterEnabled.booleanValue()) {
 			enableFiltering();
 		}
 		showRules();
 	}
 
 	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<List<Rule>> eventDeleteRules() {
 		return deleteRules;
 	}
-	
+
 	private IListener<Rule> ruleDeleted = rule -> {
 		rules.remove(rule);
 		List<Rule> list = new ArrayList<>();
 		list.add(rule);
 		deleteRules.invoke(list);
 	};
-	
+
 	private IListener<String> presetChosenListener = string -> {
 		boolean answer = MessageDialog.open(MessageDialog.QUESTION, null, "Warning",
-			"Applying a preset overwrites all currently applied rules.\n"
-		  + "Proceed?",
-			SWT.NONE);
+				"Applying a preset overwrites all currently applied rules.\n" + "Proceed?", SWT.NONE);
 		if (answer) {
 			deleteRules.invoke(rules);
-			for(Control control : rulesComposite.getChildren()) {
+			for (Control control : rulesComposite.getChildren()) {
 				control.dispose();
 			}
-			switch(string) {
-			case "TOP_10": getTopTenLimit();
+			switch (string) {
+			case "TOP_10":
+				getTopTenLimit();
 				break;
 			default:
 				break;
 			}
 		}
 	};
-	
+
 	private void getTopTenLimit() {
 		getTopTenLimit.invoke(new EmptyEvent());
 	}
-	
+
 	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
 		return getTopTenLimit;
 	}
-	
+
 	private void showRules() {
-		if(!rules.isEmpty()) {
-			for(Rule rule : rules) {
-				
+		if (!rules.isEmpty()) {
+			for (Rule rule : rules) {
+
 				RuleElementUI ruleElement = null;
 				ruleElement = new RuleElementUI(rulesComposite, SWT.None, rule);
 				ruleElement.eventruleDeleted().add(ruleDeleted);
@@ -211,15 +211,18 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 			}
 		}
 	}
-	
+
 	public void setResultNumber(Rule rule, int resultNumber) {
+		if (rulesComposite.isDisposed()) {
+			return;
+		}
 		for (Control control : rulesComposite.getChildren()) {
-			if(rule == ((RuleElementUI)control).getRule()) {
-				((RuleElementUI)control).setResultNumber(resultNumber);
+			if (rule == ((RuleElementUI) control).getRule()) {
+				((RuleElementUI) control).setResultNumber(resultNumber);
 			}
 		}
 	}
-	
+
 	private IListener<Rule> ruleCreatedListener = event -> {
 		RuleElementUI ruleElement = null;
 		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
@@ -229,63 +232,64 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		rules.add(event);
 		ruleAdded(event);
 	};
-	
+
 	private NonGenericListenerCollection<StringRule> stringRuleAdded = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<StringRule> eventStringRuleAdded() {
 		return stringRuleAdded;
 	}
 
 	private void ruleAdded(Rule rule) {
-		if(rule instanceof StringRule) {
+
+
+		if (rule instanceof StringRule) {
 			stringRuleAdded.invoke((StringRule) rule);
 		}
-		if(rule instanceof DoubleRule) {
+		if (rule instanceof DoubleRule) {
 			doubleRuleAdded.invoke((DoubleRule) rule);
 		}
-		if(rule instanceof BooleanRule) {
+		if (rule instanceof BooleanRule) {
 			booleanRuleAdded.invoke((BooleanRule) rule);
 		}
-		if(rule instanceof LastActionRule) {
+		if (rule instanceof LastActionRule) {
 			lastActionRuleAdded.invoke((LastActionRule) rule);
 		}
 	}
-	
+
 	private NonGenericListenerCollection<SortRule> sortRuleAdded = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<SortRule> eventSortRuleAdded() {
 		return sortRuleAdded;
 	}
-	
+
 	private NonGenericListenerCollection<DoubleRule> doubleRuleAdded = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<DoubleRule> eventDoubleRuleAdded() {
 		return doubleRuleAdded;
 	}
-	
+
 	private NonGenericListenerCollection<BooleanRule> booleanRuleAdded = new NonGenericListenerCollection<>();
-	
+
 	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
 		return booleanRuleAdded;
 	}
-	
+
 	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
 	private Label enableInfoLabel;
 	private Button choosePresetButton;
-	
+
 	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
 		return lastActionRuleAdded;
 	}
-	
+
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	public void dispose() {
 		this.getSite().getPage().hideView(this);
 	}
-
 
 	public void enableFiltering() {
 		enableInfoLabel.setVisible(false);
@@ -293,12 +297,23 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		addRuleButton.setEnabled(true);
 		resetAllButton.setEnabled(true);
 		choosePresetButton.setEnabled(true);
-		
+
 		filterEnabled = true;
+	}
+
+	public void terminate() {
+		deleteRules.invoke(rules);
+		rules.clear();
+		if(!rulesComposite.isDisposed()) {
+			for (Control control : rulesComposite.getChildren()) {
+				control.dispose();
+			}
+		}
+		filterEnabled = false;
 	}
 	
 	public void applyTopScorePreset(Double limit) {
 		ruleCreatedListener.invoke(new DoubleRule("Score", limit, ">="));
 	}
-	
+
 }

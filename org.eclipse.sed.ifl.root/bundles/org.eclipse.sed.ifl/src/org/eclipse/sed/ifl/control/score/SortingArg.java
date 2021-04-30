@@ -13,6 +13,7 @@ public enum SortingArg {
 		descending = value;
 	}
 	
+	
 	public String getDomain() {
 		String rString = "";
 		switch(this) {

@@ -4,7 +4,7 @@ package org.eclipse.sed.ifl.control.score.filter;
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -13,6 +13,8 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.FilterView;
 
 public class FilterControl extends Control<FilterModel, FilterView> {
+	
+	private DualListControl<?> dualListControl;
 	
 	public void showFilterPart() {
 		getView().showFilterPart();
@@ -49,16 +51,9 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().close();
 	}
 	
-	/*
-	public void setScoreFilter(double min, double max, double current) {
-		getView().setScoreFilter(min, max, current);
+	public void terminate() {
+		getView().terminatePart();
 	}
-	*/
-	/*
-	public void setScoreFilter(double min, double max) {
-		getView().setScoreFilter(min, max);
-	}
-	*/
 	
 	public void applyTopScorePreset(Double limit) {
 		getView().applyTopScorePreset(limit);
@@ -119,11 +114,6 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	}
 	
 	private IListener<EmptyEvent> getTopTenLimitListener = getTopTenLimit::invoke;
-
-	public void resetFilterState() {
-		//getView().resetFilterState();
-		
-	}
 
 	public void enableFiltering() {
 		getView().enableFiltering();

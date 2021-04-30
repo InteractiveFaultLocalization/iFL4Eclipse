@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.control.score.SortingArg;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
@@ -53,12 +52,12 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	public void init() {
 		ui.eventOptionSelected().add(optionSelectedListener);
 		ui.eventCustomOptionSelected().add(customOptionSelectedListener);
-		ui.eventSortRequired().add(sortListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
 		ui.eventNavigateToContext().add(navigateToContextListener);
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().add(openFiltersPartListener);
+		ui.eventOpenDualListPage().add(openDualListPartListener);
 		super.init();
 	}
 	
@@ -66,12 +65,12 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	public void teardown() {
 		ui.eventOptionSelected().remove(optionSelectedListener);
 		ui.eventCustomOptionSelected().remove(customOptionSelectedListener);
-		ui.eventSortRequired().remove(sortListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
 		ui.eventNavigateToContext().remove(navigateToContextListener);
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		ui.eventOpenFiltersPage().remove(openFiltersPartListener);
+		ui.eventOpenDualListPage().remove(openDualListPartListener);
 		super.teardown();
 	}
 	
@@ -105,14 +104,6 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	private IListener<List<IMethodDescription>> customOptionSelectedListener = customOptionSelected::invoke;
-
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
-		return sortRequired;
-	}
-	
-	private IListener<SortingArg> sortListener = sortRequired::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 	
@@ -122,13 +113,13 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
-	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	
-	private IListener<List<IMethodDescription>> navigateToContextListener = navigateToContext::invoke;
+	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);
@@ -163,4 +154,14 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
 	
+
+	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
+		return openDualListPart;
+	}
+	
+	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
+	
 }
+

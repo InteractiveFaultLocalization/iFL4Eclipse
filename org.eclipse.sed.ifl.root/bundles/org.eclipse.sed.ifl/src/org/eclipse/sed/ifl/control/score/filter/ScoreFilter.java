@@ -13,6 +13,7 @@ public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription,
 	}
 	
 	private Boolean enabled;
+	
 
 	public void Disable() {
 		enabled = false;
@@ -25,6 +26,7 @@ public abstract class ScoreFilter implements Predicate<Entry<IMethodDescription,
 	public void setEnabled(boolean value) {
 		enabled = value;
 	}
+	
 	
 	@Override
 	public final boolean test(Entry<IMethodDescription, Score> arg0) {

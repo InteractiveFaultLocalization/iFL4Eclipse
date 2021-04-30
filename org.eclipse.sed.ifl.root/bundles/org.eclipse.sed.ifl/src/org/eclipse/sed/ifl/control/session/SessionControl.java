@@ -199,8 +199,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private void terminate() {
 		System.out.println("Session closing...");
 		activityMonitor.log(SessionEvent.stop(selectedProject));
-		scoreListControl.resetFilterState();
 		scoreListControl.closeFilterPart();
+		scoreListControl.closeDualListPart();
 		this.finished.invoke(new EmptyEvent());
 	}
 

@@ -20,6 +20,7 @@ public class IMethodDescriptionCollectionUtil {
 		return nonInteractiveContextList;
 	}
 	
+	//TODO: notify the user if there are any code elements in the selection whose interactivity is false
 	public static List<IMethodDescription> collectContext(
 			List<IMethodDescription> subjects,
 			Map<IMethodDescription, Defineable<Double>> allScores) {
