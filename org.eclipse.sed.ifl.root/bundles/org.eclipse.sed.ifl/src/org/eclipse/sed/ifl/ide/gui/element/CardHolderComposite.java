@@ -3,6 +3,8 @@ package org.eclipse.sed.ifl.ide.gui.element;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;

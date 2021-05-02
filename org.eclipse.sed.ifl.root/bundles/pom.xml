@@ -12,6 +12,8 @@
     </parent>
     <modules>
         <module>org.eclipse.sed.ifl.dependencies</module>
+		<module>org.eclipse.sed.ifl.commons</module>
+		<module>org.eclipse.sed.ifl.scorelib</module>
         <module>org.eclipse.sed.ifl</module>
     </modules>
 </project>

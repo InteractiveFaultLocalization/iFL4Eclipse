@@ -11,7 +11,6 @@ import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.ScoreModifiedEvent;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionLambdaSetter;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOption;
@@ -26,6 +25,8 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ContextBasedOptionCreatorControl extends Control<ContextBasedOptionCreatorModel, ContextBasedOptionCreatorView> {
 

@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.element.ScoreSetter;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -13,6 +12,8 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.swt.widgets.Composite;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreSetterView extends View implements IEmbeddable {
 

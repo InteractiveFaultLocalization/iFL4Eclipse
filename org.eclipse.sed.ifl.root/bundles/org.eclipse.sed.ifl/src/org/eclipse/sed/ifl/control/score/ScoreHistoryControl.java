@@ -5,9 +5,10 @@ import java.util.List;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.view.ScoreHistoryView;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreHistoryControl extends Control<ScoreHistoryModel, ScoreHistoryView> {
 

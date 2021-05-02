@@ -9,13 +9,14 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.model.EmptyModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreSetterModel extends EmptyModel {
 	private Map<IMethodDescription, Projection<Double>> subjects;

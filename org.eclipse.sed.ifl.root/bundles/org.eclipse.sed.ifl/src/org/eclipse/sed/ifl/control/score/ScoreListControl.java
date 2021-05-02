@@ -60,8 +60,6 @@ import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
@@ -81,6 +79,8 @@ import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
 public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListView> {
 

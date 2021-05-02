@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.model.score.history.Monument;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 
 public class LastActionComparator implements Comparator<Entry<IMethodDescription, Score>> {

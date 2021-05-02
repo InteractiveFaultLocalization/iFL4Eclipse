@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.model.source;
+package org.eclipse.sed.ifl.commons.model.source;
 
 public class CodeChunkLocation implements ICodeChunkLocation {
 

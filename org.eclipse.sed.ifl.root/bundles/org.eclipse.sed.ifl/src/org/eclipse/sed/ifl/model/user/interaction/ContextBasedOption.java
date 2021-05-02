@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ContextBasedOption extends Option {
 	

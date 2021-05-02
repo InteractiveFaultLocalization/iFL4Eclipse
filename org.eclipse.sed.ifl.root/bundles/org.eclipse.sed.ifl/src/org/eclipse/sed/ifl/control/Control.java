@@ -3,6 +3,7 @@ package org.eclipse.sed.ifl.control;
 import org.eclipse.sed.ifl.model.IModel;
 import org.eclipse.sed.ifl.view.IView;
 
+
 public class Control<TModel extends IModel, TView extends IView> extends ViewlessControl<TModel> implements IControl<TModel, TView> {
 
 	private TView view;
@@ -14,6 +15,8 @@ public class Control<TModel extends IModel, TView extends IView> extends Viewles
 	public void setView(TView view) {
 		this.view = view;
 	}
+	
+	
 	
 	@Override
 	public void init() {
