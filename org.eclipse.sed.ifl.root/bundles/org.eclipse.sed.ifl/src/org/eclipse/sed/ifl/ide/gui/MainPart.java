@@ -172,11 +172,11 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		};
 
 		recalculateScoreAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				scoreRecalculateRequested.invoke(this);
-			}
+//			@Override
+//			public void run() {
+//				super.run();
+//				scoreRecalculateRequested.invoke(this);
+//			}
 
 			@Override
 			public String getText() {
