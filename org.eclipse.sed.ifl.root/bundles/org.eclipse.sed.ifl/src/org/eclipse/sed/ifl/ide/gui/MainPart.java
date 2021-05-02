@@ -183,11 +183,11 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 				return "Recalculate scores...";
 			}
 
-			@Override
-			public ImageDescriptor getImageDescriptor() {
-				return ImageDescriptor.createFromImage(
-						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
-			}
+//			@Override
+//			public ImageDescriptor getImageDescriptor() {
+//				return ImageDescriptor.createFromImage(
+//						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
+//			}
 		};
 
 	}
