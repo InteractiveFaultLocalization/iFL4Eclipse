@@ -185,13 +185,8 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 //			@Override
 //			public ImageDescriptor getImageDescriptor() {
-<<<<<<< HEAD
 //				return ImageDescriptor.createFromImage(
 //						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
-=======
-////				return ImageDescriptor.createFromImage(
-////						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
->>>>>>> 6d0d55c... custom feedback dialog design update and bugfix
 //			}
 		};
 
