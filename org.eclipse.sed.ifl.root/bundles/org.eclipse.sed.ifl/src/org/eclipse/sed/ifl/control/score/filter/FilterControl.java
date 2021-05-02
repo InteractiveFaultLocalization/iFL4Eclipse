@@ -1,15 +1,20 @@
 package org.eclipse.sed.ifl.control.score.filter;
 
 
+import java.util.List;
+
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.FilterView;
 
 public class FilterControl extends Control<FilterModel, FilterView> {
+	
+	private DualListControl<?> dualListControl;
 	
 	public void showFilterPart() {
 		getView().showFilterPart();
@@ -21,25 +26,23 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 	}
 
 	private void initUIListeners() {
-		getView().eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
-		getView().eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
-		getView().eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
-		getView().eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
-		getView().eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
-		getView().eventNameFilterChanged().add(nameFilterChangedListener);
-		getView().eventLimitFilterRelationChanged().add(limitFilterRelationChangedListener);
+		getView().eventBooleanRuleAdded().add(booleanRuleAddedListener);
+		getView().eventDoubleRuleAdded().add(doubleRuleAddedListener);
+		getView().eventLastActionRuleAdded().add(lastActionRuleAddedListener);
+		getView().eventStringRuleAdded().add(stringRuleAddedListener);
 		getView().eventSortRequired().add(sortListener);
+		getView().eventDeleteRules().add(deleteRulesListener);
+		getView().eventGetTopTenLimit().add(getTopTenLimitListener);
 	}
 	
 	public void teardown() {
-		getView().eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
-		getView().eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
-		getView().eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
-		getView().eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
-		getView().eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
-		getView().eventNameFilterChanged().remove(nameFilterChangedListener);
-		getView().eventLimitFilterRelationChanged().remove(limitFilterRelationChangedListener);
+		getView().eventBooleanRuleAdded().remove(booleanRuleAddedListener);
+		getView().eventDoubleRuleAdded().remove(doubleRuleAddedListener);
+		getView().eventLastActionRuleAdded().remove(lastActionRuleAddedListener);
+		getView().eventStringRuleAdded().remove(stringRuleAddedListener);
 		getView().eventSortRequired().remove(sortListener);
+		getView().eventDeleteRules().remove(deleteRulesListener);
+		getView().eventGetTopTenLimit().remove(getTopTenLimitListener);
 		super.teardown();
 	}
 	
@@ -48,80 +51,76 @@ public class FilterControl extends Control<FilterModel, FilterView> {
 		getView().close();
 	}
 	
-	public void setScoreFilter(double min, double max, double current) {
-		getView().setScoreFilter(min, max, current);
+	public void terminate() {
+		getView().terminatePart();
 	}
 	
-	public void setScoreFilter(double min, double max) {
-		getView().setScoreFilter(min, max);
+	public void applyTopScorePreset(Double limit) {
+		getView().applyTopScorePreset(limit);
 	}
 	
-	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
-		return lowerScoreLimitChanged;
+	public INonGenericListenerCollection<List<Rule>> eventDeleteRules() {
+		return deleteRules;
 	}
 	
-	private IListener<Double> lowerScoreLimitChangedListener = lowerScoreLimitChanged::invoke;
-
-	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
+	private IListener<List<Rule>> deleteRulesListener = deleteRules::invoke;
 	
-	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
-		return lowerScoreLimitEnabled;
+	private NonGenericListenerCollection<DoubleRule> doubleRuleAdded = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<DoubleRule> eventDoubleRuleAdded() {
+		return doubleRuleAdded;
 	}
 	
-	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
+	private IListener<DoubleRule> doubleRuleAddedListener = doubleRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<StringRule> stringRuleAdded = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
-		return contextSizeLimitEnabled;
+	public INonGenericListenerCollection<StringRule> eventStringRuleAdded() {
+		return stringRuleAdded;
 	}
 	
-	private IListener<Boolean> contextSizeLimitEnabledListener = contextSizeLimitEnabled::invoke;
+	private IListener<StringRule> stringRuleAddedListener = stringRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<BooleanRule> booleanRuleAdded = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
-		return contextSizeLimitChanged;
+	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
+		return booleanRuleAdded;
 	}
 	
-	private IListener<Integer> contextSizeLimitChangedListener = contextSizeLimitChanged::invoke;
+	private IListener<BooleanRule> booleanRuleAddedListener = booleanRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
-		return contextSizeRelationChanged;
+	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
+		return lastActionRuleAdded;
 	}
 	
-	private IListener<String> contextSizeRelationChangedListener = contextSizeRelationChanged::invoke;
+	private IListener<LastActionRule> lastActionRuleAddedListener = lastActionRuleAdded::invoke;
 	
-	private NonGenericListenerCollection<String> limitFilterRelationChanged = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<SortRule> sortRequired = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<String> eventLimitFilterRelationChanged() {
-		return limitFilterRelationChanged;
-	}
-	
-	private IListener<String> limitFilterRelationChangedListener = limitFilterRelationChanged::invoke;
-	
-	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventNameFilterChanged() {
-		return nameFilterChanged;
-	}
-	
-	private IListener<String> nameFilterChangedListener = nameFilterChanged::invoke;
-	
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
+	public INonGenericListenerCollection<SortRule> eventSortRequired() {
 		return sortRequired;
 	}
 	
-	private IListener<SortingArg> sortListener = sortRequired::invoke;
+	private IListener<SortRule> sortListener = sortRequired::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
+		return getTopTenLimit;
+	}
+	
+	private IListener<EmptyEvent> getTopTenLimitListener = getTopTenLimit::invoke;
 
-	public void resetFilterState() {
-		getView().resetFilterState();
+	public void enableFiltering() {
+		getView().enableFiltering();
+	}
+
+	public void setResultNumber(Rule rule, int count) {
+		getView().setResultNumber(rule, count);
 		
 	}
 	

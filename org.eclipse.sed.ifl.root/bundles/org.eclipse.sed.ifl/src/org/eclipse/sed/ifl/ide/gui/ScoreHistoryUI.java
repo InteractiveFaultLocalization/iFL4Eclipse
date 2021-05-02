@@ -4,10 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.swt.layout.FillLayout;
-
 import java.time.LocalDateTime;
-
-import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
 import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

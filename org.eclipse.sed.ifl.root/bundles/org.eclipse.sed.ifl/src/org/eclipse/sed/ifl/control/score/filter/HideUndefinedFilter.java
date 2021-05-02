@@ -17,4 +17,9 @@ public class HideUndefinedFilter extends ScoreFilter {
 		return entry.getValue().isDefinit();
 	}
 
+	@Override
+	public Rule getRule() {
+		return null;
+	}
+
 }

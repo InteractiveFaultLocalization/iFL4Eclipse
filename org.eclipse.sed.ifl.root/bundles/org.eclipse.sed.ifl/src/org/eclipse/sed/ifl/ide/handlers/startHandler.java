@@ -58,6 +58,7 @@ public class startHandler extends AbstractHandler {
 				} catch (WrongSelectionException e) {
 					MessageDialog.open(MessageDialog.ERROR, null, "Unsupported project type", e.getMessage(), SWT.NONE);			
 				}
+				//TODO: logging
 				/*
 				if (!Activator.getDefault().isLogOnlyModeActive()) {
 					MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Log-only mode activated.", SWT.NONE);
@@ -82,6 +83,7 @@ public class startHandler extends AbstractHandler {
 		return Activator.getDefault().getPreferenceStore().getBoolean("logKey");
 	}
 	
+	//TODO: logging
 	public boolean isKeyFilePresent(String fileName, String content) {
 		File key = new File(fileName);
 		System.out.println("looking for key file at: " + key.getAbsolutePath());

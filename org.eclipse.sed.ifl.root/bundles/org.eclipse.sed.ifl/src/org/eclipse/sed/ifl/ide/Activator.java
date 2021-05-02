@@ -22,6 +22,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 	
+	//TODO: logging
 	//private ActivityMonitorControl activityMonitor;
 	
 	public void start(BundleContext context) throws Exception {
