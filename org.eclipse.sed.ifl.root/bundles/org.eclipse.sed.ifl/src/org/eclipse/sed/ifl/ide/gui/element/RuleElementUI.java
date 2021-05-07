@@ -118,21 +118,21 @@ public class RuleElementUI extends Composite {
 		case "Score": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score_3.png");
 			break;
-		case "Name": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
+		case "Name": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
+			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Signature": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
+		case "Signature": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
+			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Parent type": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
+		case "Parent type": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
+			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Path": containsString = ((StringRule)this.rule).isContains() ? "contains: " : "not contains: ";
+		case "Path": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
 			rString = containsString.concat(((StringRule)this.rule).getValue());
-			icon =  ((StringRule)this.rule).isContains() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png");
+			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
 		case "Position": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Integer.toString(((DoubleRule)this.rule).getValue().intValue()));
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/position_3.png"); ;
@@ -141,7 +141,7 @@ public class RuleElementUI extends Composite {
 			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size.png");;
 			break;
 		case "Interactivity": rString = ((BooleanRule)this.rule).isValue() == true ? "interactive" : "not interactive";
-			icon = ((BooleanRule)this.rule).isValue() == true ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png");
+			icon = ((BooleanRule)this.rule).isValue() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png");
 			break;
 		case "Last action": ScoreStatus status = ((LastActionRule)this.rule).getStatus();
 			if(status.equals(ScoreStatus.INCREASED))

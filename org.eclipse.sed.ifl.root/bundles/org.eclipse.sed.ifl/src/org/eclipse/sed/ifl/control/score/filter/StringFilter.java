@@ -16,7 +16,6 @@ public class StringFilter extends ScoreFilter {
 		this.rule = rule;
 		domain = rule.getDomain();
 		text = rule.getValue();
-		contains = rule.isContains();
 		exactMatches = rule.isMatches();
 		isCaseSensitive = rule.isCaseSensitive();
 		isRegex = rule.isRegex();
@@ -24,7 +23,6 @@ public class StringFilter extends ScoreFilter {
 
 	private String domain;
 	private String text;
-	private boolean contains;
 	private boolean exactMatches;
 	private boolean isCaseSensitive;
 	private boolean isRegex;
@@ -35,6 +33,8 @@ public class StringFilter extends ScoreFilter {
 	
 	@Override
 	protected boolean check(Entry<IMethodDescription, Score> arg0) {
+		
+		boolean rValue = false;
 		
 		String target = null;
 		
@@ -49,38 +49,41 @@ public class StringFilter extends ScoreFilter {
 			break;
 		}
 		
-		boolean containsCheck = false;
+		boolean matchingCheck = false;
 		
 		if(!isCaseSensitive) {
 			String lowerTarget = target.toLowerCase();
 			String lowerText = text.toLowerCase();
 			
 			if(!exactMatches) {
-				containsCheck = contains ? lowerTarget.contains(lowerText) : !lowerTarget.contains(lowerText);
+				matchingCheck = lowerTarget.contains(lowerText);
 			} else {
-				containsCheck = contains ? lowerTarget.equals(lowerText) : !lowerTarget.equals(lowerText);
+				matchingCheck = lowerTarget.equals(lowerText);
 			}
 		} else {
 			if (!exactMatches) {
-				containsCheck = contains ? target.contains(text) : !target.contains(text);
+				matchingCheck = target.contains(text);
 			} else {
-				containsCheck = contains ? target.equals(text) : !target.equals(text);
+				matchingCheck = target.equals(text);
 			}
 		}
 		
 		boolean regexCheck = false;
 		
 		if(isRegex) {
-			containsCheck = false;
+			matchingCheck = false;
 			Pattern pattern = Pattern.compile(text);
 			Matcher regexMatcher = pattern.matcher(target);
-			regexCheck = regexMatcher.matches();
+			regexCheck = regexMatcher.find();
 		}
 		
-		System.out.println(arg0.getKey().getId().getSignature());
-		System.out.println("target: " + target + ", contains: " + containsCheck);
+		rValue = matchingCheck || regexCheck;
 		
-		return containsCheck || regexCheck;
+		if(rule.isNegated()) {
+			rValue = !rValue;
+		}
+		
+		return rValue;
 	}
 
 	public Rule getRule() {

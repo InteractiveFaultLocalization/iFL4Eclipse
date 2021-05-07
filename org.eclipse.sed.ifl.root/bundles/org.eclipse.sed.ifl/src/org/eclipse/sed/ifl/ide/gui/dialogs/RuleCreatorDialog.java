@@ -5,12 +5,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.custom.CBanner;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.BooleanRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.DoubleRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.IntegerRuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.LastActionRuleCreator;
+import org.eclipse.sed.ifl.ide.gui.rulecreator.NegatableRuleCreator;
 import org.eclipse.sed.ifl.ide.gui.rulecreator.RuleCreator;
-import org.eclipse.sed.ifl.ide.gui.rulecreator.StringRuleCreator;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
@@ -136,26 +132,7 @@ public class RuleCreatorDialog extends Dialog {
 				for(Control control : ruleCreatorComposite.getChildren()) {
 					control.dispose();
 				}
-				switch (domainList.getSelection()[0]) {
-				case "Score": ruleCreator = new DoubleRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Name": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Signature": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Parent type": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Path": ruleCreator = new StringRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Position": ruleCreator = new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Context size": ruleCreator = new IntegerRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Interactivity": ruleCreator = new BooleanRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				case "Last action": ruleCreator = new LastActionRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
-					break;
-				}
+				ruleCreator = new NegatableRuleCreator(ruleCreatorComposite, SWT.NONE, domainList.getSelection()[0]);
 				ruleCreatorComposite.requestLayout();
 			}
 

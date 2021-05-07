@@ -1,16 +1,16 @@
 package org.eclipse.sed.ifl.ide.gui.rulecreator;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.ResourceManager;
 
-public class BooleanRuleCreator extends Composite implements RuleCreator {
+public class BooleanRuleCreator implements RuleCreator {
 
 	private String domain;
 	Button trueButton;
@@ -21,12 +21,13 @@ public class BooleanRuleCreator extends Composite implements RuleCreator {
 	 * @param parent
 	 * @param style
 	 */
-	public BooleanRuleCreator(Composite parent, int style, String domain) {
-		super(parent, style);
+	public BooleanRuleCreator(Composite parent, String domain) {
 		this.domain = domain;
-		setLayout(new GridLayout(1, false));
 		
-		Group grpCondition = new Group(this, SWT.NONE);
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
+		
+		Group grpCondition = new Group(composite, SWT.NONE);
 		grpCondition.setText("Condition");
 		grpCondition.setLayout(new RowLayout(SWT.VERTICAL));
 		
@@ -41,10 +42,6 @@ public class BooleanRuleCreator extends Composite implements RuleCreator {
 
 	}
 
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
-	}
 
 	@Override
 	public Rule getRule() {

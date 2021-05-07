@@ -43,6 +43,10 @@ public class LastActionFilter extends ScoreFilter {
 			break;
 		}
 		
+		if(rule.isNegated()) {
+			rValue = !rValue;
+		}
+		
 		return rValue;
 	}
 

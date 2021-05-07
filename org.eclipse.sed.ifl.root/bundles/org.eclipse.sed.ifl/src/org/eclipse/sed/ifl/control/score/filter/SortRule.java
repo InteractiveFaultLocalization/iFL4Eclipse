@@ -24,10 +24,21 @@ public class SortRule implements Rule {
 
 	private String domain;
 	private SortingArg arg;
+	private boolean negated = false;
 	
 	@Override
 	public String getDomain() {
 		return this.domain;
+	}
+	
+	@Override
+	public void setNegated(boolean value) {
+		this.negated = value;
+	}
+
+	@Override
+	public boolean isNegated() {
+		return this.negated;
 	}
 
 }
