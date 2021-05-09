@@ -10,6 +10,16 @@ public interface IMethodDescription {
 	
 	public List<MethodIdentity> getContext();
 	
+	public String getDetailsLink();
+	
+	public void setDetailsLink(String link);
+	
+	public boolean hasDetailsLink();
+	
+	public boolean isInteractive();
+	
+	public void setInteractivity(boolean interactivity);
+	
 	public void setLines(Map<Long, Score> lines);
 	
 	public void addLine(long lineNumber, Score score);

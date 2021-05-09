@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.control.score;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import org.eclipse.sed.ifl.control.score.filter.LessOrEqualFilter;
 import org.eclipse.sed.ifl.control.score.filter.NameFilter;
 import org.eclipse.sed.ifl.control.score.filter.ScoreFilter;
 import org.eclipse.sed.ifl.core.BasicIflMethodScoreHandler;
+import org.eclipse.sed.ifl.ide.accessor.gui.FeatureAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.EditorAccessor;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomInputDialog;
 import org.eclipse.sed.ifl.model.FilterModel;
@@ -46,6 +48,7 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
@@ -112,6 +115,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().add(navigateToListener);
 		getView().eventNavigateToContext().add(navigateToContextListener);
 		getView().eventSelectionChanged().add(selectionChangedListener);
+		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
 		
 		getView().eventOpenFiltersPart().add(openFiltersPage);
@@ -140,6 +144,7 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		getView().eventNavigateToRequired().remove(navigateToListener);
 		getView().eventNavigateToContext().remove(navigateToContextListener);
 		getView().eventSelectionChanged().remove(selectionChangedListener);
+		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
 		
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
@@ -156,6 +161,15 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 		activityMonitor = null;
 		scoreHistory = null;
 	}
+
+	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
+		try {
+			new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
+		} catch (RuntimeException e) {
+			MessageDialog.open(MessageDialog.ERROR, Display.getCurrent().getActiveShell(), "Error opening details", "The details link can not be opened. Please check if the CSV file provides a working details link.", SWT.NONE);
+		}
+		
+	};
 
 	private List<ScoreFilter> filters = new ArrayList<>();
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
@@ -200,6 +214,10 @@ public class ScoreListControl extends Control<ScoreListModel, ScoreListView> {
 				break;
 			case Position:
 				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Integer(a.getKey().getLocation().getBegining().getOffset()).compareTo(b.getKey().getLocation().getBegining().getOffset()))
+						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+				break;
+			case Interactivity:
+				toDisplay = filtered.sorted((a, b) -> (sorting.isDescending() ? -1 : 1) * new Boolean(a.getKey().isInteractive()).compareTo(b.getKey().isInteractive()))
 						.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 				break;
 			case LastAction:

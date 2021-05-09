@@ -141,6 +141,7 @@ public class CodeElementUI extends Composite {
 			String path,
 			String position,
 			Integer contextSize,
+			Boolean interactivity,
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
@@ -248,8 +249,13 @@ public class CodeElementUI extends Composite {
 		
 		interactivityValueLabel = new Text(this, SWT.READ_ONLY);
 		interactivityValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		interactivityValueLabel.setText("User feedback disabled");
-		interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+		if(interactivity) {
+			interactivityValueLabel.setText("User feedback enabled");
+			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
+		} else {
+			interactivityValueLabel.setText("User feedback disabled");
+			interactivityValueLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+		}
 		
 		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		
