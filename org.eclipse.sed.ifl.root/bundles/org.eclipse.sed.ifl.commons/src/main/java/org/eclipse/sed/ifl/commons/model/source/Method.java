@@ -81,17 +81,8 @@ public class Method implements IMethodDescription {
 	// TODO: add semaphore if concurrent execution is introduced
 	@Override
 	public void addLine(long lineNumber, Score score) {
-		Line newLine = createLine(lineNumber);
-		if(!lines.containsKey(newLine)) {
-			newLine.setMethod(this);
-			lines.put(newLine, score);
-		} else {
-			lines.put(newLine, score);
-		}
-	}
-	
-	private Line createLine(long lineNumber) {
-		return new Line(lineNumber);
+		Line newLine = new Line(lineNumber, this);
+		lines.put(newLine, score);
 	}
 
 	@Override
@@ -100,7 +91,7 @@ public class Method implements IMethodDescription {
 		lines.remove(originalLine);
 		originalLine.setMethod(null);
 	}
-	
+
 	private Line getLineFromLines(Line line) {
 		for(Line key : lines.keySet()) {
 			if(key.equals(line)) {

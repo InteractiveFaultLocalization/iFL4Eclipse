@@ -11,6 +11,12 @@ public class Line {
 		this.sourceFileLineNumber = sourceFileLineNumber;
 	}
 	
+	protected Line(long sourceFileLineNumber, IMethodDescription method) {
+		super();
+		this.sourceFileLineNumber = sourceFileLineNumber;
+		this.method = method;
+	}
+
 	public long getSourceFileLineNumber() {
 		return sourceFileLineNumber;
 	}
