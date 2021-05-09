@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,7 @@ import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.swt.SWT;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
@@ -90,7 +90,6 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
-					// kötőjel választja el a metódus infót a sor számától
 					String[] splitNameAndLineNumber = name.split("-");
 					String methodInfoName = splitNameAndLineNumber[0];
 					long lineNumber = Long.parseLong(splitNameAndLineNumber[1]);
@@ -104,7 +103,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 							SWT.NONE);
 						return;
 					}
-					// az interactivity és details link most nincs a csv-ben
+					// Interactivity and details link are not included in the CSV currently
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 					Entry entry = new Entry(methodInfoName, lineNumber, score, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					loadedScores.add(entry);

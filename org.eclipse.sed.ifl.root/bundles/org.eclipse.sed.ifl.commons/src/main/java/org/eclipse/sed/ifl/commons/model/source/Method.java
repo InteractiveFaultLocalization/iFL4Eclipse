@@ -113,11 +113,6 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public Map<Line, Score> getLines() {
-		return lines;
-	}
-
-	@Override
 	public void setLines(Map<Long, Score> lines) {
 		for(Map.Entry<Long, Score> line : lines.entrySet()) {
 			addLine(line.getKey(), line.getValue());

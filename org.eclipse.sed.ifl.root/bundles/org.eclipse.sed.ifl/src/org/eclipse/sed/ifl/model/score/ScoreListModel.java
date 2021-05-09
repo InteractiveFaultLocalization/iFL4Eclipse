@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -18,6 +17,7 @@ import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.Line;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
@@ -83,16 +83,15 @@ public class ScoreListModel extends EmptyModel {
 		for (Entry<String, List<ScoreLoaderControl.Entry>> raw : entriesByMethods.entrySet()) {
 			for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
-					// line score-ok közül a max lesz a method score
 					double methodScoreValue = Double.MIN_VALUE;
 					for(ScoreLoaderControl.Entry lineInfo : raw.getValue()) {
 						if(lineInfo.getScore() > methodScoreValue) {
 							methodScoreValue = lineInfo.getScore();
 						}
-						entry.getKey().addLine(new Line(lineInfo.getLineNumber()), new Score(lineInfo.getScore()));
+						entry.getKey().addLine(lineInfo.getLineNumber(), new Score(lineInfo.getScore()));
 					}
 					entries.put(entry.getKey(), new Score(methodScoreValue));
-					// TODO : aggregáció linkre és interactivity-re a for-okon belül, mint a score-ra
+					// TODO : aggregation to details link and interactivity, like for score
 					//entry.getKey().setDetailsLink(...);
 					//entry.getKey().setInteractivity(...);
 					count++;
