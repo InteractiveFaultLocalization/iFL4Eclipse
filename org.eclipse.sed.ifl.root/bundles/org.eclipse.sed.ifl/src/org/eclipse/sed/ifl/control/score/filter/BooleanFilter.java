@@ -24,6 +24,10 @@ public class BooleanFilter extends ScoreFilter {
 		
 		rValue = arg0.getKey().isInteractive();
 		
+		if(rule.isNegated()) {
+			rValue = !rValue;
+		}
+		
 		return value ? rValue : !rValue;
 	}
 

@@ -6,6 +6,7 @@ public class LastActionRule implements Rule {
 
 	private String domain;
 	private ScoreStatus status;
+	private boolean negated = false;
 
 	public LastActionRule(String domain, ScoreStatus status) {
 		this.domain = domain;
@@ -19,6 +20,16 @@ public class LastActionRule implements Rule {
 	@Override
 	public String getDomain() {
 		return domain;
+	}
+	
+	@Override
+	public void setNegated(boolean value) {
+		this.negated = value;
+	}
+
+	@Override
+	public boolean isNegated() {
+		return this.negated;
 	}
 
 }

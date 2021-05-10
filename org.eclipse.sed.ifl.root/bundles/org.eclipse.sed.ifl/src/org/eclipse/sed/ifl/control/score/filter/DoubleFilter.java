@@ -35,7 +35,6 @@ public class DoubleFilter extends ScoreFilter {
 	@Override
 	protected boolean check(Entry<IMethodDescription, Score> arg0) {
 		boolean rValue = true;
-		//boolean isScore = false;
 		
 		double target = 0.0;
 		
@@ -45,7 +44,6 @@ public class DoubleFilter extends ScoreFilter {
 				return true;
 			}
 			target = arg0.getValue().getValue();
-			//isScore = true;
 			break;
 		case "Position":
 			target = arg0.getKey().getLocation().getBegining().getOffset();
@@ -73,11 +71,9 @@ public class DoubleFilter extends ScoreFilter {
 			break;
 		}
 		
-		/*
-		if(isScore) {
-			rValue = rValue || !arg0.getValue().isDefinit();
+		if(rule.isNegated()) {
+			rValue = !rValue;
 		}
-		*/
 		
 		return rValue;
 	}

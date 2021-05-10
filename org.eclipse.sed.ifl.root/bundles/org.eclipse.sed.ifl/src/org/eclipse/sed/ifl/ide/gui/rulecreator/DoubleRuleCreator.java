@@ -1,7 +1,6 @@
 package org.eclipse.sed.ifl.ide.gui.rulecreator;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
@@ -9,9 +8,10 @@ import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Text;
 
-public class DoubleRuleCreator extends Composite implements RuleCreator{
+public class DoubleRuleCreator implements RuleCreator{
 	private Text addValueText;
 	private String domain;
 	private Combo combo;
@@ -21,30 +21,26 @@ public class DoubleRuleCreator extends Composite implements RuleCreator{
 	 * @param parent
 	 * @param style
 	 */
-	public DoubleRuleCreator(Composite parent, int style, String domain) {
-		super(parent, style);
+	public DoubleRuleCreator(Composite parent, String domain) {
 		this.domain = domain;
-		setLayout(new GridLayout(2, false));
 		
-		Label addValueLabel = new Label(this, SWT.NONE);
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new GridLayout(2, false));
+		
+		Label addValueLabel = new Label(composite, SWT.NONE);
 		addValueLabel.setText("Enter value:");
 		
-		addValueText = new Text(this, SWT.BORDER);
+		addValueText = new Text(composite, SWT.BORDER);
 		addValueText.setToolTipText("Value must be <=0.0 and >=1.0");
 		addValueText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Label addRelationLabel = new Label(this, SWT.NONE);
+		Label addRelationLabel = new Label(composite, SWT.NONE);
 		addRelationLabel.setText("Choose relation:");
 		
-		combo = new Combo(this, SWT.READ_ONLY);
+		combo = new Combo(composite, SWT.READ_ONLY);
 		combo.setItems(new String[] {"<=", ">="});
 		combo.setText(">=");
 
-	}
-
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
 	}
 
 	@Override
