@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.sed.ifl.feature"
       label="iFL for Eclipse"
-      version="2.5.144.5"
+      version="3.0.0.0"
       provider-name="University of Szeged Department of Software Engineering">
 
    <description url="https://github.com/sed-szeged/iFL4Eclipse">
