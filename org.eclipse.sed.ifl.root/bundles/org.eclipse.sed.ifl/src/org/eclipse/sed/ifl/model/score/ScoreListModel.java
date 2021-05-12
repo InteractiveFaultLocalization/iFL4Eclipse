@@ -9,16 +9,17 @@ import java.util.stream.Collectors;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.model.EmptyModel;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 public class ScoreListModel extends EmptyModel {
 	public ScoreListModel(Iterable<IMethodDescription> methods) {
 		for (IMethodDescription method : methods) {
-			scores.put(method, new Score(true));
+			scores.put(method, new Score());
 		}
 	}
 
@@ -78,6 +79,7 @@ public class ScoreListModel extends EmptyModel {
 				if (entry.getKey().getId().toCSVKey().equals(raw.getKey().getName())) {
 					entries.put(entry.getKey(), raw.getValue());
 					entry.getKey().setDetailsLink(raw.getKey().getDetailsLink());
+					entry.getKey().setInteractivity(raw.getKey().isInteractive());
 					count++;
 				}
 			}

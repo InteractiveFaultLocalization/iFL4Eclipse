@@ -19,16 +19,19 @@ import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.swt.SWT;
 
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
-	public ScoreLoaderControl(ScoreListModel model, ScoreLoaderView view) {
-		super(model, view);
+	public ScoreLoaderControl(boolean interactivity) {
+		this.interactivity = interactivity;
 	}
 
 	public void load() {
 		getView().select();
 	}
 	
+	private boolean interactivity;
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
 	private static final String INTERACTIVITY_HEADER = "interactive";
@@ -38,11 +41,13 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	public class Entry {
 		private String name;
 		private String detailsLink;
+		private boolean interactivity;
 		
-		public Entry(String name, String detailsLink) {
+		public Entry(String name, String detailsLink, boolean interactivity) {
 			super();
 			this.name = name;
 			this.detailsLink = detailsLink;
+			this.interactivity = interactivity;
 		}
 
 		public String getName() {
@@ -51,6 +56,10 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 
 		public String getDetailsLink() {
 			return detailsLink;
+		}
+		
+		public boolean isInteractive() {
+			return interactivity;
 		}
 	}
 	
@@ -77,9 +86,10 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 							SWT.NONE);
 						return;
 					}
+					
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null);
-					Score score = new Score(value, interactivity);
+					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+					Score score = new Score(value);
 					loadedScores.put(entry, score);
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
@@ -99,21 +109,22 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 				SWT.NONE);
 			} catch (Exception e) {
 				MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "The plug-in was unable to open the CSV file. Please check if the CSV file is corrupted or is not properly formatted.", SWT.NONE);
+				e.printStackTrace();
 			}
 			System.out.println(watch);
 		}
 	};
 	
-	public static void saveSample(Map<String, Score> scores, File dump) {
+	public static void saveSample(Map<IMethodDescription, Score> scores, File dump) {
 		try (CSVPrinter printer = new CSVPrinter(new FileWriter(dump), CSVFORMAT)) {
 			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER, INTERACTIVITY_HEADER, DETAILS_LINK_HEADER);
 			
-			for (Map.Entry<String, Score> entry : scores.entrySet()) {
+			for (Map.Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 				printer.printRecord(
-					entry.getKey(),
+					entry.getKey().getId().getSignature(),
 					entry.getValue().getValue(),
-					entry.getValue().isInteractive()?"yes":"no",
-					"https://www.google.hu/search?q=" + entry.getKey());
+					entry.getKey().isInteractive()?"yes":"no",
+					"https://www.google.hu/search?q=" + entry.getKey().getId().getSignature());
 			}
 			printer.flush();
 			System.out.println("Sample CSV was saved to " + dump.getAbsolutePath());

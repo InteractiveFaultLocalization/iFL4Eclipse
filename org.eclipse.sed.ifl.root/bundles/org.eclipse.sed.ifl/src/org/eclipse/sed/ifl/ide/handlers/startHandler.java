@@ -14,16 +14,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
-import org.eclipse.sed.ifl.control.monitor.LogOnlyModeControl;
 import org.eclipse.sed.ifl.control.monitor.PartMonitorControl;
 import org.eclipse.sed.ifl.control.session.SessionControl;
 import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.accessor.source.WrongSelectionException;
-import org.eclipse.sed.ifl.ide.gui.MainPart;
 import org.eclipse.sed.ifl.ide.gui.dialogs.CustomWarningDialog;
-import org.eclipse.sed.ifl.model.monitor.LogOnlyModeModel;
 import org.eclipse.sed.ifl.model.monitor.PartMonitorModel;
 import org.eclipse.sed.ifl.model.session.SessionModel;
 import org.eclipse.sed.ifl.view.SessionView;
@@ -38,36 +35,41 @@ public class startHandler extends AbstractHandler {
 			PartAccessor partAccessor = new PartAccessor(event);
 			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
 			if (Activator.getDefault().isSessionActive()) {
-				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session already active", "You already started an Interactive Fault Localization session. Check the iFL panel for further details.");
+				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session is already active", "You have already started an Interactive Fault Localization session. Check the iFL panel for further details.");
 				dialog.open();
 			}
 			else {
-				if (isKeyFilePresent("log.key", "enabled")) {
+				//enable or disable logging
+				if (isLogKeyEnabled()) {
 					ActivityMonitorControl.enable();
 					MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Activity log enabled.", SWT.NONE);
+				} else {
+					MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Activity log disabled.", SWT.NONE);
 				}
-				if (isKeyFilePresent("key", "dza tan kaho adz")) {
-					try {
-						IJavaProject selected = sourceAccessor.getSelectedProject();
-						SessionControl session = new SessionControl(new SessionModel(), new SessionView((MainPart) partAccessor.getPart(MainPart.ID)), selected, new PartMonitorControl(new PartMonitorModel(), partAccessor));
-						session.init(); 
-						Activator.getDefault().setSession(session);
-					} catch (WrongSelectionException e) {
-						MessageDialog.open(MessageDialog.ERROR, null, "iFL", e.getMessage(), SWT.NONE);			
-					}
+				try {
+					IJavaProject selected = sourceAccessor.getSelectedProject();
+					PartMonitorControl partMonitor = new PartMonitorControl(partAccessor);
+					partMonitor.setModel(new PartMonitorModel());
+					SessionControl session = new SessionControl(selected, partMonitor);
+					session.setModel(new SessionModel());
+					session.setView(new SessionView(partAccessor));
+					session.init();
+					Activator.getDefault().setSession(session);
+				} catch (WrongSelectionException e) {
+					MessageDialog.open(MessageDialog.ERROR, null, "Unsupported project type", e.getMessage(), SWT.NONE);			
 				}
-				else {
-					if (!Activator.getDefault().isLogOnlyModeActive()) {
-						MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Log-only mode activated.", SWT.NONE);
-						LogOnlyModeControl mode = new LogOnlyModeControl(new LogOnlyModeModel(), partAccessor);
-						mode.init();
-						Activator.getDefault().setLogOnlyMode(mode);
-					}
-					else {	
-						Activator.getDefault().getLogOnlyMode().logDenied();
-						MessageDialog.open(MessageDialog.WARNING, null, "iFL", "You already activated log-only mode. You could continue your work as you usually do.", SWT.NONE);
-					}
+				//TODO: logging
+				/*
+				if (!Activator.getDefault().isLogOnlyModeActive()) {
+					MessageDialog.open(MessageDialog.INFORMATION, null, "iFL", "Log-only mode activated.", SWT.NONE);
+					LogOnlyModeControl mode = new LogOnlyModeControl(new LogOnlyModeModel(), partAccessor);
+					mode.init();
+					Activator.getDefault().setLogOnlyMode(mode);
 				}
+				else {	
+					Activator.getDefault().getLogOnlyMode().logDenied();
+					MessageDialog.open(MessageDialog.WARNING, null, "iFL", "You already activated log-only mode. You could continue your work as you usually do.", SWT.NONE);
+				}*/
 			}
 		} catch (Exception e) {
 			MessageDialog.open(MessageDialog.ERROR, null, "Unexpected error during iFL initalization", e.getMessage(), SWT.NONE);
@@ -76,8 +78,13 @@ public class startHandler extends AbstractHandler {
 		}
 		return null;
 	}
-
-	private boolean isKeyFilePresent(String fileName, String content) {
+	
+	private boolean isLogKeyEnabled() {
+		return Activator.getDefault().getPreferenceStore().getBoolean("logKey");
+	}
+	
+	//TODO: logging
+	public boolean isKeyFilePresent(String fileName, String content) {
 		File key = new File(fileName);
 		System.out.println("looking for key file at: " + key.getAbsolutePath());
 		if (key.canRead()) {

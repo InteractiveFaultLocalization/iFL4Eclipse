@@ -2,16 +2,17 @@ package org.eclipse.sed.ifl.view;
 
 import java.time.LocalDateTime;
 
+import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.ide.gui.ScoreHistoryUI;
-import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
+import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.swt.widgets.Composite;
 
-public class ScoreHistoryView extends View {
-	private ScoreHistoryUI ui;
+public class ScoreHistoryView extends View implements IEmbeddable {
+	private ScoreHistoryUI ui = new ScoreHistoryUI();
 
 	@Override
-	public Composite getUI() {
-		return ui;
+	public void setParent(Composite parent) {
+		ui.setParent(parent);
 	}
 	
 	@Override
@@ -19,13 +20,9 @@ public class ScoreHistoryView extends View {
 		super.init();
 		hide();
 	}
-
-	public ScoreHistoryView(ScoreHistoryUI ui) {
-		this.ui = ui;
-	}
 	
-	public void addMonument(OptionKind kind, LocalDateTime creation) {
-		ui.putInRow(kind, creation);
+	public void addMonument(ScoreStatus status, LocalDateTime creation) {
+		ui.putInRow(status, creation);
 	}
 	
 	public void clearMonuments() {

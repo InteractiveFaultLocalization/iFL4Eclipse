@@ -1,14 +1,16 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
-import java.util.List;
+import java.util.Map;
 
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.identification.IUser;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public interface IUserFeedback {
 	public IUser getUser();
 	
-	public Option getChoise();
+	public Option getChoice();
 	
-	public List<IMethodDescription> getSubjects();
+	public Map<IMethodDescription,Defineable<Double>> getSubjects();
 }

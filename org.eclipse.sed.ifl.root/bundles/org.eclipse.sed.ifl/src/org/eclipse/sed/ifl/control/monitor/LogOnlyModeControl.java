@@ -13,8 +13,7 @@ public class LogOnlyModeControl extends ViewlessControl<LogOnlyModeModel> {
 		
 	private PartAccessor partAccessor;
 
-	public LogOnlyModeControl(LogOnlyModeModel model, PartAccessor accessor) {
-		super(model);
+	public LogOnlyModeControl(PartAccessor accessor) {
 		this.partAccessor = accessor;
 	}
 	
@@ -24,9 +23,12 @@ public class LogOnlyModeControl extends ViewlessControl<LogOnlyModeModel> {
 	
 	@Override
 	public void init() {
-		partMonitor = new PartMonitorControl(new PartMonitorModel(), partAccessor);
-		addSubControl(partMonitor);
+		partMonitor = new PartMonitorControl(partAccessor);
+		partMonitor.setModel(new PartMonitorModel());
+
 		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+
+		addSubControl(partMonitor);
 		addSubControl(activityMonitor);
 		super.init();
 		

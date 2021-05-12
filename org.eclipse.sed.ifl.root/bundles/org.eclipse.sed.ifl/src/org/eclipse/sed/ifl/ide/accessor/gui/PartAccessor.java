@@ -17,10 +17,11 @@ public class PartAccessor {
 	}
 	
 	public IViewPart getPart(String id){
+		//aktív workbench megtalálásához ne kelljen az event
 		IWorkbenchWindow window = EU.tryUnchecked(() -> HandlerUtil.getActiveWorkbenchWindowChecked(event));
 		//TODO: figure out why is it required to close the part and reopen it for a proper initialisation.
 		IViewPart view = window.getActivePage().findView(id);
-		if (view != null) {
+		if (view != null || window.getActivePage().isPartVisible(view)) {
 			window.getActivePage().hideView(view);
 		}
 		EU.tryUnchecked(() -> window.getActivePage().showView(id));

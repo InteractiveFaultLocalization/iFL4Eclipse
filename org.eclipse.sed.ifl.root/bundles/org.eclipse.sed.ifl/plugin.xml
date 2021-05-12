@@ -77,12 +77,49 @@
             id="org.eclipse.sed.ifl">
       </category>
       <view
+            allowMultiple="false"
             category="org.eclipse.sed.ifl"
             class="org.eclipse.sed.ifl.ide.gui.MainPart"
             icon="icons/ico16.png"
             id="org.eclipse.sed.ifl.views.IFLMainView"
             inject="true"
             name="Interactive Fault Localization"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.eclipse.sed.ifl.filter"
+            name="Fault Localization Filters"
+            parentCategory="org.eclipse.sed.ifl">
+      </category>
+      <view
+            allowMultiple="false"
+            category="org.eclipse.sed.ifl.filter"
+            class="org.eclipse.sed.ifl.ide.gui.FilterPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLFilterView"
+            inject="true"
+            name="Interactive Fault Localization Filters"
+            restorable="false">
+      </view>
+   </extension>
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.eclipse.sed.ifl.sorting"
+            name="Fault Localization Sorting"
+            parentCategory="org.eclipse.sed.ifl">
+      </category>
+      <view
+            allowMultiple="false"
+            category="org.eclipse.sed.ifl.sorting"
+            class="org.eclipse.sed.ifl.ide.gui.DualListPart"
+            icon="icons/ico16.png"
+            id="org.eclipse.sed.ifl.views.IFLDualListView"
+            inject="true"
+            name="Interactive Fault Localization Sorting"
             restorable="false">
       </view>
    </extension>

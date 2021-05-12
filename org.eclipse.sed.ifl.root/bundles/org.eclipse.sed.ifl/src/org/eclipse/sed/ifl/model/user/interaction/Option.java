@@ -1,10 +1,12 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
+
 import java.util.Map;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class Option {
 	private String id;
@@ -83,4 +85,5 @@ public class Option {
 	public Map<IMethodDescription, Defineable<Double>> apply(IUserFeedback feedback, Map<IMethodDescription, Defineable<Double>> allScores) { 
 		throw new UnsupportedOperationException();
 	}
+
 }

@@ -1,23 +1,24 @@
 package org.eclipse.sed.ifl.model.user.interaction;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.model.user.identification.DefaultUser;
 import org.eclipse.sed.ifl.model.user.identification.IUser;
+import org.eclipse.sed.ifl.util.wrapper.Defineable;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class UserFeedback implements IUserFeedback {
 
-	public UserFeedback(Option option, List<IMethodDescription> subjects) {
+	public UserFeedback(Option option, Map<IMethodDescription,Defineable<Double>> subjects) {
 		this(option, subjects, new DefaultUser());
 	}
 	
-	public UserFeedback(Option option, List<IMethodDescription> subjects, IUser user) {
+	public UserFeedback(Option option, Map<IMethodDescription, Defineable<Double>> subjects, IUser user) {
 		super();
 		this.option = option;
-		this.subjects.addAll(subjects);
+		this.subjects.putAll(subjects);
 		this.user = user;
 	}
 	
@@ -31,14 +32,14 @@ public class UserFeedback implements IUserFeedback {
 	private Option option;
 	
 	@Override
-	public Option getChoise() {
+	public Option getChoice() {
 		return option;
 	}
 
-	private List<IMethodDescription> subjects = new ArrayList<>();
+	private Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();
 	
 	@Override
-	public List<IMethodDescription> getSubjects() {
-		return Collections.unmodifiableList(subjects);
+	public Map<IMethodDescription, Defineable<Double>> getSubjects() {
+		return this.subjects;
 	}
 }

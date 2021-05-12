@@ -12,74 +12,71 @@ public class PartMonitorControl extends ViewlessControl<PartMonitorModel> {
 
 	private PartAccessor accessor;
 			
-	public PartMonitorControl(PartMonitorModel model, PartAccessor accessor) {
-		super(model);
+	public PartMonitorControl(PartAccessor accessor) {
 		this.accessor = accessor;
-		addSubControl(activityMonitor);
 	}
 
-	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+	private ActivityMonitorControl activityMonitor;
 	
-	
-		private IPartListener2 lifeCycleListener = new IPartListener2() {
-				
-				@Override
-				public void partVisible(IWorkbenchPartReference partRef) {
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.VISIBLE));
-					
-				}
-				
-				@Override
-				public void partOpened(IWorkbenchPartReference partRef) {
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.OPEN));
-					
-				}
-				
-				@Override
-				public void partInputChanged(IWorkbenchPartReference partRef) {
-				}
-				
-				@Override
-				public void partHidden(IWorkbenchPartReference partRef) {
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.HIDDEN));
-					
-				}
-				
-				@Override
-				public void partDeactivated(IWorkbenchPartReference partRef) {
-					
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.DEACTIVATE));
-					
-					
-				}
-				
-				@Override
-				public void partClosed(IWorkbenchPartReference partRef) {
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.CLOSE));
-					
-				}
-				
-				@Override
-				public void partBroughtToTop(IWorkbenchPartReference partRef) {
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.BROUGHTTOTOP));
-					
-				}
-				
-				@Override
-				public void partActivated(IWorkbenchPartReference partRef) {
-					
-					
-						activityMonitor.log(new PartEvent(partRef, PartState.ACTIVE));
-					
-					
-				}
-		};
+	private IPartListener2 lifeCycleListener = new IPartListener2() {
+
+		@Override
+		public void partVisible(IWorkbenchPartReference partRef) {
+
+			activityMonitor.log(new PartEvent(partRef, PartState.VISIBLE));
+
+		}
+
+		@Override
+		public void partOpened(IWorkbenchPartReference partRef) {
+
+			activityMonitor.log(new PartEvent(partRef, PartState.OPEN));
+
+		}
+
+		@Override
+		public void partInputChanged(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partHidden(IWorkbenchPartReference partRef) {
+
+			activityMonitor.log(new PartEvent(partRef, PartState.HIDDEN));
+
+		}
+
+		@Override
+		public void partDeactivated(IWorkbenchPartReference partRef) {
+
+
+			activityMonitor.log(new PartEvent(partRef, PartState.DEACTIVATE));
+
+
+		}
+
+		@Override
+		public void partClosed(IWorkbenchPartReference partRef) {
+
+			activityMonitor.log(new PartEvent(partRef, PartState.CLOSE));
+
+		}
+
+		@Override
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {
+
+			activityMonitor.log(new PartEvent(partRef, PartState.BROUGHTTOTOP));
+
+		}
+
+		@Override
+		public void partActivated(IWorkbenchPartReference partRef) {
+
+
+			activityMonitor.log(new PartEvent(partRef, PartState.ACTIVE));
+
+
+		}
+	};
 	
 	public IPartListener2 getListener() {
 		return lifeCycleListener;
@@ -88,6 +85,9 @@ public class PartMonitorControl extends ViewlessControl<PartMonitorModel> {
 	
 	@Override
 	public void init() {
+		activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
+
+		addSubControl(activityMonitor);
 		accessor.addListenerToAllPages(lifeCycleListener);
 		super.init();
 	}

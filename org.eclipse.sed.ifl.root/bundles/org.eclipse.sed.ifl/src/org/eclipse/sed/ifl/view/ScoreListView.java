@@ -1,42 +1,50 @@
 package org.eclipse.sed.ifl.view;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.general.IEmbeddable;
+import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
-import org.eclipse.sed.ifl.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
+
+import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
 
-public class ScoreListView extends View {
-	ScoreListUI ui;
-
-	public ScoreListView(ScoreListUI ui) {
-		super();
-		this.ui = ui;
-	}
-
+public class ScoreListView extends View implements IEmbeddable, IEmbedee {
+	ScoreListUI ui = new ScoreListUI();
+	
 	@Override
-	public Composite getUI() {
-		return ui;
+	public void setParent(Composite parent) {
+		ui.setParent(parent);
+	}
+	
+	@Override
+	public void embed(IEmbeddable embedded) {
+		embedded.setParent(ui);
 	}
 
 	public void refreshScores(Map<IMethodDescription, Score> scores) {
 		ui.clearMethodScores();
 		ui.setMethodScore(scores);
 	}
-
+	
+	public void highlightRequest(List<IMethodDescription> list) {
+		//ui.highlightNonInteractiveContext(list);
+	}
+	
 	public void createOptionsMenu(Iterable<Option> options) {
 		ui.createContexMenu(options);
 	}
@@ -44,32 +52,26 @@ public class ScoreListView extends View {
 	@Override
 	public void init() {
 		ui.eventOptionSelected().add(optionSelectedListener);
-		ui.eventSortRequired().add(sortListener);
+		ui.eventCustomOptionSelected().add(customOptionSelectedListener);
 		ui.eventNavigateToRequired().add(navigateToListener);
 		ui.eventNavigateToContext().add(navigateToContextListener);
 		ui.eventSelectionChanged().add(selectionChangedListener);
-		ui.eventlowerScoreLimitChanged().add(lowerScoreLimitChangedListener);
-		ui.eventlowerScoreLimitEnabled().add(lowerScoreLimitEnabledListener);
-		ui.eventContextSizeLimitEnabled().add(contextSizeLimitEnabledListener);
-		ui.eventContextSizeLimitChanged().add(contextSizeLimitChangedListener);
-		ui.eventContextSizeRelationChanged().add(contextSizeRelationChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
+		ui.eventOpenFiltersPage().add(openFiltersPartListener);
+		ui.eventOpenDualListPage().add(openDualListPartListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
 		ui.eventOptionSelected().remove(optionSelectedListener);
-		ui.eventSortRequired().remove(sortListener);
+		ui.eventCustomOptionSelected().remove(customOptionSelectedListener);
 		ui.eventNavigateToRequired().remove(navigateToListener);
 		ui.eventNavigateToContext().remove(navigateToContextListener);
 		ui.eventSelectionChanged().remove(selectionChangedListener);
-		ui.eventlowerScoreLimitChanged().remove(lowerScoreLimitChangedListener);
-		ui.eventlowerScoreLimitEnabled().remove(lowerScoreLimitEnabledListener);
-		ui.eventContextSizeLimitEnabled().remove(contextSizeLimitEnabledListener);
-		ui.eventContextSizeLimitChanged().remove(contextSizeLimitChangedListener);
-		ui.eventContextSizeRelationChanged().remove(contextSizeRelationChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
+		ui.eventOpenFiltersPage().remove(openFiltersPartListener);
+		ui.eventOpenDualListPage().remove(openDualListPartListener);
 		super.teardown();
 	}
 	
@@ -79,10 +81,10 @@ public class ScoreListView extends View {
 		return selectionChanged;
 	}
 	
-	private IListener<Table> selectionChangedListener = event -> {
+	private IListener<List<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (TableItem item : event.getSelection()) {
-			selection.add((IMethodDescription)item.getData());
+		for (Entry<IMethodDescription, Score> item : event) {
+			selection.add(item.getKey());
 		}
 		selectionChanged.invoke(selection);
 	};
@@ -96,13 +98,13 @@ public class ScoreListView extends View {
 
 	private IListener<IUserFeedback> optionSelectedListener = optionSelected::invoke;
 
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<List<IMethodDescription>> customOptionSelected = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
-		return sortRequired;
+	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
+		return customOptionSelected;
 	}
-	
-	private IListener<SortingArg> sortListener = sortRequired::invoke;
+
+	private IListener<List<IMethodDescription>> customOptionSelectedListener = customOptionSelected::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 	
@@ -112,69 +114,23 @@ public class ScoreListView extends View {
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
-	private NonGenericListenerCollection<List<IMethodDescription>> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<List<IMethodDescription>> eventNavigateToContext() {
+	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	
-	private IListener<List<IMethodDescription>> navigateToContextListener = navigateToContext::invoke;
+	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);
 	}
 	
-	public void setScoreFilter(double min, double max, double current) {
-		ui.setScoreFilter(min, max, current);
-	}
-	
-	public void setScoreFilter(double min, double max) {
-		ui.setScoreFilter(min, max);
-	}
 	
 	public void showNoItemsLabel(boolean show) {
 		ui.showNoItemsLabel(show);
 	}
 	
-	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
-		return lowerScoreLimitChanged;
-	}
-	
-	private IListener<Double> lowerScoreLimitChangedListener = lowerScoreLimitChanged::invoke;
-
-	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
-		return lowerScoreLimitEnabled;
-	}
-	
-	private IListener<Boolean> lowerScoreLimitEnabledListener = lowerScoreLimitEnabled::invoke;
-	
-	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventcontextSizeLimitEnabled() {
-		return contextSizeLimitEnabled;
-	}
-	
-	private IListener<Boolean> contextSizeLimitEnabledListener = contextSizeLimitEnabled::invoke;
-	
-	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
-		return contextSizeLimitChanged;
-	}
-	
-	private IListener<Integer> contextSizeLimitChangedListener = contextSizeLimitChanged::invoke;
-	
-	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
-		return contextSizeRelationChanged;
-	}
-	
-	private IListener<String> contextSizeRelationChangedListener = contextSizeRelationChanged::invoke;
 	
 	private NonGenericListenerCollection<IMethodDescription> openDetailsRequired = new NonGenericListenerCollection<>();
 	
@@ -183,4 +139,30 @@ public class ScoreListView extends View {
 	}
 	
 	IListener<IMethodDescription> openDetailsRequiredListener = openDetailsRequired::invoke;
+	
+	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventNameFilterChanged() {
+		return nameFilterChanged;
+	}
+	
+	
+	private NonGenericListenerCollection<EmptyEvent> openFiltersPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPart() {
+		return openFiltersPart;
+	}
+	
+	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
+	
+
+	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
+		return openDualListPart;
+	}
+	
+	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
+	
 }
+
