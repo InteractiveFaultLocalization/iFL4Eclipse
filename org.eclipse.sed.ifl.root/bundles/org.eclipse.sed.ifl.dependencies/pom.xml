@@ -48,7 +48,7 @@
 			  <executions>
 				<execution>
 				  <id>install-javafx</id>
-				  <phase>package</phase>
+				  <phase>initialize</phase>
 				  <goals>
 					<goal>install-file</goal>
 				  </goals>
@@ -56,13 +56,13 @@
 					<file>${java.home}/lib/ext/jfxrt.jar</file>
 					<groupId>com.oracle.javafx</groupId>
 					<artifactId>javafx</artifactId>
-					<version>8.0.281</version>
+					<version>8.0.291</version>
 					<packaging>jar</packaging>
 				  </configuration>
 				</execution>
 				<execution>
 				  <id>install-javafx-swt</id>
-				  <phase>package</phase>
+				  <phase>initialize</phase>
 				  <goals>
 					<goal>install-file</goal>
 				  </goals>
@@ -70,7 +70,7 @@
 					<file>${java.home}/lib/jfxswt.jar</file>
 					<groupId>com.oracle.javafx</groupId>
 					<artifactId>javafx-swt</artifactId>
-					<version>8.0.281</version>
+					<version>8.0.291</version>
 					<packaging>jar</packaging>
 				  </configuration>
 				</execution>
@@ -101,12 +101,18 @@
 		<dependency>
 			<groupId>com.oracle.javafx</groupId>
 			<artifactId>javafx</artifactId>
-			<version>8.0.281</version>
+			<version>8.0.291</version>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.javafx</groupId>
 			<artifactId>javafx-swt</artifactId>
-			<version>8.0.281</version>
+			<version>8.0.291</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
+		<dependency>
+		    <groupId>javax.inject</groupId>
+		    <artifactId>javax.inject</artifactId>
+		    <version>1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
@@ -130,6 +136,5 @@
 		    <artifactId>commons-csv</artifactId>
 		    <version>1.6</version>
 		</dependency>
-		
 	</dependencies>
 </project>
