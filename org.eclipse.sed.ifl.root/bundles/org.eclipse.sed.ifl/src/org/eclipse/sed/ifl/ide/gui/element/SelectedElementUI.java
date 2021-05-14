@@ -195,7 +195,7 @@ public class SelectedElementUI extends Composite {
 	
 	public void originChanged(Entry<IMethodDescription, Score> origin) {
 		this.originData = origin;
-		this.scoreValueLabel.setText(LIMIT_FORMAT.format(origin.getValue().getValue()));
+		this.scoreValueLabel.setText(origin.getValue().isDefinit() ? LIMIT_FORMAT.format(origin.getValue().getValue()) : "undefined");
 		this.signatureValueLabel.setText(origin.getKey().getId().getSignature());
 	}
 	
