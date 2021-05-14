@@ -119,7 +119,7 @@ public class StringRuleCreator implements RuleCreator{
 			return new StringRule(this.domain, text.getText(), matchingButton.getSelection(), caseButton.getSelection(), regexButton.getSelection());
 		} else {
 			MessageDialog.open(MessageDialog.ERROR, null, "Empty string input", "The provided input is an empty string."
-					+ "Please enter a string that is not empty.", SWT.NONE);
+					+ " Please enter a string that is not empty.", SWT.NONE);
 			return null;
 		}
 	}

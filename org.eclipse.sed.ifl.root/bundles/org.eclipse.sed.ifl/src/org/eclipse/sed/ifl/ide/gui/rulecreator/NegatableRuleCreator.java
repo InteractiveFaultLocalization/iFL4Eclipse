@@ -74,7 +74,9 @@ public class NegatableRuleCreator extends Composite implements RuleCreator {
 	@Override
 	public Rule getRule() {
 		Rule rule = this.ruleCreator.getRule();
-		rule.setNegated(isNegated());
+		if (rule != null) {
+			rule.setNegated(isNegated());
+		}	
 		return rule;
 	}
 
