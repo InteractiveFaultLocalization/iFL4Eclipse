@@ -1,162 +1,63 @@
 package org.eclipse.sed.ifl.ide.gui;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
+import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
+import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
+import org.eclipse.sed.ifl.control.score.filter.Rule;
+import org.eclipse.sed.ifl.control.score.filter.SortRule;
+import org.eclipse.sed.ifl.control.score.filter.StringRule;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
+import org.eclipse.sed.ifl.ide.gui.dialogs.PresetChooserDialog;
+import org.eclipse.sed.ifl.ide.gui.dialogs.RuleCreatorDialog;
+import org.eclipse.sed.ifl.ide.gui.element.RuleElementUI;
+import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Scale;
-import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLFilterView";
-	
-	private static final double SLIDER_PRECISION = 10000.0;
-	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
-	
-	private static int toScale(double value) {
-		return Double.valueOf(value * SLIDER_PRECISION).intValue();
-	}
-	
-	public static void setRestoreStateNeeded(Boolean restoreStateNeeded) {
-		FilterPart.restoreStateNeeded = restoreStateNeeded;
-	}
 
-	private static double fromScale(int value) {
-		return value / SLIDER_PRECISION;
-	}
-	
-	@Inject IWorkbench workbench;
-	
+	@Inject
+	IWorkbench workbench;
+
 	private Composite composite;
-	private Composite limitFilterComposite;
-	private Composite scaleComposite;
-	private Composite contextSizeComposite;
-	private Composite nameFilterComposite;
-	private Composite sortComposite;
-	private Combo contextSizeCombo;
-	private Combo limitFilterCombo;
-	private Button contextSizeCheckBox;
-	private Spinner contextSizeSpinner;
-	private Button enabledCheckButton;
-	private Scale scale;
-	private Text manualText;
-	private Button manualButton;
-	private Text nameFilterText;
-	private Button nameFilterClearButton;
-	private Label minLabel;
-	private Label maxLabel;
-	private Combo sortCombo;
-	private Button sortAscendingButton;
-	private Button sortDescendingButton;
-	
-	private static double minValue;
-	private static double maxValue;
-	
-	private static Boolean restoreStateNeeded = false;
-	
-	private static Double scaleValue;
-	private static Boolean limitFilterEnabled;
-	private static Boolean limitFilterChecked;
-	private static Boolean contextFilterEnabled;
-	private static Boolean contextFilterChecked;
-	private static String limitFilterRelation;
-	private static String contextFilterRelation;
-	private static Integer contextFilterNumber;
-	private static String nameFilterString;
-	private static Boolean sortEnabled;
-	private static Boolean sortChecked;
-	private static String sortString;
-	private static Boolean sortDescendingChosen;
-	private static Boolean sortAscendingChosen;
-	
+	private Button addRuleButton;
+	private ScrolledComposite scrolledComposite;
+	private Button resetAllButton;
+	private Composite rulesComposite;
+
+	private static Boolean filterEnabled = false;
+
+	private static List<Rule> rules = new ArrayList<>();
+
 	public FilterPart() {
 		System.out.println("filter part ctr");
 	}
 
-	
-	private void saveState() {
-		limitFilterEnabled = enabledCheckButton.isEnabled();
-		limitFilterChecked = enabledCheckButton.getSelection();
-		contextFilterEnabled = contextSizeCheckBox.isEnabled();
-		contextFilterChecked = contextSizeCheckBox.getSelection();
-		
-		scaleValue = Double.parseDouble(manualText.getText());
-		
-		limitFilterRelation = limitFilterCombo.getText();
-		contextFilterRelation = contextSizeCombo.getText();
-		contextFilterNumber = contextSizeSpinner.getSelection();
-		nameFilterString = nameFilterText.getText();
-		sortEnabled = sortCheckButton.isEnabled();
-		sortChecked = sortCheckButton.getSelection();
-		sortString = sortCombo.getText();
-		sortAscendingChosen = sortAscendingButton.getSelection();
-		sortDescendingChosen = sortDescendingButton.getSelection();
-		
-		restoreStateNeeded = true;
-	}
-	
-	private void restoreState() {
-		enabledCheckButton.setEnabled(limitFilterEnabled);
-		enabledCheckButton.setSelection(limitFilterChecked);
-		lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
-		
-		scale.setEnabled(enabledCheckButton.getSelection());
-		manualText.setEnabled(enabledCheckButton.getSelection());
-		manualButton.setEnabled(enabledCheckButton.getSelection());
-		limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
-		scale.setSelection(toScale(scaleValue));
-		manualText.setText(LIMIT_FORMAT.format(scaleValue));
-		limitFilterCombo.setText(limitFilterRelation);
-		updateLimitFilterRelation(limitFilterCombo.getText());
-		
-		contextSizeCheckBox.setEnabled(contextFilterEnabled);
-		contextSizeCheckBox.setSelection(contextFilterChecked);
-		contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
-		contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
-		contextSizeCombo.setText(contextFilterRelation);
-		contextSizeSpinner.setSelection(contextFilterNumber);
-		contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-		
-		sortCheckButton.setEnabled(sortEnabled);
-		sortCheckButton.setSelection(sortChecked);
-		sortCombo.setText(sortString);
-		sortAscendingButton.setSelection(sortAscendingChosen);
-		sortDescendingButton.setSelection(sortDescendingChosen);
-		sortCheckButton.notifyListeners(SWT.Selection, new Event());
-		
-		setScoreFilter(minValue, maxValue, scaleValue);
-
-		nameFilterText.setText(nameFilterString);
-		updateNameFilter(nameFilterText.getText());
-	}
-	
 	@Override
 	public void embed(IEmbeddable embedded) {
 		embedded.setParent(composite);
@@ -169,545 +70,250 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 	@Override
 	public void createPartControl(Composite parent) {
+
 		composite = parent;
-		composite.setLayout(new GridLayout(1, false));
-		
-		descLabel = new Label(parent, SWT.NONE);
-		descLabel.setText("Load some defined scores to enable filtering.");
-		
-		limitFilterComposite = new Composite(composite, SWT.NONE);
-		limitFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		limitFilterComposite.setSize(0, 100);
-		limitFilterComposite.setLayout(new GridLayout(4, false));
-		
-		scaleComposite = new Composite(composite, SWT.NONE);
-		scaleComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		scaleComposite.setSize(0, 100);
-		scaleComposite.setLayout(new GridLayout(3, false));
-		
-		contextSizeComposite = new Composite(composite, SWT.NONE);
-		contextSizeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		contextSizeComposite.setSize(0, 100);
-		contextSizeComposite.setLayout(new GridLayout(5, false));
-		
-		sortComposite = new Composite(composite, SWT.NONE);
-		sortComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		sortComposite.setSize(0, 100);
-		sortComposite.setLayout(new GridLayout(4, false));
-		
-		sortCheckButton = new Button(sortComposite, SWT.CHECK);
-		sortCheckButton.setEnabled(false);
-		sortCheckButton.setText("Sort by:");
-		sortCheckButton.addSelectionListener(new SelectionListener() {
+		composite.setLayout(new GridLayout(3, false));
+
+		enableInfoLabel = new Label(parent, SWT.NONE);
+		enableInfoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		enableInfoLabel.setText("Load some defined scores to enable filtering.");
+
+		addRuleButton = new Button(parent, SWT.NONE);
+		addRuleButton.setEnabled(false);
+		addRuleButton.setText("Add rule");
+		addRuleButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sortCombo.setEnabled(sortCheckButton.getSelection());
-				sortDescendingButton.setEnabled(sortCheckButton.getSelection());
-				sortAscendingButton.setEnabled(sortCheckButton.getSelection());
-				saveState();
+				RuleCreatorDialog ruleDialog = new RuleCreatorDialog(Display.getCurrent().getActiveShell(), SWT.NONE);
+				ruleDialog.eventRuleCreated().add(ruleCreatedListener);
+				ruleDialog.open();
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+
+		});
 				
-			}
-			
-		});
-		sortCheckButton.addListener(SWT.Selection, sortListener);
-		
-		sortCombo = new Combo(sortComposite, SWT.READ_ONLY);
-		sortCombo.setEnabled(false);
-		sortCombo.add("Score");
-		sortCombo.add("Name");
-		sortCombo.add("Signature");
-		sortCombo.add("Parent type");
-		sortCombo.add("Path");
-		sortCombo.add("Context size");
-		sortCombo.add("Position");
-		sortCombo.add("Interactivity");
-		sortCombo.add("Last action");
-		sortCombo.setText("Score");
-		sortCombo.addListener(SWT.Selection, sortListener);
-		sortCombo.addSelectionListener(new SelectionListener() {
+		choosePresetButton = new Button(parent, SWT.NONE);
+		choosePresetButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		choosePresetButton.setText("Choose preset");
+		choosePresetButton.setEnabled(false);
+		choosePresetButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				saveState();
+				PresetChooserDialog presetDialog = new PresetChooserDialog(Display.getCurrent().getActiveShell(),
+						SWT.NONE);
+				presetDialog.eventPresetChosen().add(presetChosenListener);
+				presetDialog.open();
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-			
+
 		});
 		
-		sortAscendingButton = new Button(sortComposite, SWT.RADIO);
-		sortAscendingButton.setEnabled(false);
-		sortAscendingButton.setText("A -> Z");
-		sortAscendingButton.addListener(SWT.Selection, sortListener);
-		sortAscendingButton.addSelectionListener(new SelectionListener() {
+		resetAllButton = new Button(parent, SWT.NONE);
+		resetAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		resetAllButton.setEnabled(false);
+		resetAllButton.setText("Reset all");
+		resetAllButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				saveState();
+				deleteRules.invoke(rules);
+				for (Control control : rulesComposite.getChildren()) {
+					control.dispose();
+				}
 			}
-
-			@Override
+				@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-			
+
 		});
 		
-		sortDescendingButton = new Button(sortComposite, SWT.RADIO);
-		sortDescendingButton.setSelection(true);
-		sortDescendingButton.setEnabled(false);
-		sortDescendingButton.setText("Z -> A");
-		sortDescendingButton.addListener(SWT.Selection, sortListener);
-		sortDescendingButton.addSelectionListener(new SelectionListener() {
+		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
+		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
+		gd_scrolledComposite.widthHint = 360;
+		gd_scrolledComposite.heightHint = 280;
+		scrolledComposite.setLayoutData(gd_scrolledComposite);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				saveState();
-			}
+		rulesComposite = new Composite(scrolledComposite, SWT.NONE);
+		rulesComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		rulesComposite.setSize(new Point(360, 280));
+		rulesComposite.setLayout(new GridLayout(1, false));
+		scrolledComposite.setContent(rulesComposite);
+		scrolledComposite.setMinSize(rulesComposite.getSize());
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-			
-		});
-		
-		enabledCheckButton = new Button(limitFilterComposite, SWT.CHECK);
-		enabledCheckButton.setToolTipText("enable");
-		enabledCheckButton.setEnabled(false);
-		enabledCheckButton.setText("Show scores");
-		enabledCheckButton.setSelection(true);
-		enabledCheckButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				lowerScoreLimitEnabled.invoke(enabledCheckButton.getSelection());
-				scale.setEnabled(enabledCheckButton.getSelection());
-				manualText.setEnabled(enabledCheckButton.getSelection());
-				manualButton.setEnabled(enabledCheckButton.getSelection());
-				limitFilterCombo.setEnabled(enabledCheckButton.getSelection());
-				saveState();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-				limitFilterCombo = new Combo(limitFilterComposite, SWT.READ_ONLY);
-				limitFilterCombo.add("<=");
-				limitFilterCombo.add(">=");
-				limitFilterCombo.setText(">=");
-				limitFilterCombo.setEnabled(false);
-				limitFilterCombo.addSelectionListener(new SelectionListener () {
+		System.out.println(rules.size());
 
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						
-						String text = limitFilterCombo.getText();
-						updateLimitFilterRelation(text);
-						saveState();
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-				});
-		
-		manualText = new Text(limitFilterComposite, SWT.BORDER);
-		manualText.setToolTipText("You may enter the score value manually here");
-		manualText.setEnabled(false);
-		manualText.addListener(SWT.Traverse, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				if(event.detail == SWT.TRAVERSE_RETURN) {
-		            double value = userInputTextValidator(manualText.getText());
-		            double correctValue = userInputRangeValidator(value);
-		            updateScoreFilterLimit(correctValue);
-		            saveState();
-		        }
-			}
-		});
-		
-		manualButton = new Button(limitFilterComposite, SWT.NONE);
-		manualButton.setText("Apply");
-		manualButton.setEnabled(false);
-		manualButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double value = userInputTextValidator(manualText.getText());
-		        double correctValue = userInputRangeValidator(value);
-		        updateScoreFilterLimit(correctValue);
-		        saveState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-					
-			}
-		});
-		
-		minLabel = new Label(scaleComposite, SWT.NONE);
-		GridData gd_minLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_minLabel.minimumWidth = -1;
-		minLabel.setLayoutData(gd_minLabel);
-		
-		scale = new Scale(scaleComposite, SWT.NONE);
-		GridData gd_scale = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_scale.widthHint = 405;
-		scale.setLayoutData(gd_scale);
-		scale.setEnabled(false);
-		scale.setSelection(0);
-		scale.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double value = fromScale(scale.getSelection());
-				updateScoreFilterLimit(value);
-				saveState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				
-			}
-		});
-		
-		maxLabel = new Label(scaleComposite, SWT.NONE);
-		GridData gd_maxLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_maxLabel.minimumWidth = -1;
-		maxLabel.setLayoutData(gd_maxLabel);
-		
-		contextSizeCheckBox = new Button(contextSizeComposite, SWT.CHECK);
-		contextSizeCheckBox.setEnabled(false);
-		contextSizeCheckBox.setText("Show context size");
-		contextSizeCheckBox.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				contextSizeLimitEnabled.invoke(contextSizeCheckBox.getSelection());
-				contextSizeSpinner.setEnabled(contextSizeCheckBox.getSelection());
-				contextSizeCombo.setEnabled(contextSizeCheckBox.getSelection());
-				saveState();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		contextSizeCombo = new Combo(contextSizeComposite, SWT.READ_ONLY);
-		contextSizeCombo.add("<");
-		contextSizeCombo.add("<=");
-		contextSizeCombo.add("=");
-		contextSizeCombo.add(">=");
-		contextSizeCombo.add(">");
-		contextSizeCombo.setText(">=");
-		contextSizeCombo.setEnabled(false);
-		contextSizeCombo.addSelectionListener(new SelectionListener () {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String text = contextSizeCombo.getText();
-				updateContextSizeRelation(text);
-				saveState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		contextSizeSpinner = new Spinner(contextSizeComposite, SWT.BORDER);
-		contextSizeSpinner.setEnabled(false);
-		contextSizeSpinner.setMaximum(1000);
-		contextSizeSpinner.setMinimum(0);
-		contextSizeSpinner.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int value = contextSizeSpinner.getSelection();
-				updateContextSizeLimit(value);
-				saveState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		nameFilterComposite = new Composite(contextSizeComposite, SWT.NONE);
-		nameFilterComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		nameFilterComposite.setSize(0, 100);
-		GridLayout nameLayout = new GridLayout(2, false);
-		nameLayout.marginLeft = 60;
-		nameFilterComposite.setLayout(nameLayout);
-		
-		nameFilterText = new Text(nameFilterComposite, SWT.BORDER);
-		nameFilterText.setMessage("filter by name...");
-		nameFilterText.setEnabled(false);
-		nameFilterText.addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				updateNameFilter(nameFilterText.getText());
-				saveState();
-			}
-			
-		});
-		
-		nameFilterClearButton = new Button(nameFilterComposite, SWT.NONE);
-		nameFilterClearButton.setText("Clear");
-		nameFilterClearButton.setEnabled(false);
-		new Label(contextSizeComposite, SWT.NONE);
-		nameFilterClearButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nameFilterText.setText("");
-				saveState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
-		if(restoreStateNeeded) {
-			restoreState();
+		if (filterEnabled.booleanValue()) {
+			enableFiltering();
 		}
+		showRules();
 	}
 
-	public double userInputTextValidator(String input) {
-		double returnValue;
-		try {
-			returnValue = Double.parseDouble(input);
-		} catch (NumberFormatException e) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
-			"User provided upper score limit is not a number." + System.lineSeparator() + 
-			"Your input " + input + " could not be interpreted as a number." + System.lineSeparator() +
-			"Upper score limit has been set to minimum value.", SWT.NONE);
-		}
-		return returnValue;
-	}
-			
-	public double userInputRangeValidator(double input) {
-		double returnValue = input;
-		if (input < Double.valueOf(LIMIT_FORMAT.format(minValue))) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(minValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input range error",
-			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
-			" is lesser than " + LIMIT_FORMAT.format(minValue) + " minimum value." + System.lineSeparator() + 
-			"Upper score limit has been set to minimum value.", SWT.NONE);
-		}
-		if (input > Double.valueOf(LIMIT_FORMAT.format(maxValue))) {
-			returnValue = Double.valueOf(LIMIT_FORMAT.format(maxValue));
-			MessageDialog.open(MessageDialog.ERROR, null, "Input format error",
-			"User provided upper score limit " + LIMIT_FORMAT.format(input) + 
-			" is greater than " + LIMIT_FORMAT.format(maxValue) + " maximum value." + System.lineSeparator() + 
-			"Upper score limit has been set to maximum value.", SWT.NONE);
-		}
-		return returnValue;
-	}
-	
-	public void setScoreFilter(Double min, Double max, Double current) {
-		setScoreFilter(min, max);
-		if (min < current && current < max) {
-			scale.setSelection(toScale(current));
-			updateScoreFilterLimit(current);
-		}
-		saveState();
-	}
-	
-	public void setScoreFilter(Double min, Double max) {
-		descLabel.setVisible(false);
-		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
-		minValue = min;
-		maxValue = max;
-		maxLabel.setText(LIMIT_FORMAT.format((max)));
-		
-		minLabel.setText(LIMIT_FORMAT.format((min)));
-	
-		/*This if statement below is needed because the setMaximum function of Scale
-		 * does not set the maximum value of the scale if said value is lesser than or
-		 * equal to the minimum value of the scale. This can happen when all elements' scores
-		 * are set to 0. In this scenario, the minimum value of the scale would be set
-		 * to 0 and then the function tries to set the maximum value to 0 but fails to do so
-		 * because (max value = min value).
-		 * @Dhorvath1294
-		 */
-		if(max <= min) {
-			scale.setMaximum(toScale(max+(1/SLIDER_PRECISION)));
-		}
-		scale.setMinimum(toScale(min));
-		scale.setMaximum(toScale(max));
-		scale.setMinimum(toScale(min));
-		enabledCheckButton.setEnabled(true);
-		if(!restoreStateNeeded) {
-			enabledCheckButton.setSelection(true);
-			lowerScoreLimitEnabled.invoke(true);
-		}
-		manualText.setEnabled(enabledCheckButton.getSelection());
-		manualButton.setEnabled(enabledCheckButton.getSelection());
-		scale.setEnabled(enabledCheckButton.getSelection());
-		contextSizeCheckBox.setEnabled(true);
-		nameFilterText.setEnabled(true);
-		nameFilterClearButton.setEnabled(true);
-		limitFilterCombo.setEnabled(true);
-		sortCheckButton.setEnabled(true);
-		updateScoreFilterLimit(min);
-		maxLabel.requestLayout();
-		minLabel.requestLayout();
-	}
-	
-	private void updateScoreFilterLimit(double value) {
-		scale.setSelection(toScale(value));
-		String formattedValue = LIMIT_FORMAT.format(value);
-		manualText.setText(formattedValue);
-		enabledCheckButton.setText("Show scores");
-		lowerScoreLimitChanged.invoke(value);
-	}
-	
-	private void updateLimitFilterRelation(String text) {
-		limitRelationChanged.invoke(text);
-	}
-	
-	private void updateContextSizeLimit(int value) {
-		contextSizeLimitChanged.invoke(value);
-	}
-	
-	private void updateContextSizeRelation(String text) {
-		contextSizeRelationChanged.invoke(text);
-	}
-	
-	private void updateNameFilter(String text) {
-		nameFilterChanged.invoke(text);
-	}
-	
-	private NonGenericListenerCollection<Double> lowerScoreLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Double> eventlowerScoreLimitChanged() {
-		return lowerScoreLimitChanged;
+	private NonGenericListenerCollection<List<Rule>> deleteRules = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<List<Rule>> eventDeleteRules() {
+		return deleteRules;
 	}
 
-	private NonGenericListenerCollection<Boolean> lowerScoreLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventlowerScoreLimitEnabled() {
-		return lowerScoreLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Boolean> contextSizeLimitEnabled = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Boolean> eventContextSizeLimitEnabled() {
-		return contextSizeLimitEnabled;
-	}
-	
-	private NonGenericListenerCollection<Integer> contextSizeLimitChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<Integer> eventContextSizeLimitChanged() {
-		return contextSizeLimitChanged;
-	}
-	
-	private NonGenericListenerCollection<String> limitRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventLimitRelationChanged() {
-		return limitRelationChanged;
-	}
-	
-	private NonGenericListenerCollection<String> contextSizeRelationChanged = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<String> eventContextSizeRelationChanged() {
-		return contextSizeRelationChanged;
-	}
-	
-	private NonGenericListenerCollection<String> nameFilterChanged = new NonGenericListenerCollection<>();
-	private Button sortCheckButton;
-	
-	public INonGenericListenerCollection<String> eventNameFilterChanged() {
-		return nameFilterChanged;
-	}
-	
-	private NonGenericListenerCollection<SortingArg> sortRequired = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<SortingArg> eventSortRequired() {
-		return sortRequired;
-	}
-	
-	Listener sortListener = new Listener() {
-		public void handleEvent(Event e) {
-			int dir;
-			if(sortDescendingButton.getSelection()) {
-				dir = SWT.DOWN;
-			} else {
-				dir = SWT.UP;
-			}
-			
-			SortingArg arg;
-			String text = sortCombo.getText();
-			
-			switch(text) {
-			case "Score": arg = SortingArg.Score;
-				break;
-			case "Name": arg = SortingArg.Name;
-				break;
-			case "Signature": arg = SortingArg.Signature;
-				break;
-			case "Parent type": arg = SortingArg.ParentType;
-				break;
-			case "Path": arg = SortingArg.Path;
-				break;
-			case "Context size": arg = SortingArg.ContextSize;
-				break;
-			case "Position": arg = SortingArg.Position;
-				break;
-			case "Interactivity": arg = SortingArg.Interactivity;
-				break;
-			case "Last action":  arg = SortingArg.LastAction;
-				break;
-			default: arg = SortingArg.Score;
-				break;
-			}
-			
-			arg.setDescending(dir == SWT.DOWN);
-			
-			sortRequired.invoke(arg);
-			saveState();
-		}
-		
+	private IListener<Rule> ruleDeleted = rule -> {
+		rules.remove(rule);
+		List<Rule> list = new ArrayList<>();
+		list.add(rule);
+		deleteRules.invoke(list);
 	};
-	private Label descLabel;
-	
+
+	private IListener<String> presetChosenListener = string -> {
+		boolean answer = MessageDialog.open(MessageDialog.QUESTION, null, "Warning",
+				"Applying a preset overwrites all currently applied rules.\n" + "Proceed?", SWT.NONE);
+		if (answer) {
+			deleteRules.invoke(rules);
+			for (Control control : rulesComposite.getChildren()) {
+				control.dispose();
+			}
+			switch (string) {
+			case "TOP_10":
+				getTopTenLimit();
+				break;
+			default:
+				break;
+			}
+		}
+	};
+
+	private void getTopTenLimit() {
+		getTopTenLimit.invoke(new EmptyEvent());
+	}
+
+	private NonGenericListenerCollection<EmptyEvent> getTopTenLimit = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventGetTopTenLimit() {
+		return getTopTenLimit;
+	}
+
+	private void showRules() {
+		if (!rules.isEmpty()) {
+			for (Rule rule : rules) {
+
+				RuleElementUI ruleElement = null;
+				ruleElement = new RuleElementUI(rulesComposite, SWT.None, rule);
+				ruleElement.eventruleDeleted().add(ruleDeleted);
+				scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				ruleElement.requestLayout();
+			}
+		}
+	}
+
+	public void setResultNumber(Rule rule, int resultNumber) {
+		if (rulesComposite.isDisposed()) {
+			return;
+		}
+		for (Control control : rulesComposite.getChildren()) {
+			if (rule == ((RuleElementUI) control).getRule()) {
+				((RuleElementUI) control).setResultNumber(resultNumber);
+			}
+		}
+	}
+
+	private IListener<Rule> ruleCreatedListener = event -> {
+		RuleElementUI ruleElement = null;
+		ruleElement = new RuleElementUI(rulesComposite, SWT.None, event);
+		ruleElement.eventruleDeleted().add(ruleDeleted);
+		scrolledComposite.setMinSize(rulesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		ruleElement.requestLayout();
+		rules.add(event);
+		ruleAdded(event);
+	};
+
+	private NonGenericListenerCollection<StringRule> stringRuleAdded = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<StringRule> eventStringRuleAdded() {
+		return stringRuleAdded;
+	}
+
+	private void ruleAdded(Rule rule) {
+
+
+		if (rule instanceof StringRule) {
+			stringRuleAdded.invoke((StringRule) rule);
+		}
+		if (rule instanceof DoubleRule) {
+			doubleRuleAdded.invoke((DoubleRule) rule);
+		}
+		if (rule instanceof BooleanRule) {
+			booleanRuleAdded.invoke((BooleanRule) rule);
+		}
+		if (rule instanceof LastActionRule) {
+			lastActionRuleAdded.invoke((LastActionRule) rule);
+		}
+	}
+
+	private NonGenericListenerCollection<SortRule> sortRuleAdded = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<SortRule> eventSortRuleAdded() {
+		return sortRuleAdded;
+	}
+
+	private NonGenericListenerCollection<DoubleRule> doubleRuleAdded = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<DoubleRule> eventDoubleRuleAdded() {
+		return doubleRuleAdded;
+	}
+
+	private NonGenericListenerCollection<BooleanRule> booleanRuleAdded = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<BooleanRule> eventBooleanRuleAdded() {
+		return booleanRuleAdded;
+	}
+
+	private NonGenericListenerCollection<LastActionRule> lastActionRuleAdded = new NonGenericListenerCollection<>();
+	private Label enableInfoLabel;
+	private Button choosePresetButton;
+
+	public INonGenericListenerCollection<LastActionRule> eventLastActionRuleAdded() {
+		return lastActionRuleAdded;
+	}
+
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	public void dispose() {
 		this.getSite().getPage().hideView(this);
 	}
+
+	public void enableFiltering() {
+		enableInfoLabel.setVisible(false);
+		enableInfoLabel.requestLayout();
+		addRuleButton.setEnabled(true);
+		resetAllButton.setEnabled(true);
+		choosePresetButton.setEnabled(true);
+
+		filterEnabled = true;
+	}
+
+	public void terminate() {
+		deleteRules.invoke(rules);
+		rules.clear();
+		if(!rulesComposite.isDisposed()) {
+			for (Control control : rulesComposite.getChildren()) {
+				control.dispose();
+			}
+		}
+		filterEnabled = false;
+	}
 	
+	public void applyTopScorePreset(Double limit) {
+		ruleCreatedListener.invoke(new DoubleRule("Score", limit, ">="));
+	}
+
 }

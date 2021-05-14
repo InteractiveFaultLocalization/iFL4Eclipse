@@ -172,22 +172,22 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		};
 
 		recalculateScoreAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				scoreRecalculateRequested.invoke(this);
-			}
+//			@Override
+//			public void run() {
+//				super.run();
+//				scoreRecalculateRequested.invoke(this);
+//			}
 
 			@Override
 			public String getText() {
 				return "Recalculate scores...";
 			}
 
-			@Override
-			public ImageDescriptor getImageDescriptor() {
-				return ImageDescriptor.createFromImage(
-						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
-			}
+//			@Override
+//			public ImageDescriptor getImageDescriptor() {
+//				return ImageDescriptor.createFromImage(
+//						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
+//			}
 		};
 
 	}

@@ -160,7 +160,7 @@ public class CardHolderComposite extends Composite {
 					entry.getKey().getId().getParentType(),
 					entry.getKey().getLocation().getAbsolutePath(),
 					entry.getKey().getLocation().getBegining().getOffset().toString(),
-					entry.getKey().getContext().size()+1,
+					entry.getKey().getContext().size(),
 					entry.getKey().isInteractive(),
 					entry.getValue().getLastAction());
 			element.setData(entry.getKey());

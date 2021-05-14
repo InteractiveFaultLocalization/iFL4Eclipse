@@ -55,7 +55,7 @@ public class CodeElementUI extends Composite {
 		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_blue.png"));
 		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_blue.png"));
 		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_blue.png"));
-		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_blue.png"));
 	}
 	
 	public void setContextIcons() {
@@ -66,7 +66,7 @@ public class CodeElementUI extends Composite {
 		parentTypeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/parent_type_red.png"));
 		interactivityIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback_red.png"));
 		signatureIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/signature_red.png"));
-		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_red.png"));
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_red.png"));
 	}
 	
 	public Label getScoreIcon() {
@@ -230,7 +230,7 @@ public class CodeElementUI extends Composite {
 		positionValueLabel.setText(position);
 		
 		contextSizeIcon = new Label(this, SWT.NONE);
-		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size_blue.png"));
+		contextSizeIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/c_sensitive_blue.png"));
 		contextSizeIcon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		
 		Label contextSizeKeyLabel = new Label(this, SWT.NONE);

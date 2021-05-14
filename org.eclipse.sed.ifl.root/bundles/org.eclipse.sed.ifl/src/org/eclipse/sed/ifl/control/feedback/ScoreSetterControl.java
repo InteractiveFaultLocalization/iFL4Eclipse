@@ -1,9 +1,6 @@
 package org.eclipse.sed.ifl.control.feedback;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.sed.ifl.control.Control;
