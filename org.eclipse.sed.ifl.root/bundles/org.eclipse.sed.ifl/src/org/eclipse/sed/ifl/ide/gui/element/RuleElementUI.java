@@ -1,5 +1,10 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
@@ -26,6 +31,9 @@ import org.eclipse.wb.swt.ResourceManager;
 
 public class RuleElementUI extends Composite {
 
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private Rule rule;
 	
 	public Rule getRule() {
@@ -92,6 +100,7 @@ public class RuleElementUI extends Composite {
 		
 		resultsValueLabel = new Label(this, SWT.NONE);
 		resultsValueLabel.setText("-");
+		new Label(this, SWT.NONE);
 		
 		addDisposeListener(new DisposeListener() {
 
@@ -117,7 +126,8 @@ public class RuleElementUI extends Composite {
 			negatedString = "not ";
 		}
 		switch(this.rule.getDomain()) {
-		case "Score": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+		case "Score": LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+			rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(LIMIT_FORMAT.format(((DoubleRule)this.rule).getValue()));
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score_3.png");
 			break;
 		case "Name":

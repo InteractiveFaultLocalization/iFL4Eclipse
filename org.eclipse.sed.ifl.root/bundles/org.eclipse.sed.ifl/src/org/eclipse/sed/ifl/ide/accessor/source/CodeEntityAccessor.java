@@ -108,6 +108,9 @@ public class CodeEntityAccessor {
 				throw new WrongSelectionException("Non-resources selected.");
 			}
 			IProject project = resource.getProject();
+			if (!project.isOpen()) {
+				throw new WrongSelectionException("The selected project is closed. Please open the project before starting an iFL session.");
+			}
 			if (EU.tryUnchecked(() -> project.isNatureEnabled(Natures.JAVA.getValue()))) {
 				return JavaCore.create(project);
 			}
