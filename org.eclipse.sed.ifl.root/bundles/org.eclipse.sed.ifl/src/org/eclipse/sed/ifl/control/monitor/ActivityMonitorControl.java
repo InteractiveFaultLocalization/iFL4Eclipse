@@ -36,10 +36,10 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	public void log(Event event) {
 		if (!isUsed) {
 			isUsed = true;
-			try {
-				
+			try {				
 				if(Activator.getDefault().getPreferenceStore().getBoolean("logKey")) {
-				checkUserProvidedInformation();
+					System.out.println(determineMacAddress());
+					checkUserProvidedInformation();
 				} else {
 					enabled = false;
 				}
@@ -49,11 +49,12 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 						System.out.printf("new %s are logged\n", event.toString());	
 						showMissingInfo = true;
 				} else {
-					if(showMissingInfo)
-					MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
-							"You have disabled or have not provided one or more necessary information for logging. If you wish to use logging, "
-							+ "open the iFL preference page, activate logging and provide the missing information.", SWT.NONE);
-					showMissingInfo = false;
+					if(showMissingInfo) {
+						MessageDialog.open(MessageDialog.INFORMATION, null, "Unexpected error during logging",
+								"Some necessary information may not have been provided for logging, or the host may be unreachable. If you wish to use logging, "
+								+ "open the iFL preference page, activate logging, provide the missing parameters, and make sure the provided host is reachable.", SWT.NONE);
+						showMissingInfo = false;
+					}
 				}
 			} catch (IllegalStateException e) {
 				if (showError && e.getCause() instanceof RemoteConnectionException) {
@@ -91,7 +92,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
 			macAddressByte = ni.getHardwareAddress();
 			socket.close();
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException | NullPointerException e) {
 			System.out.println("Could not determine ip address\n");
 		} catch (SocketException e) {
 			System.out.println("Could not access Socket\n");
@@ -147,7 +148,11 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		} else {
 			getModel().setHostName(host);
 			getModel().setPortNumber(port);
-			getModel().setG();
+			try {
+				getModel().setG();
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
 			return true;
 		}
 	}
@@ -155,7 +160,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	private boolean checkGeneratedId() {
 		
 		String generatedId = Activator.getDefault().getPreferenceStore().getString("generatedId");
-		System.out.println("Generated ID from store: " + generatedId);
 		if (generatedId.equals("")) {
 			return false;
 		 } else { 
