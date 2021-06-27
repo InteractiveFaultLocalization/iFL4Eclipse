@@ -17,15 +17,4 @@ public class Score extends Defineable<Double> {
 			this.setValue(score.getValue());
 		}
 	}
-	
-	
-	/*private Monument<Score, IMethodDescription, IUserFeedback> lastAction;
-
-	public Monument<Score, IMethodDescription, IUserFeedback> getLastAction() {
-		return lastAction;
-	}
-
-	public void setLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
-		this.lastAction = lastAction;
-	}*/
 }
