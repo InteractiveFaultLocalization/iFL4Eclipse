@@ -3,8 +3,8 @@ package org.eclipse.sed.ifl.control.comparator;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class PathComparator implements Comparator<Entry<IMethodDescription, Score>> {
 

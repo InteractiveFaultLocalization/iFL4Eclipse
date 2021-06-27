@@ -3,8 +3,8 @@ package org.eclipse.sed.ifl.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Score;
 
 public class FilterModel extends EmptyModel {
 	
