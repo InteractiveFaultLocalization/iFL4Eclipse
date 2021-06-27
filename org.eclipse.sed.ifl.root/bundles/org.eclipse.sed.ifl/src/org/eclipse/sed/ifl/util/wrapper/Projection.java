@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.util.wrapper;
 
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
+
 public class Projection<TProjected extends Comparable<TProjected>> {
 	private TProjected original;
 	

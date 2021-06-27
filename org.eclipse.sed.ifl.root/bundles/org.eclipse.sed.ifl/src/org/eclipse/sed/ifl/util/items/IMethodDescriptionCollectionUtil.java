@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
-
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 
 public class IMethodDescriptionCollectionUtil {

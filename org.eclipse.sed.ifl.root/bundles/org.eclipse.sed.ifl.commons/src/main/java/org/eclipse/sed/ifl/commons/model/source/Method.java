@@ -14,7 +14,7 @@ public class Method implements IMethodDescription {
 	private CodeChunkLocation location;
 	private List<MethodIdentity> context = new ArrayList<>();
 	private boolean interactivity = true;
-	private Map<Line, Score> lines = new HashMap<>();
+	private final Map<Line, Score> lines = new HashMap<>();
 	
 	public Method(MethodIdentity id, CodeChunkLocation location, String detailsLink, List<MethodIdentity> context) {
 		this(id, location, context);
@@ -111,9 +111,14 @@ public class Method implements IMethodDescription {
 	public void setInteractivity(boolean interactivity) {
 		this.interactivity = interactivity;
 	}
+	
+	@Override
+	public Map<Line, Score> getLines() {
+		return Collections.unmodifiableMap(lines);
+	}
 
 	@Override
-	public void setLines(Map<Long, Score> lines) {
+	public void addLines(Map<Long, Score> lines) {
 		for(Map.Entry<Long, Score> line : lines.entrySet()) {
 			addLine(line.getKey(), line.getValue());
 		}
@@ -127,7 +132,8 @@ public class Method implements IMethodDescription {
 	}
 
 	@Override
-	public void removeLine(Line line) {
+	public void removeLine(long lineNumber) {
+		Line line = new Line(lineNumber, this);
 		Line originalLine = getLineFromLines(line);
 		lines.remove(originalLine);
 		originalLine.setMethod(null);

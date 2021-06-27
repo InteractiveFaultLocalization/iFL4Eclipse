@@ -4,9 +4,8 @@ package org.eclipse.sed.ifl.model.user.interaction;
 import java.util.Map;
 
 import org.eclipse.sed.ifl.ide.gui.icon.OptionKind;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
-
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public class Option {
 	private String id;

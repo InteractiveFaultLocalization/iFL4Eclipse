@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.util.wrapper;
 
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
+
 public class Relativeable<Tvalue extends Defineable<Double>> {
 
 	public Relativeable(boolean isRelative, Defineable<Double> value, String selection) {

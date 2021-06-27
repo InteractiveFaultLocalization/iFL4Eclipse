@@ -20,9 +20,11 @@ public interface IMethodDescription {
 	
 	public void setInteractivity(boolean interactivity);
 	
-	public void setLines(Map<Long, Score> lines);
+	public Map<Line, Score> getLines();
+	
+	public void addLines(Map<Long, Score> lines);
 	
 	public void addLine(long lineNumber, Score score);
 	
-	public void removeLine(Line line);
+	public void removeLine(long lineNumber);
 }

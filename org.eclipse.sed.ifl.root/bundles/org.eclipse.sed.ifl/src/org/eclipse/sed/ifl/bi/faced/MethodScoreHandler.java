@@ -8,9 +8,8 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
-
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public abstract class MethodScoreHandler {
 

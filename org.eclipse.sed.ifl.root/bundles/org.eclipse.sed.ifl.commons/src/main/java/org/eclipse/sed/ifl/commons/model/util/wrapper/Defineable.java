@@ -1,4 +1,4 @@
-package org.eclipse.sed.ifl.util.wrapper;
+package org.eclipse.sed.ifl.commons.model.util.wrapper;
 
 public class Defineable<TValue extends Comparable<TValue>> implements Comparable<Defineable<TValue>> {
 	private TValue value;

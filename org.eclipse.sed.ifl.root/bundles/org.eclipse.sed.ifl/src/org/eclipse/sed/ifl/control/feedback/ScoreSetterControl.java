@@ -9,12 +9,12 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public class ScoreSetterControl extends Control<ScoreSetterModel, ScoreSetterView> {
 

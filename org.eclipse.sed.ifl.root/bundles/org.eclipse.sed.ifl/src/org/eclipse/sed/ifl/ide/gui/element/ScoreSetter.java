@@ -18,7 +18,6 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.ui.Setter;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Projection;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.swt.SWT;
@@ -41,7 +40,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.ResourceManager;
 

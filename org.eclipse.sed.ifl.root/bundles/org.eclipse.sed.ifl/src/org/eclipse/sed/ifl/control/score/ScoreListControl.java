@@ -71,7 +71,6 @@ import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.items.IMethodDescriptionCollectionUtil;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.DualListView;
 import org.eclipse.sed.ifl.view.FilterView;
@@ -82,6 +81,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 import org.eclipse.sed.ifl.commons.model.source.Score;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListView> {
 

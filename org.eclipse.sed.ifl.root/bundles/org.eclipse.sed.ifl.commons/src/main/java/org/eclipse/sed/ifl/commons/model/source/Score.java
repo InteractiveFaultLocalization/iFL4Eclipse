@@ -1,8 +1,6 @@
 package org.eclipse.sed.ifl.commons.model.source;
 
-import org.eclipse.sed.ifl.model.score.history.Monument;
-import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public class Score extends Defineable<Double> {
 	
@@ -21,7 +19,7 @@ public class Score extends Defineable<Double> {
 	}
 	
 	
-	private Monument<Score, IMethodDescription, IUserFeedback> lastAction;
+	/*private Monument<Score, IMethodDescription, IUserFeedback> lastAction;
 
 	public Monument<Score, IMethodDescription, IUserFeedback> getLastAction() {
 		return lastAction;
@@ -29,5 +27,5 @@ public class Score extends Defineable<Double> {
 
 	public void setLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		this.lastAction = lastAction;
-	}
+	}*/
 }

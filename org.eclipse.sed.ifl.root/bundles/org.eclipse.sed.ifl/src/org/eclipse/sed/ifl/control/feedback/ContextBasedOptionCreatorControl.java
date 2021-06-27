@@ -21,12 +21,12 @@ import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.sed.ifl.util.wrapper.Relativeable;
 import org.eclipse.sed.ifl.view.ContextBasedOptionCreatorView;
 import org.eclipse.sed.ifl.view.ScoreSetterView;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.util.wrapper.Defineable;
 
 public class ContextBasedOptionCreatorControl extends Control<ContextBasedOptionCreatorModel, ContextBasedOptionCreatorView> {
 
