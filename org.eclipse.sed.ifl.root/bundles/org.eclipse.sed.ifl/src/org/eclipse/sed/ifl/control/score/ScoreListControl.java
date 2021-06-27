@@ -297,9 +297,9 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 					break;
 				case "LastAction":
 					if (sorting.getSortingDirection().equals(Sortable.SortingDirection.Ascending)) {
-						comparators.add(new LastActionComparator());
+						comparators.add(new LastActionComparator(scoreHistory));
 					} else {
-						comparators.add(new LastActionComparator().reversed());
+						comparators.add(new LastActionComparator(scoreHistory).reversed());
 					}
 					break;
 				}
