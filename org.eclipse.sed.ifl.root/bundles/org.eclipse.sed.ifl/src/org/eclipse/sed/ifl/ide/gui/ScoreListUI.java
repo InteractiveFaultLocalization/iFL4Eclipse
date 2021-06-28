@@ -266,7 +266,7 @@ public class ScoreListUI extends Composite {
 				public void mouseDown(MouseEvent event) {
 					if (event.button == 1) {
 						if (event.count == 1) {
-							if (!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
+							if (!selectedList.contains((DisplayableScore) ((CodeElementUI) event.widget)
 									.getData("entry"))) {
 								((CodeElementUI) event.widget)
 										.setBackground(SWTResourceManager.getColor(103, 198, 235));
