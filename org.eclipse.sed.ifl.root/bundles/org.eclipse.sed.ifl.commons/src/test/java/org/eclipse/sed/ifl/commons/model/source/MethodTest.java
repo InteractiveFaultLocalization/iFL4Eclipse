@@ -3,7 +3,6 @@ package org.eclipse.sed.ifl.commons.model.source;
 import static org.junit.Assert.*;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;

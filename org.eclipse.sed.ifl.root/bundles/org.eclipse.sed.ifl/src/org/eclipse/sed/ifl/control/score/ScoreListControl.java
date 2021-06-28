@@ -59,7 +59,6 @@ import org.eclipse.sed.ifl.model.monitor.event.SelectionChangedEvent;
 import org.eclipse.sed.ifl.model.monitor.event.UserFeedbackEvent;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 import org.eclipse.sed.ifl.model.score.ScoreListModel.ScoreChange;
-import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.score.history.ScoreHistoryModel;
 import org.eclipse.sed.ifl.model.user.interaction.ContextBasedOptionCreatorModel;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
