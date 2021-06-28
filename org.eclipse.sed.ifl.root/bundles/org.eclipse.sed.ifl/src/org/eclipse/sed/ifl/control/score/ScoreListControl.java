@@ -31,6 +31,7 @@ import org.eclipse.sed.ifl.control.comparator.ScoreComparator;
 import org.eclipse.sed.ifl.control.comparator.SignatureComparator;
 import org.eclipse.sed.ifl.control.feedback.ContextBasedOptionCreatorControl;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
+import org.eclipse.sed.ifl.control.score.displayable.DisplayableScore;
 import org.eclipse.sed.ifl.control.score.filter.BooleanFilter;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleFilter;
@@ -134,7 +135,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		contextBasedOptionCreator.eventContextBasedFeedbackOption().add(optionSelectedListener);
 		contextBasedOptionCreator.eventContextBasedOptionNeeded().add(contextBasedOptionProviderListener);
 		getView().createOptionsMenu(handler.getProvidedOptions());
-		getView().refreshScores(getModel().getScores());
+		getView().refreshScores(createDisplayableScoreList(getModel().getScores()));
 		getModel().eventScoreUpdated().add(scoreUpdatedListener);
 		getView().eventOptionSelected().add(optionSelectedListener);
 		getView().eventCustomOptionSelected().add(customOptionSelectedListener);
@@ -224,9 +225,9 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	private HideUndefinedFilter hideUndefinedFilter = new HideUndefinedFilter(true);
 
-	private Map<IMethodDescription, Score> filterForView(Map<IMethodDescription, Score> allScores) {
+	private List<DisplayableScore> filterForView(Map<IMethodDescription, Score> allScores) {
 		Stream<Entry<IMethodDescription, Score>> filtered = allScores.entrySet().stream();
-		Map<IMethodDescription, Score> toDisplay = new HashMap<>();
+		Map<IMethodDescription, Score> toDisplayHelper = new HashMap<>();
 		for (ScoreFilter filter : filters) {
 			filtered = filtered.filter(filter);
 			Set<Entry<IMethodDescription, Score>> result = filtered.collect(Collectors.toSet());
@@ -305,14 +306,22 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 				}
 			}
 
-			toDisplay = filtered.sorted((a, b) -> new ChainComparator(comparators).compare(a, b))
+			toDisplayHelper = filtered.sorted((a, b) -> new ChainComparator(comparators).compare(a, b))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 
 		} else {
-			toDisplay = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
+			toDisplayHelper = filtered.collect(Collectors.collectingAndThen(Collectors.toMap(Entry::getKey, Entry::getValue),
 					Collections::unmodifiableMap));
 		}
-
+		List<DisplayableScore> toDisplay = createDisplayableScoreList(toDisplayHelper);
+		return toDisplay;
+	}
+	
+	private List<DisplayableScore> createDisplayableScoreList(Map<IMethodDescription, Score> toDisplayHelper) {
+		List<DisplayableScore> toDisplay = new ArrayList<>();
+		for(Entry<IMethodDescription, Score> entry : toDisplayHelper.entrySet()) {
+			DisplayableScore displayableScore = new DisplayableScore(entry.getKey(), entry.getValue(), scoreHistory.getLastOf(entry.getKey()));
+		}
 		return toDisplay;
 	}
 
@@ -399,11 +408,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 	};
 
 	private void refreshView() {
-		for (Entry<IMethodDescription, Score> entry : getModel().getScores().entrySet()) {
-			Monument<Score, IMethodDescription, IUserFeedback> last = scoreHistory.getLastOf(entry.getKey());
-			entry.getValue().setLastAction(last);
-		}
-		Map<IMethodDescription, Score> toDisplay = filterForView(getModel().getScores());
+		List<DisplayableScore> toDisplay = filterForView(getModel().getScores());
 		scoreHistory.hideView();
 		getView().refreshScores(toDisplay);
 		getView().showNoItemsLabel(toDisplay.isEmpty());
@@ -511,9 +516,9 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		activityMonitor.log(new NavigationEvent(event));
 	};
 
-	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = entry -> {
+	private IListener<DisplayableScore> navigateToContextListener = entry -> {
 		Map<IMethodDescription,Score> scores = getModel().getScores();
-		for(MethodIdentity methodId : entry.getKey().getContext()) {
+		for(MethodIdentity methodId : entry.getMethodDescription().getContext()) {
 			for(IMethodDescription method : scores.keySet()) {
 				if (methodId.equals(method.getId())) {
 					editor.open(method.getLocation().getAbsolutePath(), method.getLocation().getBegining().getOffset());

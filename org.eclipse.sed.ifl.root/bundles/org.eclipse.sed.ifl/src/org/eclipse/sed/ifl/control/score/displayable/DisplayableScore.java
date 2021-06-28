@@ -6,18 +6,20 @@ import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 
 public class DisplayableScore {
-	private IMethodDescription methodDesription;
+	private IMethodDescription methodDescription;
 	private Score score;
 	private Monument<Score, IMethodDescription, IUserFeedback> lastAction;
-	
-	public DisplayableScore(IMethodDescription methodDesription, Score score) {
+
+	public DisplayableScore(IMethodDescription methodDesription, Score score,
+			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super();
-		this.methodDesription = methodDesription;
+		this.methodDescription = methodDesription;
 		this.score = score;
+		this.lastAction = lastAction;
 	}
 
-	public IMethodDescription getMethodDesription() {
-		return methodDesription;
+	public IMethodDescription getMethodDescription() {
+		return methodDescription;
 	}
 
 	public Score getScore() {
@@ -26,10 +28,6 @@ public class DisplayableScore {
 
 	public Monument<Score, IMethodDescription, IUserFeedback> getLastAction() {
 		return lastAction;
-	}
-
-	public void setLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
-		this.lastAction = lastAction;
 	}
 	
 }

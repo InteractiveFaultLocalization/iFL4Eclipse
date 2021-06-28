@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.sed.ifl.control.score.SortingArg;
+import org.eclipse.sed.ifl.control.score.displayable.DisplayableScore;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.ide.gui.ScoreListUI;
@@ -36,7 +37,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		embedded.setParent(ui);
 	}
 
-	public void refreshScores(Map<IMethodDescription, Score> scores) {
+	public void refreshScores(List<DisplayableScore> scores) {
 		ui.clearMethodScores();
 		ui.setMethodScore(scores);
 	}
@@ -81,10 +82,10 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		return selectionChanged;
 	}
 	
-	private IListener<List<Entry<IMethodDescription, Score>>> selectionChangedListener = event -> {
+	private IListener<List<DisplayableScore>> selectionChangedListener = event -> {
 		List<IMethodDescription> selection = new ArrayList<>();
-		for (Entry<IMethodDescription, Score> item : event) {
-			selection.add(item.getKey());
+		for (DisplayableScore item : event) {
+			selection.add(item.getMethodDescription());
 		}
 		selectionChanged.invoke(selection);
 	};
@@ -114,13 +115,13 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	
 	private IListener<IMethodDescription> navigateToListener = navigateToRequired::invoke;
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> navigateToContext = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<DisplayableScore> navigateToContext = new NonGenericListenerCollection<>();
 	
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventNavigateToContext() {
+	public INonGenericListenerCollection<DisplayableScore> eventNavigateToContext() {
 		return navigateToContext;
 	}
 	
-	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = navigateToContext::invoke;
+	private IListener<DisplayableScore> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
 		ui.highlight(context);

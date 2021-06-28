@@ -8,6 +8,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.Score;
+import org.eclipse.sed.ifl.control.score.displayable.DisplayableScore;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -41,9 +42,9 @@ public class SelectedElementUI extends Composite {
 	
 	private Text scoreValueLabel;
 	private Text signatureValueLabel;
-	private Entry<IMethodDescription, Score> originData;
+	private DisplayableScore originData;
 
-	public Entry<IMethodDescription, Score> getOriginData() {
+	public DisplayableScore getOriginData() {
 		return originData;
 	}
 
@@ -55,7 +56,7 @@ public class SelectedElementUI extends Composite {
 	@SuppressWarnings("unchecked")
 	public SelectedElementUI(Composite parent, int style, CodeElementUI origin) {
 		super(parent, style);
-		this.originData = (Entry<IMethodDescription, Score>) origin.getData("entry");
+		this.originData = (DisplayableScore) origin.getData("entry");
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		data.widthHint = 350;
@@ -193,33 +194,33 @@ public class SelectedElementUI extends Composite {
 		return super.forceFocus();
 	}
 	
-	public void originChanged(Entry<IMethodDescription, Score> origin) {
+	public void originChanged(DisplayableScore origin) {
 		this.originData = origin;
-		this.scoreValueLabel.setText(LIMIT_FORMAT.format(origin.getValue().getValue()));
-		this.signatureValueLabel.setText(origin.getKey().getId().getSignature());
+		this.scoreValueLabel.setText(LIMIT_FORMAT.format(origin.getScore().getValue()));
+		this.signatureValueLabel.setText(origin.getMethodDescription().getId().getSignature());
 	}
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> selectedRemoved = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<DisplayableScore> selectedRemoved = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventSelectedRemoved() {
+	public INonGenericListenerCollection<DisplayableScore> eventSelectedRemoved() {
 		return selectedRemoved;
 	}
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> showSelectedCard = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<DisplayableScore> showSelectedCard = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventShowSelectedCard() {
+	public INonGenericListenerCollection<DisplayableScore> eventShowSelectedCard() {
 		return showSelectedCard;
 	}
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> highlightOriginCard = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<DisplayableScore> highlightOriginCard = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventHiglightOriginCard() {
+	public INonGenericListenerCollection<DisplayableScore> eventHiglightOriginCard() {
 		return highlightOriginCard;
 	}
 	
-	private NonGenericListenerCollection<Entry<IMethodDescription, Score>> resetOriginHighlight = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<DisplayableScore> resetOriginHighlight = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<Entry<IMethodDescription, Score>> eventResetOriginHighlight() {
+	public INonGenericListenerCollection<DisplayableScore> eventResetOriginHighlight() {
 		return resetOriginHighlight;
 	}
 }

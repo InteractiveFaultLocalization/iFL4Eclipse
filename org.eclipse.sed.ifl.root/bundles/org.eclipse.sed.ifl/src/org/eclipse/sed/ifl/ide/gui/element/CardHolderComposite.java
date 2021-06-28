@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.Score;
+import org.eclipse.sed.ifl.control.score.displayable.DisplayableScore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import org.eclipse.swt.layout.RowData;
 
 public class CardHolderComposite extends Composite {
 
-	private HashMap<Integer, List<Map.Entry<IMethodDescription, Score>>> contents = new HashMap<>();
+	private HashMap<Integer, List<DisplayableScore>> contents = new HashMap<>();
 	
 	private Composite cardArea;
 	private Composite buttonArea;
@@ -125,13 +126,13 @@ public class CardHolderComposite extends Composite {
 		});
 	}
 	
-	public void setContent(Map<IMethodDescription, Score> scores) {
+	public void setContent(List<DisplayableScore> scores) {
 		contents.clear();
-		ArrayList<Map.Entry<IMethodDescription, Score>> elements = new ArrayList<Map.Entry<IMethodDescription, Score>>();
+		List<DisplayableScore> elements = new ArrayList<>();
 		int numberOfElementsPerPage = 8;
 		int counter = 1;
 		int pageNumber = 1;
-		for(Map.Entry<IMethodDescription, Score> pageContent : scores.entrySet()) {
+		for(DisplayableScore pageContent : scores) {
 			if(counter<numberOfElementsPerPage) {
 				elements.add(pageContent);
 				counter++;
@@ -139,7 +140,7 @@ public class CardHolderComposite extends Composite {
 				elements.add(pageContent);
 				contents.put(pageNumber, elements);
 				pageNumber++;
-				elements = new ArrayList<Map.Entry<IMethodDescription, Score>>();
+				elements = new ArrayList<DisplayableScore>();
 				counter = 1;
 			}
 		}
@@ -152,20 +153,20 @@ public class CardHolderComposite extends Composite {
 	
 	private void setPageContent(int pageNumber) {
 		clearMethodScores();
-		for (Entry<IMethodDescription, Score> entry : contents.get(pageNumber)) {
+		for (DisplayableScore displayable : contents.get(pageNumber)) {
 			CodeElementUI element = new CodeElementUI(cardArea, SWT.NONE,
-					entry.getValue(),
-					entry.getKey().getId().getName(),
-					entry.getKey().getId().getSignature(),
-					entry.getKey().getId().getParentType(),
-					entry.getKey().getLocation().getAbsolutePath(),
-					entry.getKey().getLocation().getBegining().getOffset().toString(),
-					entry.getKey().getContext().size(),
-					entry.getKey().isInteractive(),
-					entry.getValue().getLastAction());
-			element.setData(entry.getKey());
-			element.setData("score", entry.getValue());
-			element.setData("entry", entry);
+					displayable.getScore(),
+					displayable.getMethodDescription().getId().getName(),
+					displayable.getMethodDescription().getId().getSignature(),
+					displayable.getMethodDescription().getId().getParentType(),
+					displayable.getMethodDescription().getLocation().getAbsolutePath(),
+					displayable.getMethodDescription().getLocation().getBegining().getOffset().toString(),
+					displayable.getMethodDescription().getContext().size(),
+					displayable.getMethodDescription().isInteractive(),
+					displayable.getLastAction());
+			element.setData(displayable.getMethodDescription());
+			element.setData("score", displayable.getScore());
+			element.setData("entry", displayable);
 			
 			element.setChildrenBackgroundColor();
 		}
@@ -199,7 +200,7 @@ public class CardHolderComposite extends Composite {
 		}
 	}
 	
-	public HashMap<Integer, List<Map.Entry<IMethodDescription, Score>>> getContents() {
+	public HashMap<Integer, List<DisplayableScore>> getContents() {
 		return contents;
 	}
 	
