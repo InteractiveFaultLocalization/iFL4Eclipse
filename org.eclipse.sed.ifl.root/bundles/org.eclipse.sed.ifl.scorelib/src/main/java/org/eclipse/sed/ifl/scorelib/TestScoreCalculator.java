@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.scorelib;
 
-import static org.junit.Assert.assertEquals;
+/*import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -96,4 +96,4 @@ public class TestScoreCalculator {
 		expected.put(s, d);
 		assertEquals(expected, actual);
 	}
-}
+}*/

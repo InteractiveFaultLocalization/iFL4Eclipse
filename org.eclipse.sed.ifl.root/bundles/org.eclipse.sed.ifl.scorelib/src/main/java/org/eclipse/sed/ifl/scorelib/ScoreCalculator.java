@@ -12,38 +12,41 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 public class ScoreCalculator implements IScoreCalculator {
 
 	@Override
-	public Map<Short, Double> calculate(Map<Short, int[]> map, String method, String eval) throws ScoreException {
+	public IResults calculate(Map<Short, scoreVariables> map, IFormula f) throws ScoreException {
 		Map<Short, Double> scoreMap = new HashMap<Short, Double>();
-		if(method.equals("tarantula")) {
-			for(Entry<Short, int[]> entry : map.entrySet()) {
+		/*if(method.equals("tarantula")) {
+			for(Entry<Short, scoreVariables> entry : map.entrySet()) {
 				scoreMap.put(entry.getKey(), tarantula(entry.getValue()));
 			}
 		}
 		if(method.equals("ochiai")) {
-			for(Entry<Short, int[]> entry : map.entrySet()) {
+			for(Entry<Short, scoreVariables> entry : map.entrySet()) {
 				scoreMap.put(entry.getKey(), ochiai(entry.getValue()));
 			}
 		}
 		if(method.equals("eval")) {
-			for(Entry<Short, int[]> entry : map.entrySet()) {
+			for(Entry<Short, scoreVariables> entry : map.entrySet()) {
 				scoreMap.put(entry.getKey(), eval(entry.getValue(), eval));
 			}
-		}
-		return scoreMap;
+		}*/
+		
+		IResults res = new Results();
+		return res;
 	}
 
 	@Override
-	public Map<Short[], Double> calculateChain(Map<Short[], int[]> map, String method, String eval) {
+	public IResults calculateChain(Map<Short[], scoreVariables> map, IFormula f) {
 		Map<Short[], Double> scoreMap = new HashMap<Short[], Double>();
 		
-		return scoreMap;
+		IResults res = new Results();
+		return res;
 	}
 	
-	private double tarantula(int[] success) throws ScoreException {
-		double ep = success[0];
-		double ef = success[1];
-		double np = success[2];
-		double nf = success[3];
+	private double tarantula(scoreVariables success) throws ScoreException {
+		double ep = success.getExecutedPass();
+		double ef = success.getExecutedFail();
+		double np = success.getNonExecutedPass();
+		double nf = success.getExecutedFail();
 		
 		try {
 			return ef/(ef+nf)/(ef/(ef+nf)+ep/(ep+np));
@@ -52,11 +55,11 @@ public class ScoreCalculator implements IScoreCalculator {
 		}
 	}
 	
-	private double ochiai(int[] success) throws ScoreException {
-		double ep = success[0];
-		double ef = success[1];
-		double np = success[2];
-		double nf = success[3];
+	private double ochiai(scoreVariables success) throws ScoreException {
+		double ep = success.getExecutedPass();
+		double ef = success.getExecutedFail();
+		double np = success.getNonExecutedPass();
+		double nf = success.getExecutedFail();
 		
 		try {
 			return ef/((ef+nf)*(ef+ep));
@@ -65,11 +68,11 @@ public class ScoreCalculator implements IScoreCalculator {
 		}
 	}
 
-	private double eval(int[] success, String eval) throws ScoreException {
-		double ep = success[0];
-		double ef = success[1];
-		double np = success[2];
-		double nf = success[3];
+	private double eval(scoreVariables success, String eval) throws ScoreException {
+		double ep = success.getExecutedPass();
+		double ef = success.getExecutedFail();
+		double np = success.getNonExecutedPass();
+		double nf = success.getExecutedFail();
 		
 		//ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 		
