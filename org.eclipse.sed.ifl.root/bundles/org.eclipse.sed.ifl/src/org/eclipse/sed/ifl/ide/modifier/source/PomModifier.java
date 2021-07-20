@@ -35,12 +35,14 @@ public final class PomModifier {
 		}
 	}
 	
-	private Xpp3Dom ParsePOMDom(String POMPath) {
+	private Xpp3Dom ParsePOMDom(String POMPath) throws PomModificationException {
 		File POMFile = new File(POMPath); 
 		
 	    try {
 	    	Xpp3Dom dom = Xpp3DomBuilder.build(new FileReader(POMFile));
 	        return dom;
+		} catch (IOException e) {
+			throw new PomModificationException("File is not found." + POMPath);
 	    } catch (Exception e) {
 	        throw new RuntimeException(e);
 	    }
@@ -50,7 +52,7 @@ public final class PomModifier {
 		Xpp3Dom dom = ParsePOMDom(POMPath);
 		Model model = ParsePOM(POMPath);
 		this.POM = dom;
-		//TODO Is this model.getbuild... replacable with plexus utils?
+		//TODO replace with plexus utils
 		this.includeLine = model.getBuild().getOutputDirectory();
 		this.excludeLine = model.getBuild().getTestOutputDirectory();
 	}
@@ -111,7 +113,10 @@ public final class PomModifier {
 		
 	public void editSurefireConfig(String agentFilePath, String listener) {
 		//String arglineValue = "-javaagent:" + agentFilePath + "=includes=" + (this.includeLine == null ? ""                : this.includeLine ) + ".*,excludes=" + (this.excludeLine == null ? "" : this.excludeLine + ".*");
-		String arglineValue = "-javaagent:" + agentFilePath + "=includes=" + (this.includeLine == null ? ".*org.joda.time" : ".*org.joda.time") + ".*,excludes=" + (this.excludeLine == null ? "" : this.excludeLine + ".*");
+		String arglineValue = "-javaagent:" + agentFilePath + "=includes=.*org.*";// + (this.includeLine == null ? ""                : this.includeLine ) + ".*org.joda.time.*";//,excludes=" + (this.excludeLine == null ? "" : this.excludeLine + ".*");
+		//String arglineValue = "-javaagent:" + agentFilePath + "=includes=" + (this.includeLine == null ? ".*org.joda.time" : ".*org.joda.time") + ".*,excludes=" + (this.excludeLine == null ? "" : this.excludeLine + ".*");
+		//ez az aslo mukodik, a kozepso a test, a felso meg, ahogy talan ki kene nezzen
+		
 		
 		Xpp3Dom mBuild = getElementsChild(this.POM, "build");
 		Xpp3Dom pManagement = getElementsChild(mBuild, "pluginManagement");
@@ -119,7 +124,6 @@ public final class PomModifier {
 		Xpp3Dom surefire = getElementsChildByArtifactId(plugins, "maven-surefire-plugin");
 		
 		if (surefire == null) {
-			//surefire = createNode(plugins, "plugin", "org.apache.maven.plugins", "maven-surefire-plugin");
 			surefire = createNode(plugins, "plugin");
 			createNode(surefire, "groupId", "org.apache.maven.plugins");
 			createNode(surefire, "artifactId", "maven-surefire-plugin");
@@ -147,13 +151,13 @@ public final class PomModifier {
 		} else {
 			argline = getElementsChild(configuration, "argLine");
 			argline.setValue(argline.getValue() + " " + arglineValue);
-			//TODO multiagent support
+			//TODO multiagent support SoonTM
 			
 			properties = getElementsChild(configuration, "properties");
 			if (properties.getChildCount() == 0) {
 				properties.addChild(property);
 			} else {
-				//TODO Is it possible to add multiple nodes with <name>listener</name>? If so than this should be deleted.
+				//TODO Is it possible to add multiple nodes with <name>listener</name>?
 				for (Xpp3Dom prop : properties.getChildren("property")) {
 					if (prop.getChild("name").getValue().contentEquals("listener")) {
 						if (prop.getChild("value") == null) {
@@ -206,12 +210,4 @@ public final class PomModifier {
 		Xpp3Dom newNode = createNode(parentNode, name);
 		newNode.setValue(value);
 	}
-	
-	/*private Xpp3Dom createNode(Xpp3Dom parentNode, String name, String groupId, String artifactId) {
-		Xpp3Dom newNode = createNode(parentNode, name);
-		createNode(newNode, "groupId", groupId);
-		createNode(newNode, "artifactId", artifactId);
-		return newNode;
-	}*/
-	
 }

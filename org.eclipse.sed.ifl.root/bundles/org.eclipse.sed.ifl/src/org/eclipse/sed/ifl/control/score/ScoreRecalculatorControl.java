@@ -33,8 +33,8 @@ import org.eclipse.ui.PlatformUI;
 
 
 public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
-
-	/*private final String instrumenterJar;
+	
+	private final String instrumenterJar;
 	private final String javaHome;
 
 	public String getInstrumenterJar() {
@@ -43,9 +43,13 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
 	public String getJavaHome() {
 		return javaHome;
-	}*/
+	}
 	
-	public ScoreRecalculatorControl() {}
+	public ScoreRecalculatorControl() {
+		this.instrumenterJar = "java-instrumenter-master" + File.separator + "target" + File.separator + "method-agent-0.0.4-jar-with-dependencies.jar";
+		this.javaHome = "C:/Program Files/Java/jdk1.8.0_202";
+		//this.javaHome = System.getenv("JAVA_HOME");
+	}
 	
 	private IResource extractSelection(ISelection sel) {
 	      if (!(sel instanceof IStructuredSelection))
@@ -61,7 +65,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 	      return (IResource) adapter;
 	}
 	
-	//Should this be in the codeEntityAccessor.java?
+	//TODO Should this be in the codeEntityAccessor.java?
 	private IProject getSelectedProject() {
 		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
 		ISelection selection = service.getSelection();
@@ -90,28 +94,17 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		String projectName = project.getName();
 		String projectPath = project.getRawLocation().toOSString();
 		
+		String workspacePath = new File(projectPath).getParent();
 		
-		//TODO: file.io-ba van-e rá feautre
-		List<String> workspacePathList = new ArrayList<String>(Arrays.asList(projectPath.split(Pattern.quote(File.separator))));
-		workspacePathList.remove(workspacePathList.size() - 1);	// remove project name from the path
-		
-		StringJoiner joiner = new StringJoiner(File.separator);
-		for (String item : workspacePathList) {
-			joiner.add(item);
-		}
-		String workspacePath = joiner.toString();
 		
 		final Job job = new Job(projectName + " coverage generation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				
-				try {
-					//TODO: instrumenterJar, setJavaHome adattagként 
-					
+				try {					
 					// configuring the selected projet's pom
 					PomModifier modifier = new PomModifier(projectPath + File.separator + "pom.xml");
-					String instrumenterJar = File.separator + "java-instrumenter-master" + File.separator + "target" + File.separator + "method-agent-0.0.4-jar-with-dependencies.jar";
-					modifier.editSurefireConfig(workspacePath + instrumenterJar, "hu.szte.sed.JUnitRunListener");
+					modifier.editSurefireConfig(workspacePath + File.separator + getInstrumenterJar(), "hu.szte.sed.JUnitRunListener");
 					modifier.updateJUnitVersion(jUnitVersion);
 					modifier.savePOM(projectPath + File.separator + "configuredPom.xml");
 					
@@ -121,7 +114,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 					request.setPomFile( new File(projectPath + File.separator + "configuredPom.xml") );
 					request.setGoals( Arrays.asList("clean", "test -Dmaven.test.failure.ignore=true") );
 					
-					request.setJavaHome( new File("C:/Program Files/Java/jdk1.8.0_202") );
+					request.setJavaHome( new File(getJavaHome()) );
 					
 					Invoker invoker = new DefaultInvoker();
 					System.out.println("Executing request");
@@ -131,7 +124,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "uniqueIdentifier1", "Request execution failed! (maven)");
 				} catch (Exception e1) {
-					// TODO job statusoknak utána nézni
+					// TODO Status-es... but how do they work?
 					e1.printStackTrace();
 					return new Status(IStatus.ERROR, "uniqueIdentifier2", "General exception trhown!");
 				}
