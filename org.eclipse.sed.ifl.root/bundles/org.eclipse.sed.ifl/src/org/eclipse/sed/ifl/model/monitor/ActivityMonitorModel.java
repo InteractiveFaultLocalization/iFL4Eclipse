@@ -8,8 +8,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.sed.ifl.ide.Activator;
+import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.sed.ifl.model.EmptyModel;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -25,12 +24,21 @@ public class ActivityMonitorModel extends EmptyModel {
 		g = traversal().withRemote(DriverRemoteConnection.using(hostName, Integer.parseInt(portNumber), "g"));
 	}
 
-	private String macAddress;
 	private String userId;
 	private String scenarioId;
-	private String hostName;
-	private String portNumber;
 	private String generatedId;
+	
+	@Preference(value="host")
+	String hostName;
+	
+	@Preference(value="port")
+	String portNumber;
+	
+	@Preference(value="macAddress")
+	String macAddress;
+	
+	@Preference(value="ipAddress")
+	String ipAddress;
 	
 	public String getGeneratedId() {
 		return generatedId;
@@ -82,13 +90,10 @@ public class ActivityMonitorModel extends EmptyModel {
 	
 	@Override
 	public void init() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String host = store.getString("host");
-		String port = store.getString("port");
 		try {
-			int portNum = Integer.parseInt(port);
-			if(!(host.equals("") && port.equals(""))) {
-				g = traversal().withRemote(DriverRemoteConnection.using(host, portNum, "g"));
+			int portNum = Integer.parseInt(portNumber);
+			if(!(hostName.equals("") && portNumber.equals(""))) {
+				g = traversal().withRemote(DriverRemoteConnection.using(hostName, portNum, "g"));
 			}
 		} catch (IllegalArgumentException e) {
 		}
@@ -101,10 +106,10 @@ public class ActivityMonitorModel extends EmptyModel {
 			Vertex newEvent = event.createNode(g);
 			//System.out.println("new event vertex: " + newEvent);
 			Vertex idNode;
-			if(!Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
+			if(macAddress.equals("")) {
 				idNode = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).next();
 			} else {
-				idNode = g.V().hasLabel("id").has("mac", Activator.getDefault().getPreferenceStore().getString("ipAddress")).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).next();
+				idNode = g.V().hasLabel("id").has("mac", ipAddress).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).next();
 			}
 			//System.out.println("id vertex of new event: " + idNode);
 			Edge doneBy = g.V(newEvent).addE("doneBy").to(idNode).next();
@@ -127,8 +132,8 @@ public class ActivityMonitorModel extends EmptyModel {
 	private Vertex findLastEvent() {
 		synchronized (ActivityMonitorModel.class) {
 			Vertex idNode = null;
-			if(Activator.getDefault().getPreferenceStore().getString("macAddress").equals("")) {
-				macAddress = Activator.getDefault().getPreferenceStore().getString("ipAddress");
+			if(macAddress.equals("")) {
+				macAddress = ipAddress;
 			}
 			List<Vertex> idNodes = g.V().hasLabel("id").has("mac", macAddress).has("userID", userId).has("scenarioID", scenarioId).has("generatedID", generatedId).toList();
 			//System.out.println("id list size: " + idNodes.size());

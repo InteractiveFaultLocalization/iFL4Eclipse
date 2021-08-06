@@ -9,24 +9,43 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.apache.tinkerpop.gremlin.process.remote.RemoteConnectionException;
-
+import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
+
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.sed.ifl.control.ViewlessControl;
-import org.eclipse.sed.ifl.ide.Activator;
-
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.Event;
 import org.eclipse.swt.SWT;
-
+import org.osgi.service.prefs.Preferences;
 
 public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel> {
 
 	private static boolean isUsed = false;
-
+	private Preferences preferences;
+	
+	@Preference(value="logKey")
+	boolean logKey;
+	
+	@Preference(value="userId")
+	String userId;
+	
+	@Preference(value="scenarioId")
+	String scenarioId;
+	
+	@Preference(value="host")
+	String host;
+	
+	@Preference(value="port")
+	String port;
+	
+	@Preference(value="generatedId")
+	String generatedId;
+	
 	public ActivityMonitorControl(ActivityMonitorModel model) {
 		super.setModel(model);
+		this.preferences = InstanceScope.INSTANCE.getNode("org.sed.ifl");
 	}
 
 	private static Boolean showError = true;
@@ -37,7 +56,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		if (!isUsed) {
 			isUsed = true;
 			try {				
-				if(Activator.getDefault().getPreferenceStore().getBoolean("logKey")) {
+				if(logKey) {
 					System.out.println(determineMacAddress());
 					checkUserProvidedInformation();
 				} else {
@@ -87,7 +106,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		try {
 			Socket socket = new Socket();
 			socket.connect(new InetSocketAddress("google.com", 80));
-			Activator.getDefault().getPreferenceStore().setValue("ipAddress", socket.getLocalAddress().getHostAddress());
+			preferences.put("ipAddress", socket.getLocalAddress().getHostAddress());
 			InetAddress ip = InetAddress.getLocalHost();
 			NetworkInterface ni = NetworkInterface.getByInetAddress(ip);
 			macAddressByte = ni.getHardwareAddress();
@@ -106,7 +125,7 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 		            sb.append('-');
 		        sb.append(String.format("%02x", b));
 		    }
-		    Activator.getDefault().getPreferenceStore().setValue("macAddress", sb.toString());
+		    preferences.put("macAddress", sb.toString());
 		    return(sb.toString());
 	    } else {
 		return "Could not determine";
@@ -114,7 +133,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private boolean checkUserId() {
-		String userId = Activator.getDefault().getPreferenceStore().getString("userId");
 		if (userId.equals("")) {
 			return false;
 		 } else { 
@@ -124,8 +142,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private boolean checkScenarioId() {
-		
-		String scenarioId = Activator.getDefault().getPreferenceStore().getString("scenarioId");
 		if (scenarioId.equals("")) {
 			return false;
 		 } else { 
@@ -135,9 +151,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private boolean checkHostAndPort() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String host = store.getString("host");
-		String port = store.getString("port");
 		try {
 			Integer.parseInt(port);
 		} catch (NumberFormatException e){
@@ -158,8 +171,6 @@ public class ActivityMonitorControl extends ViewlessControl<ActivityMonitorModel
 	}
 	
 	private boolean checkGeneratedId() {
-		
-		String generatedId = Activator.getDefault().getPreferenceStore().getString("generatedId");
 		if (generatedId.equals("")) {
 			return false;
 		 } else { 

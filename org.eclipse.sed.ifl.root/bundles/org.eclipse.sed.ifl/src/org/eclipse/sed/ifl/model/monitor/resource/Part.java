@@ -4,12 +4,11 @@ import org.eclipse.sed.ifl.util.Maps;
 
 public class Part extends Resource {
 
-	public Part(String id, String partId, String name, String title, String tooltip) {
+	public Part(String id, String partId, String description, String tooltip) {
 		super(id, Maps.<String, Object>builder()
 			.put("part-id", partId)
-			.put("title", title)
+			.put("description", description)
 			.put("tooltip", tooltip)
-			.put("name", name)
 			.unmodifiable(true).build());
 	}
 

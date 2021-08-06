@@ -1,12 +1,12 @@
 package org.eclipse.sed.ifl.control.monitor;
 
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.IPartListener;
 import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.ide.accessor.gui.PartAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.PartMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.PartEvent;
-import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IWorkbenchPartReference;
 
 public class PartMonitorControl extends ViewlessControl<PartMonitorModel> {
 
@@ -18,67 +18,40 @@ public class PartMonitorControl extends ViewlessControl<PartMonitorModel> {
 
 	private ActivityMonitorControl activityMonitor;
 	
-	private IPartListener2 lifeCycleListener = new IPartListener2() {
+	private IPartListener lifeCycleListener = new IPartListener() {
 
 		@Override
-		public void partVisible(IWorkbenchPartReference partRef) {
-
-			activityMonitor.log(new PartEvent(partRef, PartState.VISIBLE));
-
+		public void partActivated(MPart part) {
+			activityMonitor.log(new PartEvent(part, PartState.ACTIVE));
+			
 		}
 
 		@Override
-		public void partOpened(IWorkbenchPartReference partRef) {
-
-			activityMonitor.log(new PartEvent(partRef, PartState.OPEN));
-
+		public void partBroughtToTop(MPart part) {
+			activityMonitor.log(new PartEvent(part, PartState.BROUGHTTOTOP));
+			
 		}
 
 		@Override
-		public void partInputChanged(IWorkbenchPartReference partRef) {
+		public void partDeactivated(MPart part) {
+			activityMonitor.log(new PartEvent(part, PartState.DEACTIVATE));
+			
 		}
 
 		@Override
-		public void partHidden(IWorkbenchPartReference partRef) {
-
-			activityMonitor.log(new PartEvent(partRef, PartState.HIDDEN));
-
+		public void partHidden(MPart part) {
+			activityMonitor.log(new PartEvent(part, PartState.HIDDEN));
+			
 		}
 
 		@Override
-		public void partDeactivated(IWorkbenchPartReference partRef) {
-
-
-			activityMonitor.log(new PartEvent(partRef, PartState.DEACTIVATE));
-
-
-		}
-
-		@Override
-		public void partClosed(IWorkbenchPartReference partRef) {
-
-			activityMonitor.log(new PartEvent(partRef, PartState.CLOSE));
-
-		}
-
-		@Override
-		public void partBroughtToTop(IWorkbenchPartReference partRef) {
-
-			activityMonitor.log(new PartEvent(partRef, PartState.BROUGHTTOTOP));
-
-		}
-
-		@Override
-		public void partActivated(IWorkbenchPartReference partRef) {
-
-
-			activityMonitor.log(new PartEvent(partRef, PartState.ACTIVE));
-
-
+		public void partVisible(MPart part) {
+			activityMonitor.log(new PartEvent(part, PartState.VISIBLE));
+			
 		}
 	};
 	
-	public IPartListener2 getListener() {
+	public IPartListener getListener() {
 		return lifeCycleListener;
 	}
 		

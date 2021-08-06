@@ -9,12 +9,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -26,16 +29,16 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.PlatformUI;
 
 public class CodeEntityAccessor {
 	IWorkspace currentWorkspace = ResourcesPlugin.getWorkspace();
+	
+	@Inject
+	ESelectionService service;
 	
 	public List<IProject> getProjects() {
 		return Collections.unmodifiableList(Arrays.asList(currentWorkspace.getRoot().getProjects()));
@@ -85,7 +88,7 @@ public class CodeEntityAccessor {
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
 
- 	private IResource extractSelection(ISelection sel) {
+ 	private IResource extractSelection(Object sel) {
 	      if (!(sel instanceof IStructuredSelection))
 	         return null;
 	      IStructuredSelection ss = (IStructuredSelection) sel;
@@ -100,8 +103,7 @@ public class CodeEntityAccessor {
 	   }
 	
 	public IJavaProject getSelectedProject() {
-		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
-		ISelection selection = service.getSelection();
+		Object selection = service.getSelection();
 		if (selection != null) {
 			IResource resource = extractSelection(selection);
 			if (resource == null) {

@@ -2,8 +2,10 @@ package org.eclipse.sed.ifl.ide.gui;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.*;
 
+import javax.annotation.PostConstruct;
+
+import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -33,15 +35,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
 
-public class DualListPart<TItem extends Sortable> extends ViewPart implements IEmbeddable, IEmbedee {
+public class DualListPart<TItem extends Sortable> implements IEmbeddable, IEmbedee {
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLDualListView";
-
-	@Inject
-	IWorkbench workbench;
 
 	private Composite composite;
 	private static Boolean orderingEnabled = false;
@@ -401,7 +398,7 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		}
 	};
 
-	@Override
+	@PostConstruct
 	public void createPartControl(Composite parent) {
 
 		gridLayout = new GridLayout();
@@ -591,14 +588,13 @@ public class DualListPart<TItem extends Sortable> extends ViewPart implements IE
 		orderingEnabled = true;
 	}
 
-	@Override
+	@Focus
 	public void setFocus() {
 	}
 
-	@Override
 	public void dispose() {
 
-		this.getSite().getPage().hideView(this);
+		//this.getSite().getPage().hideView(this);
 	}
 	
 	public void terminate() {

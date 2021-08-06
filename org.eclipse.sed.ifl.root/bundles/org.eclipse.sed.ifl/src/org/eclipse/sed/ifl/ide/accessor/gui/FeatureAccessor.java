@@ -1,13 +1,11 @@
 package org.eclipse.sed.ifl.ide.accessor.gui;
 
-import java.net.URL;
-
-import org.eclipse.ui.PlatformUI;
+import java.net.URI;
 
 public class FeatureAccessor {
-	public void openLink(URL url) {
+	public void openLink(URI url) {
 		try {
-			PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
+			java.awt.Desktop.getDesktop().browse(url);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

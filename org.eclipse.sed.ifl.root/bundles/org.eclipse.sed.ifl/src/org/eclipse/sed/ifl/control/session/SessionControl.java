@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
@@ -22,7 +23,6 @@ import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.control.score.ScoreListControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl;
 import org.eclipse.sed.ifl.control.score.ScoreRecalculatorControl;
-import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.SessionEvent;
@@ -39,7 +39,7 @@ import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
 import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
-import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.e4.core.di.extensions.Preference;
 
 import org.eclipse.sed.ifl.commons.model.source.CodeChunkLocation;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
@@ -52,13 +52,14 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private ActivityMonitorControl activityMonitor;
 	private PartMonitorControl partMonitor;
+	
+	@Preference(value="interactivity")
+	private String interactivity;
 
 	public SessionControl(IJavaProject selectedProject, PartMonitorControl partMonitor) {
 		this.selectedProject = selectedProject;
 		this.partMonitor = partMonitor;
 	}
-
-	private String interactivity;
 
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 
@@ -87,11 +88,11 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private boolean setInteractivity(Random r) {
 		boolean rValue = r.nextBoolean();
-		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
+		switch(interactivity) {
+			case "random" : interactivity = "random"; return rValue;
+			case "allTrue" : interactivity = "true"; return true;
+			case "allFalse" : interactivity = "false"; return false;
+			default : return rValue;
 		}
 	}
 	
@@ -195,7 +196,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		return finished;
 	}
 
-	private IListener<IWorkbenchPart> closeListener = part -> {
+	private IListener<MPart> closeListener = part -> {
 		terminate();
 	};
 

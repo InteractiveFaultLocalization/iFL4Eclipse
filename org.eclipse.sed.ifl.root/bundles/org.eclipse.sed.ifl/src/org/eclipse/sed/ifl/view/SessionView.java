@@ -1,5 +1,10 @@
 package org.eclipse.sed.ifl.view;
 
+import javax.inject.Inject;
+
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.IPartListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -10,15 +15,12 @@ import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IPartService;
-import org.eclipse.ui.IWorkbenchPart;
 
 public class SessionView extends View implements IEmbeddable, IEmbedee {
 	private MainPart part;
 
 	public SessionView(PartAccessor partAccessor) {
-		this.part = (MainPart) partAccessor.getPart(MainPart.ID);
+		this.part = (MainPart) service.findPart(MainPart.ID);
 	}
 
 	@Override
@@ -33,7 +35,6 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 
 	@Override
 	public void init() {
-		service = part.getSite().getService(IPartService.class);
 		initUIStateListeners();
 		scoreLoadRequestedListener = event -> {
 			scoreLoadRequested.invoke(new EmptyEvent());
@@ -55,39 +56,46 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		super.teardown();
 	}
 
-	private NonGenericListenerCollection<IWorkbenchPart> closed = new NonGenericListenerCollection<>();
+	private NonGenericListenerCollection<MPart> closed = new NonGenericListenerCollection<>();
 
-	public INonGenericListenerCollection<IWorkbenchPart> eventClosed() {
+	public INonGenericListenerCollection<MPart> eventClosed() {
 		return closed;
 	}
 
-	private IPartService service;
+	@Inject
+	private EPartService service;
 	private IPartListener stateListener;
 
 	private void initUIStateListeners() {
 		stateListener = new IPartListener() {
 			@Override
-			public void partOpened(IWorkbenchPart part) {
+			public void partActivated(MPart part) {
+				// TODO Auto-generated method stub
+				
 			}
 
 			@Override
-			public void partDeactivated(IWorkbenchPart part) {
+			public void partBroughtToTop(MPart part) {
+				// TODO Auto-generated method stub
+				
 			}
 
 			@Override
-			public void partClosed(IWorkbenchPart part) {
-				if (SessionView.this.part.equals(part)) {
-					System.out.println("MainPart closed");
-					SessionView.this.closed.invoke(part);
-				}
+			public void partDeactivated(MPart part) {
+				// TODO Auto-generated method stub
+				
 			}
 
 			@Override
-			public void partBroughtToTop(IWorkbenchPart part) {
+			public void partHidden(MPart part) {
+				// TODO Auto-generated method stub
+				
 			}
 
 			@Override
-			public void partActivated(IWorkbenchPart part) {
+			public void partVisible(MPart part) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
 		service.addPartListener(stateListener);
@@ -117,7 +125,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 	}
 
 	public void close() {
-		part.getSite().getPage().hideView(part);
+		service.hidePart(service.findPart(MainPart.ID));
 	}
 
 }

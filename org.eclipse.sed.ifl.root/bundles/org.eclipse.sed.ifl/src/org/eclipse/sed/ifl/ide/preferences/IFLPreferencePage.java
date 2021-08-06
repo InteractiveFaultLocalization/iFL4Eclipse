@@ -9,12 +9,12 @@ import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalS
 import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.eclipse.e4.ui.workbench.IWorkbench;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
-import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.model.monitor.ActivityMonitorModel;
 import org.eclipse.sed.ifl.model.monitor.event.PreferencePropertyChangedEvent;
 import org.eclipse.sed.ifl.util.exception.EU;
@@ -26,8 +26,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 
@@ -47,13 +45,12 @@ import org.eclipse.jface.preference.RadioGroupFieldEditor;
 
 public class IFLPreferencePage
 	extends FieldEditorPreferencePage
-	implements IWorkbenchPreferencePage {
+	 {
 	
 	private ActivityMonitorControl activityMonitor = new ActivityMonitorControl(new ActivityMonitorModel());
 	
 	public IFLPreferencePage() {
 		super(GRID);
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		setDescription("Preferences page of the iFL plug-in");
 	}
 	

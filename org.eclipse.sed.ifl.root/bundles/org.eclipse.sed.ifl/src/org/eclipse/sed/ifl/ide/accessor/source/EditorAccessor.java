@@ -4,15 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 public class EditorAccessor {
 	public void open(String path, int offset) {
+		/*
 		File fileToOpen = new File(path);
 		 
 		if (fileToOpen.exists() && fileToOpen.isFile()) {
@@ -31,5 +26,6 @@ public class EditorAccessor {
 		} else {
 		    //TODO:Do something if the file does not exist
 		}
+		*/
 	}
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_BxaXACerEeWxCPrV0pAZQQ">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_QqSikIrOEeW7h_qdP9N9fw" featurename="commands" parentElementId="xpath:/">
+    <elements xsi:type="commands:Command" xmi:id="_UCYfwIrOEeW7h_qdP9N9fw" elementId="org.eclipse.sed.ifl.commands.startCommand" commandName="Start iFL session"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_fW12kIrOEeW7h_qdP9N9fw" featurename="handlers" parentElementId="xpath:/">
+    <elements xsi:type="commands:Handler" xmi:id="_zdZioPaDEeu2vPOBY3MMOg" elementId="org.eclipse.sed.ifl.handlers.startHandler" contributionURI="bundleclass://org.sed.ifl/org.eclipse.sed.ifl.ide.handlers.startHandler" command="_UCYfwIrOEeW7h_qdP9N9fw"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_wcLoQMX-Eea_bKDmo1phvA" featurename="trimContributions" parentElementId="xpath:/">
+    <elements xsi:type="menu:TrimContribution" xmi:id="_z1UuUMX-Eea_bKDmo1phvA" elementId="org.eclipse.pde.ui.templates.trimcontribution.1" parentId="org.eclipse.ui.main.toolbar" positionInParent="after=org.eclipse.ui.workbench.help">
+      <children xsi:type="menu:ToolBar" xmi:id="_4jlNMMX-Eea_bKDmo1phvA" elementId="org.eclipse.pde.ui.templates.toolbar.1">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_5PyL4MX-Eea_bKDmo1phvA" elementId="org.eclipse.pde.ui.templates.handledtoolitem.ifl" label="Start iFL session" iconURI="platform:/plugin/org.sed.ifl/icons/active.png" tooltip="Start iFL session" command="_UCYfwIrOEeW7h_qdP9N9fw"/>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_6bkOoPaDEeu2vPOBY3MMOg" featurename="descriptors" parentElementId="xpath:/">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_AnEuoPaEEeu2vPOBY3MMOg" elementId="org.eclipse.sed.ifl.FilterPart" label="Filter part" category="Interactive Fault Localization" contributionURI="bundleclass://org.sed.ifl/org.eclipse.sed.ifl.ide.gui.FilterPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_H4XyAPaEEeu2vPOBY3MMOg" elementId="org.eclipse.sed.ifl.MainPart" label="Main part" category="Interactive Fault Localization" contributionURI="bundleclass://org.sed.ifl/org.eclipse.sed.ifl.ide.gui.MainPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_Mc-loPaEEeu2vPOBY3MMOg" elementId="org.eclipse.sed.ifl.SortingPart" label="Sorting part" category="Interactive Fault Localization" contributionURI="bundleclass://org.sed.ifl/org.eclipse.sed.ifl.ide.gui.DualListPart"/>
+  </fragments>
+</fragment:ModelFragments>

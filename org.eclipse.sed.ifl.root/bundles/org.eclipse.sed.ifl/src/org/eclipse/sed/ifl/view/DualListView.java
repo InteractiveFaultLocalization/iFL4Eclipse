@@ -2,6 +2,10 @@ package org.eclipse.sed.ifl.view;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.sed.ifl.control.score.Sortable;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
@@ -10,35 +14,17 @@ import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 public class DualListView<TItem extends Sortable> extends View implements IEmbeddable, IEmbedee {
 
 	private DualListPart<TItem> dualListPart;
+	
+	@Inject
+	EPartService partService;
 
 	public DualListView() {
-		this.dualListPart = (DualListPart<TItem>) getPart();
-	}
-
-	private IViewPart getPart() {
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IViewPart view = page.findView(DualListPart.ID);
-
-		if (view != null || page.isPartVisible(view)) {
-			page.hideView(view);
-		}
-		EU.tryUnchecked(() -> page.showView(DualListPart.ID, null, IWorkbenchPage.VIEW_CREATE));
-		view = page.findView(DualListPart.ID);
-		if (view == null) {
-			throw new RuntimeException();
-		} else {
-			return view;
-		}
+		this.dualListPart = (DualListPart<TItem>) partService.findPart("org.eclipse.sed.ifl.views.IFLDualListView");
 	}
 
 	@Override
@@ -112,12 +98,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	public void showDualListPart() {
 		removeUIListeners();
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		try {
-			this.dualListPart = (DualListPart<TItem>) page.showView(DualListPart.ID);
-		} catch (PartInitException e) {
-			System.out.println("Could not open dual list view.");
-		}
+		partService.showPart(partService.findPart("org.eclipse.sed.ifl.views.IFLDualListView"), PartState.ACTIVATE);
 		initUIListeners();
 	}
 
@@ -126,9 +107,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 	}
 
 	public void close() {
-		if (dualListPart.getSite().getPart() != null) {
-			dualListPart.getSite().getPage().hideView(dualListPart);
-		}
+		partService.hidePart(partService.findPart("org.eclipse.sed.ifl.views.IFLDualListView"));
 	}
 
 	private NonGenericListenerCollection<EmptyEvent> addAllToSortingListRequested = new NonGenericListenerCollection<>();

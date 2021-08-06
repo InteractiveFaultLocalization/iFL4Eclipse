@@ -3,8 +3,9 @@ package org.eclipse.sed.ifl.ide.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import javax.annotation.PostConstruct;
 
+import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
@@ -33,16 +34,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
+public class FilterPart implements IEmbeddable, IEmbedee {
 
 	public static final String ID = "org.eclipse.sed.ifl.views.IFLFilterView";
-
-	@Inject
-	IWorkbench workbench;
 
 	private Composite composite;
 	private Button addRuleButton;
@@ -68,7 +64,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		composite.setParent(parent);
 	}
 
-	@Override
+	@PostConstruct
 	public void createPartControl(Composite parent) {
 
 		composite = parent;
@@ -282,13 +278,13 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		return lastActionRuleAdded;
 	}
 
-	@Override
+	@Focus
 	public void setFocus() {
 	}
 
-	@Override
+
 	public void dispose() {
-		this.getSite().getPage().hideView(this);
+		//this.getSite().getPage().hideView(this);
 	}
 
 	public void enableFiltering() {

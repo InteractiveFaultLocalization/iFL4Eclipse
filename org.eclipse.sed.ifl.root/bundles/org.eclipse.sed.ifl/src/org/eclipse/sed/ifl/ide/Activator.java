@@ -10,13 +10,13 @@ import org.eclipse.sed.ifl.control.session.SessionControl;
 //import org.eclipse.sed.ifl.model.monitor.event.EclipseEvent;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator implements BundleActivator {
 
 	public static final String PLUGIN_ID = "org.eclipse.sed.ifl";
 
@@ -26,7 +26,6 @@ public class Activator extends AbstractUIPlugin {
 	//private ActivityMonitorControl activityMonitor;
 	
 	public void start(BundleContext context) throws Exception {
-		super.start(context);
 		plugin = this;
 		System.out.println("Activator start method runs");
 	}
@@ -34,7 +33,6 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		System.out.println("Activator stop method runs");
-		super.stop(context);
 		if (session != null) {
 			deactivateSession();
 		}
@@ -47,9 +45,11 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	/*
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+*/
 	
 	private SessionControl session;
 

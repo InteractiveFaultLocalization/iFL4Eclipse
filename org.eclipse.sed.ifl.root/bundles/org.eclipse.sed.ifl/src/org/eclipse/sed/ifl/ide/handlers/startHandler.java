@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.monitor.ActivityMonitorControl;
@@ -27,12 +27,15 @@ import org.eclipse.sed.ifl.view.SessionView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
-public class startHandler extends AbstractHandler {
+public class startHandler {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	@Preference(value="logKey")
+	private boolean logKey;
+	
+	@Execute
+	public Object execute() throws ExecutionException {
 		try {
-			PartAccessor partAccessor = new PartAccessor(event);
+			PartAccessor partAccessor = new PartAccessor();
 			CodeEntityAccessor sourceAccessor = new CodeEntityAccessor(); 
 			if (Activator.getDefault().isSessionActive()) {
 				CustomWarningDialog dialog = new CustomWarningDialog(Display.getCurrent().getActiveShell(), "iFL session is already active", "You have already started an Interactive Fault Localization session. Check the iFL panel for further details.");
@@ -80,7 +83,7 @@ public class startHandler extends AbstractHandler {
 	}
 	
 	private boolean isLogKeyEnabled() {
-		return Activator.getDefault().getPreferenceStore().getBoolean("logKey");
+		return logKey;
 	}
 	
 	//TODO: logging

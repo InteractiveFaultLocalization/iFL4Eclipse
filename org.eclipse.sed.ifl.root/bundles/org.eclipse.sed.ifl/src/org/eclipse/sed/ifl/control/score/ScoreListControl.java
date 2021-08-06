@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -201,8 +203,8 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 
 	IListener<IMethodDescription> openDetailsRequiredListener = event -> {
 		try {
-			new FeatureAccessor().openLink(EU.tryUnchecked(() -> new URL(event.getDetailsLink())));
-		} catch (RuntimeException e) {
+			new FeatureAccessor().openLink(new URI(event.getDetailsLink()));
+		} catch (RuntimeException | URISyntaxException e) {
 			MessageDialog.open(MessageDialog.ERROR, Display.getCurrent().getActiveShell(), "Error opening details",
 					"The details link can not be opened. Please check if the CSV file provides a working details link.",
 					SWT.NONE);
