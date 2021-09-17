@@ -121,7 +121,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
-		scoreRecalculatorControl = new ScoreRecalculatorControl();
+		scoreRecalculatorControl = new ScoreRecalculatorControl(selectedProject);
 		scoreRecalculatorControl.setModel(model);
 		addSubControl(scoreLoaderControl);
 		addSubControl(scoreListControl);
