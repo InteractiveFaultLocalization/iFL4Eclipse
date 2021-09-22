@@ -31,7 +31,7 @@ public class IntegerRuleCreator implements RuleCreator {
 		enterValueLabel.setText("Enter value:");
 		
 		spinner = new Spinner(composite, SWT.BORDER);
-		spinner.setMaximum(10000);
+		spinner.setMaximum(Integer.MAX_VALUE);
 		
 		Label addRelationLabel = new Label(composite, SWT.NONE);
 		addRelationLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

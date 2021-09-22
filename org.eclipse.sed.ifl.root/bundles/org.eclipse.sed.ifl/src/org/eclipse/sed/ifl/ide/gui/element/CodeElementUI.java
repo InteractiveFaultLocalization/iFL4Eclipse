@@ -178,7 +178,9 @@ public class CodeElementUI extends Composite {
 		nameKeyLabel.setText("Name:");
 		
 		nameValueLabel = new Text(this, SWT.READ_ONLY);
-		nameValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		GridData gd_nameValueLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		gd_nameValueLabel.widthHint = 140;
+		nameValueLabel.setLayoutData(gd_nameValueLabel);
 		nameValueLabel.setText(name);
 		
 		signatureIcon = new Label(this, SWT.NONE);

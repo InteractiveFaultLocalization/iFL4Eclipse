@@ -2,6 +2,10 @@ package org.eclipse.sed.ifl.ide.gui.rulecreator;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
@@ -111,15 +115,33 @@ public class StringRuleCreator implements RuleCreator{
 
 	}
 
-	@Override
-	public Rule getRule() {
+	private boolean isInputValid(String input) {
+		//checking if input is empty or consists of only whitespace chars
 		String validation = text.getText().trim();
 		validation.replaceAll("\\s+","");
-		if(!validation.equals("")) {
+		if(validation.equals("")) {
+			MessageDialog.open(MessageDialog.ERROR, null, "Empty string input", "The provided input is an empty string."
+					+ " Please enter a string that is not empty.", SWT.NONE);
+			return false;
+		}
+		//checking if regex is valid
+		if (regexButton.getSelection()) {
+			try {
+				Pattern.compile(input);
+			} catch (PatternSyntaxException e) {
+				MessageDialog.open(MessageDialog.ERROR, null, "Invalid regular expression", "The provided regular expression is invalid."
+						+ " Please enter a valid regular expression.", SWT.NONE);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public Rule getRule() {
+		if(isInputValid(text.getText())) {
 			return new StringRule(this.domain, text.getText(), matchingButton.getSelection(), caseButton.getSelection(), regexButton.getSelection());
 		} else {
-			MessageDialog.open(MessageDialog.ERROR, null, "Empty string input", "The provided input is an empty string."
-					+ "Please enter a string that is not empty.", SWT.NONE);
 			return null;
 		}
 	}

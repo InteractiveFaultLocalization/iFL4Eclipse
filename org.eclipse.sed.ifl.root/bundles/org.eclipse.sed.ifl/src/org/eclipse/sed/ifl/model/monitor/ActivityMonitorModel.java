@@ -2,7 +2,6 @@ package org.eclipse.sed.ifl.model.monitor;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
 
-
 import java.util.List;
 import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -91,8 +90,7 @@ public class ActivityMonitorModel extends EmptyModel {
 			if(!(host.equals("") && port.equals(""))) {
 				g = traversal().withRemote(DriverRemoteConnection.using(host, portNum, "g"));
 			}
-		} catch (NumberFormatException e) {
-			
+		} catch (IllegalArgumentException e) {
 		}
 		super.init();
 	}

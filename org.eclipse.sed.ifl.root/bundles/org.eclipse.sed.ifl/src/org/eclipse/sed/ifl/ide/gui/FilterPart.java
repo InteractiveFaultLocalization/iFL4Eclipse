@@ -137,7 +137,7 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 		
 		scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
 		GridData gd_scrolledComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
-		gd_scrolledComposite.widthHint = 360;
+		gd_scrolledComposite.widthHint = 320;
 		gd_scrolledComposite.heightHint = 280;
 		scrolledComposite.setLayoutData(gd_scrolledComposite);
 		scrolledComposite.setExpandHorizontal(true);
@@ -145,10 +145,10 @@ public class FilterPart extends ViewPart implements IEmbeddable, IEmbedee {
 
 		rulesComposite = new Composite(scrolledComposite, SWT.NONE);
 		rulesComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		rulesComposite.setSize(new Point(360, 280));
+		rulesComposite.setSize(new Point(320, 280));
 		rulesComposite.setLayout(new GridLayout(1, false));
 		scrolledComposite.setContent(rulesComposite);
-		scrolledComposite.setMinSize(rulesComposite.getSize());
+		scrolledComposite.setMinSize(new Point(320, 280));
 
 		System.out.println(rules.size());
 

@@ -1,12 +1,15 @@
 package org.eclipse.sed.ifl.ide.gui.element;
 
-import org.eclipse.sed.ifl.control.score.SortingArg;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
 import org.eclipse.sed.ifl.control.score.filter.Rule;
 import org.eclipse.sed.ifl.control.score.filter.StringRule;
-import org.eclipse.sed.ifl.control.score.filter.SortRule;
 import org.eclipse.sed.ifl.ide.gui.icon.ScoreStatus;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
@@ -28,6 +31,9 @@ import org.eclipse.wb.swt.ResourceManager;
 
 public class RuleElementUI extends Composite {
 
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private Rule rule;
 	
 	public Rule getRule() {
@@ -94,6 +100,7 @@ public class RuleElementUI extends Composite {
 		
 		resultsValueLabel = new Label(this, SWT.NONE);
 		resultsValueLabel.setText("-");
+		new Label(this, SWT.NONE);
 		
 		addDisposeListener(new DisposeListener() {
 
@@ -113,24 +120,29 @@ public class RuleElementUI extends Composite {
 	
 	private String setRuleValueLabelText() {
 		String rString = "";
-		String containsString = null;
+		String containsString = "contains ";
+		String negatedString = "";
+		if(this.rule.isNegated()) {
+			negatedString = "not ";
+		}
 		switch(this.rule.getDomain()) {
-		case "Score": rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(Double.toString(((DoubleRule)this.rule).getValue()));
+		case "Score": LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+			rString = ((DoubleRule)this.rule).getRelation().concat(" ").concat(LIMIT_FORMAT.format(((DoubleRule)this.rule).getValue()));
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/rule_score_3.png");
 			break;
-		case "Name": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
+		case "Name":
 			rString = containsString.concat(((StringRule)this.rule).getValue());
 			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Signature": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
+		case "Signature":
 			rString = containsString.concat(((StringRule)this.rule).getValue());
 			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Parent type": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
+		case "Parent type":
 			rString = containsString.concat(((StringRule)this.rule).getValue());
 			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
-		case "Path": containsString = ((StringRule)this.rule).isNegated() ? "not contains: " : "contains: ";
+		case "Path":
 			rString = containsString.concat(((StringRule)this.rule).getValue());
 			icon =  ((StringRule)this.rule).isNegated() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_no.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/containment_yes.png");
 			break;
@@ -141,7 +153,7 @@ public class RuleElementUI extends Composite {
 			icon =  ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/context_size.png");;
 			break;
 		case "Interactivity": rString = ((BooleanRule)this.rule).isValue() == true ? "interactive" : "not interactive";
-			icon = ((BooleanRule)this.rule).isValue() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png");
+			icon = ((BooleanRule)this.rule).isValue() ? ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/true.png") : ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/false.png");
 			break;
 		case "Last action": ScoreStatus status = ((LastActionRule)this.rule).getStatus();
 			if(status.equals(ScoreStatus.INCREASED))
@@ -152,18 +164,8 @@ public class RuleElementUI extends Composite {
 					rString = "unchanged";
 			icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", ((LastActionRule)this.rule).getStatus().getIconPath());
 			break;
-		case "Sort": SortingArg arg = ((SortRule)this.rule).getArg();
-			String sortDomain = arg.getDomain();
-			if(arg.isDescending()) {
-				rString = sortDomain.concat(" descending");
-				icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/down_arrow16.png");
-			} else if(!arg.isDescending()) {
-				rString = sortDomain.concat(" ascending");
-				icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/up_arrow16.png");
-			}
-			break;
 		}
-		return rString;
+		return negatedString.concat(rString);
 	}
 
 	public void setResultNumber(int resultNumber) {
