@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
@@ -35,6 +37,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -49,6 +52,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
+@SuppressWarnings("restriction")
 public class ScoreListUI extends Composite {
 
 	private Label noItemsToDisplayLabel;
@@ -60,6 +64,9 @@ public class ScoreListUI extends Composite {
 	private ScrolledComposite scrolledComposite;
 	private Label label;
 	private Composite selectedComposite;
+	
+	private IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
+            "org.eclipse.e4.ui.css.swt.theme");
 
 	private List<Entry<IMethodDescription, Score>> selectedList = new ArrayList<Entry<IMethodDescription, Score>>();
 
@@ -267,24 +274,13 @@ public class ScoreListUI extends Composite {
 						if (event.count == 1) {
 							if (!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
 									.getData("entry"))) {
-								((CodeElementUI) event.widget)
-										.setBackground(SWTResourceManager.getColor(103, 198, 235));
-								((CodeElementUI) event.widget)
-										.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-								for (Control control : element.getChildren()) {
-									control.setBackground(SWTResourceManager.getColor(103, 198, 235));
-									if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
-										control.setForeground(
-												SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-									}
-								}
 								selectedList.add((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
 										.getData("entry"));
 								addSelectedElementToComposite(((CodeElementUI) event.widget));
 							} else {
 								requestSelectedRemoval((CodeElementUI) event.widget);
-								checkSelectedSet();
 							}
+							checkSelectedSet();
 							selectionChanged.invoke(selectedList);
 						} else if (event.count == 2) {
 							IMethodDescription data = (IMethodDescription) element.getData();
@@ -326,24 +322,12 @@ public class ScoreListUI extends Composite {
 
 	private void checkSelectedSet() {
 		for (CodeElementUI displayed : cardsComposite.getDisplayedCards()) {
+			boolean toSelect = false;
 			if (selectedList.contains(displayed.getData("entry"))) {
-				displayed.setBackground(SWTResourceManager.getColor(103, 198, 235));
-				displayed.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-				for (Control control : displayed.getChildren()) {
-					control.setBackground(SWTResourceManager.getColor(103, 198, 235));
-					if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
-						control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-					}
-				}
-			} else {
-				displayed.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-				for (Control control : displayed.getChildren()) {
-					control.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-					if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT))) {
-						control.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-					}
-				}
+				toSelect = true;
 			}
+			displayed.toggleSelection(toSelect);
+			themeEngine.applyStyles(displayed, true);
 		}
 	}
 
@@ -386,7 +370,7 @@ public class ScoreListUI extends Composite {
 			if (card.getData("entry").equals(event)) {
 				gc = new GC(card.getParent());
 				gc.setLineWidth(2);
-				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BORDER));
 				gc.drawRectangle(card.getBounds());
 				gc.dispose();
 				break;

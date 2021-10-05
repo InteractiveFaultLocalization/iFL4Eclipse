@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.sed.ifl.control.score.filter.BooleanRule;
 import org.eclipse.sed.ifl.control.score.filter.DoubleRule;
 import org.eclipse.sed.ifl.control.score.filter.LastActionRule;
@@ -58,6 +59,8 @@ public class RuleElementUI extends Composite {
 		super(parent, style);
 		this.rule = rule;
 		setLayout(new GridLayout(3, false));
+		
+		setData(CSSSWTConstants.CSS_ID_KEY, "card");
 		
 		Label domainKeyLabel = new Label(this, SWT.NONE);
 		domainKeyLabel.setText("Domain:");

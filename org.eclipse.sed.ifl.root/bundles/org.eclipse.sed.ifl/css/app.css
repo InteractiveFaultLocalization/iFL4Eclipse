@@ -1,0 +1,33 @@
+#card {
+	background-color:  #F0F0F0;
+}
+
+#card-element {
+	background-color:  #F0F0F0;
+	color: #000000;
+}
+
+#interactivity-true {
+	background-color:  #F0F0F0;
+	color:  #008000;
+}
+
+#interactivity-false {
+	background-color:  #F0F0F0;
+	color:  #800000;
+}
+
+#interactivity-true-selected {
+	background-color:  #67C6EB;
+	color:  #008000;
+}
+
+#interactivity-false-selected {
+	background-color:  #67C6EB;
+	color:  #800000;
+}
+
+#card-selected {
+	background-color:  #67C6EB;
+	color: 	 #F0F0F0;	
+}

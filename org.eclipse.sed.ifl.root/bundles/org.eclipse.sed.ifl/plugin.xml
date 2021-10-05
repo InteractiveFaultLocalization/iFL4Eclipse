@@ -136,4 +136,10 @@
             commandId="org.eclipse.sed.ifl.commands.startCommand">
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.e4.ui.css.swt.theme">
+      <stylesheet
+            uri="css/app.css">
+      </stylesheet>
+   </extension>
 </plugin>
