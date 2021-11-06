@@ -46,7 +46,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	public void createOptionsMenu(Iterable<Option> options) {
-		ui.createContexMenu(options);
+		//ui.createContexMenu(options);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	private IListener<Entry<IMethodDescription, Score>> navigateToContextListener = navigateToContext::invoke;
 	
 	public void highlight(List<MethodIdentity> context) {
-		ui.highlight(context);
+		//ui.highlight(context);
 	}
 	
 	

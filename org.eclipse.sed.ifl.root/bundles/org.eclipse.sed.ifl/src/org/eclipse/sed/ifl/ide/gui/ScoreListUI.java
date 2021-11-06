@@ -10,10 +10,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
+import org.eclipse.sed.ifl.ide.gui.element.CodeElementContentProvider;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
 import org.eclipse.sed.ifl.ide.gui.element.SelectedElementUI;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
@@ -42,6 +54,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
 
@@ -49,6 +64,7 @@ import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
@@ -64,6 +80,7 @@ public class ScoreListUI extends Composite {
 	private ScrolledComposite scrolledComposite;
 	private Label label;
 	private Composite selectedComposite;
+	private TreeViewer viewer;
 	
 	private IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
             "org.eclipse.e4.ui.css.swt.theme");
@@ -137,7 +154,7 @@ public class ScoreListUI extends Composite {
 	public ScoreListUI() {
 		this(new Shell());
 	}
-
+	
 	/**
 	 * @wbp.parser.constructor
 	 */
@@ -146,88 +163,209 @@ public class ScoreListUI extends Composite {
 		setLayoutData(BorderLayout.CENTER);
 		setLayout(new GridLayout(3, false));
 		
-		composite = new Composite(this, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		composite.setSize(0, 100);
-		GridLayout gl_composite = new GridLayout(2, false);
-		gl_composite.marginWidth = 10;
-		composite.setLayout(gl_composite);
+//		composite = new Composite(this, SWT.NONE);
+//		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+//		composite.setSize(0, 100);
+//		 
+//		GridLayout gl_composite = new GridLayout(2, false);
+//		gl_composite.marginWidth = 10;
+//		composite.setLayout(gl_composite);
+//		
+//		showFilterPart = new Button(composite, SWT.NONE);
+//		showFilterPart.setText("Show filters");
+//		
+//		showDualListPart = new Button(composite, SWT.NONE);
+//		showDualListPart.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+//		showDualListPart.setText("Show ordering list");
 		
-		showFilterPart = new Button(composite, SWT.NONE);
-		showFilterPart.setText("Show filters");
+		Tree tree = new Tree(this, SWT.FULL_SELECTION | SWT.VIRTUAL | SWT.MULTI);
+		tree.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
+		tree.setHeaderVisible(true);
+		tree.setLinesVisible(true);
 		
-		showDualListPart = new Button(composite, SWT.NONE);
-		showDualListPart.setText("Show ordering list");
+		viewer = new TreeViewer(tree);
+		viewer.setUseHashlookup(true);
 		
-		noItemsToDisplayLabel = new Label(composite, SWT.CENTER);
-		noItemsToDisplayLabel.setAlignment(SWT.CENTER);
-		GridData gd_noItemsToDisplayLabel = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
-		gd_noItemsToDisplayLabel.horizontalIndent = 20;
-		noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
-		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
-		noItemsToDisplayLabel.setVisible(false);
-		new Label(this, SWT.NONE);
-		new Label(this, SWT.NONE);
+		final TreeViewerColumn column0 = new TreeViewerColumn(viewer, SWT.LEFT);
+		column0.getColumn().setText("Score");
+		column0.getColumn().setWidth(300);
 		
-		cardsComposite = new CardHolderComposite(this, SWT.NONE);
-		GridLayout gridLayout = (GridLayout) cardsComposite.getLayout();
-		gridLayout.horizontalSpacing = 0;
-		gridLayout.verticalSpacing = 0;
-		GridData gd_cardsComposite = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		gd_cardsComposite.widthHint = 1259;
-		cardsComposite.setLayoutData(gd_cardsComposite);
-		
-		label = new Label(this, SWT.SEPARATOR | SWT.CENTER);
-		GridData gd_label = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		gd_label.heightHint = 420;
-		label.setLayoutData(gd_label);
-		
-		scrolledComposite = new ScrolledComposite(this, SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_scrolledComposite.widthHint = 384;
-		gd_scrolledComposite.heightHint = 427;
-		scrolledComposite.setLayoutData(gd_scrolledComposite);
-		
-		selectedComposite = new Composite(scrolledComposite, SWT.NONE);
-		selectedComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		GridLayout gl_selectedComposite = new GridLayout(1, false);
-		gl_selectedComposite.marginWidth = 0;
-		selectedComposite.setLayout(gl_selectedComposite);
-		selectedComposite.setSize(new Point(378, 427));
-		scrolledComposite.setContent(selectedComposite);
-		scrolledComposite.setMinSize(selectedComposite.getSize());
-		
-		cardsComposite.eventDisplayedPageChanged().add(displayedPageChangedListener);
-		
-		showFilterPart.addSelectionListener(new SelectionListener() {
+		column0.setLabelProvider(new CellLabelProvider() {
 
+			@SuppressWarnings("unchecked")
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				openFiltersPage.invoke(new EmptyEvent());
-				
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				if (entry.getValue().isDefinit()) {
+					cell.setText(entry.getValue().getValue().toString());
+				} else {
+					cell.setText("undefined");
+				}
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {	
-			}
-			
 		});
 		
-		showDualListPart.addSelectionListener(new SelectionListener() {
+	    final TreeViewerColumn column1 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column1.getColumn().setText("Signature");
+	    column1.getColumn().setWidth(300);
+	    
+	    column1.setLabelProvider(new CellLabelProvider() {
 
+			@SuppressWarnings("unchecked")
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				openDualListPage.invoke(new EmptyEvent());
-				
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(entry.getKey().getId().getSignature());
 			}
+	    });
+	    
+	    final TreeViewerColumn column2 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column2.getColumn().setText("Interactivity");
+	    column2.getColumn().setWidth(300);
+	    
+	    column2.setLabelProvider(new CellLabelProvider() {
 
+			@SuppressWarnings("unchecked")
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {	
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				if (entry.getKey().isInteractive()) {
+					cell.setText("User feedback enabled");
+					cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
+				} else {
+					cell.setText("User feedback disabled");
+					cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+				}
 			}
-			
-		});
+	    });
+	    
+	    final TreeViewerColumn column3 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column3.getColumn().setText("Parent type");
+	    column3.getColumn().setWidth(300);
+	    
+	    column3.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(entry.getKey().getId().getParentType());
+			}
+	    });
+	    
+	    final TreeViewerColumn column4 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column4.getColumn().setText("Path");
+	    column4.getColumn().setWidth(300);
+	    
+	    column4.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(entry.getKey().getLocation().getAbsolutePath());
+			}
+	    });
+	    
+	    final TreeViewerColumn column5 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column5.getColumn().setText("Position");
+	    column5.getColumn().setWidth(300);
+	    
+	    column5.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(entry.getKey().getLocation().getBegining().toString());
+			}
+	    });
+	    
+	    final TreeViewerColumn column6 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column6.getColumn().setText("Context size");
+	    column6.getColumn().setWidth(300);
+	    
+	    column6.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(String.valueOf(entry.getKey().getContext().size()));
+			}
+	    });
+	    
+	    final TreeViewerColumn column7 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column7.getColumn().setText("Last action");
+	    column7.getColumn().setWidth(300);
+	    
+	    column7.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				if (entry.getValue().getLastAction() != null) {
+					cell.setText(entry.getValue().getLastAction().getChange().name());
+				} else {
+					cell.setText("No actions have been performed on this element yet");
+				}			
+			}
+	    });
+	    
+	    final TreeViewerColumn column8 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column8.getColumn().setText("Name");
+	    column8.getColumn().setWidth(300);
+	    
+	    column8.setLabelProvider(new CellLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
+				cell.setText(entry.getKey().getId().getName());
+			}
+	    });
+	    
+	    viewer.setContentProvider(new CodeElementContentProvider());
+	    
+	    /*
+	    noItemsToDisplayLabel = new Label(composite, SWT.CENTER);
+	    noItemsToDisplayLabel.setAlignment(SWT.CENTER);
+	    GridData gd_noItemsToDisplayLabel = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
+	    gd_noItemsToDisplayLabel.horizontalIndent = 20;
+	    noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
+	    noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
+	    noItemsToDisplayLabel.setVisible(false);
+		*/
+//		showFilterPart.addSelectionListener(new SelectionListener() {
+//
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				openFiltersPage.invoke(new EmptyEvent());
+//				
+//			}
+//
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {	
+//			}
+//			
+//		});
+//		
+//		showDualListPart.addSelectionListener(new SelectionListener() {
+//
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				openDualListPage.invoke(new EmptyEvent());
+//				
+//			}
+//
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {	
+//			}
+//			
+//		});
+		
+		
 	
 	}
 		
@@ -264,168 +402,47 @@ public class ScoreListUI extends Composite {
 		return openDetailsRequired;
 	}
 
-	public void addListenersAndMenuToCards(List<CodeElementUI> cards) {
-		for (CodeElementUI element : cards) {
+	public void adddMenuToTreeViewer() {
+		
+		MenuManager menuMgr = new MenuManager();
 
-			element.addMouseListener(new MouseAdapter() {
-				@SuppressWarnings("unchecked")
-				public void mouseDown(MouseEvent event) {
-					if (event.button == 1) {
-						if (event.count == 1) {
-							if (!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
-									.getData("entry"))) {
-								selectedList.add((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
-										.getData("entry"));
-								addSelectedElementToComposite(((CodeElementUI) event.widget));
-							} else {
-								requestSelectedRemoval((CodeElementUI) event.widget);
-							}
-							checkSelectedSet();
-							selectionChanged.invoke(selectedList);
-						} else if (event.count == 2) {
-							IMethodDescription data = (IMethodDescription) element.getData();
-							String path = data.getLocation().getAbsolutePath();
-							int offset = data.getLocation().getBegining().getOffset();
-							System.out.println("navigation requested to: " + path + ":" + offset);
-							navigateToRequired.invoke(data);
-						}
-					}
-				}
-				/*
-				 * public void mouseDoubleClick(MouseEvent e) { IMethodDescription data =
-				 * (IMethodDescription) element.getData(); String path =
-				 * data.getLocation().getAbsolutePath(); int offset =
-				 * data.getLocation().getBegining().getOffset();
-				 * System.out.println("navigation requested to: " + path + ":" + offset);
-				 * navigateToRequired.invoke(data); }
-				 */
-			});
-			if (((Score) element.getData("score")).isDefinit()
-					&& ((IMethodDescription) element.getData()).isInteractive()) {
-				element.setMenu(contextMenu);
-			} else {
-				element.setMenu(nonInteractiveContextMenu);
-			}
+        Menu menu = menuMgr.createContextMenu(viewer.getControl());
+        menuMgr.addMenuListener(new IMenuListener() {
+            @Override
+            public void menuAboutToShow(IMenuManager manager) {
+                if (viewer.getSelection().isEmpty()) {
+                    return;
+                }
 
-		}
-	}
-
-	private void addSelectedElementToComposite(CodeElementUI element) {
-		SelectedElementUI selected = new SelectedElementUI(selectedComposite, SWT.NONE, element);
-		selected.eventSelectedRemoved().add(selectedRemovedListener);
-		selected.eventShowSelectedCard().add(showSelectedCardListener);
-		selected.eventHiglightOriginCard().add(highlightOriginCardListener);
-		selected.eventResetOriginHighlight().add(resetOriginCardBackgroundListener);
-		selected.requestLayout();
-		scrolledComposite.setMinSize(selectedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	private void checkSelectedSet() {
-		for (CodeElementUI displayed : cardsComposite.getDisplayedCards()) {
-			boolean toSelect = false;
-			if (selectedList.contains(displayed.getData("entry"))) {
-				toSelect = true;
-			}
-			displayed.toggleSelection(toSelect);
-			themeEngine.applyStyles(displayed, true);
-		}
-	}
-
-	private IListener<Entry<IMethodDescription, Score>> showSelectedCardListener = event -> {
-		boolean displayed = false;
-		for (Entry<Integer, List<Map.Entry<IMethodDescription, Score>>> content : cardsComposite.getContents()
-				.entrySet()) {
-			for (Entry<IMethodDescription, Score> pageContent : content.getValue()) {
-				if (event.equals(pageContent)) {
-					cardsComposite.setPageCount(content.getKey(), 0);
-					selectionChanged.invoke(selectedList);
-					displayed = true;
-					break;
-				}
-			}
-		}
-		if (!displayed) {
-			MessageDialog.open(MessageDialog.ERROR, null, "Element not displayed",
-					"The requested element is not displayed because of the current filtering options."
-							+ " Change the filtering options to allow the requested element to be displayed.",
-					SWT.NONE);
-		}
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> highlightOriginCardListener = event -> {
-		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
-			if (card.getData("entry").equals(event)) {
-				gc = new GC(card.getParent());
-				gc.setLineWidth(2);
-				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-				gc.drawRectangle(card.getBounds());
-				gc.dispose();
-				break;
-			}
-		}
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> resetOriginCardBackgroundListener = event -> {
-		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
-			if (card.getData("entry").equals(event)) {
-				gc = new GC(card.getParent());
-				gc.setLineWidth(2);
-				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BORDER));
-				gc.drawRectangle(card.getBounds());
-				gc.dispose();
-				break;
-			}
-		}
-	};
-
-	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
-		checkSelectedSet();
-		addListenersAndMenuToCards(event);
-		selectionChanged.invoke(selectedList);
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> selectedRemovedListener = event -> {
-		selectedList.remove(event);
-		checkSelectedSet();
-		selectionChanged.invoke(selectedList);
-	};
-
-	private void requestSelectedRemoval(CodeElementUI card) {
-		selectedList.remove(card.getData("entry"));
-		for (Control selected : selectedComposite.getChildren()) {
-			if (((SelectedElementUI) selected).getOriginData().getKey().getId()
-					.equals(((IMethodDescription) card.getData()).getId())) {
-				selected.dispose();
-			}
-		}
+                if (viewer.getSelection() instanceof IStructuredSelection) {
+                    IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+                    
+                    for (Object selectionElement : selection.toList()) {
+                    	@SuppressWarnings("unchecked")
+						Entry<IMethodDescription, Score> element = (Entry<IMethodDescription, Score>) selectionElement;
+                    	
+                    	if (element.getValue().isDefinit()) {
+                    		manager.add(null);
+                    	} else {
+                    		manager.add(null);
+                    	}
+                    }
+                }
+            }
+        });
+        menuMgr.setRemoveAllWhenShown(true);
+        viewer.getControl().setMenu(menu);
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		cardsComposite.setContent(scores);
-		cardsComposite.requestLayout();
-		contentsChanged();
+		viewer.setInput(scores);
+		System.out.println(viewer.getTree().getItems().length);
+		this.adddMenuToTreeViewer();
 	}
 
 	public void clearMethodScores() {
-		cardsComposite.clearMethodScores();
-	}
-
-	private void contentsChanged() {
-		for (Control selected : selectedComposite.getChildren()) {
-			for (List<Map.Entry<IMethodDescription, Score>> contentList : cardsComposite.getContents().values()) {
-				for (Entry<IMethodDescription, Score> listContent : contentList) {
-					if (((SelectedElementUI) selected).getOriginData().getKey().getId()
-							.equals(listContent.getKey().getId())) {
-						selectedList.remove(((SelectedElementUI) selected).getOriginData());
-						((SelectedElementUI) selected).originChanged(listContent);
-						selectedList.add(listContent);
-						break;
-					}
-				}
-			}
-		}
-		checkSelectedSet();
-		selectionChanged.invoke(selectedList);
+		viewer.getControl().setMenu(null);
+		viewer.setInput(null);
 	}
 
 	Menu contextMenu;
@@ -454,6 +471,32 @@ public class ScoreListUI extends Composite {
 		addDetailsOptions(nonInteractiveContextMenu);
 	}
 
+	private Action openDetailsLink = new Action() {
+
+		@Override
+		public String getText() {
+			return "Open details...";
+		}
+
+		@Override
+		public void run() {
+			for (Object item : viewer.getStructuredSelection().toList()) {
+				@SuppressWarnings("unchecked")
+				Entry<IMethodDescription, Score> element = (Entry<IMethodDescription, Score>) item;
+				IMethodDescription sourceItem = element.getKey();
+				if (sourceItem.hasDetailsLink()) {
+					openDetailsRequired.invoke(sourceItem);
+				}
+			}
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/open-details16.png"));
+		}
+		
+	};
+	
 	private void addDetailsOptions(Menu menu) {
 		new MenuItem(menu, SWT.SEPARATOR);
 		MenuItem openDetails = new MenuItem(menu, SWT.NONE);
@@ -595,8 +638,8 @@ public class ScoreListUI extends Composite {
 	}
 
 	public void showNoItemsLabel(boolean show) {
-		cardsComposite.setVisible(!show);
-		noItemsToDisplayLabel.setVisible(show);
+		//cardsComposite.setVisible(!show);
+		//noItemsToDisplayLabel.setVisible(show);
 	}
 
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
@@ -610,31 +653,4 @@ public class ScoreListUI extends Composite {
 	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
 		return customOptionSelected;
 	}
-
-	public void highlight(List<MethodIdentity> context) {
-		for (Control item : cardsComposite.getDisplayedCards()) {
-			((CodeElementUI) item).resetNeutralIcons();
-		}
-		for (Control item : cardsComposite.getDisplayedCards()) {
-			for (MethodIdentity target : context) {
-				if (item.getData() instanceof IMethodDescription
-						&& target.equals(((IMethodDescription) item.getData()).getId())) {
-					((CodeElementUI) item).setContextIcons();
-				}
-			}
-		}
-	}
-	/*
-	 * public void highlightNonInteractiveContext(List<IMethodDescription> context)
-	 * { if(checkSelectedNotNull()) { if(context != null) { for (TableItem item :
-	 * table.getItems()) { item.setBackground(null); } List<TableItem> elementList =
-	 * new ArrayList<TableItem>(); for (TableItem item : table.getItems()) { for
-	 * (IMethodDescription target : context) { if (item.getData() instanceof
-	 * IMethodDescription &&
-	 * target.getId().equals(((IMethodDescription)item.getData()).getId())) {
-	 * elementList.add(item); } } } TableItem[] elementArray = new
-	 * TableItem[elementList.size()];
-	 * table.setSelection(elementList.toArray(elementArray)); } } }
-	 */
-
 }
