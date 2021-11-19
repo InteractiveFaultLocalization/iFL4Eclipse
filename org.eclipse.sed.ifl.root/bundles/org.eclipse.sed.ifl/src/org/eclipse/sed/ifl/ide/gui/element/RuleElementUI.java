@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.ResourceManager;
 
+@SuppressWarnings("restriction")
 public class RuleElementUI extends Composite {
 
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);

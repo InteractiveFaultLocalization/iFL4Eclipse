@@ -43,6 +43,8 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		};
 		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
+		part.eventOpenFiltersPage().add(openFiltersPartListener);
+		part.eventOpenDualListPage().add(openDualListPartListener);
 		super.init();
 	}
 
@@ -52,6 +54,8 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		part.eventScoreLoadRequested().remove(scoreLoadRequestedListener);
 		part.eventHideUndefinedRequested().remove(hideUndefinedListener);
 		part.eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
+		part.eventOpenFiltersPage().remove(openFiltersPartListener);
+		part.eventOpenDualListPage().remove(openDualListPartListener);
 		super.teardown();
 	}
 
@@ -116,6 +120,22 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		return scoreRecalculateRequested;
 	}
 
+	private NonGenericListenerCollection<EmptyEvent> openFiltersPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPart() {
+		return openFiltersPart;
+	}
+	
+	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
+		return openDualListPart;
+	}
+	
+	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
+	
 	public void close() {
 		part.getSite().getPage().hideView(part);
 	}

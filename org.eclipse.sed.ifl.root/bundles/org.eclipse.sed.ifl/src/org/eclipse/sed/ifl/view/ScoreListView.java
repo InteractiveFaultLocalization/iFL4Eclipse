@@ -15,7 +15,6 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.widgets.Composite;
 
@@ -46,7 +45,7 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	public void createOptionsMenu(Iterable<Option> options) {
-		//ui.createContexMenu(options);
+		ui.createContexMenu(options);
 	}
 
 	@Override
@@ -57,8 +56,6 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventNavigateToContext().add(navigateToContextListener);
 		ui.eventSelectionChanged().add(selectionChangedListener);
 		ui.eventOpenDetailsRequired().add(openDetailsRequiredListener);
-		ui.eventOpenFiltersPage().add(openFiltersPartListener);
-		ui.eventOpenDualListPage().add(openDualListPartListener);
 		super.init();
 	}
 	
@@ -70,8 +67,6 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 		ui.eventNavigateToContext().remove(navigateToContextListener);
 		ui.eventSelectionChanged().remove(selectionChangedListener);
 		ui.eventOpenDetailsRequired().remove(openDetailsRequiredListener);
-		ui.eventOpenFiltersPage().remove(openFiltersPartListener);
-		ui.eventOpenDualListPage().remove(openDualListPartListener);
 		super.teardown();
 	}
 	
@@ -145,24 +140,5 @@ public class ScoreListView extends View implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<String> eventNameFilterChanged() {
 		return nameFilterChanged;
 	}
-	
-	
-	private NonGenericListenerCollection<EmptyEvent> openFiltersPart = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPart() {
-		return openFiltersPart;
-	}
-	
-	private IListener<EmptyEvent> openFiltersPartListener = openFiltersPart::invoke;
-	
-
-	private NonGenericListenerCollection<EmptyEvent> openDualListPart = new NonGenericListenerCollection<>();
-	
-	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPart() {
-		return openDualListPart;
-	}
-	
-	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
-	
 }
 

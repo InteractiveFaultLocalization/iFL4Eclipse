@@ -21,6 +21,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	private DualListPart<TItem> dualListPart;
 
+	@SuppressWarnings("unchecked")
 	public DualListView() {
 		this.dualListPart = (DualListPart<TItem>) getPart();
 	}
@@ -110,6 +111,7 @@ public class DualListView<TItem extends Sortable> extends View implements IEmbed
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public void showDualListPart() {
 		removeUIListeners();
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

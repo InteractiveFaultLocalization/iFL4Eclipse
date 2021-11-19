@@ -23,15 +23,13 @@ import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
-	public ScoreLoaderControl(boolean interactivity) {
-		this.interactivity = interactivity;
+	public ScoreLoaderControl() {
 	}
 
 	public void load() {
 		getView().select();
 	}
 	
-	private boolean interactivity;
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
 	private static final String INTERACTIVITY_HEADER = "interactive";

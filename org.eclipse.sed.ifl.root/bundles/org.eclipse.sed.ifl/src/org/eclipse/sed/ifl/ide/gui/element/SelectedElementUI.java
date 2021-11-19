@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.ResourceManager;
 
+@SuppressWarnings("restriction")
 public class SelectedElementUI extends Composite {
 	
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);

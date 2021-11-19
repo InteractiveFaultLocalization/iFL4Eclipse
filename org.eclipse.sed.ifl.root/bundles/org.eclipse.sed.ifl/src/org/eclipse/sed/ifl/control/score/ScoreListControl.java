@@ -147,9 +147,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
 
-		getView().eventOpenFiltersPart().add(openFiltersPage);
-		getView().eventOpenDualListPart().add(openDualListPage);
-
 		filterControl.eventBooleanRuleAdded().add(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().add(newDoubleFilterAddedListener);
 		filterControl.eventLastActionRuleAdded().add(newLastActionFilterAddedListener);
@@ -178,9 +175,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
-
-		getView().eventOpenFiltersPart().remove(openFiltersPage);
-		getView().eventOpenDualListPart().remove(openDualListPage);
 
 		filterControl.eventBooleanRuleAdded().remove(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().remove(newDoubleFilterAddedListener);
@@ -341,11 +335,11 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventAttributeListRefreshRequested();
 	};
 
-	private IListener<EmptyEvent> openFiltersPage = event -> {
+	public void openFiltersPage() {
 		filterControl.showFilterPart();
 	};
 
-	private IListener<EmptyEvent> openDualListPage = event -> {
+	public void openDualListPage() {
 		dualListControl.showDualListPart();
 	};
 

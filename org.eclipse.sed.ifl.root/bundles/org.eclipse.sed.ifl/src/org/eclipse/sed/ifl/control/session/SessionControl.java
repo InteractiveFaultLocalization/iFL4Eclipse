@@ -88,10 +88,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private boolean setInteractivity(Random r) {
 		boolean rValue = r.nextBoolean();
 		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
+			case "random" : interactivity = "random"; return rValue;
+			case "allTrue" : interactivity = "true"; return true;
+			case "allFalse" : interactivity = "false"; return false;
+			default : return rValue;
 		}
 	}
 	
@@ -118,7 +118,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl();
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl();
@@ -164,6 +164,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().add(openFiltersPage);
+		getView().eventOpenDualListPart().add(openDualListPage);
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
@@ -178,6 +180,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().remove(openFiltersPage);
+		getView().eventOpenDualListPart().remove(openDualListPage);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
@@ -220,4 +224,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.scoreRecalculatorControl.recalculate();
 	};
 
+	private IListener<EmptyEvent> openFiltersPage = event -> {
+		scoreListControl.openFiltersPage();
+	};
+
+	private IListener<EmptyEvent> openDualListPage = event -> {
+		scoreListControl.openDualListPage();
+	};
+	
 }

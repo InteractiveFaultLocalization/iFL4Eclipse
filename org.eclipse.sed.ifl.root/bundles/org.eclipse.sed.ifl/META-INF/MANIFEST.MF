@@ -65,4 +65,4 @@ Export-Package: .,
  org.eclipse.sed.ifl.view,
  org.eclipse.sed.ifl.views,
  org.eclipse.wb.swt
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11

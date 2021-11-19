@@ -9,7 +9,6 @@ import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class LastActionFilter extends ScoreFilter {
 
-	private String domain;
 	private ScoreStatus status;
 	private ScoreHistoryControl history;
 	private LastActionRule rule;
@@ -17,7 +16,6 @@ public class LastActionFilter extends ScoreFilter {
 	public LastActionFilter(Boolean enabled, LastActionRule rule, ScoreHistoryControl history) {
 		super(enabled);
 		this.rule = rule;
-		this.domain = rule.getDomain();
 		this.status = rule.getStatus();
 		this.history = history;
 	}

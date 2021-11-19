@@ -7,14 +7,12 @@ import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class BooleanFilter extends ScoreFilter {
 
-	private String domain;
 	private boolean value;
 	private BooleanRule rule;
 	
 	public BooleanFilter(Boolean enabled, BooleanRule rule) {
 		super(enabled);
 		this.rule = rule;
-		this.domain = rule.getDomain();
 		this.value = rule.isValue();
 	}
 
