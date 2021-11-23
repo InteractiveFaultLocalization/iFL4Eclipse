@@ -82,9 +82,9 @@ public class ScoreListModel extends EmptyModel {
 		for (Entry<String, List<ScoreLoaderControl.Entry>> raw : entriesByMethods.entrySet()) {
 			for (Entry<IMethodDescription, Score> entry : scores.entrySet()) {
 				if (entry.getKey().getId().toCSVKey().equals(raw.getKey())) {
-					double methodScoreValue = Double.MIN_VALUE;
+					Double methodScoreValue = null;
 					for(ScoreLoaderControl.Entry lineInfo : raw.getValue()) {
-						if(lineInfo.getScore() > methodScoreValue) {
+						if(methodScoreValue == null || lineInfo.getScore() > methodScoreValue) {
 							methodScoreValue = lineInfo.getScore();
 						}
 						entry.getKey().addLine(lineInfo.getLineNumber(), new Score(lineInfo.getScore()));

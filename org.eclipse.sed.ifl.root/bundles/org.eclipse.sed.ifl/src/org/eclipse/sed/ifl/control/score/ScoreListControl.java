@@ -320,6 +320,7 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		List<DisplayableScore> toDisplay = new ArrayList<>();
 		for(Entry<IMethodDescription, Score> entry : toDisplayHelper.entrySet()) {
 			DisplayableScore displayableScore = new DisplayableScore(entry.getKey(), entry.getValue(), scoreHistory.getLastOf(entry.getKey()));
+			toDisplay.add(displayableScore);
 		}
 		return toDisplay;
 	}

@@ -35,6 +35,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	
 	private boolean interactivity;
 	private static final String UNIQUE_NAME_HEADER = "name";
+	private static final String LINE_HEADER = "line";
 	private static final String SCORE_HEADER = "ochiai";
 	private static final String INTERACTIVITY_HEADER = "interactive";
 	private static final String DETAILS_LINK_HEADER = "details";
@@ -90,9 +91,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
-					String[] splitNameAndLineNumber = name.split("-");
-					String methodInfoName = splitNameAndLineNumber[0];
-					long lineNumber = Long.parseLong(splitNameAndLineNumber[1]);
+					long lineNumber = Long.parseLong(record.get(LINE_HEADER));
 					double score = Double.parseDouble(record.get(SCORE_HEADER));
 					if (score > 1 || score < 0) {
 						MessageDialog.open(
@@ -105,7 +104,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					}
 					// Interactivity and details link are not included in the CSV currently
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					Entry entry = new Entry(methodInfoName, lineNumber, score, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+					Entry entry = new Entry(name, lineNumber, score, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					loadedScores.add(entry);
 				}
 				int updatedCount = getModel().loadScore(loadedScores);
