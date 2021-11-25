@@ -159,6 +159,7 @@ public class CardHolderComposite extends Composite {
 					displayable.getMethodDescription().getLocation().getBegining().getOffset().toString(),
 					displayable.getMethodDescription().getContext().size(),
 					displayable.getMethodDescription().isInteractive(),
+					displayable.getMethodDescription().getLines(),
 					displayable.getLastAction());
 			element.setData(displayable.getMethodDescription());
 			element.setData("score", displayable.getScore());

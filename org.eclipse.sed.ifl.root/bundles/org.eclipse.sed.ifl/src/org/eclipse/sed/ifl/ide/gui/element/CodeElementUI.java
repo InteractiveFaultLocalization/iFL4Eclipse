@@ -13,16 +13,21 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
+import org.eclipse.sed.ifl.commons.model.source.Line;
 import org.eclipse.sed.ifl.commons.model.source.Score;
+import org.eclipse.sed.ifl.ide.gui.dialogs.ShowLinesDialog;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Map;
+
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.swt.widgets.Button;
 
 public class CodeElementUI extends Composite {
 
@@ -46,6 +51,7 @@ public class CodeElementUI extends Composite {
 	Label interactivityIcon;
 	Label signatureIcon;
 	Label contextSizeIcon;
+	private Button showLinesButton;
 
 	public void resetNeutralIcons() {
 		scoreIcon.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/score_blue.png"));
@@ -142,6 +148,7 @@ public class CodeElementUI extends Composite {
 			String position,
 			Integer contextSize,
 			Boolean interactivity,
+			Map<Line, Score> lines,
 			Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		super(parent, SWT.NONE);
 		GridData data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
@@ -262,6 +269,21 @@ public class CodeElementUI extends Composite {
 		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		
 		this.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		new Label(this, SWT.NONE);
+		new Label(this, SWT.NONE);
+		new Label(this, SWT.NONE);
+		
+		showLinesButton = new Button(this, SWT.NONE);
+		showLinesButton.setText("Show Lines");
+		
+		showLinesButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				ShowLinesDialog showLinesDialog = new ShowLinesDialog(Display.getCurrent().getActiveShell(),
+						"Lines of " + name, "Detailed line information of: " + signature, lines);
+				showLinesDialog.open();
+			}
+		});
 		
 		
 		for(Control control : this.getChildren()) {

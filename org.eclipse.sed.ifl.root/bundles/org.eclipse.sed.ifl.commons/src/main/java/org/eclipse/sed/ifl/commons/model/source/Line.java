@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.commons.model.source;
 
-public class Line {
+public class Line implements Comparable<Line> {
 	
 	private long sourceFileLineNumber;
 	private IMethodDescription method;
@@ -51,5 +51,10 @@ public class Line {
 		if (sourceFileLineNumber != other.sourceFileLineNumber)
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Line line) {
+		return (int)(this.sourceFileLineNumber - line.getSourceFileLineNumber());
 	}
 }
