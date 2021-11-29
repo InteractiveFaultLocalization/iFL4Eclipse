@@ -58,52 +58,18 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.partMonitor = partMonitor;
 	}
 
-	private String interactivity;
-
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 
 	private ScoreListControl scoreListControl;
-
-	private Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
-		if (Modifier.isAbstract(entry.getKey().getModifiers())) {
-			return false;
-		}
-		if (entry.getKey().getDeclaringClass().isInterface()) {
-			return false;
-		}
-		return true;
-	};
-
-	private Predicate<? super IMethod> preUnrelevantFilter = method -> {
-		try {
-			if (method.getDeclaringType().isClass()) {
-				return true;
-			}
-		} catch (JavaModelException e) {
-			return false;
-		}
-		return false;
-	};
-
-	private boolean setInteractivity(Random r) {
-		boolean rValue = r.nextBoolean();
-		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
-		}
-	}
 	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter,
-				unrelevantFilter);
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getFilteredResolvedMethods(selectedProject);
 
 		Random r = new Random();
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), setInteractivity(r)))
+		.map(method -> new Method(accessor.identityFrom(method), accessor.locationFrom(method), accessor.contextFrom(method, resolvedMethods), accessor.setInteractivity(r)))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
@@ -118,7 +84,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl(accessor.setInteractivity(r));
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl(selectedProject);
@@ -129,30 +95,8 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.println(watch);
 
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
-				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
+				"Interactivity of all code elements is set to " + accessor.getInteractivity(), SWT.NONE);
 
-	}
-
-	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method,
-			Map<IMethodBinding, IMethod> others) {
-		return accessor.getSiblings(method, others).entrySet().stream()
-				.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
-				.map(contextMethod -> identityFrom(contextMethod))
-				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-	}
-
-	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
-		return new CodeChunkLocation(
-				EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
-				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
-				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset()
-						+ method.getValue().getSourceRange().getLength())));
-	}
-
-	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
-		return new MethodIdentity(method.getKey().getName(), accessor.getSignature(method.getKey()),
-				method.getKey().getDeclaringClass().getName(), method.getKey().getReturnType().getName(),
-				method.getKey().getKey());
 	}
 
 	@Override
@@ -217,12 +161,13 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		try {
+		this.scoreRecalculatorControl.calculateScores();
+		/*try {
 			this.scoreRecalculatorControl.recalculate();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	};
 
 }

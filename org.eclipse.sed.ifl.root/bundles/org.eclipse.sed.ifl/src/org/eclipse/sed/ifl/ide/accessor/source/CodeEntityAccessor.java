@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -23,12 +24,17 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
+import org.eclipse.sed.ifl.commons.model.source.CodeChunkLocation;
+import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
+import org.eclipse.sed.ifl.commons.model.source.Position;
+import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.util.exception.EU;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.ui.ISelectionService;
@@ -123,6 +129,45 @@ public class CodeEntityAccessor {
 		}
 	}	
 
+	
+	private String interactivity;
+	
+	public String getInteractivity() {
+		return this.interactivity;
+	}
+	
+	public boolean setInteractivity(Random r) {
+		boolean rValue = r.nextBoolean();
+		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
+		case "random" : interactivity = "random"; return rValue;
+		case "allTrue" : interactivity = "true"; return true;
+		case "allFalse" : interactivity = "false"; return false;
+		default : return rValue;
+		}
+	}
+	
+	public MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
+		return new MethodIdentity(method.getKey().getName(), getSignature(method.getKey()),
+				method.getKey().getDeclaringClass().getName(), method.getKey().getReturnType().getName(),
+				method.getKey().getKey());
+	}
+
+	public CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
+		return new CodeChunkLocation(
+				EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset()
+						+ method.getValue().getSourceRange().getLength())));
+	}
+	
+	public List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method,
+			Map<IMethodBinding, IMethod> others) {
+		return getSiblings(method, others).entrySet().stream()
+				.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+				.map(contextMethod -> identityFrom(contextMethod))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+	}
+	
 	@Deprecated
 	public Map<IMethodBinding, IMethod> getResolvedMethods(IType type, IJavaProject project) {
 		return resolve(project, getMethods(type));
@@ -138,6 +183,29 @@ public class CodeEntityAccessor {
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		System.out.println(watch);
 		return result;
+	}
+	
+	public Map<IMethodBinding, IMethod> getFilteredResolvedMethods(IJavaProject project) {
+		Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
+			if (Modifier.isAbstract(entry.getKey().getModifiers())) {
+				return false;
+			}
+			if (entry.getKey().getDeclaringClass().isInterface()) {
+				return false;
+			}
+			return true;
+		};
+		Predicate<? super IMethod> preUnrelevantFilter = method -> {
+			try {
+				if (method.getDeclaringType().isClass()) {
+					return true;
+				}
+			} catch (JavaModelException e) {
+				return false;
+			}
+			return false;
+		};
+		return getResolvedMethods(project, preUnrelevantFilter, unrelevantFilter);
 	}
 	
 	public Map<IMethodBinding, IMethod> getSiblings(Entry<IMethodBinding, IMethod> me, Map<IMethodBinding, IMethod> others) {
