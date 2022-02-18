@@ -12,10 +12,6 @@
             name="Start iFL session"
             id="org.eclipse.sed.ifl.commands.startCommand">
       </command>
-      <command
-            id="org.eclipse.sed.ifl.commands.generateCoverageCommand"
-            name="Generate coverage">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -38,13 +34,6 @@
                   commandId="org.eclipse.sed.ifl.commands.startCommand"
                   id="org.eclipse.sed.ifl.menus.startCommand"
                   mnemonic="i"
-                  icon="icons/ico16.png">
-            </command>
-            <command
-                  commandId="org.eclipse.sed.ifl.commands.generateCoverageCommand"
-                  id="org.eclipse.sed.ifl.menus.generateCoverageCommand"
-                  mnemonic="S"
-                  tooltip="Generate coverage for the selected project"
                   icon="icons/ico16.png">
             </command>
          </menu>
@@ -145,10 +134,6 @@
       <handler
             class="org.eclipse.sed.ifl.ide.handlers.startHandler"
             commandId="org.eclipse.sed.ifl.commands.startCommand">
-      </handler>
-      <handler
-            class="org.eclipse.sed.ifl.ide.handlers.scoreRecalculatorHandler"
-            commandId="org.eclipse.sed.ifl.commands.generateCoverageCommand">
       </handler>
    </extension>
 </plugin>

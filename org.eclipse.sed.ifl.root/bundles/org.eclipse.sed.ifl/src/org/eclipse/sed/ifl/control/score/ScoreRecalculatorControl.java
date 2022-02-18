@@ -18,7 +18,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -30,6 +29,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.Method;
 import org.eclipse.sed.ifl.control.ViewlessControl;
+import org.eclipse.sed.ifl.control.score.ScoreLoaderControl.Entry;
 import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.modifier.source.PomModificationException;
@@ -42,6 +42,7 @@ import org.eclipse.sed.ifl.scorelib.ScoreException;
 import org.eclipse.sed.ifl.scorelib.ScoreVariables;
 import org.eclipse.sed.ifl.scorelib.TrcReader;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 
 
 public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
@@ -77,8 +78,8 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 	public void recalculate() throws Exception {
 		final String jUnitVersion = "4.13";
 		final String projectName = project.getProject().getName();
-		final String pomPath = project.getProject().getRawLocation().append(CONFIGURED_POM_XML).toOSString();
-	
+		final String pomPath = project.getProject().getRawLocation().append(CONFIGURED_POM_XML).toOSString();	
+		
 		final Job job = new Job(projectName + " coverage generation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -113,6 +114,17 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 						e.printStackTrace();
 						return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Request execution failed (mavenInvoker)");
 					}
+					
+					
+					// load scores from coverage files
+					Map<Entry, Score> methodScores = calculateScores();
+					
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							int updatedCount = getModel().loadScore(methodScores);
+							MessageDialog.open(MessageDialog.INFORMATION, null,"iFL score loading", updatedCount + " scores are loaded", SWT.NONE);
+						}
+					});
 				} catch (Exception e) {
 					System.out.println("Unexpected error during maven tests");
 					e.printStackTrace();
@@ -126,14 +138,19 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		         return JOB_FAMILY.equals(family);
 		    }
 		};
+
+		IJobManager jobManager = Job.getJobManager();
+		Job[] build = jobManager.find(JOB_FAMILY);
 		
-		job.setPriority(Job.SHORT);
-		job.schedule();;
+		if (build.length == 0) {
+			job.setPriority(Job.SHORT);
+			job.schedule();
+		} else {
+			MessageDialog.open(MessageDialog.ERROR, null, "Coverage generation", "A project's coverage generation is already running.", SWT.NONE);
+		}
 	}
 	
-	public void calculateScores() {
-		System.out.println("calculating scores");
-		
+	public Map<Entry, Score> calculateScores() {
 		final String coveragePath = project.getProject().getRawLocation().append("coverage").toOSString();
 		final TrcReader trcReader = new TrcReader();
 		final ScoreCalculator scoreCalculator = new ScoreCalculator();
@@ -159,15 +176,17 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 			e.printStackTrace();
 		}
 
-		
 		//new Score(results.getMethodScore(currMethod));
-		Map<IMethodDescription, Score> methodScores = methods.stream().map(method -> method)
-				.collect(Collectors.collectingAndThen(Collectors.toMap(id -> id, id -> new Score(r.nextDouble())),
-						Collections::unmodifiableMap));
+		Map<Entry, Score> methodScores = new HashMap<>();
+		for (IMethodDescription method : methods) {
+			String name = method.getId().toCSVKey();
+			String details = method.hasDetailsLink()?method.getDetailsLink():null;
+			boolean interactivity = method.isInteractive();
+			Entry entry = new Entry(name, details, interactivity);
+			methodScores.put(entry, new Score(r.nextDouble()));
+		}
 		
-		int recordCount = methodScores.size();
-		int updatedCount = getModel().updateScore(methodScores).size();
-		System.out.println(updatedCount + "/" + recordCount + " scores are loaded");
+		return methodScores;
 	}
 
 	@Override
@@ -184,6 +203,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		for (Job job : build) {
 			if (job.getState() == Job.RUNNING) job.getThread().interrupt();
 		}
+		
 		super.teardown();
 	}
 

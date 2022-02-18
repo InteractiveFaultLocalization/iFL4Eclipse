@@ -38,7 +38,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	private static final String DETAILS_LINK_HEADER = "details";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
 	
-	public class Entry {
+	public static class Entry {
 		private String name;
 		private String detailsLink;
 		private boolean interactivity;
