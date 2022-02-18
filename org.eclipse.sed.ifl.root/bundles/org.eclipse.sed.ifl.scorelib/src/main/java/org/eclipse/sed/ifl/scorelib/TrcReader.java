@@ -16,24 +16,38 @@ import java.util.Arrays;
 public class TrcReader implements ITrcReader {
 
 	@Override
-	public Map<Short, scoreVariables> readTrc(String trcDir) {
+	public Map<Short, ScoreVariables> readTrc(String trcDir) {
 		
 		File[] trcs = new File(trcDir).listFiles();
-		Map<Short, scoreVariables> map = new HashMap<Short, scoreVariables>();
+		Map<Short, ScoreVariables> map = new HashMap<Short, ScoreVariables>();
+		
+		int fails = 0;
 		
 		for(File trc : trcs) {
 			
-			if(trc.getName().equals("trace.trc.names"))break;
+			if(trc.getName().equals("trace.trc.names")) continue;
 			
 			try {
 				FileInputStream fin = new FileInputStream(trc); 
 				DataInputStream din = new DataInputStream(fin);
+				
+				//some trc files are too short to read properly
+				
+				short s = 1;
 				din.readShort();
 				din.readShort();
-				din.readShort();
-				din.readShort();
-				short s = din.readShort();
-				map.put(s, new scoreVariables());
+				if (din.available() <= 1) {
+					fails++;
+					System.out.println("Failed: " + trc.getName());
+					continue;
+				} else {
+					din.readShort();
+					din.readShort();
+					s = din.readShort();
+				}
+				din.close();
+				
+				map.put(s, new ScoreVariables());
 				switch (s) {
 					case 1:{
 						readBinary(trc, map);
@@ -54,14 +68,15 @@ public class TrcReader implements ITrcReader {
 			
 		}
 		
+		System.out.println(fails +" file failed");
 		return map;
 	}
 	
 	@Override
-	public Map<Short[], scoreVariables> readTrcChain(String trcDir) {
+	public Map<Short[], ScoreVariables> readTrcChain(String trcDir) {
 		
 		File[] trcs = new File(trcDir).listFiles();
-		Map<Short[], scoreVariables> map = new HashMap<Short[], scoreVariables>();
+		Map<Short[], ScoreVariables> map = new HashMap<Short[], ScoreVariables>();
 		
 		
 		for(File trc : trcs) {
@@ -71,7 +86,7 @@ public class TrcReader implements ITrcReader {
 		return map;
 	}
 
-	public Map<Short, scoreVariables> readBinary(File trc, Map<Short, scoreVariables> map) {
+	public Map<Short, ScoreVariables> readBinary(File trc, Map<Short, ScoreVariables> map) {
 		Set<Short> bin = new HashSet<Short>();
 		try {
 			FileInputStream fin = new FileInputStream(trc);
@@ -90,7 +105,7 @@ public class TrcReader implements ITrcReader {
 		while(i.hasNext()) {
 			Short s = (short) i.next();
 			if(map.containsKey(s)) {
-				scoreVariables count = map.get(s);
+				ScoreVariables count = map.get(s);
 			
 				if(b) {count.setExecutedPass(count.getExecutedPass() + 1);}
 				else {count.setExecutedFail(count.getExecutedFail() + 1);}
@@ -102,7 +117,7 @@ public class TrcReader implements ITrcReader {
 		Iterator<Short> it = set.iterator();
 		while(it.hasNext()) {
 			Short s = it.next();
-			scoreVariables count = map.get(s);
+			ScoreVariables count = map.get(s);
 			
 			if(b) {count.setNonExecutedPass(count.getNonExecutedPass() + 1);}
 			else {count.setNonExecutedFail(count.getNonExecutedFail() + 1);}
@@ -112,7 +127,7 @@ public class TrcReader implements ITrcReader {
 		return map;
 	}
 
-	public Map<Short, scoreVariables> readCount(File trc, Map<Short, scoreVariables> map) {
+	public Map<Short, ScoreVariables> readCount(File trc, Map<Short, ScoreVariables> map) {
 		Boolean b = isTestSuccessful(trc);
 		Set<Short> set = new HashSet(map.keySet());
 		try {
@@ -121,7 +136,7 @@ public class TrcReader implements ITrcReader {
 			while(din.available()>0) {
 				short s = din.readShort();
 				if(map.containsKey(s)) {
-					scoreVariables count = map.get(s);
+					ScoreVariables count = map.get(s);
 				
 					if(b) {count.setExecutedPass(count.getExecutedPass() + din.read());}
 					else {count.setExecutedFail(count.getExecutedFail() + din.read());}
@@ -138,7 +153,7 @@ public class TrcReader implements ITrcReader {
 		Iterator<Short> it = set.iterator();
 		while(it.hasNext()) {
 			Short s = it.next();
-			scoreVariables count = map.get(s);
+			ScoreVariables count = map.get(s);
 			
 			if(b) {count.setNonExecutedPass(count.getNonExecutedPass() + 1);}
 			else {count.setNonExecutedFail(count.getNonExecutedFail() + 1);}
@@ -148,7 +163,7 @@ public class TrcReader implements ITrcReader {
 		return map;
 	}
 
-	public Map<Short, scoreVariables> readChainAsCount(File trc, Map<Short, scoreVariables> map) {
+	public Map<Short, ScoreVariables> readChainAsCount(File trc, Map<Short, ScoreVariables> map) {
 		Boolean b = isTestSuccessful(trc);
 		Set<Short> set = new HashSet(map.keySet());
 		try {
@@ -162,8 +177,8 @@ public class TrcReader implements ITrcReader {
 				}
 				s = din.readShort();
 				for(int i=0; i<d.length; i++) {
-					scoreVariables count = map.get(d[i]);
-					for(Entry<Short, scoreVariables> entry : map.entrySet()){
+					ScoreVariables count = map.get(d[i]);
+					for(Entry<Short, ScoreVariables> entry : map.entrySet()){
 						count = entry.getValue();
 						if(map.containsKey(entry.getKey())) {
 							if(b) {count.setExecutedPass(count.getExecutedPass() + s);}
@@ -183,7 +198,7 @@ public class TrcReader implements ITrcReader {
 		Iterator<Short> it = set.iterator();
 		while(it.hasNext()) {
 			Short s = it.next();
-			scoreVariables count = map.get(s);
+			ScoreVariables count = map.get(s);
 			
 			if(b) {count.setNonExecutedPass(count.getNonExecutedPass() + 1);}
 			else {count.setNonExecutedFail(count.getNonExecutedFail() + 1);}
@@ -193,7 +208,7 @@ public class TrcReader implements ITrcReader {
 		return map;
 	}
 	
-	public Map<Short[], scoreVariables> readChainAsChain(File trc, Map<Short[], scoreVariables> map) {
+	public Map<Short[], ScoreVariables> readChainAsChain(File trc, Map<Short[], ScoreVariables> map) {
 		Boolean b = isTestSuccessful(trc);
 		try {
 			FileInputStream fin = new FileInputStream(trc);
@@ -205,10 +220,10 @@ public class TrcReader implements ITrcReader {
 				for(int i=0; i<s; i++) {
 					d[i] = din.readShort();
 				}
-				map.put(d, new scoreVariables()); //todo
+				map.put(d, new ScoreVariables()); //todo
 				s = din.readShort();
-				for(Entry<Short[], scoreVariables> entry : map.entrySet()){
-					scoreVariables count = entry.getValue();
+				for(Entry<Short[], ScoreVariables> entry : map.entrySet()){
+					ScoreVariables count = entry.getValue();
 					if(d.equals( entry.getKey())) {
 						if(b) {count.setExecutedPass(count.getExecutedPass() + s);}
 						else {count.setExecutedFail(count.getExecutedFail() + s);}
