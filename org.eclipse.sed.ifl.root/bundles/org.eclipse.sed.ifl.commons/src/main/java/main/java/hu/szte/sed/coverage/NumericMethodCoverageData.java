@@ -31,6 +31,10 @@ public class NumericMethodCoverageData<T extends Number> implements CoverageData
 	public void reset() {
 		data.clear();
 	}
+	
+	public Map<T, Long> getData(){
+		return data;
+	}
 
 	@Override
 	public void saveData(final File dataFile) {
