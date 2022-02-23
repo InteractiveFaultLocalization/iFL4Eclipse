@@ -12,7 +12,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 public class ScoreCalculator implements IScoreCalculator {
 
 	@Override
-	public IResults calculate(Map<Short, scoreVariables> map, IFormula f) throws ScoreException {
+	public IResults calculate(Map<Short, ScoreVariables> map, IFormula f) throws ScoreException {
 		Map<Short, Double> scoreMap = new HashMap<Short, Double>();
 		/*if(method.equals("tarantula")) {
 			for(Entry<Short, scoreVariables> entry : map.entrySet()) {
@@ -35,14 +35,14 @@ public class ScoreCalculator implements IScoreCalculator {
 	}
 
 	@Override
-	public IResults calculateChain(Map<Short[], scoreVariables> map, IFormula f) {
+	public IResults calculateChain(Map<Short[], ScoreVariables> map, IFormula f) {
 		Map<Short[], Double> scoreMap = new HashMap<Short[], Double>();
 		
 		IResults res = new Results();
 		return res;
 	}
 	
-	private double tarantula(scoreVariables success) throws ScoreException {
+	private double tarantula(ScoreVariables success) throws ScoreException {
 		double ep = success.getExecutedPass();
 		double ef = success.getExecutedFail();
 		double np = success.getNonExecutedPass();
@@ -55,7 +55,7 @@ public class ScoreCalculator implements IScoreCalculator {
 		}
 	}
 	
-	private double ochiai(scoreVariables success) throws ScoreException {
+	private double ochiai(ScoreVariables success) throws ScoreException {
 		double ep = success.getExecutedPass();
 		double ef = success.getExecutedFail();
 		double np = success.getNonExecutedPass();
@@ -68,7 +68,7 @@ public class ScoreCalculator implements IScoreCalculator {
 		}
 	}
 
-	private double eval(scoreVariables success, String eval) throws ScoreException {
+	private double eval(ScoreVariables success, String eval) throws ScoreException {
 		double ep = success.getExecutedPass();
 		double ef = success.getExecutedFail();
 		double np = success.getNonExecutedPass();

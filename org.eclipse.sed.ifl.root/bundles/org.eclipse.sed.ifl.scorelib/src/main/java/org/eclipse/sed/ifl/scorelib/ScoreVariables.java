@@ -1,6 +1,6 @@
 package org.eclipse.sed.ifl.scorelib;
 
-public class scoreVariables {
+public class ScoreVariables {
 	private int executedPass, executedFail, nonExecutedPass, nonExecutedFail;
 
 	public int getExecutedPass() {
