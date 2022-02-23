@@ -1,11 +1,17 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -23,11 +29,13 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.score.Score;
 import org.eclipse.sed.ifl.ide.gui.element.CodeElementContentProvider;
+import org.eclipse.sed.ifl.ide.gui.treeview.ElementNode;
 import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
+import org.eclipse.sed.ifl.util.ElementSerializer;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -39,13 +47,23 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreListUI extends Composite {
 
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
 	private TreeViewer viewer;
 
 	@SuppressWarnings("unchecked")
@@ -82,93 +100,96 @@ public class ScoreListUI extends Composite {
 	public ScoreListUI(Composite parent) {
 		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
-		setLayout(new GridLayout(3, false));
+		setLayout(new GridLayout());
 		
 		Tree tree = new Tree(this, SWT.FULL_SELECTION | SWT.VIRTUAL | SWT.MULTI);
-		tree.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
+		GridData gd_tree = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		tree.setLayoutData(gd_tree);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 		
 		viewer = new TreeViewer(tree);
 		viewer.setUseHashlookup(true);
 		
-		final TreeViewerColumn column0 = new TreeViewerColumn(viewer, SWT.LEFT);
+		final TreeViewerColumn column8 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column8.getColumn().setText("Name");
+	    column8.getColumn().setWidth(300);
+	    
+	    column8.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getName());
+				} else {
+					cell.setText("Code elements");
+				}
+			}
+	    });
+		
+	    final TreeViewerColumn column0 = new TreeViewerColumn(viewer, SWT.RIGHT);
 		column0.getColumn().setText("Score");
 		column0.getColumn().setWidth(300);
 		
 		column0.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				if (entry.getValue().isDefinit()) {
-					cell.setText(entry.getValue().getValue().toString());
-				} else {
-					cell.setText("undefined");
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getValue().isDefinit()) {
+						LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+						cell.setText(LIMIT_FORMAT.format(entry.getValue().getValue()));
+					} else {
+						cell.setText("undefined");
+					}
 				}
 			}
 		});
 		
-	    final TreeViewerColumn column1 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    final TreeViewerColumn column1 = new TreeViewerColumn(viewer, SWT.LEFT);
 	    column1.getColumn().setText("Signature");
 	    column1.getColumn().setWidth(300);
 	    
 	    column1.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(entry.getKey().getId().getSignature());
-			}
-	    });
-	    
-	    final TreeViewerColumn column2 = new TreeViewerColumn(viewer, SWT.RIGHT);
-	    column2.getColumn().setText("Interactivity");
-	    column2.getColumn().setWidth(300);
-	    
-	    column2.setLabelProvider(new CellLabelProvider() {
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				if (entry.getKey().isInteractive()) {
-					cell.setText("User feedback enabled");
-					cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
-				} else {
-					cell.setText("User feedback disabled");
-					cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getSignature());
 				}
 			}
 	    });
 	    
-	    final TreeViewerColumn column3 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    final TreeViewerColumn column3 = new TreeViewerColumn(viewer, SWT.LEFT);
 	    column3.getColumn().setText("Parent type");
 	    column3.getColumn().setWidth(300);
 	    
 	    column3.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(entry.getKey().getId().getParentType());
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getParentType());					
+				}
 			}
 	    });
 	    
-	    final TreeViewerColumn column4 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    final TreeViewerColumn column4 = new TreeViewerColumn(viewer, SWT.LEFT);
 	    column4.getColumn().setText("Path");
 	    column4.getColumn().setWidth(300);
 	    
 	    column4.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(entry.getKey().getLocation().getAbsolutePath());
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getLocation().getAbsolutePath());
+				}
 			}
 	    });
 	    
@@ -178,11 +199,12 @@ public class ScoreListUI extends Composite {
 	    
 	    column5.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(entry.getKey().getLocation().getBegining().toString());
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getLocation().getBegining().getOffset().toString());
+				}
 			}
 	    });
 	    
@@ -192,50 +214,64 @@ public class ScoreListUI extends Composite {
 	    
 	    column6.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(String.valueOf(entry.getKey().getContext().size()));
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(String.valueOf(entry.getKey().getContext().size()));
+				}
 			}
 	    });
 	    
-	    final TreeViewerColumn column7 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    final TreeViewerColumn column2 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column2.getColumn().setText("Interactivity");
+	    column2.getColumn().setWidth(300);
+	    
+	    column2.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getKey().isInteractive()) {
+						cell.setText("User feedback enabled");
+						cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
+					} else {
+						cell.setText("User feedback disabled");
+						cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+					}
+				}
+			}
+	    });
+	    
+	    final TreeViewerColumn column7 = new TreeViewerColumn(viewer, SWT.LEFT);
 	    column7.getColumn().setText("Last action");
 	    column7.getColumn().setWidth(300);
 	    
 	    column7.setLabelProvider(new CellLabelProvider() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				if (entry.getValue().getLastAction() != null) {
-					//cell.setText(entry.getValue().getLastAction().getChange().name());
-					cell.setImage(checkLastAction(entry.getValue().getLastAction()));
-				} else {
-					cell.setText("No actions have been performed on this element yet");
-				}			
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getValue().getLastAction() != null) {
+						cell.setImage(checkLastAction(entry.getValue().getLastAction()));
+					}	
+				}
 			}
 	    });
-	    
-	    final TreeViewerColumn column8 = new TreeViewerColumn(viewer, SWT.RIGHT);
-	    column8.getColumn().setText("Name");
-	    column8.getColumn().setWidth(300);
-	    
-	    column8.setLabelProvider(new CellLabelProvider() {
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void update(ViewerCell cell) {
-				Entry<IMethodDescription, Score> entry = (Entry<IMethodDescription, Score>) cell.getElement();
-				cell.setText(entry.getKey().getId().getName());
-			}
-	    });
-	    
-	    viewer.setContentProvider(new CodeElementContentProvider());
+	       
+	    viewer.setContentProvider(new CodeElementContentProvider(viewer));
 	}
 
+	private void packColumns() {
+		 final TreeColumn[] treeColumns = viewer.getTree().getColumns();
+
+		 for (TreeColumn treeColumn : treeColumns) {
+		     treeColumn.pack();
+		 }
+	}
+	
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<IMethodDescription> eventNavigateToRequired() {
@@ -301,9 +337,15 @@ public class ScoreListUI extends Composite {
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		viewer.setInput(scores);
+		ElementNode root = new ElementNode(null, null, null);
+		for (Entry<IMethodDescription, Score> element : scores.entrySet()) {
+			ElementNode elementNode = new ElementNode(root, null, element);
+			root.addChild(elementNode);
+		}
+		viewer.setInput(root);
 		System.out.println(viewer.getTree().getItems().length);
 		this.adddMenuToTreeViewer(feedbackActions);
+		packColumns();
 	}
 
 	public void clearMethodScores() {
@@ -460,7 +502,7 @@ public class ScoreListUI extends Composite {
 		
 		return resultList;
 	}
-
+	
 	private Image checkLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
 		if (lastAction != null) {
 			String iconPath = lastAction.getChange().getIconPath();

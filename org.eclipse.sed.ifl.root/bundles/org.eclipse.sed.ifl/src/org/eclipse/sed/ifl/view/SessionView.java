@@ -45,6 +45,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		part.eventOpenFiltersPage().add(openFiltersPartListener);
 		part.eventOpenDualListPage().add(openDualListPartListener);
+		part.eventSaveToJsonRequested().add(saveToJsonRequestedListener);
 		super.init();
 	}
 
@@ -56,6 +57,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		part.eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		part.eventOpenFiltersPage().remove(openFiltersPartListener);
 		part.eventOpenDualListPage().remove(openDualListPartListener);
+		part.eventSaveToJsonRequested().remove(saveToJsonRequestedListener);
 		super.teardown();
 	}
 
@@ -135,6 +137,13 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 	}
 	
 	private IListener<EmptyEvent> openDualListPartListener = openDualListPart::invoke;
+	
+	private NonGenericListenerCollection<EmptyEvent> saveToJsonRequested = new NonGenericListenerCollection<>();
+	private IListener<EmptyEvent> saveToJsonRequestedListener = saveToJsonRequested::invoke;
+
+	public INonGenericListenerCollection<EmptyEvent> eventsaveToJsonRequested() {
+		return saveToJsonRequested;
+	}
 	
 	public void close() {
 		part.getSite().getPage().hideView(part);

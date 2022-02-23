@@ -123,11 +123,18 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		return openDualListPage;
 	}
 	
+	private NonGenericListenerCollection<EmptyEvent> saveToJsonRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventSaveToJsonRequested() {
+		return saveToJsonRequested;
+	}
+	
 	private Action loadScoreAction;
 	private Action hideUndefinedAction;
 	private Action recalculateScoreAction;
 	private Action showFiltersAction;
 	private Action showSortingAction;
+	private Action saveToJsonAction;
 
 	private void fillLocalToolBar(IToolBarManager manager) {
 		ActionContributionItem loadScore = new ActionContributionItem(loadScoreAction);
@@ -146,6 +153,9 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem recalculateScore = new ActionContributionItem(recalculateScoreAction);
 		recalculateScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(recalculateScore);
+		ActionContributionItem saveToJson = new ActionContributionItem(saveToJsonAction);
+		saveToJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(saveToJson);
 	}
 
 	private void makeActions() {
@@ -231,6 +241,18 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 //				return ImageDescriptor.createFromImage(
 //						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon.png"));
 //			}
+		};
+		
+		saveToJsonAction = new Action() {
+			@Override
+			public void run() {
+				saveToJsonRequested.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Save scores to json";
+			}
 		};
 
 	}

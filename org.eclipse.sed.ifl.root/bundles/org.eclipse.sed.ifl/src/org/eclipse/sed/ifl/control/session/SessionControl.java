@@ -166,6 +166,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		getView().eventOpenFiltersPart().add(openFiltersPage);
 		getView().eventOpenDualListPart().add(openDualListPage);
+		getView().eventsaveToJsonRequested().add(saveToJsonRequestedListener);
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
@@ -182,6 +183,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
 		getView().eventOpenDualListPart().remove(openDualListPage);
+		getView().eventsaveToJsonRequested().remove(saveToJsonRequestedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
@@ -210,7 +212,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreListControl.closeDualListPart();
 		this.finished.invoke(new EmptyEvent());
 	}
-
+	
 	private ScoreLoaderControl scoreLoaderControl;
 	private ScoreRecalculatorControl scoreRecalculatorControl;
 
@@ -230,6 +232,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 
 	private IListener<EmptyEvent> openDualListPage = event -> {
 		scoreListControl.openDualListPage();
+	};
+	
+	private IListener<EmptyEvent> saveToJsonRequestedListener = event -> {
+		this.scoreListControl.saveToJson();
 	};
 	
 }
