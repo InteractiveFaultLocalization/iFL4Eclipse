@@ -1,9 +1,6 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -35,7 +32,6 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
-import org.eclipse.sed.ifl.util.ElementSerializer;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
@@ -51,12 +47,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreListUI extends Composite {
@@ -68,19 +58,21 @@ public class ScoreListUI extends Composite {
 
 	@SuppressWarnings("unchecked")
 	private void requestNavigateToAllSelection() {
-		for (Entry<IMethodDescription, Score> selected : (List<Entry<IMethodDescription, Score>>)viewer.getStructuredSelection().toList()) {
-			String path = selected.getKey().getLocation().getAbsolutePath();
-			int offset = selected.getKey().getLocation().getBegining().getOffset();
+		for (ElementNode selected : (List<ElementNode>)viewer.getStructuredSelection().toList()) {
+			Entry<IMethodDescription, Score> codeElement = selected.getCodeElement();
+			String path = codeElement.getKey().getLocation().getAbsolutePath();
+			int offset = codeElement.getKey().getLocation().getBegining().getOffset();
 			System.out.println("navigation requested to: " + path + ":" + offset);
-			IMethodDescription entry = selected.getKey();
+			IMethodDescription entry = codeElement.getKey();
 			navigateToRequired.invoke(entry);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void requestNavigateToContextSelection() {
-		for(Entry<IMethodDescription, Score> selected : (List<Entry<IMethodDescription, Score>>)viewer.getStructuredSelection().toList()) {
-			navigateToContext.invoke(selected);
+		for(ElementNode selected : (List<ElementNode>)viewer.getStructuredSelection().toList()) {
+			Entry<IMethodDescription, Score> codeElement = selected.getCodeElement();
+			navigateToContext.invoke(codeElement);
 		}
 	}
 	
@@ -308,8 +300,7 @@ public class ScoreListUI extends Composite {
                     boolean disabledMenu = false;
                     
                     for (Object selectionElement : selection.toList()) {
-                    	@SuppressWarnings("unchecked")
-						Entry<IMethodDescription, Score> element = (Entry<IMethodDescription, Score>) selectionElement;
+                    	Entry<IMethodDescription, Score> element = ((ElementNode) selectionElement).getCodeElement();
                     	
                     	if (!element.getValue().isDefinit() || !element.getKey().isInteractive()) {
                     		disabledMenu = true;
@@ -376,8 +367,7 @@ public class ScoreListUI extends Composite {
 		@Override
 		public void run() {
 			for (Object item : viewer.getStructuredSelection().toList()) {
-				@SuppressWarnings("unchecked")
-				Entry<IMethodDescription, Score> element = (Entry<IMethodDescription, Score>) item;
+				Entry<IMethodDescription, Score> element = ((ElementNode)item).getCodeElement();
 				IMethodDescription sourceItem = element.getKey();
 				if (sourceItem.hasDetailsLink()) {
 					openDetailsRequired.invoke(sourceItem);
@@ -466,16 +456,17 @@ public class ScoreListUI extends Composite {
 				public void run() {
 					if (option.getId().equals("CONTEXT_BASED_OPTION")) {
 							List<IMethodDescription> subjects = (List<IMethodDescription>) viewer.getStructuredSelection().toList().stream()
-									.map(selection -> ((Entry<IMethodDescription,Score>) selection).getKey()).collect(Collectors
+									.map(selection -> ((ElementNode) selection).getCodeElement().getKey()).collect(Collectors
 									.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 							customOptionSelected.invoke(subjects);
 					} else {
 						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();
 						try {
-							for (Entry<IMethodDescription, Score> element : (List<Entry<IMethodDescription,Score>>) viewer.getStructuredSelection().toList()) {
-								assert element instanceof Entry<?, ?>;
-								subjects.put(element.getKey(),
-										new Defineable<Double>(element.getValue().getValue()));
+							for (ElementNode element : (List<ElementNode>) viewer.getStructuredSelection().toList()) {
+								Entry<IMethodDescription,Score> codeElement = element.getCodeElement();
+								assert codeElement instanceof Entry<?, ?>;
+								subjects.put(codeElement.getKey(),
+										new Defineable<Double>(codeElement.getValue().getValue()));
 							}
 
 							UserFeedback feedback = new UserFeedback(option, subjects);

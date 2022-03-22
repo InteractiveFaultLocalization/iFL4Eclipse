@@ -162,6 +162,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(partMonitor);
 		getView().eventClosed().add(closeListener);
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().add(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		getView().eventOpenFiltersPart().add(openFiltersPage);
@@ -179,6 +180,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
 		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().remove(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		getView().eventOpenFiltersPart().remove(openFiltersPage);
@@ -220,6 +222,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.println("Loading scores from files are requested...");
 		this.scoreLoaderControl.load();
 	};
+	
+	private IListener<EmptyEvent> scoreLoadFromJsonRequestedListener = __ -> {
+		System.out.println("Loading scores from json file is requested...");
+		this.scoreLoaderControl.loadFromJson();
+	};
+	
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {

@@ -98,6 +98,12 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<Action> eventScoreLoadRequested() {
 		return scoreLoadRequested;
 	}
+	
+	private NonGenericListenerCollection<EmptyEvent> loadFromJsonRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventLoadFromJsonRequested() {
+		return loadFromJsonRequested;
+	}
 
 	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
 
@@ -130,6 +136,7 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	}
 	
 	private Action loadScoreAction;
+	private Action loadFromJsonAction;
 	private Action hideUndefinedAction;
 	private Action recalculateScoreAction;
 	private Action showFiltersAction;
@@ -140,6 +147,9 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem loadScore = new ActionContributionItem(loadScoreAction);
 		loadScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(loadScore);
+		ActionContributionItem loadScoreFromJson = new ActionContributionItem(loadFromJsonAction);
+		loadScoreFromJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(loadScoreFromJson);
 		ActionContributionItem showFilters = new ActionContributionItem(showFiltersAction);
 		showFilters.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(showFilters);
@@ -177,6 +187,19 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/load-button-icon.png"));
 			}
 		};
+		
+		loadFromJsonAction = new Action() {
+			@Override
+			public void run() {
+				loadFromJsonRequested.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Load scores from json";
+			}
+		};
+		
 		showFiltersAction = new Action() {
 			@Override
 			public void run() {

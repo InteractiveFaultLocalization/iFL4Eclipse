@@ -21,10 +21,24 @@ public class ScoreLoaderView extends View {
 		return fileSelected;
 	}
 	
+	private NonGenericListenerCollection<String> jsonFileSelected = new NonGenericListenerCollection<>();
+	
+	public INonGenericListenerCollection<String> eventJsonFileSelected() {
+		return jsonFileSelected;
+	}
+	
 	public void select() {
 		String path = dialog.open();
 		if (path != null) {
 			fileSelected.invoke(path);
+		}
+	}
+
+	public void selectJson() {
+		dialog.setFilterExtensions(new String[] {"*.json"});
+		String path = dialog.open();
+		if (path != null) {
+			jsonFileSelected.invoke(path);
 		}
 	}
 	

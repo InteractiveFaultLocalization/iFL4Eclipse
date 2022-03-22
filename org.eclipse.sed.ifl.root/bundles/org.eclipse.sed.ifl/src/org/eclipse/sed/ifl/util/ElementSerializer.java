@@ -22,17 +22,17 @@ public class ElementSerializer extends StdSerializer<Map<?, ?>>{
 	@Override
 	public void serialize(Map<?, ?> arg0, JsonGenerator arg1, SerializerProvider arg2) throws IOException {
 		
-		arg1.writeStartObject();
+		arg1.writeStartArray();
 		
 		for (Entry<?, ?> child : arg0.entrySet()) {
 			serializeCodeElement(child, arg1, arg2);
 		}
 		
-		arg1.writeEndObject();		
+		arg1.writeEndArray();		
 	}
 	
 	private void serializeCodeElement(Entry<?, ?> codeElement, JsonGenerator generator, SerializerProvider provider) throws IOException {
-		generator.writeObjectFieldStart("method");
+		generator.writeStartObject();
 		IMethodDescription key = (IMethodDescription)codeElement.getKey();
 		Score value = (Score)codeElement.getValue();
 		generator.writeStringField("name", key.getId().getName());
@@ -42,6 +42,7 @@ public class ElementSerializer extends StdSerializer<Map<?, ?>>{
 			generator.writeStringField("score", "undefined");
 		}
 		generator.writeStringField("signature", key.getId().getSignature());
+		generator.writeStringField("detailsLink", key.getDetailsLink());
 		generator.writeStringField("parentType", key.getId().getParentType());
 		generator.writeStringField("path", key.getLocation().getAbsolutePath());
 		generator.writeNumberField("position", key.getLocation().getBegining().getOffset());

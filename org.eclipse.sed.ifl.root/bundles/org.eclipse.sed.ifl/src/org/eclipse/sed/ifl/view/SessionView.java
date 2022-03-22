@@ -41,7 +41,11 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 		scoreRecalculateRequestedListener = event -> {
 			scoreRecalculateRequested.invoke(new EmptyEvent());
 		};
+		scoreLoadFromJsonRequestedListener = event -> {
+			scoreLoadFromJsonRequested.invoke(new EmptyEvent());
+		};
 		part.eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		part.eventLoadFromJsonRequested().add(scoreLoadFromJsonRequestedListener);
 		part.eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
 		part.eventOpenFiltersPage().add(openFiltersPartListener);
 		part.eventOpenDualListPage().add(openDualListPartListener);
@@ -53,6 +57,7 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 	public void teardown() {
 		service.removePartListener(stateListener);
 		part.eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		part.eventLoadFromJsonRequested().remove(scoreLoadFromJsonRequestedListener);
 		part.eventHideUndefinedRequested().remove(hideUndefinedListener);
 		part.eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
 		part.eventOpenFiltersPage().remove(openFiltersPartListener);
@@ -107,6 +112,14 @@ public class SessionView extends View implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadRequested() {
 		return scoreLoadRequested;
 	}
+	
+	private NonGenericListenerCollection<EmptyEvent> scoreLoadFromJsonRequested = new NonGenericListenerCollection<>();
+	private IListener<EmptyEvent> scoreLoadFromJsonRequestedListener;
+
+	public INonGenericListenerCollection<EmptyEvent> eventScoreLoadFromJsonRequested() {
+		return scoreLoadFromJsonRequested;
+	}
+	
 
 	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
 	private IListener<Boolean> hideUndefinedListener;
