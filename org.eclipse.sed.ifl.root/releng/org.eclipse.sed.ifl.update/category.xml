@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.sed.ifl.feature_3.5.0.0.jar" id="org.eclipse.sed.ifl.feature" version="3.6.221.3">
+   <feature url="features/org.eclipse.sed.ifl.feature_3.5.0.0.jar" id="org.eclipse.sed.ifl.feature" version="3.6.221.4">
       <category name="iFL for Eclipse"/>
    </feature>
    <category-def name="iFL for Eclipse" label="iFL for Eclipse"/>

@@ -150,6 +150,9 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem loadScoreFromJson = new ActionContributionItem(loadFromJsonAction);
 		loadScoreFromJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(loadScoreFromJson);
+		ActionContributionItem saveToJson = new ActionContributionItem(saveToJsonAction);
+		saveToJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(saveToJson);
 		ActionContributionItem showFilters = new ActionContributionItem(showFiltersAction);
 		showFilters.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(showFilters);
@@ -163,9 +166,6 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		ActionContributionItem recalculateScore = new ActionContributionItem(recalculateScoreAction);
 		recalculateScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(recalculateScore);
-		ActionContributionItem saveToJson = new ActionContributionItem(saveToJsonAction);
-		saveToJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-		manager.add(saveToJson);
 	}
 
 	private void makeActions() {
@@ -197,6 +197,12 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public String getText() {
 				return "Load scores from json";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/load-from-json.png"));
 			}
 		};
 		
@@ -275,6 +281,12 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 			@Override
 			public String getText() {
 				return "Save scores to json";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/save-to-json.png"));
 			}
 		};
 
