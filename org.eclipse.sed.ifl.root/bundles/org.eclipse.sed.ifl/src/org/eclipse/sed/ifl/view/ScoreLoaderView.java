@@ -12,7 +12,6 @@ public class ScoreLoaderView extends View {
 
 	public ScoreLoaderView() {
 		dialog = new FileDialog(new Shell(), SWT.OPEN);
-		dialog.setFilterExtensions(new String[] {"*.csv"});
 	}
 	
 	private NonGenericListenerCollection<String> fileSelected = new NonGenericListenerCollection<>();
@@ -28,6 +27,7 @@ public class ScoreLoaderView extends View {
 	}
 	
 	public void select() {
+		dialog.setFilterExtensions(new String[] {"*.csv"});
 		String path = dialog.open();
 		if (path != null) {
 			fileSelected.invoke(path);
