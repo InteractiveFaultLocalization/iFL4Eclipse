@@ -88,10 +88,10 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 	private boolean setInteractivity(Random r) {
 		boolean rValue = r.nextBoolean();
 		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
-		case "random" : interactivity = "random"; return rValue;
-		case "allTrue" : interactivity = "true"; return true;
-		case "allFalse" : interactivity = "false"; return false;
-		default : return rValue;
+			case "random" : interactivity = "random"; return rValue;
+			case "allTrue" : interactivity = "true"; return true;
+			case "allFalse" : interactivity = "false"; return false;
+			default : return rValue;
 		}
 	}
 	
@@ -118,7 +118,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl();
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl();
@@ -162,8 +162,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(partMonitor);
 		getView().eventClosed().add(closeListener);
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().add(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().add(openFiltersPage);
+		getView().eventOpenDualListPart().add(openDualListPage);
+		getView().eventsaveToJsonRequested().add(saveToJsonRequestedListener);
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
@@ -176,8 +180,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
 		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().remove(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().remove(openFiltersPage);
+		getView().eventOpenDualListPart().remove(openDualListPage);
+		getView().eventsaveToJsonRequested().remove(saveToJsonRequestedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
@@ -206,7 +214,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreListControl.closeDualListPart();
 		this.finished.invoke(new EmptyEvent());
 	}
-
+	
 	private ScoreLoaderControl scoreLoaderControl;
 	private ScoreRecalculatorControl scoreRecalculatorControl;
 
@@ -214,10 +222,28 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.println("Loading scores from files are requested...");
 		this.scoreLoaderControl.load();
 	};
+	
+	private IListener<EmptyEvent> scoreLoadFromJsonRequestedListener = __ -> {
+		System.out.println("Loading scores from json file is requested...");
+		this.scoreLoaderControl.loadFromJson();
+	};
+	
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
 		this.scoreRecalculatorControl.recalculate();
 	};
 
+	private IListener<EmptyEvent> openFiltersPage = event -> {
+		scoreListControl.openFiltersPage();
+	};
+
+	private IListener<EmptyEvent> openDualListPage = event -> {
+		scoreListControl.openDualListPage();
+	};
+	
+	private IListener<EmptyEvent> saveToJsonRequestedListener = event -> {
+		this.scoreListControl.saveToJson();
+	};
+	
 }

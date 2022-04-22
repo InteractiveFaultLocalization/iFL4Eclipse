@@ -4,7 +4,6 @@ package org.eclipse.sed.ifl.control.score.filter;
 import java.util.List;
 
 import org.eclipse.sed.ifl.control.Control;
-import org.eclipse.sed.ifl.control.DualListControl;
 import org.eclipse.sed.ifl.model.FilterModel;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
@@ -13,8 +12,6 @@ import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.view.FilterView;
 
 public class FilterControl extends Control<FilterModel, FilterView> {
-	
-	private DualListControl<?> dualListControl;
 	
 	public void showFilterPart() {
 		getView().showFilterPart();

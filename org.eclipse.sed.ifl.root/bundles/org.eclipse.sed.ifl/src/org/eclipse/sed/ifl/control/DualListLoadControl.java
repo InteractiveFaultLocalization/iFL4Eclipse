@@ -1,6 +1,5 @@
 package org.eclipse.sed.ifl.control;
 
-import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
 
 

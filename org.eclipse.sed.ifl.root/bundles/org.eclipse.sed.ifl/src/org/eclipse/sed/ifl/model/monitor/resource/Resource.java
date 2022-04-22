@@ -50,6 +50,7 @@ public abstract class Resource extends Node {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public GraphTraversal<Vertex, Vertex> createNodeTraversal(GraphTraversalSource g) {
 		NanoWatch watch = new NanoWatch("finding resource candidates");
