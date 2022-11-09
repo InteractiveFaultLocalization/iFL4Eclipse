@@ -30,6 +30,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("macAddress", "");
 		store.setDefault("ipAddress", "");
 		store.setDefault("interactivity", "random");
+		store.setDefault("instrumenter", "");
+		store.setDefault("formula", "ochiai");
 	}
 
 }

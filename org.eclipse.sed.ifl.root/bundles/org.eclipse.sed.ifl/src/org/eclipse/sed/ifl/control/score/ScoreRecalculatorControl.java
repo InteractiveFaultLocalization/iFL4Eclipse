@@ -1,14 +1,14 @@
 package org.eclipse.sed.ifl.control.score;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -16,18 +16,15 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.commons.model.source.Method;
 import org.eclipse.sed.ifl.control.ViewlessControl;
 import org.eclipse.sed.ifl.control.score.ScoreLoaderControl.Entry;
 import org.eclipse.sed.ifl.ide.Activator;
@@ -35,28 +32,31 @@ import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.modifier.source.PomModificationException;
 import org.eclipse.sed.ifl.ide.modifier.source.PomModifier;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
-import org.eclipse.sed.ifl.scorelib.Formula;
-import org.eclipse.sed.ifl.scorelib.Results;
-import org.eclipse.sed.ifl.scorelib.ScoreCalculator;
-import org.eclipse.sed.ifl.scorelib.ScoreException;
-import org.eclipse.sed.ifl.scorelib.ScoreVariables;
-import org.eclipse.sed.ifl.scorelib.TrcReader;
+import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+
+import hu.szte.inf.sed.fl.CSVReportWriter;
+import hu.szte.inf.sed.fl.formula.Formula;
+import hu.szte.inf.sed.fl.formula.sbfl.Formulas;
 
 
 public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 
+	private static final String UNIQUE_NAME_HEADER = "name";
+	private static final String SCORE_HEADER = "score";
+	private static final String INTERACTIVITY_HEADER = "interactive";
+	private static final String DETAILS_LINK_HEADER = "details";
+	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader();
 	private static final String CONFIGURED_POM_XML = "configuredPom.xml";
 	private static final String JOB_FAMILY = "coverage_generation";
-	private final String instrumenterJar; // TODO: should be a text-like option in iFL preferences
+	private final String instrumenterJar = Activator.getDefault().getPreferenceStore().getString("instrumenter");
+	private final String formula = Activator.getDefault().getPreferenceStore().getString("formula");
 	private File javaHome;
 	private final IJavaProject project;
 	CodeEntityAccessor accessor = new CodeEntityAccessor();
 	
 	public ScoreRecalculatorControl(IJavaProject selectedProject) {
-		this.instrumenterJar = "method-agent-0.0.4-jar-with-dependencies.jar";
-
 		project = selectedProject;
 		
 		try {
@@ -112,23 +112,25 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 					} catch (MavenInvocationException e) {
 						System.out.println("Request execution failed (mavenInvoker)");
 						e.printStackTrace();
-						return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Request execution failed (mavenInvoker)");
+						return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Request execution failed (MavenInvoker)");
 					}
-					
-					
-					// load scores from coverage files
-					Map<Entry, Score> methodScores = calculateScores();
 					
 					Display.getDefault().asyncExec(new Runnable() {
 						public void run() {
-							int updatedCount = getModel().loadScore(methodScores);
-							MessageDialog.open(MessageDialog.INFORMATION, null,"iFL score loading", updatedCount + " scores are loaded", SWT.NONE);
+							try {
+								int updatedCount = calculateScores();
+
+								MessageDialog.open(MessageDialog.INFORMATION, null, "iFL score loading", updatedCount + " scores have been loaded", SWT.NONE);
+							} catch (Exception e) {
+								MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "The plug-in was unable to open the CSV file. Please check if the CSV file is corrupted or is not properly formatted.", SWT.NONE);
+								e.printStackTrace();
+							}
 						}
 					});
 				} catch (Exception e) {
-					System.out.println("Unexpected error during maven tests");
+					System.out.println("Unexpected error during score recalculation");
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Unexpected error during maven tests");
+					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Unexpected error during score recalculation");
 				}
 				return Status.OK_STATUS;
 			}
@@ -150,43 +152,37 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		}
 	}
 	
-	public Map<Entry, Score> calculateScores() {
-		final String coveragePath = project.getProject().getRawLocation().append("coverage").toOSString();
-		final TrcReader trcReader = new TrcReader();
-		final ScoreCalculator scoreCalculator = new ScoreCalculator();
-		final Formula formula = new Formula();
+	public int calculateScores() throws Exception {
+		final IPath coveragePath = project.getProject().getRawLocation().append("coverage");
+		final IPath outputPath = project.getProject().getRawLocation();
+		final Formula sbflFormula = Formulas.valueOf(formula.toUpperCase()).getFormula();
 		
-		Random r = new Random();
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getFilteredResolvedMethods(project);
-		
-		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(accessor.identityFrom(method), accessor.locationFrom(method), accessor.contextFrom(method, resolvedMethods), accessor.setInteractivity(r)))
-		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-		System.out.printf("%d method found\n", methods.size());
-
-		Map<Short, ScoreVariables> trcMaps = trcReader.readTrc(coveragePath);
-		Results results = null;
 		try {
-			results = (Results) scoreCalculator.calculate(trcMaps, formula);
-		} catch (ScoreException e) {
-			System.out.println("Unable to calculate scores for trc maps");
-			e.printStackTrace();
-		} catch (Exception e) {
-			System.out.println("Unexpected error during calculating scores for trc maps");
+			CSVReportWriter report = new CSVReportWriter(coveragePath.toOSString(), outputPath.toOSString(), sbflFormula);
+
+			report.createReport();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		//new Score(results.getMethodScore(currMethod));
-		Map<Entry, Score> methodScores = new HashMap<>();
-		for (IMethodDescription method : methods) {
-			String name = method.getId().toCSVKey();
-			String details = method.hasDetailsLink()?method.getDetailsLink():null;
-			boolean interactivity = method.isInteractive();
-			Entry entry = new Entry(name, details, interactivity);
-			methodScores.put(entry, new Score(r.nextDouble()));
+		NanoWatch watch = new NanoWatch("loading scores from csv");
+		File file = new File(outputPath.append(formula + ".csv").toOSString());
+		CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
+		int recordCount = 0;
+		Map<Entry, Score> loadedScores = new HashMap<>();
+		for (CSVRecord record : parser) {
+			recordCount++;
+			String name = record.get(UNIQUE_NAME_HEADER);
+			double value = Double.parseDouble(record.get(SCORE_HEADER));
+
+			boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
+			Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+			Score score = new Score(value);
+			loadedScores.put(entry, score);
 		}
-		
-		return methodScores;
+		int updatedCount = getModel().loadScore(loadedScores);
+		System.out.println(watch);
+		return updatedCount;
 	}
 
 	@Override

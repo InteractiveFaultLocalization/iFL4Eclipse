@@ -62,6 +62,7 @@ public class IFLPreferencePage
 	private StringFieldEditor hostField;
 	private StringFieldEditor portField;
 	private StringFieldEditor generatedIdField;
+	private StringFieldEditor instrumenterField;
 	private Text desc;
 	private Text agreement;
 	private Button idButton;
@@ -178,6 +179,13 @@ public class IFLPreferencePage
 		Group interactivity = new Group(getFieldEditorParent().getParent(), SWT.NONE);
 		interactivity.setText("Choose the interactivity\n of the code elements");
 		addField(new RadioGroupFieldEditor("interactivity", "", 1, new String[][]{{"Randomized", "random"}, {"All true", "allTrue"}, {"All false", "allFalse"}}, interactivity, false));
+
+		instrumenterField = new StringFieldEditor("instrumenter", "Instrumenter JAR: ", getFieldEditorParent());
+		addField(instrumenterField);
+
+		Group formula = new Group(getFieldEditorParent().getParent(), SWT.NONE);
+		formula.setText("Choose the fault localization formula");
+		addField(new RadioGroupFieldEditor("formula", "", 1, new String[][]{{"DStar", "dstar"}, {"Ochiai", "ochiai"}, {"Tarantula", "tarantula"}}, formula, false));
 	}
 
 	/* (non-Javadoc)

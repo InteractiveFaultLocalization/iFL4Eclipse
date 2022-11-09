@@ -103,21 +103,19 @@ public final class PomModifier {
 	}
 
 	public void editSurefireConfig(String agentFile, String listener) {
-		String agentFilePath = javaProject.getProject().getRawLocation().removeLastSegments(1).append("java-instrumenter-master").append("target").append(agentFile).toOSString();		
+		//String agentFilePath = javaProject.getProject().getRawLocation().removeLastSegments(1).append(agentFile).toOSString();
+		String agentFilePath = agentFile;
 		char separator = '=';
 		StringBuilder arglineBuilder = new StringBuilder();
-		arglineBuilder.append("-javaagent:").append(agentFilePath);
+		arglineBuilder.append("-javaagent:").append(agentFilePath).append(separator).append("granularity=binary");
+		separator = ',';
 
 		if (includeLine != null && !includeLine.isEmpty()) {
 			arglineBuilder.append(separator).append("includes=").append(includeLine);
-
-			separator = ',';
 		}
 
 		if (excludeLine != null && !excludeLine.isEmpty()) {
 			arglineBuilder.append(separator).append("excludes=").append(excludeLine);
-
-			separator = ',';
 		}
 		
 		String arglineValue = arglineBuilder.toString();
@@ -131,7 +129,7 @@ public final class PomModifier {
 			surefire = createNode(plugins, "plugin");
 			createNodeWithValue(surefire, "groupId", "org.apache.maven.plugins");
 			createNodeWithValue(surefire, "artifactId", "maven-surefire-plugin");
-			createNodeWithValue(surefire, "version", "3.0.0-M3");
+			createNodeWithValue(surefire, "version", "2.22.2");
 		}
 		
 		Xpp3Dom configuration = getElementsChild(surefire, "configuration");
