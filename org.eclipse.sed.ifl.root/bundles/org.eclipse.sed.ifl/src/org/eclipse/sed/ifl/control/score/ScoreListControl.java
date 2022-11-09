@@ -1,5 +1,7 @@
 package org.eclipse.sed.ifl.control.score;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +67,7 @@ import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
+import org.eclipse.sed.ifl.util.ElementSerializer;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
@@ -79,6 +82,10 @@ import org.eclipse.sed.ifl.view.ScoreHistoryView;
 import org.eclipse.sed.ifl.view.ScoreListView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
 
@@ -147,9 +154,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getView().eventOpenDetailsRequired().add(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().add(scoreLoadedListener);
 
-		getView().eventOpenFiltersPart().add(openFiltersPage);
-		getView().eventOpenDualListPart().add(openDualListPage);
-
 		filterControl.eventBooleanRuleAdded().add(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().add(newDoubleFilterAddedListener);
 		filterControl.eventLastActionRuleAdded().add(newLastActionFilterAddedListener);
@@ -178,9 +182,6 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		getView().eventSelectionChanged().remove(selectionChangedListener);
 		getView().eventOpenDetailsRequired().remove(openDetailsRequiredListener);
 		getModel().eventScoreLoaded().remove(scoreLoadedListener);
-
-		getView().eventOpenFiltersPart().remove(openFiltersPage);
-		getView().eventOpenDualListPart().remove(openDualListPage);
 
 		filterControl.eventBooleanRuleAdded().remove(newBooleanFilterAddedListener);
 		filterControl.eventDoubleRuleAdded().remove(newDoubleFilterAddedListener);
@@ -341,11 +342,11 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 		dualListControl.eventAttributeListRefreshRequested();
 	};
 
-	private IListener<EmptyEvent> openFiltersPage = event -> {
+	public void openFiltersPage() {
 		filterControl.showFilterPart();
 	};
 
-	private IListener<EmptyEvent> openDualListPage = event -> {
+	public void openDualListPage() {
 		dualListControl.showDualListPart();
 	};
 
@@ -571,5 +572,22 @@ public class ScoreListControl<TItem> extends Control<ScoreListModel, ScoreListVi
 	public void closeDualListPart() {
 		dualListControl.terminate();
 		dualListControl.close();
+	}
+
+	public void saveToJson() {
+		Map<IMethodDescription, Score> elements = this.getModel().getScores();
+		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule();
+		module.addSerializer(new ElementSerializer());
+		mapper.registerModule(module);
+		try {
+			File file = new File("sampleJson.json");
+			mapper.writerWithDefaultPrettyPrinter().writeValue(file, elements);
+			MessageDialog.open(MessageDialog.INFORMATION, Display.getCurrent().getActiveShell(), "Save to Json",
+					"The scores have been saved to " + file.getAbsolutePath(),
+					SWT.NONE);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

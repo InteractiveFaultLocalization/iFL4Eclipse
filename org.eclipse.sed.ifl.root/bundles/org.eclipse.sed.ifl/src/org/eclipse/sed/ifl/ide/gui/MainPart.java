@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.sed.ifl.general.IEmbeddable;
 import org.eclipse.sed.ifl.general.IEmbedee;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
+import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -97,6 +98,12 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 	public INonGenericListenerCollection<Action> eventScoreLoadRequested() {
 		return scoreLoadRequested;
 	}
+	
+	private NonGenericListenerCollection<EmptyEvent> loadFromJsonRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventLoadFromJsonRequested() {
+		return loadFromJsonRequested;
+	}
 
 	private NonGenericListenerCollection<Boolean> hideUndefinedRequested = new NonGenericListenerCollection<>();
 
@@ -110,14 +117,48 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 		return scoreRecalculateRequested;
 	}
 
+	private NonGenericListenerCollection<EmptyEvent> openFiltersPage = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPage() {
+		return openFiltersPage;
+	}
+	
+	private NonGenericListenerCollection<EmptyEvent> openDualListPage = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPage() {
+		return openDualListPage;
+	}
+	
+	private NonGenericListenerCollection<EmptyEvent> saveToJsonRequested = new NonGenericListenerCollection<>();
+
+	public INonGenericListenerCollection<EmptyEvent> eventSaveToJsonRequested() {
+		return saveToJsonRequested;
+	}
+	
 	private Action loadScoreAction;
+	private Action loadFromJsonAction;
 	private Action hideUndefinedAction;
 	private Action recalculateScoreAction;
+	private Action showFiltersAction;
+	private Action showSortingAction;
+	private Action saveToJsonAction;
 
 	private void fillLocalToolBar(IToolBarManager manager) {
 		ActionContributionItem loadScore = new ActionContributionItem(loadScoreAction);
 		loadScore.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(loadScore);
+		ActionContributionItem loadScoreFromJson = new ActionContributionItem(loadFromJsonAction);
+		loadScoreFromJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(loadScoreFromJson);
+		ActionContributionItem saveToJson = new ActionContributionItem(saveToJsonAction);
+		saveToJson.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(saveToJson);
+		ActionContributionItem showFilters = new ActionContributionItem(showFiltersAction);
+		showFilters.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(showFilters);
+		ActionContributionItem showSorting = new ActionContributionItem(showSortingAction);
+		showSorting.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		manager.add(showSorting);
 		ActionContributionItem hideUndefined = new ActionContributionItem(hideUndefinedAction);
 		hideUndefined.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		manager.add(hideUndefined);
@@ -144,6 +185,47 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public ImageDescriptor getImageDescriptor() {
 				return ImageDescriptor.createFromImage(
 						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/load-button-icon.png"));
+			}
+		};
+		
+		loadFromJsonAction = new Action() {
+			@Override
+			public void run() {
+				loadFromJsonRequested.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Load scores from json";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/load-from-json.png"));
+			}
+		};
+		
+		showFiltersAction = new Action() {
+			@Override
+			public void run() {
+				openFiltersPage.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Show filters";
+			}
+		};
+		showSortingAction = new Action() {
+			@Override
+			public void run() {
+				openDualListPage.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Show sorting";
 			}
 		};
 		hideUndefinedAction = new Action() {
@@ -187,6 +269,24 @@ public class MainPart extends ViewPart implements IEmbeddable, IEmbedee {
 			public ImageDescriptor getImageDescriptor() {
 				return ImageDescriptor.createFromImage(
 						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/recalculate-button-icon_16x16.png"));
+			}
+		};
+		
+		saveToJsonAction = new Action() {
+			@Override
+			public void run() {
+				saveToJsonRequested.invoke(new EmptyEvent());
+			}
+
+			@Override
+			public String getText() {
+				return "Save scores to json";
+			}
+			
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				return ImageDescriptor.createFromImage(
+						ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/save-to-json.png"));
 			}
 		};
 

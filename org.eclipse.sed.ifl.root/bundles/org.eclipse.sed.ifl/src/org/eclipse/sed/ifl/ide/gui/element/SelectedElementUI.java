@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.wb.swt.SWTResourceManager;
-
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 import java.math.RoundingMode;
@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.ResourceManager;
 
+@SuppressWarnings("restriction")
 public class SelectedElementUI extends Composite {
 	
 	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
@@ -62,6 +63,8 @@ public class SelectedElementUI extends Composite {
 		setLayoutData(data);
 		GridLayout gridLayout = new GridLayout(4, false);
 		setLayout(gridLayout);
+		
+		setData(CSSSWTConstants.CSS_ID_KEY, "card");
 		
 		LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
 		
@@ -148,6 +151,7 @@ public class SelectedElementUI extends Composite {
 			} else if (!(control instanceof Button)){
 				dispatchMouseEventToParent(control);
 			}
+			control.setData(CSSSWTConstants.CSS_ID_KEY, "card-element");
 		}
 		
 	}

@@ -1,124 +1,79 @@
 package org.eclipse.sed.ifl.ide.gui;
 
 import java.awt.BorderLayout;
-
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.sed.ifl.control.score.Score;
-import org.eclipse.sed.ifl.ide.gui.element.CardHolderComposite;
-import org.eclipse.sed.ifl.ide.gui.element.CodeElementUI;
-import org.eclipse.sed.ifl.ide.gui.element.SelectedElementUI;
+import org.eclipse.sed.ifl.ide.gui.element.CodeElementContentProvider;
+import org.eclipse.sed.ifl.ide.gui.treeview.ElementNode;
+import org.eclipse.sed.ifl.model.score.history.Monument;
 import org.eclipse.sed.ifl.model.user.interaction.IUserFeedback;
 import org.eclipse.sed.ifl.model.user.interaction.Option;
 import org.eclipse.sed.ifl.model.user.interaction.SideEffect;
 import org.eclipse.sed.ifl.model.user.interaction.UserFeedback;
-import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.event.INonGenericListenerCollection;
-import org.eclipse.sed.ifl.util.event.core.EmptyEvent;
 import org.eclipse.sed.ifl.util.event.core.NonGenericListenerCollection;
 import org.eclipse.sed.ifl.util.wrapper.Defineable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
-import org.eclipse.sed.ifl.commons.model.source.MethodIdentity;
-
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 
 public class ScoreListUI extends Composite {
 
-	private Label noItemsToDisplayLabel;
-	private Button showFilterPart;
-	private Button showDualListPart;
-	private GC gc;
-	private Composite composite;
-	private CardHolderComposite cardsComposite;
-	private ScrolledComposite scrolledComposite;
-	private Label label;
-	private Composite selectedComposite;
+	private static final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	private static final DecimalFormat LIMIT_FORMAT = new DecimalFormat("#0.0000", symbols);
+	
+	private TreeViewer viewer;
 
-	private List<Entry<IMethodDescription, Score>> selectedList = new ArrayList<Entry<IMethodDescription, Score>>();
-
+	@SuppressWarnings("unchecked")
 	private void requestNavigateToAllSelection() {
-		if (checkSelectedNotNull()) {
-			for (Entry<IMethodDescription, Score> selected : selectedList) {
-				String path = selected.getKey().getLocation().getAbsolutePath();
-				int offset = selected.getKey().getLocation().getBegining().getOffset();
-				System.out.println("navigation requested to: " + path + ":" + offset);
-				IMethodDescription entry = selected.getKey();
-				navigateToRequired.invoke(entry);
-			}
+		for (ElementNode selected : (List<ElementNode>)viewer.getStructuredSelection().toList()) {
+			Entry<IMethodDescription, Score> codeElement = selected.getCodeElement();
+			String path = codeElement.getKey().getLocation().getAbsolutePath();
+			int offset = codeElement.getKey().getLocation().getBegining().getOffset();
+			System.out.println("navigation requested to: " + path + ":" + offset);
+			IMethodDescription entry = codeElement.getKey();
+			navigateToRequired.invoke(entry);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void requestNavigateToContextSelection() {
-		if (checkSelectedNotNull()) {
-			for(Entry<IMethodDescription, Score> selected : selectedList) {
-				navigateToContext.invoke(selected);
-			}
+		for(ElementNode selected : (List<ElementNode>)viewer.getStructuredSelection().toList()) {
+			Entry<IMethodDescription, Score> codeElement = selected.getCodeElement();
+			navigateToContext.invoke(codeElement);
 		}
-	}
-
-	private boolean checkSelectedNotNull() {
-		boolean rValue = true;
-		if (selectedList.isEmpty()) {
-			MessageDialog.open(MessageDialog.ERROR, null, "No elements selected",
-					"No code elements are selected. Select some code elements.", SWT.NONE);
-			rValue = false;
-		}
-		return rValue;
-	}
-
-	private boolean checkSelectedInteractive() {
-		boolean rValue = true;
-		for (Entry<IMethodDescription, Score> selected : selectedList) {
-			if (!selected.getKey().isInteractive()) {
-				MessageDialog.open(MessageDialog.ERROR, null, "Non-interactive elements selected",
-						"Non-interactive code elements are selected. Feedback can only be given on elements whose interactivity is set to enabled.",
-						SWT.NONE);
-				rValue = false;
-				break;
-			}
-		}
-		return rValue;
-	}
-
-	private boolean checkSelectedUndefined() {
-		boolean rValue = true;
-		for (Entry<IMethodDescription, Score> selected : selectedList) {
-			if (!selected.getValue().isDefinit()) {
-				MessageDialog.open(MessageDialog.ERROR, null, "Undefined elements selected",
-						"Code elements with undefined scores are selected. Feedback can only be given on elements whose score is defined.",
-						SWT.NONE);
-				rValue = false;
-				break;
-			}
-		}
-		return rValue;
 	}
 	
 	private NonGenericListenerCollection<List<Entry<IMethodDescription, Score>>> selectionChanged = new NonGenericListenerCollection<>();
@@ -130,115 +85,185 @@ public class ScoreListUI extends Composite {
 	public ScoreListUI() {
 		this(new Shell());
 	}
-
+	
 	/**
 	 * @wbp.parser.constructor
 	 */
 	public ScoreListUI(Composite parent) {
 		super(parent, SWT.NONE);
 		setLayoutData(BorderLayout.CENTER);
-		setLayout(new GridLayout(3, false));
+		setLayout(new GridLayout());
 		
-		composite = new Composite(this, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		composite.setSize(0, 100);
-		GridLayout gl_composite = new GridLayout(2, false);
-		gl_composite.marginWidth = 10;
-		composite.setLayout(gl_composite);
+		Tree tree = new Tree(this, SWT.FULL_SELECTION | SWT.VIRTUAL | SWT.MULTI);
+		GridData gd_tree = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		tree.setLayoutData(gd_tree);
+		tree.setHeaderVisible(true);
+		tree.setLinesVisible(true);
 		
-		showFilterPart = new Button(composite, SWT.NONE);
-		showFilterPart.setText("Show filters");
+		viewer = new TreeViewer(tree);
+		viewer.setUseHashlookup(true);
 		
-		showDualListPart = new Button(composite, SWT.NONE);
-		showDualListPart.setText("Show ordering list");
-		
-		noItemsToDisplayLabel = new Label(composite, SWT.CENTER);
-		noItemsToDisplayLabel.setAlignment(SWT.CENTER);
-		GridData gd_noItemsToDisplayLabel = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
-		gd_noItemsToDisplayLabel.horizontalIndent = 20;
-		noItemsToDisplayLabel.setLayoutData(gd_noItemsToDisplayLabel);
-		noItemsToDisplayLabel.setText("\nThere are no source code items to display. Please check if you have set the filters in a way that hides all items or if you have marked all items as not suspicious.");
-		noItemsToDisplayLabel.setVisible(false);
-		new Label(this, SWT.NONE);
-		new Label(this, SWT.NONE);
-		
-		cardsComposite = new CardHolderComposite(this, SWT.NONE);
-		GridLayout gridLayout = (GridLayout) cardsComposite.getLayout();
-		gridLayout.horizontalSpacing = 0;
-		gridLayout.verticalSpacing = 0;
-		GridData gd_cardsComposite = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		gd_cardsComposite.widthHint = 1259;
-		cardsComposite.setLayoutData(gd_cardsComposite);
-		
-		label = new Label(this, SWT.SEPARATOR | SWT.CENTER);
-		GridData gd_label = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		gd_label.heightHint = 420;
-		label.setLayoutData(gd_label);
-		
-		scrolledComposite = new ScrolledComposite(this, SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_scrolledComposite.widthHint = 384;
-		gd_scrolledComposite.heightHint = 427;
-		scrolledComposite.setLayoutData(gd_scrolledComposite);
-		
-		selectedComposite = new Composite(scrolledComposite, SWT.NONE);
-		selectedComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		GridLayout gl_selectedComposite = new GridLayout(1, false);
-		gl_selectedComposite.marginWidth = 0;
-		selectedComposite.setLayout(gl_selectedComposite);
-		selectedComposite.setSize(new Point(378, 427));
-		scrolledComposite.setContent(selectedComposite);
-		scrolledComposite.setMinSize(selectedComposite.getSize());
-		
-		cardsComposite.eventDisplayedPageChanged().add(displayedPageChangedListener);
-		
-		showFilterPart.addSelectionListener(new SelectionListener() {
+		final TreeViewerColumn column8 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column8.getColumn().setText("Name");
+	    column8.getColumn().setWidth(300);
+	    
+	    column8.setLabelProvider(new CellLabelProvider() {
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				openFiltersPage.invoke(new EmptyEvent());
-				
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getName());
+				} else {
+					cell.setText("Code elements");
+				}
 			}
+	    });
+		
+	    final TreeViewerColumn column0 = new TreeViewerColumn(viewer, SWT.RIGHT);
+		column0.getColumn().setText("Score");
+		column0.getColumn().setWidth(300);
+		
+		column0.setLabelProvider(new CellLabelProvider() {
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {	
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getValue().isDefinit()) {
+						LIMIT_FORMAT.setRoundingMode(RoundingMode.DOWN);
+						cell.setText(LIMIT_FORMAT.format(entry.getValue().getValue()));
+					} else {
+						cell.setText("undefined");
+					}
+				}
 			}
-			
 		});
 		
-		showDualListPart.addSelectionListener(new SelectionListener() {
+	    final TreeViewerColumn column1 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column1.getColumn().setText("Signature");
+	    column1.getColumn().setWidth(300);
+	    
+	    column1.setLabelProvider(new CellLabelProvider() {
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				openDualListPage.invoke(new EmptyEvent());
-				
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getSignature());
+				}
 			}
+	    });
+	    
+	    final TreeViewerColumn column3 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column3.getColumn().setText("Parent type");
+	    column3.getColumn().setWidth(300);
+	    
+	    column3.setLabelProvider(new CellLabelProvider() {
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {	
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getId().getParentType());					
+				}
 			}
-			
-		});
-	
+	    });
+	    
+	    final TreeViewerColumn column4 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column4.getColumn().setText("Path");
+	    column4.getColumn().setWidth(300);
+	    
+	    column4.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getLocation().getAbsolutePath());
+				}
+			}
+	    });
+	    
+	    final TreeViewerColumn column5 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column5.getColumn().setText("Position");
+	    column5.getColumn().setWidth(300);
+	    
+	    column5.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(entry.getKey().getLocation().getBegining().getOffset().toString());
+				}
+			}
+	    });
+	    
+	    final TreeViewerColumn column6 = new TreeViewerColumn(viewer, SWT.RIGHT);
+	    column6.getColumn().setText("Context size");
+	    column6.getColumn().setWidth(300);
+	    
+	    column6.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					cell.setText(String.valueOf(entry.getKey().getContext().size()));
+				}
+			}
+	    });
+	    
+	    final TreeViewerColumn column2 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column2.getColumn().setText("Interactivity");
+	    column2.getColumn().setWidth(300);
+	    
+	    column2.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getKey().isInteractive()) {
+						cell.setText("User feedback enabled");
+						cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
+					} else {
+						cell.setText("User feedback disabled");
+						cell.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+					}
+				}
+			}
+	    });
+	    
+	    final TreeViewerColumn column7 = new TreeViewerColumn(viewer, SWT.LEFT);
+	    column7.getColumn().setText("Last action");
+	    column7.getColumn().setWidth(300);
+	    
+	    column7.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				Entry<IMethodDescription, Score> entry = ((ElementNode) (cell.getElement())).getCodeElement();
+				if (entry != null) {
+					if (entry.getValue().getLastAction() != null) {
+						cell.setImage(checkLastAction(entry.getValue().getLastAction()));
+					}	
+				}
+			}
+	    });
+	       
+	    viewer.setContentProvider(new CodeElementContentProvider(viewer));
 	}
-		
-	
-	
 
-	private NonGenericListenerCollection<EmptyEvent> openFiltersPage = new NonGenericListenerCollection<>();
+	private void packColumns() {
+		 final TreeColumn[] treeColumns = viewer.getTree().getColumns();
 
-	public INonGenericListenerCollection<EmptyEvent> eventOpenFiltersPage() {
-		return openFiltersPage;
+		 for (TreeColumn treeColumn : treeColumns) {
+		     treeColumn.pack();
+		 }
 	}
 	
-	private NonGenericListenerCollection<EmptyEvent> openDualListPage = new NonGenericListenerCollection<>();
-
-	public INonGenericListenerCollection<EmptyEvent> eventOpenDualListPage() {
-		return openDualListPage;
-	}
-
 	private NonGenericListenerCollection<IMethodDescription> navigateToRequired = new NonGenericListenerCollection<>();
 
 	public INonGenericListenerCollection<IMethodDescription> eventNavigateToRequired() {
@@ -257,362 +282,231 @@ public class ScoreListUI extends Composite {
 		return openDetailsRequired;
 	}
 
-	public void addListenersAndMenuToCards(List<CodeElementUI> cards) {
-		for (CodeElementUI element : cards) {
+	public void adddMenuToTreeViewer(List<Action> feedbackActions) {
+		
+		MenuManager menuMgr = new MenuManager();
 
-			element.addMouseListener(new MouseAdapter() {
-				@SuppressWarnings("unchecked")
-				public void mouseDown(MouseEvent event) {
-					if (event.button == 1) {
-						if (event.count == 1) {
-							if (!selectedList.contains((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
-									.getData("entry"))) {
-								((CodeElementUI) event.widget)
-										.setBackground(SWTResourceManager.getColor(103, 198, 235));
-								((CodeElementUI) event.widget)
-										.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-								for (Control control : element.getChildren()) {
-									control.setBackground(SWTResourceManager.getColor(103, 198, 235));
-									if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
-										control.setForeground(
-												SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-									}
-								}
-								selectedList.add((Entry<IMethodDescription, Score>) ((CodeElementUI) event.widget)
-										.getData("entry"));
-								addSelectedElementToComposite(((CodeElementUI) event.widget));
-							} else {
-								requestSelectedRemoval((CodeElementUI) event.widget);
-								checkSelectedSet();
-							}
-							selectionChanged.invoke(selectedList);
-						} else if (event.count == 2) {
-							IMethodDescription data = (IMethodDescription) element.getData();
-							String path = data.getLocation().getAbsolutePath();
-							int offset = data.getLocation().getBegining().getOffset();
-							System.out.println("navigation requested to: " + path + ":" + offset);
-							navigateToRequired.invoke(data);
-						}
-					}
-				}
-				/*
-				 * public void mouseDoubleClick(MouseEvent e) { IMethodDescription data =
-				 * (IMethodDescription) element.getData(); String path =
-				 * data.getLocation().getAbsolutePath(); int offset =
-				 * data.getLocation().getBegining().getOffset();
-				 * System.out.println("navigation requested to: " + path + ":" + offset);
-				 * navigateToRequired.invoke(data); }
-				 */
-			});
-			if (((Score) element.getData("score")).isDefinit()
-					&& ((IMethodDescription) element.getData()).isInteractive()) {
-				element.setMenu(contextMenu);
-			} else {
-				element.setMenu(nonInteractiveContextMenu);
-			}
+        Menu menu = menuMgr.createContextMenu(viewer.getControl());
+        menuMgr.addMenuListener(new IMenuListener() {
+            @Override
+            public void menuAboutToShow(IMenuManager manager) {
+                if (viewer.getSelection().isEmpty()) {
+                    return;
+                }
 
-		}
-	}
-
-	private void addSelectedElementToComposite(CodeElementUI element) {
-		SelectedElementUI selected = new SelectedElementUI(selectedComposite, SWT.NONE, element);
-		selected.eventSelectedRemoved().add(selectedRemovedListener);
-		selected.eventShowSelectedCard().add(showSelectedCardListener);
-		selected.eventHiglightOriginCard().add(highlightOriginCardListener);
-		selected.eventResetOriginHighlight().add(resetOriginCardBackgroundListener);
-		selected.requestLayout();
-		scrolledComposite.setMinSize(selectedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	private void checkSelectedSet() {
-		for (CodeElementUI displayed : cardsComposite.getDisplayedCards()) {
-			if (selectedList.contains(displayed.getData("entry"))) {
-				displayed.setBackground(SWTResourceManager.getColor(103, 198, 235));
-				displayed.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-				for (Control control : displayed.getChildren()) {
-					control.setBackground(SWTResourceManager.getColor(103, 198, 235));
-					if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_BLACK))) {
-						control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
-					}
-				}
-			} else {
-				displayed.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-				for (Control control : displayed.getChildren()) {
-					control.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-					if (control.getForeground().equals(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT))) {
-						control.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-					}
-				}
-			}
-		}
-	}
-
-	private IListener<Entry<IMethodDescription, Score>> showSelectedCardListener = event -> {
-		boolean displayed = false;
-		for (Entry<Integer, List<Map.Entry<IMethodDescription, Score>>> content : cardsComposite.getContents()
-				.entrySet()) {
-			for (Entry<IMethodDescription, Score> pageContent : content.getValue()) {
-				if (event.equals(pageContent)) {
-					cardsComposite.setPageCount(content.getKey(), 0);
-					selectionChanged.invoke(selectedList);
-					displayed = true;
-					break;
-				}
-			}
-		}
-		if (!displayed) {
-			MessageDialog.open(MessageDialog.ERROR, null, "Element not displayed",
-					"The requested element is not displayed because of the current filtering options."
-							+ " Change the filtering options to allow the requested element to be displayed.",
-					SWT.NONE);
-		}
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> highlightOriginCardListener = event -> {
-		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
-			if (card.getData("entry").equals(event)) {
-				gc = new GC(card.getParent());
-				gc.setLineWidth(2);
-				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-				gc.drawRectangle(card.getBounds());
-				gc.dispose();
-				break;
-			}
-		}
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> resetOriginCardBackgroundListener = event -> {
-		for (CodeElementUI card : cardsComposite.getDisplayedCards()) {
-			if (card.getData("entry").equals(event)) {
-				gc = new GC(card.getParent());
-				gc.setLineWidth(2);
-				gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-				gc.drawRectangle(card.getBounds());
-				gc.dispose();
-				break;
-			}
-		}
-	};
-
-	private IListener<List<CodeElementUI>> displayedPageChangedListener = event -> {
-		checkSelectedSet();
-		addListenersAndMenuToCards(event);
-		selectionChanged.invoke(selectedList);
-	};
-
-	private IListener<Entry<IMethodDescription, Score>> selectedRemovedListener = event -> {
-		selectedList.remove(event);
-		checkSelectedSet();
-		selectionChanged.invoke(selectedList);
-	};
-
-	private void requestSelectedRemoval(CodeElementUI card) {
-		selectedList.remove(card.getData("entry"));
-		for (Control selected : selectedComposite.getChildren()) {
-			if (((SelectedElementUI) selected).getOriginData().getKey().getId()
-					.equals(((IMethodDescription) card.getData()).getId())) {
-				selected.dispose();
-			}
-		}
+                if (viewer.getSelection() instanceof IStructuredSelection) {
+                    IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+                    
+                    boolean disabledMenu = false;
+                    
+                    for (Object selectionElement : selection.toList()) {
+                    	Entry<IMethodDescription, Score> element = ((ElementNode) selectionElement).getCodeElement();
+                    	
+                    	if (!element.getValue().isDefinit() || !element.getKey().isInteractive()) {
+                    		disabledMenu = true;
+                    		break;
+                    	}
+                    }
+                    
+                    if (disabledMenu) {
+                		manager.add(disabledFeedbackAction);
+                	} else {
+                		for (Action action : feedbackActions) {
+                			manager.add(action);
+                		}
+                	}
+                	
+                	manager.add(navigateToSelectedAction);
+            		manager.add(navigateToContextAction);
+            		manager.add(openDetailsLink);
+                }
+            }
+        });
+        
+        menuMgr.setRemoveAllWhenShown(true);
+        viewer.getControl().setMenu(menu);
 	}
 
 	public void setMethodScore(Map<IMethodDescription, Score> scores) {
-		cardsComposite.setContent(scores);
-		cardsComposite.requestLayout();
-		contentsChanged();
+		ElementNode root = new ElementNode(null, null, null);
+		for (Entry<IMethodDescription, Score> element : scores.entrySet()) {
+			ElementNode elementNode = new ElementNode(root, null, element);
+			root.addChild(elementNode);
+		}
+		viewer.setInput(root);
+		System.out.println(viewer.getTree().getItems().length);
+		this.adddMenuToTreeViewer(feedbackActions);
+		packColumns();
 	}
 
 	public void clearMethodScores() {
-		cardsComposite.clearMethodScores();
-	}
-
-	private void contentsChanged() {
-		for (Control selected : selectedComposite.getChildren()) {
-			for (List<Map.Entry<IMethodDescription, Score>> contentList : cardsComposite.getContents().values()) {
-				for (Entry<IMethodDescription, Score> listContent : contentList) {
-					if (((SelectedElementUI) selected).getOriginData().getKey().getId()
-							.equals(listContent.getKey().getId())) {
-						selectedList.remove(((SelectedElementUI) selected).getOriginData());
-						((SelectedElementUI) selected).originChanged(listContent);
-						selectedList.add(listContent);
-						break;
-					}
-				}
-			}
-		}
-		checkSelectedSet();
-		selectionChanged.invoke(selectedList);
+		viewer.getControl().setMenu(null);
+		viewer.setInput(null);
 	}
 
 	Menu contextMenu;
 	Menu nonInteractiveContextMenu;
 
 	public void createNonINteractiveContextMenu() {
-		nonInteractiveContextMenu = new Menu(cardsComposite);
-
-		addDisabledFeedbackOptions(nonInteractiveContextMenu);
-		addNavigationOptions(nonInteractiveContextMenu);
-		addDetailsOptions(nonInteractiveContextMenu);
+		
 	}
 
 	public void createContexMenu(Iterable<Option> options) {
-		// It sets the parent of popup menu on the given !!parent's shell!!,
-		// because the late parent setters it is not possible to instantiate these
-		// before.
-		contextMenu = new Menu(cardsComposite);
-		nonInteractiveContextMenu = new Menu(cardsComposite);
-
-		addFeedbackOptions(options, contextMenu);
-		addDisabledFeedbackOptions(nonInteractiveContextMenu);
-		addNavigationOptions(contextMenu);
-		addNavigationOptions(nonInteractiveContextMenu);
-		addDetailsOptions(contextMenu);
-		addDetailsOptions(nonInteractiveContextMenu);
+		feedbackActions = addFeedbackOptionsActions(options);
 	}
 
-	private void addDetailsOptions(Menu menu) {
-		new MenuItem(menu, SWT.SEPARATOR);
-		MenuItem openDetails = new MenuItem(menu, SWT.NONE);
-		menu.addMenuListener(new MenuListener() {
+	private List<Action> feedbackActions;
+	
+	private Action openDetailsLink = new Action() {
 
-			@Override
-			public void menuShown(MenuEvent e) {
-				if (checkSelectedNotNull()) {
-					for (Entry<IMethodDescription, Score> item : selectedList) {
-						IMethodDescription sourceItem = item.getKey();
-						if (sourceItem.hasDetailsLink()) {
-							openDetails.setEnabled(true);
-							return;
-						}
-					}
-					openDetails.setEnabled(false);
-				}
-			}
-
-			@Override
-			public void menuHidden(MenuEvent e) {
-			}
-		});
-		openDetails.setText("Open details...");
-		openDetails.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/open-details16.png"));
-		openDetails.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (checkSelectedNotNull()) {
-					for (Entry<IMethodDescription, Score> item : selectedList) {
-						IMethodDescription sourceItem = item.getKey();
-						if (sourceItem.hasDetailsLink()) {
-							openDetailsRequired.invoke(sourceItem);
-						}
-					}
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-	}
-
-	private void addDisabledFeedbackOptions(Menu menu) {
-		MenuItem noFeedback = new MenuItem(menu, SWT.NONE);
-		noFeedback.setText("(User feedback is disabled or score is undefined)");
-		noFeedback.setToolTipText(
-				"User feedback is disabled for some of the selected items. Remove these items from the selection to reenable it.");
-		noFeedback.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled.png"));
-		noFeedback.setEnabled(false);
-	}
-
-	private void addNavigationOptions(Menu menu) {
-		new MenuItem(menu, SWT.SEPARATOR);
-		MenuItem navigateToSelected = new MenuItem(menu, SWT.None);
-		navigateToSelected.setText("Navigate to selected");
-		navigateToSelected
-				.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-selected16.png"));
-		navigateToSelected.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				requestNavigateToAllSelection();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		MenuItem navigateToContext = new MenuItem(menu, SWT.None);
-		navigateToContext.setText("Navigate to context");
-		navigateToContext.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-context16.png"));
-		navigateToContext.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				requestNavigateToContextSelection();
-
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-		});
-	}
-
-	private void addFeedbackOptions(Iterable<Option> options, Menu contextMenu) {
-		for (Option option : options) {
-			MenuItem item = new MenuItem(contextMenu, SWT.None);
-			item.setText(
-					option.getTitle() + (option.getSideEffect() != SideEffect.NOTHING ? " (terminal choice)" : ""));
-			item.setToolTipText(option.getDescription());
-			item.setData(option);
-			if (option.getKind().getIconPath() != null) {
-				item.setImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getKind().getIconPath()));
-			}
-			item.addSelectionListener(new SelectionListener() {
-
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (checkSelectedNotNull()) {
-						if (checkSelectedInteractive()) {
-							if (option.getId().equals("CONTEXT_BASED_OPTION")) {
-								if (checkSelectedUndefined()) {
-									List<IMethodDescription> subjects = selectedList.stream()
-											.map(selection -> selection.getKey()).collect(Collectors
-											.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-									customOptionSelected.invoke(subjects);
-								}
-							} else {
-								Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();
-								try {
-									for (Entry<IMethodDescription, Score> element : selectedList) {
-										assert element instanceof Entry<?, ?>;
-										subjects.put(element.getKey(),
-												new Defineable<Double>(element.getValue().getValue()));
-									}
-
-									UserFeedback feedback = new UserFeedback(option, subjects);
-									optionSelected.invoke(feedback);
-								} catch (UnsupportedOperationException undefinedScore) {
-									MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback",
-											"Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
-								}
-							}
-						}
-					}
-				}
-
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-
-				}
-			});
+		@Override
+		public String getText() {
+			return "Open details...";
 		}
-	}
 
+		@Override
+		public void run() {
+			for (Object item : viewer.getStructuredSelection().toList()) {
+				Entry<IMethodDescription, Score> element = ((ElementNode)item).getCodeElement();
+				IMethodDescription sourceItem = element.getKey();
+				if (sourceItem.hasDetailsLink()) {
+					openDetailsRequired.invoke(sourceItem);
+				}
+			}
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/open-details16.png"));
+		}
+		
+	};
+	
+	private Action disabledFeedbackAction = new Action() {
+
+		@Override
+		public String getText() {
+			return "(User feedback is disabled or score is undefined)";
+		}
+
+		@Override
+		public void run() {
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/feedback-disabled16.png"));
+		}
+		
+	};
+	
+	private Action navigateToSelectedAction = new Action() {
+
+		@Override
+		public String getText() {
+			return "Navigate to selected";
+		}
+
+		@Override
+		public void run() {
+			requestNavigateToAllSelection();
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-selected16.png"));
+		}
+		
+	};
+	
+	
+	private Action navigateToContextAction = new Action() {
+
+		@Override
+		public String getText() {
+			return "Navigate to context";
+		}
+
+		@Override
+		public void run() {
+			requestNavigateToContextSelection();
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", "icons/go-to-context16.png"));
+		}
+		
+	};
+
+	private List<Action> addFeedbackOptionsActions(Iterable<Option> options) {
+		List<Action> resultList = new ArrayList<>();
+		
+		for (Option option : options) {
+			
+			Action action = new Action() {
+				
+				@Override
+				public String getText() {
+					return option.getTitle() + (option.getSideEffect() != SideEffect.NOTHING ? " (terminal choice)" : "");
+				}
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public void run() {
+					if (option.getId().equals("CONTEXT_BASED_OPTION")) {
+							List<IMethodDescription> subjects = (List<IMethodDescription>) viewer.getStructuredSelection().toList().stream()
+									.map(selection -> ((ElementNode) selection).getCodeElement().getKey()).collect(Collectors
+									.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+							customOptionSelected.invoke(subjects);
+					} else {
+						Map<IMethodDescription, Defineable<Double>> subjects = new HashMap<>();
+						try {
+							for (ElementNode element : (List<ElementNode>) viewer.getStructuredSelection().toList()) {
+								Entry<IMethodDescription,Score> codeElement = element.getCodeElement();
+								assert codeElement instanceof Entry<?, ?>;
+								subjects.put(codeElement.getKey(),
+										new Defineable<Double>(codeElement.getValue().getValue()));
+							}
+
+							UserFeedback feedback = new UserFeedback(option, subjects);
+							optionSelected.invoke(feedback);
+						} catch (UnsupportedOperationException undefinedScore) {
+							MessageDialog.open(MessageDialog.ERROR, null, "Unsupported feedback",
+									"Choosing undefined elements to be faulty is unsupported.", SWT.NONE);
+						}
+					}
+				}
+
+				@Override
+				public ImageDescriptor getImageDescriptor() {
+					if (option.getKind().getIconPath() != null) {
+						return ImageDescriptor.createFromImage(ResourceManager.getPluginImage("org.eclipse.sed.ifl", option.getKind().getIconPath()));
+					} else {
+						return super.getImageDescriptor();
+					}
+				}
+			};
+			
+			resultList.add(action);
+		}
+		
+		return resultList;
+	}
+	
+	private Image checkLastAction(Monument<Score, IMethodDescription, IUserFeedback> lastAction) {
+		if (lastAction != null) {
+			String iconPath = lastAction.getChange().getIconPath();
+			if (iconPath != null) {
+				Image icon = ResourceManager.getPluginImage("org.eclipse.sed.ifl", iconPath);
+				
+				return icon;
+			}
+		} 
+		return null;
+	}
+	
 	public void showNoItemsLabel(boolean show) {
-		cardsComposite.setVisible(!show);
-		noItemsToDisplayLabel.setVisible(show);
 	}
 
 	private NonGenericListenerCollection<IUserFeedback> optionSelected = new NonGenericListenerCollection<>();
@@ -626,31 +520,4 @@ public class ScoreListUI extends Composite {
 	public INonGenericListenerCollection<List<IMethodDescription>> eventCustomOptionSelected() {
 		return customOptionSelected;
 	}
-
-	public void highlight(List<MethodIdentity> context) {
-		for (Control item : cardsComposite.getDisplayedCards()) {
-			((CodeElementUI) item).resetNeutralIcons();
-		}
-		for (Control item : cardsComposite.getDisplayedCards()) {
-			for (MethodIdentity target : context) {
-				if (item.getData() instanceof IMethodDescription
-						&& target.equals(((IMethodDescription) item.getData()).getId())) {
-					((CodeElementUI) item).setContextIcons();
-				}
-			}
-		}
-	}
-	/*
-	 * public void highlightNonInteractiveContext(List<IMethodDescription> context)
-	 * { if(checkSelectedNotNull()) { if(context != null) { for (TableItem item :
-	 * table.getItems()) { item.setBackground(null); } List<TableItem> elementList =
-	 * new ArrayList<TableItem>(); for (TableItem item : table.getItems()) { for
-	 * (IMethodDescription target : context) { if (item.getData() instanceof
-	 * IMethodDescription &&
-	 * target.getId().equals(((IMethodDescription)item.getData()).getId())) {
-	 * elementList.add(item); } } } TableItem[] elementArray = new
-	 * TableItem[elementList.size()];
-	 * table.setSelection(elementList.toArray(elementArray)); } } }
-	 */
-
 }

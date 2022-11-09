@@ -15,7 +15,8 @@ public class Defineable<TValue extends Comparable<TValue>> implements Comparable
 		if (definit) {
 			return value;
 		} else {
-			throw new UnsupportedOperationException();
+			//throw new UnsupportedOperationException();
+			return null;
 		}
 	}
 

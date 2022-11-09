@@ -58,18 +58,52 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		this.partMonitor = partMonitor;
 	}
 
+	private String interactivity;
+
 	private CodeEntityAccessor accessor = new CodeEntityAccessor();
 
 	private ScoreListControl scoreListControl;
+
+	private Predicate<? super Entry<IMethodBinding, IMethod>> unrelevantFilter = entry -> {
+		if (Modifier.isAbstract(entry.getKey().getModifiers())) {
+			return false;
+		}
+		if (entry.getKey().getDeclaringClass().isInterface()) {
+			return false;
+		}
+		return true;
+	};
+
+	private Predicate<? super IMethod> preUnrelevantFilter = method -> {
+		try {
+			if (method.getDeclaringType().isClass()) {
+				return true;
+			}
+		} catch (JavaModelException e) {
+			return false;
+		}
+		return false;
+	};
+
+	private boolean setInteractivity(Random r) {
+		boolean rValue = r.nextBoolean();
+		switch(Activator.getDefault().getPreferenceStore().getString("interactivity")) {
+		case "random" : interactivity = "random"; return rValue;
+		case "allTrue" : interactivity = "true"; return true;
+		case "allFalse" : interactivity = "false"; return false;
+		default : return rValue;
+		}
+	}
 	
 	private void startNewSession() {
 		NanoWatch watch = new NanoWatch("starting session");
-		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getFilteredResolvedMethods(selectedProject);
+		Map<IMethodBinding, IMethod> resolvedMethods = accessor.getResolvedMethods(selectedProject, preUnrelevantFilter,
+				unrelevantFilter);
 
 		Random r = new Random();
 		
 		List<IMethodDescription> methods = resolvedMethods.entrySet().stream()
-		.map(method -> new Method(accessor.identityFrom(method), accessor.locationFrom(method), accessor.contextFrom(method, resolvedMethods), accessor.setInteractivity(r)))
+		.map(method -> new Method(identityFrom(method), locationFrom(method), contextFrom(method, resolvedMethods), setInteractivity(r)))
 		.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 		System.out.printf("%d method found\n", methods.size());
 
@@ -84,7 +118,7 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		ScoreListView scoreListView = new ScoreListView();
 		getView().embed(scoreListView);
 		scoreListControl.setView(scoreListView);
-		scoreLoaderControl = new ScoreLoaderControl(accessor.setInteractivity(r));
+		scoreLoaderControl = new ScoreLoaderControl();
 		scoreLoaderControl.setModel(model);
 		scoreLoaderControl.setView(new ScoreLoaderView());
 		scoreRecalculatorControl = new ScoreRecalculatorControl(selectedProject);
@@ -95,8 +129,30 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.println(watch);
 
 		MessageDialog.open(MessageDialog.INFORMATION, null, "iFL interactivity",
-				"Interactivity of all code elements is set to " + accessor.getInteractivity(), SWT.NONE);
+				"Interactivity of all code elements is set to " + interactivity, SWT.NONE);
 
+	}
+
+	private List<MethodIdentity> contextFrom(Entry<IMethodBinding, IMethod> method,
+			Map<IMethodBinding, IMethod> others) {
+		return accessor.getSiblings(method, others).entrySet().stream()
+				.filter(contextMethod -> !contextMethod.getValue().equals(method.getValue()))
+				.map(contextMethod -> identityFrom(contextMethod))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+	}
+
+	private CodeChunkLocation locationFrom(Entry<IMethodBinding, IMethod> method) {
+		return new CodeChunkLocation(
+				EU.tryUnchecked(() -> method.getValue().getUnderlyingResource().getLocation().toOSString()),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset())),
+				new Position(EU.tryUnchecked(() -> method.getValue().getSourceRange().getOffset()
+						+ method.getValue().getSourceRange().getLength())));
+	}
+
+	private MethodIdentity identityFrom(Entry<IMethodBinding, IMethod> method) {
+		return new MethodIdentity(method.getKey().getName(), accessor.getSignature(method.getKey()),
+				method.getKey().getDeclaringClass().getName(), method.getKey().getReturnType().getName(),
+				method.getKey().getKey());
 	}
 
 	@Override
@@ -106,8 +162,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		addSubControl(partMonitor);
 		getView().eventClosed().add(closeListener);
 		getView().eventScoreLoadRequested().add(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().add(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().add(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().add(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().add(openFiltersPage);
+		getView().eventOpenDualListPart().add(openDualListPage);
+		getView().eventsaveToJsonRequested().add(saveToJsonRequestedListener);
 		startNewSession();
 		scoreListControl.eventTerminationRequested().add(terminationReqestedListener);
 		super.init();
@@ -120,8 +180,12 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		scoreListControl.eventTerminationRequested().remove(terminationReqestedListener);
 		getView().eventClosed().remove(closeListener);
 		getView().eventScoreLoadRequested().remove(scoreLoadRequestedListener);
+		getView().eventScoreLoadFromJsonRequested().remove(scoreLoadFromJsonRequestedListener);
 		getView().eventHideUndefinedRequested().remove(hideUndefinedListener);
 		getView().eventScoreRecalculateRequested().remove(scoreRecalculateRequestedListener);
+		getView().eventOpenFiltersPart().remove(openFiltersPage);
+		getView().eventOpenDualListPart().remove(openDualListPage);
+		getView().eventsaveToJsonRequested().remove(saveToJsonRequestedListener);
 		super.teardown();
 		scoreListControl = null;
 		scoreLoaderControl = null;
@@ -158,15 +222,28 @@ public class SessionControl extends Control<SessionModel, SessionView> {
 		System.out.println("Loading scores from files are requested...");
 		this.scoreLoaderControl.load();
 	};
+	
+	private IListener<EmptyEvent> scoreLoadFromJsonRequestedListener = __ -> {
+		System.out.println("Loading scores from json file is requested...");
+		this.scoreLoaderControl.loadFromJson();
+	};
+	
 	private IListener<Boolean> hideUndefinedListener = status -> scoreListControl.setHideUndefinedScores(status);
 
 	private IListener<EmptyEvent> scoreRecalculateRequestedListener = __ -> {
-		try {
-			this.scoreRecalculatorControl.recalculate();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.scoreRecalculatorControl.recalculate();
 	};
 
+	private IListener<EmptyEvent> openFiltersPage = event -> {
+		scoreListControl.openFiltersPage();
+	};
+
+	private IListener<EmptyEvent> openDualListPage = event -> {
+		scoreListControl.openDualListPage();
+	};
+	
+	private IListener<EmptyEvent> saveToJsonRequestedListener = event -> {
+		this.scoreListControl.saveToJson();
+	};
+	
 }

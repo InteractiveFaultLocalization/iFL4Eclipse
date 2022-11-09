@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,54 +16,36 @@ import org.apache.commons.csv.CSVRecord;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.Control;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.util.ElementDeserializer;
 import org.eclipse.sed.ifl.util.event.IListener;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.sed.ifl.view.ScoreLoaderView;
+import org.eclipse.sed.ifl.util.ScoreLoaderEntry;
 import org.eclipse.swt.SWT;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.eclipse.sed.ifl.commons.model.source.IMethodDescription;
 
 public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView> {
 
-	public ScoreLoaderControl(boolean interactivity) {
-		this.interactivity = interactivity;
+	public ScoreLoaderControl() {
 	}
 
 	public void load() {
 		getView().select();
 	}
 	
-	private boolean interactivity;
+	public void loadFromJson() {
+		getView().selectJson();	
+	}
+
 	private static final String UNIQUE_NAME_HEADER = "name";
 	private static final String SCORE_HEADER = "score";
 	private static final String INTERACTIVITY_HEADER = "interactive";
 	private static final String DETAILS_LINK_HEADER = "details";
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader(); 
-	
-	public static class Entry {
-		private String name;
-		private String detailsLink;
-		private boolean interactivity;
-		
-		public Entry(String name, String detailsLink, boolean interactivity) {
-			super();
-			this.name = name;
-			this.detailsLink = detailsLink;
-			this.interactivity = interactivity;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public String getDetailsLink() {
-			return detailsLink;
-		}
-		
-		public boolean isInteractive() {
-			return interactivity;
-		}
-	}
 	
 	private IListener<String> fileSelectedListener = new IListener<String>() {
 
@@ -72,7 +56,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 			try {
 				CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 				int recordCount = 0;
-				Map<Entry, Score> loadedScores = new HashMap<>(); 
+				Map<ScoreLoaderEntry, Score> loadedScores = new HashMap<>(); 
 				for (CSVRecord record : parser) {
 					recordCount++;
 					String name = record.get(UNIQUE_NAME_HEADER);
@@ -88,7 +72,7 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 					}
 					
 					boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-					Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+					ScoreLoaderEntry entry = new ScoreLoaderEntry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 					Score score = new Score(value);
 					loadedScores.put(entry, score);
 				}
@@ -115,6 +99,29 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 		}
 	};
 	
+	private IListener<String> jsonFileSelectedListener = path -> {
+		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(Map.class, new ElementDeserializer());
+		mapper.registerModule(module);
+		
+		try {
+			String jsonString = new String(Files.readAllBytes(Paths.get(path)));
+			@SuppressWarnings("unchecked")
+			Map<ScoreLoaderEntry, Score> entries = mapper.readValue(jsonString, Map.class);
+			int updatedCount = getModel().loadScore(entries);
+			MessageDialog.open(
+					MessageDialog.INFORMATION, null,
+					"iFL score loading",
+					updatedCount + " scores are loaded from the file " + path,
+					SWT.NONE);
+		} catch (IOException e1) {
+			MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "The plug-in was unable to open the JSON file. Please check if the JSON file is corrupted or is not properly formatted.", SWT.NONE);
+			e1.printStackTrace();
+		}
+		
+	};
+	
 	public static void saveSample(Map<IMethodDescription, Score> scores, File dump) {
 		try (CSVPrinter printer = new CSVPrinter(new FileWriter(dump), CSVFORMAT)) {
 			printer.printRecord(UNIQUE_NAME_HEADER, SCORE_HEADER, INTERACTIVITY_HEADER, DETAILS_LINK_HEADER);
@@ -136,12 +143,14 @@ public class ScoreLoaderControl extends Control<ScoreListModel, ScoreLoaderView>
 	@Override
 	public void init() {
 		getView().eventFileSelected().add(fileSelectedListener);
+		getView().eventJsonFileSelected().add(jsonFileSelectedListener);
 		super.init();
 	}
 	
 	@Override
 	public void teardown() {
 		getView().eventFileSelected().remove(fileSelectedListener);
+		getView().eventJsonFileSelected().remove(jsonFileSelectedListener);
 		super.teardown();
 	}
 }

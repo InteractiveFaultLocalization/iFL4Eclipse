@@ -147,7 +147,7 @@ public class ScoreSetter extends Composite {
 		glyph.setBackground(SWTResourceManager.getColor(color));
 		glyph.setBounds(
 			x,
-			new Double(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
+			Double.valueOf(displayHeight - glyphSize / 2 - displayHeight * y).intValue(),
 			glyphSize, glyphSize);
 		glyph.setText("");
 		glyph.setData("method", data);
@@ -314,7 +314,7 @@ public class ScoreSetter extends Composite {
 			Label label = new Label(ruler, SWT.NONE);
 			Double mark = (1.0 / markCount) * y;
 			label.setText(new DecimalFormat("#0.0").format(1.0 - mark));
-			label.setBounds(0, new Double(displayHeight * mark).intValue(), rulerWidth, 15);
+			label.setBounds(0, Double.valueOf(displayHeight * mark).intValue(), rulerWidth, 15);
 		}
 
 		distribution = new Composite(middleSection, SWT.NONE);

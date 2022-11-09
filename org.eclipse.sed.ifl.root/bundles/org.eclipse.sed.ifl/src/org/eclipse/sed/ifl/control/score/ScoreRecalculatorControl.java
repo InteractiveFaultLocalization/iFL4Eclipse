@@ -26,12 +26,12 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.sed.ifl.control.ViewlessControl;
-import org.eclipse.sed.ifl.control.score.ScoreLoaderControl.Entry;
 import org.eclipse.sed.ifl.ide.Activator;
 import org.eclipse.sed.ifl.ide.accessor.source.CodeEntityAccessor;
 import org.eclipse.sed.ifl.ide.modifier.source.PomModificationException;
 import org.eclipse.sed.ifl.ide.modifier.source.PomModifier;
 import org.eclipse.sed.ifl.model.score.ScoreListModel;
+import org.eclipse.sed.ifl.util.ScoreLoaderEntry;
 import org.eclipse.sed.ifl.util.profile.NanoWatch;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -75,7 +75,7 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		}
 	}
 
-	public void recalculate() throws Exception {
+	public void recalculate() {
 		final String jUnitVersion = "4.13";
 		final String projectName = project.getProject().getName();
 		final String pomPath = project.getProject().getRawLocation().append(CONFIGURED_POM_XML).toOSString();	
@@ -169,14 +169,14 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		File file = new File(outputPath.append(formula + ".csv").toOSString());
 		CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 		int recordCount = 0;
-		Map<Entry, Score> loadedScores = new HashMap<>();
+		Map<ScoreLoaderEntry, Score> loadedScores = new HashMap<>();
 		for (CSVRecord record : parser) {
 			recordCount++;
 			String name = record.get(UNIQUE_NAME_HEADER);
 			double value = Double.parseDouble(record.get(SCORE_HEADER));
 
 			boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
-			Entry entry = new Entry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
+			ScoreLoaderEntry entry = new ScoreLoaderEntry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 			Score score = new Score(value);
 			loadedScores.put(entry, score);
 		}
