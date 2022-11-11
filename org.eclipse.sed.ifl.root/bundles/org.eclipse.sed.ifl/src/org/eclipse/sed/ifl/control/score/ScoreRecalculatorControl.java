@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
@@ -50,8 +51,6 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 	private static final CSVFormat CSVFORMAT = CSVFormat.DEFAULT.withQuote('"').withDelimiter(';').withFirstRecordAsHeader();
 	private static final String CONFIGURED_POM_XML = "configuredPom.xml";
 	private static final String JOB_FAMILY = "coverage_generation";
-	private final String instrumenterJar = Activator.getDefault().getPreferenceStore().getString("instrumenter");
-	private final String formula = Activator.getDefault().getPreferenceStore().getString("formula");
 	private File javaHome;
 	private final IJavaProject project;
 	CodeEntityAccessor accessor = new CodeEntityAccessor();
@@ -78,63 +77,92 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 	public void recalculate() {
 		final String jUnitVersion = "4.13";
 		final String projectName = project.getProject().getName();
-		final String pomPath = project.getProject().getRawLocation().append(CONFIGURED_POM_XML).toOSString();	
+		final String pomPath = project.getProject().getLocation().append(CONFIGURED_POM_XML).toOSString();
 		
-		final Job job = new Job(projectName + " coverage generation") {
+		final Job job = new Job(projectName + " score recalculation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+
 				try {
 					// configuring the selected project's pom
 					try {
+						subMonitor.setTaskName("Configuring the POM");
 						PomModifier modifier = new PomModifier(project);
-						modifier.editSurefireConfig(instrumenterJar, "hu.szte.sed.JUnitRunListener");
+	modifier.editSurefireConfig(Activator.getDefault().getPreferenceStore().getString("instrumenter"), "hu.szte.sed.JUnitRunListener");
 						modifier.updateJUnitVersion(jUnitVersion);
 						modifier.savePOM(pomPath);
+						subMonitor.worked(10);
 					} catch (Exception e) {
-						throw new PomModificationException("Unexpected error during pom modification", e);
+						throw new PomModificationException("Unexpected error during POM modification", e);
 					}
-					
-					// configuring maven test
-					InvocationRequest request = new DefaultInvocationRequest();
-					request.setPomFile(new File(pomPath));
-					request.setGoals(Arrays.asList("clean", "test -Dmaven.test.failure.ignore=true"));
-					request.setJavaHome(javaHome);
-					
+
+					if (subMonitor.isCanceled()) {
+			            return Status.CANCEL_STATUS;
+			        }
+
+					subMonitor.setTaskName("Deleting old coverage data");
 					// deleting coverage folder
-					String folder_path = project.getProject().getRawLocation().append("coverage").toOSString();
+					String folder_path = project.getProject().getLocation().append("coverage").toOSString();
 					FileUtils.deleteDirectory(new File(folder_path));
-					
+					subMonitor.worked(25);
+
+					if (subMonitor.isCanceled()) {
+			            return Status.CANCEL_STATUS;
+			        }
+
 					// running maven test
 					try {
+						subMonitor.setTaskName("Running Maven tests");
+						// configuring maven test
+						InvocationRequest request = new DefaultInvocationRequest();
+						request.setPomFile(new File(pomPath));
+						request.setGoals(Arrays.asList("clean", "test -Dmaven.test.failure.ignore=true"));
+						request.setJavaHome(javaHome);
+
 						Invoker invoker = new DefaultInvoker();
 						System.out.println("Executing request");
 						invoker.execute(request);
+						subMonitor.worked(35);
 					} catch (MavenInvocationException e) {
-						System.out.println("Request execution failed (mavenInvoker)");
-						e.printStackTrace();
-						return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Request execution failed (MavenInvoker)");
+						throw new Exception("Request execution failed (MavenInvoker)", e);
 					}
-					
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							try {
-								int updatedCount = calculateScores();
 
-								MessageDialog.open(MessageDialog.INFORMATION, null, "iFL score loading", updatedCount + " scores have been loaded", SWT.NONE);
-							} catch (Exception e) {
-								MessageDialog.open(MessageDialog.ERROR, null, "Error during iFL score loading", "The plug-in was unable to open the CSV file. Please check if the CSV file is corrupted or is not properly formatted.", SWT.NONE);
-								e.printStackTrace();
+					if (subMonitor.isCanceled()) {
+			            return Status.CANCEL_STATUS;
+			        }
+					
+					try {
+						subMonitor.setTaskName("Calculating scores");
+
+						Map<ScoreLoaderEntry, Score> scores = calculateScores();
+
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								int updatedCount = getModel().loadScore(scores);
+
+								MessageDialog.openInformation(null, "Score recalculation", updatedCount + " scores have been loaded");
 							}
-						}
-					});
+						});
+
+						subMonitor.worked(30);
+					} catch (Exception e) {
+						throw new Exception("Unexpected error during score calculation", e);
+					}
 				} catch (Exception e) {
 					System.out.println("Unexpected error during score recalculation");
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Unexpected error during score recalculation");
+
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							MessageDialog.openError(null, "Score recalculation", "Unexpected error during score recalculation");
+						}
+					});
+					return Status.error("Unexpected error during score recalculation");
 				}
 				return Status.OK_STATUS;
 			}
-			
+
 			@Override
 			public boolean belongsTo(Object family) {
 		         return JOB_FAMILY.equals(family);
@@ -145,28 +173,28 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 		Job[] build = jobManager.find(JOB_FAMILY);
 		
 		if (build.length == 0) {
-			job.setPriority(Job.SHORT);
+			job.setPriority(Job.LONG);
+			job.setUser(true);
 			job.schedule();
 		} else {
 			MessageDialog.open(MessageDialog.ERROR, null, "Coverage generation", "A project's coverage generation is already running.", SWT.NONE);
 		}
 	}
 	
-	public int calculateScores() throws Exception {
-		final IPath coveragePath = project.getProject().getRawLocation().append("coverage");
-		final IPath outputPath = project.getProject().getRawLocation();
-		final Formula sbflFormula = Formulas.valueOf(formula.toUpperCase()).getFormula();
-		
+	public Map<ScoreLoaderEntry, Score> calculateScores() throws Exception {
+		final IPath coveragePath = project.getProject().getLocation().append("coverage");
+		final IPath outputPath = project.getProject().getLocation();
+		final Formula sbflFormula = Formulas.valueOf(Activator.getDefault().getPreferenceStore().getString("formula").toUpperCase()).getFormula();
+		NanoWatch watch1 = new NanoWatch("calculating scores");
 		try {
 			CSVReportWriter report = new CSVReportWriter(coveragePath.toOSString(), outputPath.toOSString(), sbflFormula);
-
 			report.createReport();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		NanoWatch watch = new NanoWatch("loading scores from csv");
-		File file = new File(outputPath.append(formula + ".csv").toOSString());
+		System.out.println(watch1);
+		NanoWatch watch2 = new NanoWatch("loading scores from csv");
+		File file = new File(outputPath.append(Activator.getDefault().getPreferenceStore().getString("formula") + ".csv").toOSString());
 		CSVParser parser = CSVParser.parse(file, Charset.defaultCharset(), CSVFORMAT);
 		int recordCount = 0;
 		Map<ScoreLoaderEntry, Score> loadedScores = new HashMap<>();
@@ -174,15 +202,13 @@ public class ScoreRecalculatorControl extends ViewlessControl<ScoreListModel> {
 			recordCount++;
 			String name = record.get(UNIQUE_NAME_HEADER);
 			double value = Double.parseDouble(record.get(SCORE_HEADER));
-
 			boolean interactivity = !(record.isSet(INTERACTIVITY_HEADER) && record.get(INTERACTIVITY_HEADER).equals("no"));
 			ScoreLoaderEntry entry = new ScoreLoaderEntry(name, record.isSet(DETAILS_LINK_HEADER)?record.get(DETAILS_LINK_HEADER):null, interactivity);
 			Score score = new Score(value);
 			loadedScores.put(entry, score);
 		}
-		int updatedCount = getModel().loadScore(loadedScores);
-		System.out.println(watch);
-		return updatedCount;
+		System.out.println(watch2);
+		return loadedScores;
 	}
 
 	@Override

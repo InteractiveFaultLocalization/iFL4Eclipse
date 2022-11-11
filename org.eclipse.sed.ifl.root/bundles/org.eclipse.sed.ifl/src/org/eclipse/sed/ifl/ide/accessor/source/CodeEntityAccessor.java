@@ -1,5 +1,6 @@
 package org.eclipse.sed.ifl.ide.accessor.source;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -239,10 +240,24 @@ public class CodeEntityAccessor {
 		System.out.println("Number of unresolved code elements: " + (methods.size() - resolveds.size()));
 		return resolveds;
 	}
-	
+
 	public String getSignature(IMethodBinding method) {
-		String key = method.getKey();
-		String paramsAndReturn = key.replaceAll(".*(\\(.*\\)[^\\|]*).*", "$1");
+		String paramsAndReturn;
+
+		try {
+			Field bindingField = method.getClass().getDeclaredField("binding");
+			bindingField.setAccessible(true);
+
+			Object binding = bindingField.get(method);
+
+			Field signatureField = binding.getClass().getDeclaredField("signature");
+			signatureField.setAccessible(true);
+
+			paramsAndReturn = new String((char[]) signatureField.get(binding));
+		} catch (Exception e) {
+			String key = method.getKey();
+			paramsAndReturn = key.replaceAll(".*(\\(.*\\)[^\\|]*).*", "$1");
+		}
 
 		StringBuilder signature = new StringBuilder();
 		signature.append(method.getDeclaringClass().getQualifiedName()).append('.')
