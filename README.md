@@ -2,8 +2,8 @@
 
 ## Requirements
 
-+ Java 1.8
-+ Eclipse 2018-12 or later
++ Java 11
++ Eclipse 2021-06 or later
 
 ## Interactive Fault Localization for Eclipse
 
@@ -67,6 +67,27 @@ For terminal choices (those which end the current iFL session) you have to reinf
 ### Navigation to inspected method
 
 iFL for Eclipse supports quick navigation to inspected methods either by double-clicking on its line in the table or via the context menu. 
+
+## Preferences
+
+The preferences page of iFL can be accessed by selecting `iFL Preferences` from the `Window > Preferences` menu.
+
+<img src="/media/screen_shot/preferences.png" alt="preferences" width="600px"/>
+
+At the top of the settings page you will find the event logging settings.
+These settings allow the plug-in to connect to an event collection server.
+This may be necessary for some scientific experiments.
+By default, the `Enable logging` option can be left off.
+
+The next important, option is called `Instrumenter JAR`.
+In this text field you need to specify the path to the library that will perform the coverage measurement.
+(You can find the information needed to generate the JAR here: [link](https://github.com/sed-szeged/java-instrumenter))
+
+The next option is a group of radio buttons.
+These options may also prove useful in experiments.
+They can be used to set whether interactive feedback on code elements should be always on (`All true`), always off (`All false`), or randomly enabled or disabled on different elements (`Randomized`).
+
+Finally, three radio buttons can be used to select the SBFL formula to be used to calculate the suspiciousness score of the code elements.
 
 ## Installation Guide
 
